@@ -1,0 +1,21 @@
+
+   .nav-bar {
+    padding-bottom: 50px; 
+}
+
+
+/* calendar icon */
+.custom-date-picker::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
+
+/* invoice date picker */
+.custom-date-picker::-webkit-datetime-edit-day-field,
+.custom-date-picker::-webkit-datetime-edit-month-field,
+.custom-date-picker::-webkit-datetime-edit-year-field {
+    color: black; 
+}
+.table-header{
+    text-align: center;
+    
+}
