@@ -1,16 +1,14 @@
+/* eslint-disable no-unused-vars */
 import React from 'react'
-import { Grid, Paper, Avatar, Typography, TextField, Button } from '@material-ui/core'
+import { Grid, Paper, Avatar, Typography, TextField, Button, Link } from '@material-ui/core'
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { toast } from 'react-toastify';
 
-const Signup = ({ handleChange }) => {
+import './Signup.css';
 
-    const paperStyle = { padding: 20, height: '60vh', width: 280, margin: "20px auto" }
-    const headerStyle = { margin: 0 }
-    const btnstyle = { margin: '8px 0' };
-    const avatarStyle = { backgroundColor: '#1bbd7e' }
+const Signup = ({ handleChange }) => {
     const initialValues = {
         username: '',
         email: '',
@@ -24,7 +22,7 @@ const Signup = ({ handleChange }) => {
         email: Yup.string().email("Enter valid email").required("Required"),
         password: Yup.string().min(8, "Password minimum length should be 8").required("Required"),
     })
-    
+
     const onSubmit = async (values, { setSubmitting }) => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/signup`, {
@@ -51,37 +49,36 @@ const Signup = ({ handleChange }) => {
 
     return (
         <Grid>
-            <Paper elevation={10} style={paperStyle}>
+            <Paper elevation={10} className="paper-style">
                 <Grid align='center'>
-                    <Avatar style={avatarStyle}><LockOutlinedIcon /></Avatar>
-                    <h2 style={headerStyle}>Sign Up</h2>
+                    <Avatar className="avatar-style"><LockOutlinedIcon /></Avatar>
+                    <h2 className="header-style">Sign Up</h2>
                     <Typography variant='caption' gutterBottom>Please fill this form to create an account !</Typography>
-                    <div style={{ margin: '10px ' }} />
-
+                    <div className="margin-top" />
                 </Grid>
                 <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
                     {(props) => (
-                        <Form>
-
+                        <Form className="form-wrapper">
                             <Field as={TextField} fullWidth name="username" label='Username'
                                 placeholder="Enter your username" helperText={<ErrorMessage name="username" />} />
-                            <div style={{ margin: '10px ' }} />
+                            <div className="helper-text" />
 
                             <Field as={TextField} fullWidth name="email" label='Email'
                                 placeholder="Enter your email" helperText={<ErrorMessage name="email" />} />
-                            <div style={{ margin: '10px ' }} />
+                            <div className="helper-text" />
 
                             <Field as={TextField} fullWidth name='password' type="password"
                                 label='Password' placeholder="Enter your password"
                                 helperText={<ErrorMessage name="password" />} />
-                                <div style={{ margin: '20px ' }} />
-                            <Button type='submit' color='primary' variant="contained"
-                                style={btnstyle} fullWidth>Sign up</Button>
+                            <div className="margin-bottom" />
 
+                            <Button type='submit' color='primary' variant="contained"
+                                className="btn-style" fullWidth>Sign up</Button>
                         </Form>
                     )}
                 </Formik >
             </Paper>
+
         </Grid>
     )
 }

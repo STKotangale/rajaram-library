@@ -1,8 +1,17 @@
-
-   .nav-bar {
+/* padding down side for purchase */
+.main-container {
     padding-bottom: 50px; 
 }
 
+/* border purchase form */
+.border-style {
+    border: 1px solid black;
+}
+
+/* purchase bill */
+.justify-content-md-center.mt-5 {
+    margin-top: 6rem !important;
+}
 
 /* calendar icon */
 .custom-date-picker::-webkit-calendar-picker-indicator {
@@ -13,9 +22,14 @@
 .custom-date-picker::-webkit-datetime-edit-day-field,
 .custom-date-picker::-webkit-datetime-edit-month-field,
 .custom-date-picker::-webkit-datetime-edit-year-field {
-    color: black; 
+    color: black;
 }
-.table-header{
+
+.table-header {
     text-align: center;
-    
+}
+
+/* add row space */
+.add-row-button {
+    margin-right: 10px;
 }

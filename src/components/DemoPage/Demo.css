@@ -1,0 +1,106 @@
+
+
+.main-container {
+    padding-bottom: 50px; 
+}
+.sidebar {
+    width: 250px;
+    position: fixed;
+    top: 0;
+    height: 100%;
+    left: 0;
+    background: #333;
+    transition: all 0.3s ease;
+    z-index: 1000; 
+    transition: transform 0.3s ease; 
+  }
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  .sidebar ul li {
+    padding: 15px;
+    color: #fff;
+    cursor: pointer;
+    border-bottom: 1px solid #555;
+  }
+  .sidebar ul li:hover {
+    background: #555;
+  }
+  
+  /* change */
+  .sidebar.active {
+    left: -250px; 
+    transform: translateX(0);
+  }
+  .sidebar-toggle{
+    color: white;
+    margin-right: 10px;
+  } 
+  .content {
+    flex: 1;
+    padding-left: 250px; 
+  }
+  .content-shifted {
+    margin-left: -250px; 
+  }
+  .container-fluid {
+    transition: margin-left 0.3s ease; 
+  } 
+  .container-fluid.content-shifted {
+    margin-left: 0; 
+  }
+  
+  /* navabar */
+  /* .navbarnavabar {
+    width: 100%;
+    position: fixed;
+    z-index: 1000;
+  } */
+  
+  /* icon */
+  .profileicon {
+    position: relative;
+    z-index: 1001; 
+  }
+  .custom-dropdown-toggle.profile-icon .dropdown-menu {
+    right: 0;
+    left: auto;
+  }
+  .custom-dropdown-toggle profile-icon{
+    margin-left: 345px;
+  }
+
+  
+  /* access token */
+  .access-token{
+    margin-left: -200px;
+  }
+  .smaller-text {
+    font-size: smaller;
+  }
+  .fixed-button-container {
+    position: fixed;
+    top: 50px; 
+     z-index: 999;
+    width: 100%;
+  }
+  .fixed-button-container button {
+    background-color: cadetblue;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+  }
+  
+
+  
+ 
+  
+ 
+  
+  
+  
+  
+  
+  

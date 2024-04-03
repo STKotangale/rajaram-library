@@ -1,0 +1,35 @@
+.paper-style {
+    padding: 20px;
+    height: auto; 
+    width: 280px;
+    margin: 20px auto;
+  }
+  
+  .avatar-style {
+    background-color: #1bbd7e;
+  }
+  
+  .button-style {
+    margin: 8px 0;
+  }
+  
+  .link-style {
+    margin: 10px 0;
+  }
+  
+  .margin-bottom {
+    margin-bottom: 20px; 
+  }
+  
+  .margin-top {
+    margin-top: 30px; 
+  }
+  
+  .form-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
