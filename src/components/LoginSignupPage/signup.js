@@ -6,7 +6,7 @@ import { Formik, Field, Form, ErrorMessage } from 'formik'
 import * as Yup from 'yup'
 import { toast } from 'react-toastify';
 
-import './Signup.css';
+import './LoginSignup.css';
 
 const Signup = ({ handleChange }) => {
     const initialValues = {
@@ -70,7 +70,8 @@ const Signup = ({ handleChange }) => {
                             <Field as={TextField} fullWidth name='password' type="password"
                                 label='Password' placeholder="Enter your password"
                                 helperText={<ErrorMessage name="password" />} />
-                            <div className="margin-bottom" />
+                                
+                            <div className="margin-bottom-signup" />
 
                             <Button type='submit' color='primary' variant="contained"
                                 className="btn-style" fullWidth>Sign up</Button>

@@ -3,28 +3,23 @@
     height: auto; 
     width: 280px;
     margin: 20px auto;
-  }
-  
+  } 
   .avatar-style {
     background-color: #1bbd7e;
   }
   
-  .button-style {
-    margin: 8px 0;
-  }
-  
-  .link-style {
-    margin: 10px 0;
-  }
-  
+
+  /* login */
   .margin-bottom {
     margin-bottom: 20px; 
   }
+  .margin-bottom-less {
+    margin-bottom: 10px;
+}
+
   
-  .margin-top {
-    margin-top: 30px; 
-  }
   
+  /* signup */
   .form-wrapper {
     display: flex;
     flex-direction: column;
@@ -32,4 +27,12 @@
     align-items: center;
     text-align: center;
   }
-  
+  .margin-bottom-signup {
+    margin-bottom: 20px;
+}
+.margin-top {
+  margin-top: 30px; 
+}
+.header-style {
+  margin: 0;
+}

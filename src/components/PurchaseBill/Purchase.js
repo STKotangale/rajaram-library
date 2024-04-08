@@ -7,56 +7,56 @@ import { Container, Navbar, Nav, Dropdown, Form, Button, Row, Col, Table } from 
 import Login from '../../assets/AvtarLogo.webp';
 
 
-import './Sidebar.css';
-import './PurchaseBill.css';
+import { useAuth } from '../Auth/AuthProvider';
 
 
 const Purchase = () => {
     const navigate = useNavigate();
-    const [username, setUsername] = useState('');
-    const [accessToken, setAccessToken] = useState('');
     const [showToken, setShowToken] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
     const [discountPercentage, setDiscountPercentage] = useState(0);
     const [gstPercentage, setGstPercentage] = useState(0);
-    const [ledgerId, setLedgerId] = useState('');
 
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    const { username, accessToken } = useAuth();
+
     //get username and access token
     useEffect(() => {
-        const storedUsername = localStorage.getItem('username');
-        const storedAccessToken = localStorage.getItem('accessToken');
+        console.log('Username:', username);
+        console.log('AccessToken:', accessToken);
+    }, [username, accessToken]);
 
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
-        if (storedAccessToken) {
-            setAccessToken(storedAccessToken);
-        }
-    }, []);
-
-
+    //get ledger name
     const [ledgerName, setLedgerName] = useState([]);
-    const [selectedLedgerName, setSelectedLedgerName] = useState('');
+    const [selectedLedgerName, setSelectedLedgerName] = useState("");
+    const [selectedLedgerId, setSelectedLedgerId] = useState('');
 
-    const handleLedgerChange = (e) => {
-        setSelectedLedgerName(e.target.value);
+
+//handle ledger change
+    const handleLedgerChange = (event) => {
+        const name = event.target.value;
+        setSelectedLedgerName(name);
+        const ledger = ledgerName.find(l => l.ledgerName === name);
+        if (ledger) {
+            setSelectedLedgerId(ledger.ledgerId);
+        } else {
+            setSelectedLedgerId("");
+        }
     };
 
 
 
+    //get ledger name
     useEffect(() => {
-        const fetchPartyNames = async () => {
+        const fetchLedgerNames = async () => {
             try {
-                const token = localStorage.getItem('accessToken');
-                console.log("token::", token);
-                if (!token) {
+                if (!accessToken) {
                     throw new Error('Access token not found');
                 }
-                const response = await fetch(`${BaseURL}/api/ledger/partyname`, {
+                const response = await fetch(`${BaseURL}/api/ledger/list`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                 });
                 if (!response.ok) {
@@ -66,13 +66,14 @@ const Purchase = () => {
                         throw new Error(`Failed to fetch party names - ${response.status}`);
                     }
                 }
-                const data = await response.json();
-                setLedgerName(data);
+                const ledgerNameId = await response.json();
+                console.log("ledger name", ledgerNameId);
+                setLedgerName(ledgerNameId);
             } catch (error) {
                 console.error('Error fetching party names:', error.message);
             }
         };
-        fetchPartyNames();
+        fetchLedgerNames();
     }, []);
 
 
@@ -164,17 +165,14 @@ const Purchase = () => {
     };
     const [invoiceNumber, setInvoiceNumber] = useState(initializeInvoiceNumber);
 
+
     //handle submit
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // if (!ledgerName.trim()) {
-        //     event.preventDefault();
-        //     toast.error('Please fill ledger name !');
-        //     return;
-        // }
         if (!selectedLedgerName.trim()) {
-            toast.error('Please select a ledger name.');
+            event.preventDefault();
+            toast.error('Please select ledger name !');
             return;
         }
 
@@ -190,8 +188,7 @@ const Purchase = () => {
         const payload = {
             invoiceNo: invoiceNumber,
             invoiceDate: invoiceDate,
-            ledgerName: selectedLedgerName,
-            ledgerId: ledgerId,
+            ledgerId: selectedLedgerId,
             billTotal: calculateBillTotal(),
             discountPercent: discountPercentage,
             discountAmount: calculateDiscount(),
@@ -222,11 +219,12 @@ const Purchase = () => {
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                const responseData = await response.json();
-                toast.success(responseData.message);
-                localStorage.setItem('ledgerId', responseData.ledgerId);
-                localStorage.setItem('lastInvoiceNumber', invoiceNumber);
-                // window.location.reload();
+                const purchaseDetails = await response.json();
+                toast.success(purchaseDetails.message);
+                
+                const num = purchaseDetails.invoiceNo + 1;
+                console.log("Purchase Details", purchaseDetails);
+                setInvoiceNumber(num);
                 setShowPurchaseForm(false);
                 setShowBookDetailsForm(true);
             }
@@ -278,7 +276,7 @@ const Purchase = () => {
         setRows(updatedRows);
     };
 
-    //sidebar
+    //sidebar purchse form show
     const [showPurchaseForm, setShowPurchaseForm] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
 
@@ -295,73 +293,96 @@ const Purchase = () => {
     };
 
     // fillter name
-    const filteredLedgerName = ledgerName.filter(ledgerName =>
-        ledgerName.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredLedgerName = ledgerName.filter(ledger =>
+        ledger.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
 
 
-    //book details
-    const [showBookDetailsForm, setShowBookDetailsForm] = useState(false);
-    // const [bookNameInBookD, setBookNameInBook] = useState('');
-    // const [bookAuthor, setBookAuthor] = useState('');
+//book details
+// Define initial state for book details
+const initialBookDetails = {
+    bookNameInBookDetail: '',
+    isbn: '',
+    bookPrice: '',
+    language: '',
+    classificationNumber: '',
+    itemNumber: '',
+    author: '',
+    editor: '',
+    title: '',
+    secondTitle: '',
+    seriesTitle: '',
+    edition: '',
+    placeOfPublication: '',
+    nameOfPublisher: '',
+    publicationYear: '',
+    numberOfPages: '',
+    subjectHeading: '',
+    secondAuthorEditor: '',
+    thirdAuthorEditor: '',
+    itemType: '',
+    permanantLocation: '',
+    currentLocation: '',
+    shelvingLocation: '',
+    voumeNo: '',
+    fullCallNumber: '',
+    copyNo: '',
+    accessionNo: ''
+};
 
-    const handleSubmitBookDetails = (event) => {
-        event.preventDefault();
+// Initialize state variables
+const [showBookDetailsForm, setShowBookDetailsForm] = useState(false);
+const [bookDetails, setBookDetails] = useState([initialBookDetails]);
 
-        const bookData = {
-            books: bookDetails
-        };
+// Function to handle changes in book details
+const handleBookInputChange = (index, name, value) => {
+    const newList = [...bookDetails];
+    newList[index][name] = value;
+    setBookDetails(newList);
+};
 
-        fetch('your-api-endpoint', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(bookData),
-        })
-            .then(response => {
-                // Handle response from the API
-                if (response.ok) {
-                    toast.success('Data submitted successfully');
-                    console.log('Data submitted successfully');
-                } else {
-                    toast.success('Failed to submit data');
-                    console.error('Failed to submit data');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+// Function to add a new book
+const handleAddBook = () => {
+    setBookDetails([...bookDetails, initialBookDetails]);
+};
+
+// Function to remove a book
+const handleRemoveBook = (index) => {
+    const newList = [...bookDetails];
+    newList.splice(index, 1);
+    setBookDetails(newList);
+};
+
+// Function to submit book details
+const handleSubmitBookDetails = (event) => {
+    event.preventDefault();
+    const bookData = {
+        books: bookDetails
     };
 
+    fetch('your-api-endpoint', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookData),
+    })
+    .then(response => {
+        // Handle response from the API
+        if (response.ok) {
+            toast.success('Data submitted successfully');
+            console.log('Data submitted successfully');
+        } else {
+            toast.error('Failed to submit data');
+            console.error('Failed to submit data');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
 
-
-    const [bookDetails, setBookDetails] = useState([{ bookNameInBook: '', bookAuthor: '' }]);
-
-    const handleInputChange = (index, name, value) => {
-        const list = [...bookDetails];
-        list[index][name] = value;
-        setBookDetails(list);
-    };
-
-    const handleAddBook = () => {
-        setBookDetails([...bookDetails, { bookNameInBook: '', bookAuthor: '' }]);
-    };
-
-    const handleRemoveBook = (index) => {
-        const list = [...bookDetails];
-        list.splice(index, 1);
-        setBookDetails(list);
-    };
-    // const handleRemoveBook = (index) => {
-    //     if (index === 0) {
-    //         return;
-    //     }
-    //     const list = [...bookDetails];
-    //     list.splice(index, 1);
-    //     setBookDetails(list);
-    // };
 
 
 
@@ -457,16 +478,17 @@ const Purchase = () => {
                                                     <Form.Label>Ledger Name</Form.Label>
                                                     <Form.Control
                                                         as="input"
-                                                        list="ledgerName"
+                                                        list="ledgerNames"
                                                         value={selectedLedgerName}
                                                         onChange={handleLedgerChange}
                                                         placeholder="Search or select ledger name"
                                                     />
-                                                    <datalist id="ledgerName">
-                                                        {filteredLedgerName.map((ledgerName) => (
-                                                            <option key={ledgerName.ledgerId} value={ledgerName.ledgerName} />
+                                                    <datalist id="ledgerNames">
+                                                        {filteredLedgerName.map((ledger) => (
+                                                            <option key={ledger.ledgerId} value={ledger.ledgerName} />
                                                         ))}
                                                     </datalist>
+
                                                 </Form.Group>
                                             </Row>
 
@@ -628,9 +650,9 @@ const Purchase = () => {
                                                             <th key={index}>
                                                                 <Form.Control
                                                                     type="text"
-                                                                    name="bookNameInBook"
-                                                                    value={book.bookNameInBookD}
-                                                                    onChange={(e) => handleInputChange(index, 'bookNameInBookD', e.target.value)}
+                                                                    name="bookNameInBookDetail"
+                                                                    value={book.bookNameInBookDetail}
+                                                                    onChange={(e) => handleBookInputChange(index, 'bookNameInBookDetail', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -644,7 +666,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="author"
                                                                     value={book.author}
-                                                                    onChange={(e) => handleInputChange(index, 'author', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'author', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -658,7 +680,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="isbn"
                                                                     value={book.isbn}
-                                                                    onChange={(e) => handleInputChange(index, 'isbn', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'isbn', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -672,7 +694,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="bookPrice"
                                                                     value={book.bookPrice}
-                                                                    onChange={(e) => handleInputChange(index, 'bookPrice', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'bookPrice', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -686,7 +708,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="language"
                                                                     value={book.language}
-                                                                    onChange={(e) => handleInputChange(index, 'language', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'language', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -700,7 +722,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="classificationNumber"
                                                                     value={book.classificationNumber}
-                                                                    onChange={(e) => handleInputChange(index, 'classificationNumber', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'classificationNumber', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -714,7 +736,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="itemNumber"
                                                                     value={book.itemNumber}
-                                                                    onChange={(e) => handleInputChange(index, 'itemNumber', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'itemNumber', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -728,7 +750,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="editor"
                                                                     value={book.editor}
-                                                                    onChange={(e) => handleInputChange(index, 'editor', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'editor', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -742,7 +764,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="title"
                                                                     value={book.title}
-                                                                    onChange={(e) => handleInputChange(index, 'title', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'title', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -756,7 +778,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="secondTitle"
                                                                     value={book.secondTitle}
-                                                                    onChange={(e) => handleInputChange(index, 'secondTitle', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'secondTitle', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -770,7 +792,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="seriesTitle"
                                                                     value={book.seriesTitle}
-                                                                    onChange={(e) => handleInputChange(index, 'seriesTitle', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'seriesTitle', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -784,7 +806,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="edition"
                                                                     value={book.edition}
-                                                                    onChange={(e) => handleInputChange(index, 'edition', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'edition', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -798,7 +820,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="placeOfPublication"
                                                                     value={book.placeOfPublication}
-                                                                    onChange={(e) => handleInputChange(index, 'placeOfPublication', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'placeOfPublication', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -812,7 +834,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="nameOfPublisher"
                                                                     value={book.nameOfPublisher}
-                                                                    onChange={(e) => handleInputChange(index, 'nameOfPublisher', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'nameOfPublisher', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -826,7 +848,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="publicationYear"
                                                                     value={book.publicationYear}
-                                                                    onChange={(e) => handleInputChange(index, 'publicationYear', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'publicationYear', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -840,7 +862,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="numberOfPages"
                                                                     value={book.numberOfPages}
-                                                                    onChange={(e) => handleInputChange(index, 'numberOfPages', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'numberOfPages', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -854,7 +876,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="subjectHeading"
                                                                     value={book.subjectHeading}
-                                                                    onChange={(e) => handleInputChange(index, 'subjectHeading', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'subjectHeading', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -868,7 +890,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="secondAuthorEditor"
                                                                     value={book.secondAuthorEditor}
-                                                                    onChange={(e) => handleInputChange(index, 'secondAuthorEditor', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'secondAuthorEditor', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -882,7 +904,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="thirdAuthorEditor"
                                                                     value={book.thirdAuthorEditor}
-                                                                    onChange={(e) => handleInputChange(index, 'thirdAuthorEditor', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'thirdAuthorEditor', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -896,7 +918,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="itemType"
                                                                     value={book.itemType}
-                                                                    onChange={(e) => handleInputChange(index, 'itemType', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'itemType', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -910,7 +932,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="permanantLocation"
                                                                     value={book.permanantLocation}
-                                                                    onChange={(e) => handleInputChange(index, 'permanantLocation', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'permanantLocation', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -924,7 +946,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="currenmtLocation"
                                                                     value={book.currenmtLocation}
-                                                                    onChange={(e) => handleInputChange(index, 'currenmtLocation', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'currenmtLocation', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -938,7 +960,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="shelvingLocation"
                                                                     value={book.shelvingLocation}
-                                                                    onChange={(e) => handleInputChange(index, 'shelvingLocation', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'shelvingLocation', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -952,7 +974,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="voumeNo"
                                                                     value={book.voumeNo}
-                                                                    onChange={(e) => handleInputChange(index, 'voumeNo', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'voumeNo', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -966,7 +988,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="fullCallNumber"
                                                                     value={book.fullCallNumber}
-                                                                    onChange={(e) => handleInputChange(index, 'fullCallNumber', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'fullCallNumber', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -980,7 +1002,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="copyNo"
                                                                     value={book.copyNo}
-                                                                    onChange={(e) => handleInputChange(index, 'copyNo', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'copyNo', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -994,7 +1016,7 @@ const Purchase = () => {
                                                                     type="text"
                                                                     name="accessionNo"
                                                                     value={book.accessionNo}
-                                                                    onChange={(e) => handleInputChange(index, 'accessionNo', e.target.value)}
+                                                                    onChange={(e) => handleBookInputChange(index, 'accessionNo', e.target.value)}
                                                                 />
                                                             </th>
                                                         ))}
@@ -1005,9 +1027,6 @@ const Purchase = () => {
                                                         {bookDetails.map((book, index) => (
                                                             <th key={index}>
                                                                 <Button variant="danger" onClick={() => handleRemoveBook(index)}>Remove Book</Button>
-                                                                {/* {index > 0 && (
-                                                                    <Button variant="danger" onClick={() => handleRemoveBook(index)}>Remove Book</Button>
-                                                                )} */}
                                                             </th>
                                                         ))}
                                                     </tr>
@@ -1015,7 +1034,6 @@ const Purchase = () => {
                                                 </thead>
                                             </Table>
 
-                                            {/* <div className="d-flex align-items-center justify-content-between"> */}
                                             <div className="d-flex justify-content-end">
                                                 <Button variant="success" type="submit">
                                                     Submit

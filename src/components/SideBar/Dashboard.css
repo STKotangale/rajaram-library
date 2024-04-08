@@ -1,0 +1,16 @@
+  /* dashbord */
+  .welcome-message {
+      font-size: 25px;
+      font-weight: bold;
+      color: blueviolet;
+  }
+
+  .token-text {
+      white-space: pre-wrap;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      font-size: 0.7em;
+      color: #555;
+  }
+
+  

@@ -1,35 +1,31 @@
-/* padding down side for purchase */
 .main-container {
     padding-bottom: 50px; 
 }
-
-/* border purchase form */
-.border-style {
-    border: 1px solid black;
+.border-style-heading {
+    border-top: 3px solid black;
+    border-left: 3px solid black;
+    border-right: 3px solid black;
 }
-
-/* purchase bill */
+.border-style {
+    border: 3px solid black;
+}
 .justify-content-md-center.mt-5 {
     margin-top: 6rem !important;
 }
 
 /* calendar icon */
-.custom-date-picker::-webkit-calendar-picker-indicator {
+/* .custom-date-picker::-webkit-calendar-picker-indicator {
     filter: invert(1);
-}
+} */
 
-/* invoice date picker */
 .custom-date-picker::-webkit-datetime-edit-day-field,
 .custom-date-picker::-webkit-datetime-edit-month-field,
 .custom-date-picker::-webkit-datetime-edit-year-field {
     color: black;
 }
-
 .table-header {
     text-align: center;
 }
-
-/* add row space */
 .add-row-button {
     margin-right: 10px;
 }

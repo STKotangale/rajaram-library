@@ -68,24 +68,4 @@
   }
 
   
-  /* access token */
-  .access-token{
-    margin-left: -200px;
-  }
-  .smaller-text {
-    font-size: smaller;
-  }
-  .fixed-button-container {
-    position: fixed;
-    top: 50px; 
-     z-index: 999;
-    width: 100%;
-  }
-  .fixed-button-container button {
-    background-color: cadetblue;
-    color: white;
-    border: none;
-    padding: 10px;
-    width: 100%;
-  }
   
