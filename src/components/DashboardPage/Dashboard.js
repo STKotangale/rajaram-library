@@ -8,7 +8,7 @@ import Login from '../../assets/AvtarLogo.webp';
 
 import { useAuth } from '../Auth/AuthProvider';
 
-import './Sidebar.css';
+import './SidebarNavabar.css';
 import './Dashboard.css';
 
 
@@ -22,9 +22,9 @@ const SideBar = () => {
 
     //get username and access token
     const { username, accessToken } = useAuth();
+    
     useEffect(() => {
-        console.log('Username:', username);
-        console.log('AccessToken:', accessToken);
+
     }, [username, accessToken]);
 
     //siderbar open close icon
@@ -56,7 +56,7 @@ const SideBar = () => {
         <div className={`main-container ${showSidebar ? 'sidebar-open' : ''}`}>
             <div className={`sidebar ${showSidebar ? 'active' : ''}`}>
                 <ul>
-                    <li><span className="heading">RajaLib</span> </li>
+                    <li><span className="heading">Rajaram Library</span> </li>
                     <li><span onClick={() => { handleDashboard() }} > Dashboard</span></li>
                     <li><span onClick={() => { handlePurchaseBillClick() }}>Purchase Bill</span></li>
                     <li><span onClick={() => {handleBookDetails()  }}>Book Details</span></li>
@@ -69,7 +69,6 @@ const SideBar = () => {
                         <div className="sidebar-toggle" onClick={toggleSidebar}>
                             ☰
                         </div>
-
                         <Nav className="me-auto">
                             <Navbar.Brand href="#">Registration and Login System</Navbar.Brand>
                         </Nav>

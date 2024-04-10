@@ -1,5 +1,8 @@
 .main-container {
-    padding-bottom: 50px; 
+    padding-bottom: 50px;
+
+    background-color: #f2f2f2;
+ 
 }
 .border-style-heading {
     border-top: 3px solid black;
@@ -29,3 +32,18 @@
 .add-row-button {
     margin-right: 10px;
 }
+
+
+
+/* book details */
+.table-bordered-dark th {
+    background-color: #f2f2f2;
+}
+
+.table-bordered-dark td {
+  background-color: #f2f2f2;
+}
+
+
+
+

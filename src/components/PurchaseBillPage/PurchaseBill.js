@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Dropdown, Form, Button, Row, Col, Table } from 'react-bootstrap';
 
 import Login from '../../assets/AvtarLogo.webp';
-import './PurchaseBillPage.css';
+import './PurchaseBillBookDetails.css';
 
 import { useAuth } from '../Auth/AuthProvider';
 
@@ -31,8 +31,7 @@ const PurchaseBillPage = () => {
 
     //get username and access token
     useEffect(() => {
-        console.log('Username:', username);
-        console.log('AccessToken:', accessToken);
+
     }, [username, accessToken]);
 
     //ledger name
@@ -65,8 +64,9 @@ const PurchaseBillPage = () => {
                     }
                 }
                 const ledgerNameId = await response.json();
-                console.log("ledger name", ledgerNameId);
                 setLedgerName(ledgerNameId);
+                // setLedgerName(Array.isArray(ledgerNameId) ? ledgerNameId : []);
+
             } catch (error) {
                 console.error('Error fetching party names:', error.message);
             }
@@ -153,7 +153,6 @@ const PurchaseBillPage = () => {
     //handle submit
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         if (!selectedLedgerName.trim()) {
             event.preventDefault();
             toast.error('Please select ledger name !');
@@ -184,7 +183,6 @@ const PurchaseBillPage = () => {
                 amount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
             }))
         };
-        console.log("data", payload);
         try {
             if (!accessToken) {
                 toast.error('Access token not found. Please log in again.');
@@ -207,7 +205,6 @@ const PurchaseBillPage = () => {
                 setSelectedLedgerId('');
                 setDiscountPercentage('');
                 setGstPercentage('');
-                setLedgerName('');
                 setRows([{ bookName: '', quantity: '', rate: '' }]);
             }
         } catch (error) {
@@ -283,7 +280,7 @@ const PurchaseBillPage = () => {
         <div className={`main-container ${showSidebar ? 'sidebar-open' : ''}`}>
             <div className={`sidebar ${showSidebar ? 'active' : ''}`}>
                 <ul>
-                    <li><span className="heading">RajaLib</span> </li>
+                    <li><span className="heading">Rajaram Library</span> </li>
                     <li>
                         <span onClick={() => { handleDashboard(); }}>
                             Dashboard
@@ -331,7 +328,6 @@ const PurchaseBillPage = () => {
                                         <h3 className="heading-with-line">PURCHASE</h3>
                                     </div>
                                 </div>
-
                                 <div className="border-dark p-4 border-style">
                                     <Form onSubmit={handleSubmit}>
 
@@ -357,7 +353,6 @@ const PurchaseBillPage = () => {
                                                 />
                                             </Form.Group>
                                         </Row>
-
                                         <Row className="mb-3">
                                             <Form.Group as={Col} sm={6}>
                                                 <Form.Label>Ledger Name</Form.Label>
@@ -373,7 +368,6 @@ const PurchaseBillPage = () => {
                                                         <option key={ledger.ledgerId} value={ledger.ledgerName} />
                                                     ))}
                                                 </datalist>
-
                                             </Form.Group>
                                         </Row>
 
@@ -478,7 +472,6 @@ const PurchaseBillPage = () => {
                                                 <Button variant="primary" onClick={addRow} className="add-row-button">
                                                     Add Book
                                                 </Button>
-
                                                 {rows.length > 5 &&
                                                     <Button variant="danger" onClick={() => deleteRow(rows.length - 1)}>
                                                         Delete Book
@@ -489,7 +482,6 @@ const PurchaseBillPage = () => {
                                                 Submit
                                             </Button>
                                         </div>
-
                                     </Form>
 
                                 </div>
@@ -499,7 +491,6 @@ const PurchaseBillPage = () => {
 
                 </div>
             </div>
-
         </div>
     );
 };

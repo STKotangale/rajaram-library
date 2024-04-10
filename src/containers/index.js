@@ -8,16 +8,16 @@ import Login from '../components/LoginSignupPage/login';
 import Signup from '../components/LoginSignupPage/signup';
 
 
-const SignInOutContainer=()=>{
-const [value,setValue]=useState(0)
-const handleChange = (event, newValue) => {
+const SignInOutContainer = () => {
+  const [value, setValue] = useState(0)
+  const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
-  const paperStyle={width:340,margin:"20px auto",padding:"20px"}
+  // const paperStyle={width:340,margin:"20px auto",padding:"20px"}
   function TabPanel(props) {
     const { children, value, index, ...other } = props;
-  
+
     return (
       <div
         role="tabpanel"
@@ -34,31 +34,31 @@ const handleChange = (event, newValue) => {
       </div>
     );
   }
-  
-    return (
-        <Paper elevation={20} style={paperStyle}>
-        <Tabs
-          value={value}
-          indicatorColor="primary"
-          textColor="primary"
-          variant="fullWidth"
-          onChange={handleChange}
-          aria-label="disabled tabs example"
-        >
-          <Tab label="Log In" />
-         
-          <Tab label="Sign Up" />
-        </Tabs>
 
-        <TabPanel value={value} index={0}>
-       <Login handleChange={handleChange}/>
+  return (
+    <Paper elevation={20} className="main-paper-style">
+      <Tabs
+        value={value}
+        indicatorColor="primary"
+        textColor="primary"
+        variant="fullWidth"
+        onChange={handleChange}
+        aria-label="disabled tabs example"
+      >
+        <Tab label="Log In" />
+
+        <Tab label="Sign Up" />
+      </Tabs>
+
+      <TabPanel value={value} index={0}>
+        <Login handleChange={handleChange} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-      <Signup handleChange={handleChange}/>
+        <Signup handleChange={handleChange} />
       </TabPanel>
-      </Paper>
-      
-    )
+    </Paper>
+
+  )
 }
 
 export default SignInOutContainer;

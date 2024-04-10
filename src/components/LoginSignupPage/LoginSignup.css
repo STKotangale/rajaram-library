@@ -1,12 +1,18 @@
+.main-paper-style{
+  width: 340px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
 .paper-style {
     padding: 20px;
     height: auto; 
     width: 280px;
     margin: 20px auto;
   } 
-  .avatar-style {
+  /* .avatar-style {
     background-color: #1bbd7e;
-  }
+  } */
   
 
   /* login */

@@ -7,31 +7,38 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { AuthProvider } from './components/Auth/AuthProvider'; // Import the AuthProvider component
+import { AuthProvider } from './components/Auth/AuthProvider'; 
 
 import App from './App';
-import Purchase from './components/PurchaseBill/Purchase';
 import Demo from './components/DemoPage/Demo';
 
-import SideBar from './components/SideBar/SideBar';
-import PurchaseBill from './components/PurchaseBillPage/PurchaseBillPage';
-import BookDetailsPage from './components/PurchaseBillPage/BookDetailsPage';
+import  Dashboard  from './components/DashboardPage/Dashboard';
+import PurchaseBill from './components/PurchaseBillPage/PurchaseBill';
+import BookDetails from './components/PurchaseBillPage/BookDetails';
+
+import PurchaseTablePage from './components/PurchaseBillPage/PurchaseTablePage ';
+import LandingPage from './components/LandingPages/LandingPage';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
-      <AuthProvider> {/* Wrap the entire application with AuthProvider */}
+      <AuthProvider> 
         <Routes>
           <Route path="/" element={<App />} />
-          <Route path="/purchase" element={<Purchase />} />
           <Route path="/demo" element={<Demo />} />
 
-          <Route path="/sidebar" element={<SideBar />} />
+          <Route path="/sidebar" element={<Dashboard />} />
           <Route path="/purchasebillpage" element={<PurchaseBill />} />
-          <Route path="/bookdetailspage" element={<BookDetailsPage />} />
+          <Route path="/bookdetailspage" element={<BookDetails />} />
+
+          <Route path="/Purchasetablepage" element={<PurchaseTablePage />} />
+          <Route path="/landingpage" element={<LandingPage />} />
+
 
         </Routes>
+
       </AuthProvider>
+      
     </Router>
     <ToastContainer />
   </React.StrictMode>,

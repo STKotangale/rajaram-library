@@ -243,22 +243,22 @@ const Purchase = () => {
 
 
     // get today date 
-    const [invoiceDate, setInvoiceDate] = useState(getTodayDate());
+    const [invoiceDate, setInvoiceDate] = useState();
 
-    function getTodayDate() {
-        const today = new Date();
-        const year = today.getFullYear();
-        let month = today.getMonth() + 1;
-        let day = today.getDate();
+    // function getTodayDate() {
+    //     const today = new Date();
+    //     const year = today.getFullYear();
+    //     let month = today.getMonth() + 1;
+    //     let day = today.getDate();
 
-        if (month < 10) {
-            month = '0' + month;
-        }
-        if (day < 10) {
-            day = '0' + day;
-        }
-        return `${year}-${month}-${day}`;
-    }
+    //     if (month < 10) {
+    //         month = '0' + month;
+    //     }
+    //     if (day < 10) {
+    //         day = '0' + day;
+    //     }
+    //     return `${year}-${month}-${day}`;
+    // }
 
     // Function to handle invoice date change
     const handleInvoiceDateChange = (e) => {
@@ -670,8 +670,8 @@ const Purchase = () => {
                                                     <Form.Control
                                                         type="date"
                                                         value={invoiceDate}
-                                                        min={getTodayDate()}
-                                                        max={getTodayDate()}
+                                                        // min={getTodayDate()}
+                                                        // max={getTodayDate()}
                                                         onChange={handleInvoiceDateChange}
                                                         className="custom-date-picker"
                                                     />

@@ -7,6 +7,7 @@ import { Container, Navbar, Nav, Dropdown, Form, Button, Row, Col, Table } from 
 import Login from '../../assets/AvtarLogo.webp';
 
 import { useAuth } from '../Auth/AuthProvider';
+import './PurchaseBillBookDetails.css';
 
 
 const BookDetailsPage = () => {
@@ -16,7 +17,7 @@ const BookDetailsPage = () => {
     //sidebar open close
     const [showSidebar, setShowSidebar] = useState(false);
 
-    //book details under data
+    //book details data
     const [bookNamesDetails, setBookNamesDetails] = useState([]);
     const [bookNames, setBookNames] = useState([]);
     const [selectedBook, setSelectedBook] = useState("");
@@ -27,8 +28,7 @@ const BookDetailsPage = () => {
 
     //get username and access token
     useEffect(() => {
-        console.log('Username:', username);
-        console.log('AccessToken:', accessToken);
+
     }, [username, accessToken]);
 
     const toggleSidebar = () => {
@@ -74,10 +74,8 @@ const BookDetailsPage = () => {
     const handleBookNameChange = async (e) => {
         const selectedBookName = e.target.value;
         setSelectedBook(selectedBookName);
-
         setSelectedPurchaseCopyNo('');
         setSelectedBookId(null);
-
         const price = await fetchSelectedBookPrice(selectedBookName);  //fetch book price
         setBookPrice(price);
     };
@@ -85,9 +83,7 @@ const BookDetailsPage = () => {
     const handlePurchaseCopyNumberChange = (e) => {
         const selectedCopyNo = e.target.value;
         setSelectedPurchaseCopyNo(selectedCopyNo);
-
         const copyNoAsNumber = Number(selectedCopyNo);
-
         const matchingBook = bookNamesDetails.find(book =>
             book.bookName === selectedBook && book.purchase_copy_no === copyNoAsNumber
         );
@@ -131,7 +127,7 @@ const BookDetailsPage = () => {
         }
     };
 
-    const [bookDetails, setBookDetails] = useState({
+    const [bookDetails, setBookDetails] = useState({ 
         ISBN: '',
         language: '',
         classificationNumber: '',
@@ -180,11 +176,10 @@ const BookDetailsPage = () => {
             //     // price: price,
             //     ...bookDetails 
             // };
-
             const correctedBookData = {
                 bookName: selectedBook,
                 copyNumber: selectedPurchaseCopyNo,
-
+                
                 isbn: bookDetails.ISBN,
                 language: bookDetails.language,
                 classificationNumber: bookDetails.classificationNumber,
@@ -245,7 +240,7 @@ const BookDetailsPage = () => {
         <div className={`main-container ${showSidebar ? 'sidebar-open' : ''}`}>
             <div className={`sidebar ${showSidebar ? 'active' : ''}`}>
                 <ul>
-                    <li><span className="heading">RajaLib</span> </li>
+                    <li><span className="heading">Rajaram Library</span> </li>
                     <li>
                         <span onClick={() => { handleDashboard(); }}>
                             Dashboard

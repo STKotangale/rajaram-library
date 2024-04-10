@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 
 import { useAuth } from '../Auth/AuthProvider';
 
-
 import './LoginSignup.css';
 
 const Login = ({ handleChange }) => {
@@ -35,11 +34,9 @@ const Login = ({ handleChange }) => {
             // navigate('/purchase');
             // navigate('/demo');
             navigate('/sidebar');
-
         } catch (error) {
             console.error("Login error:", error);
             toast.error(error.message);
-
         }
     };
 
@@ -80,8 +77,6 @@ const Login = ({ handleChange }) => {
                         </Link>
                     </Typography>
                 </Paper>
-
-
             </Grid>
         </div>
     );
