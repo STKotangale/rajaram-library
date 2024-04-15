@@ -1,4 +1,4 @@
-/* landing page.css */
+/* login page.css */
 .icon-inside-input {
   position: relative;
 }
@@ -50,51 +50,12 @@
 }
 
 
-/* book images css*/
-.book-images {
-  margin-left: 100px;
-}
-
-.book-card {
-  max-width: 180px;
-  margin: 10px;
-  text-align: center;
-}
-
-.card-info {
-  padding: 0.5em;
-}
-
-.book-title {
-  margin-top: 0.5em;
-  font-weight: bold;
-}
-
-.book-author {
-  font-size: 0.85em;
-  color: #666;
-  margin-bottom: 0.5em;
-}
-
-.book-rating {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2em;
-}
-
-.stars {
-  color: gold;
-}
-
-.rating-number {
-  margin-left: 5px;
-  font-size: 0.85em;
-}
-
-.book-image {
-  height: 250px;
-  width: 180px;
-  object-fit: cover;
-  margin-bottom: 0.5rem;
-}
+/* forgot password css */
+.forgot-password{
+  margin-top: 100px;
+  padding-bottom: 50px;
+  }
+  
+  .footer-forgot-page{
+      margin-top: 100px;
+  }

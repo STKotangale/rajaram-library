@@ -6,16 +6,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 import { Book, Journal, PcDisplay, CloudArrowDown } from 'react-bootstrap-icons';
-import BooksImages from './BooksImages';
-import Footer from '../MyAboutInfo/Footer';
-import './LandingPage.css';
+import BooksImages from '../CommonFiles/StaticImagesBook';
+import Footer from '../CommonFiles/Footer';
+import './AuthCSS/LoginPage.css';
 
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { useAuth } from '../Auth/AuthProvider';
+import { useAuth } from './AuthProvider';
 
 
-const LandingPage = () => {
+const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -47,16 +47,19 @@ const LandingPage = () => {
     <>
       <Container fluid className="min-vh-100 d-flex flex-column main-landingpage">
         {/* <Navbar bg="white" className="border-bottom navabar-color"> */}
-        <Navbar bg="white" className="mb-4 ms-5 mt-3 navabar-color">
+        <Navbar bg="white" expand="lg" className="mb-4 ms-5 mt-3 navabar-color">
           <Navbar.Brand href="#home">
             <Image src={logoImage} alt="Library Logo" height="60" />
             <span className="h4 ms-4">Rajaram Library</span>
           </Navbar.Brand>
-          <Nav className="ms-auto">
-            <Nav.Link href="#home" className="me-3">Home</Nav.Link>
-            <Nav.Link href="/aboutus" className="me-3">About Us</Nav.Link>
-            <Nav.Link href="/contactus" className="me-3">Contact Us</Nav.Link>
-          </Nav>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              <Nav.Link href="#home" className="me-3">Home</Nav.Link>
+              <Nav.Link href="/aboutus" className="me-3">About Us</Nav.Link>
+              <Nav.Link href="/contactus" className="me-3">Contact Us</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
         </Navbar>
 
         <Row className="flex-grow-1 align-items-center">
@@ -83,7 +86,7 @@ const LandingPage = () => {
 
                   </Col>
                 </Row>
-                <Button  type='submit' size="lg" className="w-50 mb-2 button-color">
+                <Button type='submit' size="lg" className="w-50 mb-2 button-color">
                   Login
                 </Button>
                 <Form.Text className="d-block">
@@ -139,7 +142,7 @@ const LandingPage = () => {
   );
 };
 
-export default LandingPage;
+export default LoginPage;
 
 
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Row, Col, Navbar, Nav, Form, Button, Image } from 'react-bootstrap';
 
-import './MyAboutInfo.css';
+import './CommonCSS/AboutContactFooter.css';
 import logoImage from '../../assets/rajalib.png';
 import { TelephoneFill, EnvelopeFill, GeoAltFill } from 'react-bootstrap-icons';
 import Footer from './Footer';
@@ -13,16 +13,19 @@ const ContactUs = () => {
 
   return (
     <Container fluid className="min-vh-100 d-flex flex-column main-landingpage">
-      <Navbar bg="white" className="mb-4 navabar-color">
+      <Navbar bg="white" expand="lg" className="mb-4 navabar-color">
         <Navbar.Brand href="#home">
           <Image src={logoImage} alt="Library Logo" height="60" />
           <span className="h4 ms-4">Rajaram Library</span>
         </Navbar.Brand>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="ms-auto">
           <Nav.Link href="/" className="me-3">Home</Nav.Link>
           <Nav.Link href="/aboutus" className="me-3">About Us</Nav.Link>
           <Nav.Link href="#contact" className="me-3">Contact Us</Nav.Link>
         </Nav>
+        </Navbar.Collapse>
       </Navbar>
 
 

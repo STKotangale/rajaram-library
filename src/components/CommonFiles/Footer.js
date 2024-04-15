@@ -4,7 +4,7 @@ import { Container, Row, Col } from 'react-bootstrap';
 
 import MapImage from '../../assets/BooksImages/MapImage.jpg'
 import { Instagram, Facebook, Twitter } from "react-bootstrap-icons";
-import './MyAboutInfo.css';
+import './CommonCSS/AboutContactFooter.css';
 
 const Footer = () => {
     const addressQuery = "Rajaram Sitaram Dixit Library, Sitabardi, Nagpur, 440012";

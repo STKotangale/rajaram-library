@@ -10,16 +10,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthProvider } from './components/Auth/AuthProvider'; 
 
 // import App from './App';
-import Demo from './components/Zdemo/Demo';
-import PurchaseTablePage from './components/PurchaseBillPage/PurchaseTablePage ';
+import LoginPage from './components/Auth/LoginPage';
 
+import Dashboard from './components/Library/MainDashboard/Dashboard';
 
-import LandingPage from './components/LandingPages/LandingPage';
-import ContactUs from './components/MyAboutInfo/ContactUs';
-import AboutUs from './components/MyAboutInfo/AboutUs';
-import ForgotPassword from './components/ForgotPassword/ForgotPassword';
-import DashboardNew from './components/DashboardPage/Dashboard';
-
+import ContactUs from './components/CommonFiles/ContactUs';
+import AboutUs from './components/CommonFiles/AboutUs';
+import ForgotPassword from './components/Auth/ForgotPassword';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -27,17 +24,14 @@ ReactDOM.render(
       <AuthProvider> 
         <Routes>
           {/* <Route path="/" element={<App />} /> */}
-          <Route path="/demo" element={<Demo />} />
-          <Route path="/Purchasetablepage" element={<PurchaseTablePage />} />
-
-
-          <Route path="/" element={<LandingPage />} />
+      
+          <Route path="/" element={<LoginPage />} />
 
           <Route path="/contactus" element={<ContactUs />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
 
-          <Route path="/dashboard" element={<DashboardNew />} />
+          <Route path="/dashboard" element={<Dashboard />} />
 
         </Routes>
 

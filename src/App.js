@@ -1,10 +1,10 @@
 // import React from 'react';
 // import './App.css';
-// import SignInOutContainer from './containers';
+// import LoginPage from './components/Auth/LoginPage';
 // function App() {
 //   return (
 //     <div className="App">
-//     <SignInOutContainer/>
+//     <LoginPage/>
 //     </div>
 //   );
 // }

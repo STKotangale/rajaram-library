@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 // import Footer from '../MyAboutInfo/Footer';
 
-import './ForgotPassword.css'
+import './AuthCSS/LoginPage.css'
+
 const ForgotPassword = () => {
 
   const [email, setEmail] = useState('');

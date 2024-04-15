@@ -1,6 +1,6 @@
 import React from 'react';
 import aboutUsImage from '../../assets/Aboutus.jpg';
-import './MyAboutInfo.css';
+import './CommonCSS/AboutContactFooter.css';
 import { Container, Row, Col, Navbar, Nav, Image } from 'react-bootstrap';
 import logoImage from '../../assets/rajalib.png';
 import Footer from './Footer';
@@ -22,7 +22,7 @@ const AboutUs = () => {
           </Nav>
         </Navbar.Collapse>
       </Navbar>
-
+      
       <Row className="flex-grow-1 aboutUsContainer">
         <Col md={6} className="d-flex align-items-center justify-content-center">
           <div>

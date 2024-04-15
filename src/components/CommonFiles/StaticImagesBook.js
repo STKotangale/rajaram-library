@@ -1,6 +1,6 @@
 import React from 'react';
 
-import './LandingPage.css';
+import './CommonCSS/StaticImages.css';
 
 import book1 from '../../assets/BooksImages/book1.jpeg'
 import book2 from '../../assets/BooksImages/book2.jpeg'
@@ -63,7 +63,6 @@ const books = [
 
 const BookCard = ({ imageUrl, title, author, rating }) => {
     return (
-
         <div className="book-card">
             <img src={imageUrl} className="book-image" alt='img' />
             <div className="card-info">
@@ -83,8 +82,11 @@ const BooksImages = () => {
 
 
     return (
-        <>
-            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 book-images">
+        <div className='static-images'>
+            <div className='d-flex justify-content-center'>
+                <h2>Our Newly Launch Collection</h2>
+            </div>
+            <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4 mt-3 book-images ">
                 {books.map(tour => (
                     <div className="col" key={tour.id}>
                         <BookCard
@@ -96,7 +98,7 @@ const BooksImages = () => {
                 ))}
             </div>
 
-        </>
+        </div>
     );
 };
 export default BooksImages
