@@ -1,0 +1,93 @@
+/* Footer.css */
+.rajaram-library{
+  color: #f27e00;
+}
+.footer-heading{
+color: white;
+}
+ul {
+  padding-left: 0;
+  list-style-type: none;
+}
+a.text-light {
+  color: #f8f9fa;
+  transition: color 0.3s ease;
+}
+.text-light:hover,
+a.text-light:focus {
+  color: #adb5bd;
+  text-decoration: none;
+}
+address {
+  margin-bottom: 0;
+}
+.footer-links .footer-link {
+  color: #f8f9fa; 
+  text-decoration: none;
+}
+.footer-links .footer-link:hover,
+.footer-links .footer-link:focus {
+  color: #adb5bd;
+  text-decoration: none; 
+}
+.map-thumbnail {
+width: 200px; 
+height: 170px; 
+}
+
+
+
+/* contactus.css*/
+.contact-us-page {
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+}
+.contact-us-page {
+  padding: 2rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  background: #ffffff;
+  max-width: 960px;
+}
+.contact-info {
+  background-color: #f27e00;
+  color: white;
+  padding: 2rem;
+}
+.contact-form {
+  margin-top: 1rem;
+  color: #848484;
+}
+.send-message {
+  background-color: #f27e00 !important;
+  border: none !important;
+}
+.contactus-message {
+  color: #8d8d8d;
+}
+
+/* 
+  .navabar-color{
+    color: #2f2e2e;
+  } */
+
+
+
+
+/* aboutus.css */
+.aboutUsContainer {
+  font-family: 'Arial, sans-serif';
+  padding: 30px;
+  margin: auto;
+}
+.aboutUsMainTitle {
+  color: #f27e00;
+}
+.aboutUsText {
+  font-size: 1.2em;
+  line-height: 1.6;
+}
+.aboutUsImage {
+  width: 60%;
+  height: auto;
+}

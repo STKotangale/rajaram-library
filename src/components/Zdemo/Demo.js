@@ -4,12 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { Container, Navbar, Nav, Dropdown, Form, Button, Row, Col, Table } from 'react-bootstrap';
-import Login from '../../assets/AvtarLogo.webp';
 
 import { useAuth } from '../Auth/AuthProvider';
 
 
-import './Demo.css';
 
 const Purchase = () => {
     const navigate = useNavigate();
@@ -560,7 +558,7 @@ const Purchase = () => {
                         <div className="profileicon">
                             <Dropdown className="custom-dropdown-toggle profile-icon">
                                 <Dropdown.Toggle variant="custom" id="dropdown-basic">
-                                    <img src={Login} className="loginregistericon" alt="loginregistericon" height="25" width="25" />
+                                    {/* <img src={Login} className="loginregistericon" alt="loginregistericon" height="25" width="25" /> */}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu className='dropdown-menu-show'>
                                     <Dropdown.Item disabled>{username}</Dropdown.Item>

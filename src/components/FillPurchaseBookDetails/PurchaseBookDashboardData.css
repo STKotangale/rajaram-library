@@ -1,0 +1,111 @@
+/* dashboard data css */
+.welcome-message {
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 30px;
+}
+
+.main-content-dashboard-data {
+  padding: 10px;
+}
+
+.dashboard-card {
+  color: white;
+  margin-bottom: 30px;
+}
+
+.dashboard-card .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+}
+
+.dashboard-card .card-title {
+  font-size: 3rem;
+  font-weight: bold;
+}
+
+.dashboard-card .card-text {
+  font-size: 1rem;
+}
+
+.card-registered-users {
+  background-color: #ff6f61;
+}
+
+.card-total-books {
+  background-color: #26c281;
+}
+
+.card-total-copies {
+  background-color: #00aced;
+}
+
+.card-issue-book {
+  background-color: #ffcc00;
+}
+
+.card-return-book {
+  background-color: cadetblue;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .dashboard-card .card-title {
+    font-size: 2rem;
+  }
+}
+
+/* fill purchase and book details */
+.button-color {
+  background-color: #f27e00 !important;
+  border: none !important;
+}
+
+/* //purchase table */
+.table-bordered-dark th,
+.table-bordered-dark td {
+  border: none;
+  background-color: rgba(242, 126, 0, 0);
+
+}
+
+.page-details {
+  background-color: rgba(242, 126, 0, 0.1);
+}
+
+/* .table-bordered-dark tr {
+    background-color: rgba(242, 126, 0, 0.1);
+  } */
+
+
+
+/* //book details */
+.main-content-book-details h1 {
+  color: #343a40;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* box show */
+.book-details-main {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.book-details-main .form-control {
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  padding: .375rem .75rem;
+}
+
+.admin-general-icon {
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}

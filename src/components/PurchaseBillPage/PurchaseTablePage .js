@@ -1,10 +1,10 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Container, Navbar, Nav, Dropdown, Form, Button, Row, Col, Table } from 'react-bootstrap';
 
-import Login from '../../assets/AvtarLogo.webp';
 import { useAuth } from '../Auth/AuthProvider';
 
 const PurchaseTablePage = () => {
@@ -66,7 +66,7 @@ const PurchaseTablePage = () => {
                         <div className="profileicon">
                             <Dropdown className="custom-dropdown-toggle profile-icon">
                                 <Dropdown.Toggle variant="custom" id="dropdown-basic">
-                                    <img src={Login} className="loginregistericon" alt="loginregistericon" height="25" width="25" />
+                                    {/* <img src={Login} className="loginregistericon" alt="loginregistericon" height="25" width="25" /> */}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu className='dropdown-menu-show'>
                                     <Dropdown.Item disabled>{username}</Dropdown.Item>
