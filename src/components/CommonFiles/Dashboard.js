@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Person, People, BoxArrowInRight } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -9,11 +9,16 @@ import '../../components/Library/LibraryCSS/PurchaseBookDashboardData.css';
 
 import logoImage from '../../assets/rajalib.png';
 import Footer from './Footer';
-import FillPurchaseDetails from '../Library/Purchase/FillPurchaseDetails';
-import FillBookDetails from '../Library/Purchase/FillBookDetails';
-import DashboardData from '../Library/Purchase/DashboardData';
+
+import DashboardData from './StaticDashboardData';
+
+import BookDetails from '../Library/Purchase/BookDetails';
+import PurchaseDetails from '../Library/Purchase/PurchaseDetails';
+import ShowPurchase from '../Library/Purchase/ShowPurchase';
 
 import { useAuth } from '../Auth/AuthProvider';
+import BookLanguages from '../Library/BookLanguages';
+import BookTypes from '../Library/BookType';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -21,6 +26,12 @@ const Dashboard = () => {
     const [viewDashboard, setViewDashboard] = useState(true);
     const [fillPurchaseDetails, setFillPurchaseDetails] = useState(false);
     const [fillBookDetails, setFillBookDetails] = useState(false);
+
+    const [bookType, setBookType] = useState(false);
+    const [bookLanguages, setBookLanguages] = useState(false);
+
+    const [viewPurchaseDetails, setViewPurchaseDetails] = useState(false);
+
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [credentials, setCredentials] = useState({
@@ -40,19 +51,62 @@ const Dashboard = () => {
         setViewDashboard(true);
         setFillPurchaseDetails(false);
         setFillBookDetails(false);
+        setViewPurchaseDetails(false);
+        setBookType(false);
     };
 
     const handlePurchaseDetailsClick = () => {
         setFillPurchaseDetails(true);
         setFillBookDetails(false);
         setViewDashboard(false);
+        setViewPurchaseDetails(false);
+        setBookLanguages(false);
+        setBookType(false);
+
+
     };
 
     const handleBookDetailsClick = () => {
         setFillBookDetails(true);
         setFillPurchaseDetails(false);
         setViewDashboard(false);
+        setViewPurchaseDetails(false);
+        setBookLanguages(false);
+        setBookType(false);
+
+
     };
+
+    const handleBookLanguages = () => {
+        setBookLanguages(true);
+        setViewPurchaseDetails(false);
+        setFillBookDetails(false);
+        setFillPurchaseDetails(false);
+        setViewDashboard(false);
+        setBookType(false);
+
+    };
+
+    const handleShowPurchase = () => {
+        setViewPurchaseDetails(true);
+        setFillBookDetails(false);
+        setFillPurchaseDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+    };
+
+    const handleBookType = () => {
+        setViewPurchaseDetails(false);
+        setFillBookDetails(false);
+        setFillPurchaseDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(true);
+    };
+
+
+
 
 
     //change password
@@ -83,8 +137,18 @@ const Dashboard = () => {
         toast.success('You have been logged out.');
         navigate('/');
     };
-    const handleGroupMemberLogin = () =>{
-        navigate('/')
+    // const handleGroupMemberLogin = () => {
+    //     navigate('/')
+    // }
+
+    const handleIssueClick = () => {
+
+    }
+    const handleIssueReturnClick = () => {
+
+    }
+    const handlePurchaseReturnClick = () => {
+
     }
 
     return (
@@ -100,22 +164,49 @@ const Dashboard = () => {
                             <ListGroup.Item className="home-icon" action onClick={handleHomeClick}>
                                 <HouseDoorFill className="icon" /> Home
                             </ListGroup.Item>
-                                <ListGroup.Item className="admin-general-icon mt-2" action>
-                                    <Person className="icon" /> Admin
-                                </ListGroup.Item>
-                                <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
-                                    <CartPlusFill className="icon" /> Purchase Details
-                                </ListGroup.Item>
-                                <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
-                                    <BookFill className="icon" /> Book Details
-                                </ListGroup.Item>
-                                <ListGroup.Item className="admin-general-icon mt-2" action>
+                            <ListGroup.Item className="admin-general-icon mt-2" action>
+                                <Book className="icon" /> Library
+                            </ListGroup.Item>
+                            <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
+                                <CartPlusFill className="icon" /> Purchase
+                            </ListGroup.Item>
+                            <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
+                                <BookFill className="icon" /> Book Details
+                            </ListGroup.Item>
+
+                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
+                                Book Languages
+                            </ListGroup.Item>
+
+                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
+                                Book Type
+                            </ListGroup.Item>
+
+
+
+
+                            <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
+                                <ExclamationTriangleFill className="icon" /> Show Purchase
+                            </ListGroup.Item>
+                            <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
+                                <ExclamationTriangleFill className="icon" /> Issue
+                            </ListGroup.Item>
+                            <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
+                                <ArrowReturnLeft className="icon" /> Issue Return
+                            </ListGroup.Item>
+                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
+                                <CartDashFill className="icon" /> Purchase Return
+                            </ListGroup.Item>
+
+
+
+                            {/* <ListGroup.Item className="admin-general-icon mt-2" action>
                                     <People className="icon" /> General Member
                                 </ListGroup.Item>
                                 <ListGroup.Item className="login-icon mt-1" action onClick={handleGroupMemberLogin}>
                                     <BoxArrowInRight className="icon" />Login
-                                </ListGroup.Item>
-                            </Col>
+                                </ListGroup.Item> */}
+                        </Col>
                     </ListGroup>
                 </div>
                 <div id="page-content-wrapper" className='page-details'>
@@ -124,30 +215,38 @@ const Dashboard = () => {
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="ms-auto">
-                                <Nav.Link className='ms-4' href="/">Home</Nav.Link>
+                                {/* <Nav.Link className='ms-4' href="/">Home</Nav.Link>
                                 <Nav.Link className='ms-4' href="/aboutus">About Us</Nav.Link>
-                                <Nav.Link className='ms-4' href="/contactus">Contact Us</Nav.Link>
+                                <Nav.Link className='ms-4' href="/contactus">Contact Us</Nav.Link> */}
                             </Nav>
-                            <Nav>
-                                <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
-                                    <NavDropdown.Item href="#profile">
+                            {/* <Nav> */}
+                            <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
+                                {/* <NavDropdown.Item href="#profile">
                                         <PersonCircle className="icon" /> Profile
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item onClick={setShowChangePasswordModal}>
-                                        <LockFill className="icon" /> Change Password
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item href="#logout" onClick={handleLogout}>
-                                        <BoxArrowRight className="icon" /> Logout
-                                    </NavDropdown.Item>
-                                </NavDropdown>
-                            </Nav>
+                                    </NavDropdown.Item> */}
+                                <NavDropdown.Item onClick={setShowChangePasswordModal}>
+                                    <LockFill className="icon" /> Change Password
+                                </NavDropdown.Item>
+                                <NavDropdown.Item href="#logout" onClick={handleLogout}>
+                                    <BoxArrowRight className="icon" /> Logout
+                                </NavDropdown.Item>
+                            </NavDropdown>
+                            {/* </Nav> */}
                         </Navbar.Collapse>
                     </Navbar>
                     <Container fluid className="min-vh-100 d-flex flex-column justify-content-between main-content">
-                    {/* <Container fluid className="container-fluid main-details"> */}
+                        {/* <Container fluid className="container-fluid main-details"> */}
                         {viewDashboard && <DashboardData />}
-                        {fillPurchaseDetails && <FillPurchaseDetails />}
-                        {fillBookDetails && <FillBookDetails />}
+                        {fillPurchaseDetails && <PurchaseDetails />}
+                        {fillBookDetails && <BookDetails />}
+
+                        {bookLanguages && <BookLanguages />}
+
+                        {bookType && <BookTypes />}
+
+
+                        {viewPurchaseDetails && <ShowPurchase />}
+
                     </Container>
                     <Footer />
                 </div>

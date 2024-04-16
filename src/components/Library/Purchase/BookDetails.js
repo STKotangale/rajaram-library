@@ -5,7 +5,7 @@ import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 
 import { useAuth } from '../../Auth/AuthProvider';
 
-const FillBookDetails = () => {
+const BookDetails = () => {
     const BaseURL = process.env.REACT_APP_BASE_URL;
     //book details data
     const [bookNamesDetails, setBookNamesDetails] = useState([]);
@@ -144,7 +144,7 @@ const FillBookDetails = () => {
         volumeNo: '',
         fullCallNumber: '',
         accessionNo: '',
-        bookType:'',
+        bookType: '',
     });
 
     const handleBookInputChange = (e) => {
@@ -172,7 +172,7 @@ const FillBookDetails = () => {
             const correctedBookData = {
                 bookName: selectedBook,
                 copyNumber: selectedPurchaseCopyNo,
-                bookType:selectedBookType,
+                bookType: selectedBookType,
 
                 isbn: bookDetails.ISBN,
                 language: bookDetails.language,
@@ -568,7 +568,7 @@ const FillBookDetails = () => {
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col}>
+                                    <Form.Group as={Col} md={4}>
                                         <Form.Label>Accession No.</Form.Label>
                                         <Form.Control
                                             type="number"
@@ -596,4 +596,4 @@ const FillBookDetails = () => {
     );
 };
 
-export default FillBookDetails;
+export default BookDetails;

@@ -6,7 +6,7 @@ import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
 
 import { useAuth } from '../../Auth/AuthProvider';
 
-const FillPurchaseDetails = () => {
+const PurchaseDetails = () => {
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
     const [discountPercentage, setDiscountPercentage] = useState(0);
@@ -400,4 +400,4 @@ const FillPurchaseDetails = () => {
     );
 };
 
-export default FillPurchaseDetails;
+export default PurchaseDetails;

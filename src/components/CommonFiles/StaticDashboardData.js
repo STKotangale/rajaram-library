@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Card, Row, Col, Container } from 'react-bootstrap';
 
-import { useAuth } from '../../Auth/AuthProvider';
+import { useAuth } from '../Auth/AuthProvider';
 
 const DashboardData = () => {
   //get username and access token
