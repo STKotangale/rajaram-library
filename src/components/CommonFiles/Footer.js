@@ -46,14 +46,14 @@ const Footer = () => {
                     </ul>
                 </Col>
 
-
                 <Col xs={12} md={3} className="px-md-5">
-                    <h4 className="footer-heading">Address</h4>
-                    <address>
-                        Rajaram Sitaram Dixit Library,<br />
-                        Post Office, Near, Main Road, Sitabuldi, Nagpur, Maharashtra 440012
-                    </address>
+                        <h4 className="footer-heading ">Address</h4>
+                        <address>
+                            Rajaram Sitaram Dixit Library,<br />
+                            Post Office, Near, Main Road, Sitabuldi, Nagpur, Maharashtra 440012
+                        </address>
                 </Col>
+
                 <Col xs={12} md={3} className="px-md-5">
                     <h4 className="footer-heading">Location</h4>
                     <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="footer-link">

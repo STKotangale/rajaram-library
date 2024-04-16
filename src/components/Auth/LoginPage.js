@@ -46,8 +46,8 @@ const LoginPage = () => {
   return (
     <>
       <Container fluid className="min-vh-100 d-flex flex-column main-landingpage">
-        {/* <Navbar bg="white" className="border-bottom navabar-color"> */}
-        <Navbar bg="white" expand="lg" className="mb-4 ms-5 mt-3 navabar-color">
+        {/* <Navbar bg="white" className="border-bottom  ms-5 mt-3 navabar-color"> */}
+        <Navbar bg="white" expand="lg" className="mb-4 navabar-color">
           <Navbar.Brand href="#home">
             <Image src={logoImage} alt="Library Logo" height="60" />
             <span className="h4 ms-4">Rajaram Library</span>

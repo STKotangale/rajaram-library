@@ -14,6 +14,9 @@ const FillBookDetails = () => {
     const [selectedBookId, setSelectedBookId] = useState(null);
     const [selectedPurchaseCopyNo, setSelectedPurchaseCopyNo] = useState('');
 
+    const [bookTypes, setBookTypes] = useState([]);
+    const [selectedBookType, setSelectedBookType] = useState('');
+
     const { username, accessToken } = useAuth();
 
     useEffect(() => {
@@ -141,6 +144,7 @@ const FillBookDetails = () => {
         volumeNo: '',
         fullCallNumber: '',
         accessionNo: '',
+        bookType:'',
     });
 
     const handleBookInputChange = (e) => {
@@ -168,6 +172,7 @@ const FillBookDetails = () => {
             const correctedBookData = {
                 bookName: selectedBook,
                 copyNumber: selectedPurchaseCopyNo,
+                bookType:selectedBookType,
 
                 isbn: bookDetails.ISBN,
                 language: bookDetails.language,
@@ -224,9 +229,30 @@ const FillBookDetails = () => {
         }
     };
 
-
     const handlePriceChange = (event) => {
         setBookPrice(event.target.value); // Update bookPrice with the input's current value
+    };
+
+    //get book types
+    useEffect(() => {
+        const fetchBookTypes = async () => {
+            try {
+                const response = await fetch(`${BaseURL}/api/bookTypes`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch book types');
+                }
+                const data = await response.json();
+                setBookTypes(data);
+            } catch (error) {
+                console.error('Error fetching book types:', error);
+            }
+        };
+        fetchBookTypes();
+    }, []);
+
+    const handleBookTypeChange = (event) => {
+        const selectedType = event.target.value;
+        setSelectedBookType(selectedType);
     };
 
     return (
@@ -237,6 +263,7 @@ const FillBookDetails = () => {
                         <h1 className="mt-4">Book Details</h1>
                         <div className="mt-5 border p-4">
                             <Form onSubmit={handleSubmitBookDetails}>
+
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
                                         <Form.Label>Book Name</Form.Label>
@@ -254,7 +281,6 @@ const FillBookDetails = () => {
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Purchase Copy No.</Form.Label>
                                         <Form.Control
@@ -274,7 +300,6 @@ const FillBookDetails = () => {
                                             }
                                         </Form.Control>
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Book Price</Form.Label>
                                         {/* <span>{bookPrice}</span> */}
@@ -286,8 +311,23 @@ const FillBookDetails = () => {
                                     </Form.Group>
                                 </Row>
 
-
                                 <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Book Type</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            name="bookTypeOption"
+                                            value={selectedBookType}
+                                            onChange={handleBookTypeChange}
+                                        >
+                                            <option value="">Select Book Type</option>
+                                            {bookTypes.map((bookType, index) => (
+                                                <option key={index} value={bookType.bookTypeName}>
+                                                    {bookType.bookTypeName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
+                                    </Form.Group>
                                     <Form.Group as={Col}>
                                         <Form.Label>Language</Form.Label>
                                         <Form.Control
@@ -303,23 +343,12 @@ const FillBookDetails = () => {
                                             ))}
                                         </Form.Control>
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>ISBN</Form.Label>
                                         <Form.Control
                                             type="text"
                                             name="ISBN"
                                             value={bookDetails.ISBN}
-                                            onChange={handleBookInputChange}
-                                        />
-                                    </Form.Group>
-
-                                    <Form.Group as={Col}>
-                                        <Form.Label>Classification Number</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            name="classificationNumber"
-                                            value={bookDetails.classificationNumber}
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
@@ -335,7 +364,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Book Author</Form.Label>
                                         <Form.Control
@@ -345,7 +373,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Editor</Form.Label>
                                         <Form.Control
@@ -367,7 +394,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Second Title</Form.Label>
                                         <Form.Control
@@ -377,7 +403,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Series Title</Form.Label>
                                         <Form.Control
@@ -399,7 +424,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Place of Publication</Form.Label>
                                         <Form.Control
@@ -409,7 +433,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Name of Publisher</Form.Label>
                                         <Form.Control
@@ -421,7 +444,6 @@ const FillBookDetails = () => {
                                     </Form.Group>
                                 </Row>
 
-
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
                                         <Form.Label>Publication Year</Form.Label>
@@ -432,7 +454,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>No. of Pages</Form.Label>
                                         <Form.Control
@@ -442,7 +463,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Subject Heading</Form.Label>
                                         <Form.Control
@@ -465,7 +485,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Third Author/Editor</Form.Label>
                                         <Form.Control
@@ -475,7 +494,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Item Type</Form.Label>
                                         <Form.Control
@@ -498,7 +516,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Currenmt Location</Form.Label>
                                         <Form.Control
@@ -508,7 +525,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Shelving Location</Form.Label>
                                         <Form.Control
@@ -523,6 +539,15 @@ const FillBookDetails = () => {
 
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
+                                        <Form.Label>Classification Number</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            name="classificationNumber"
+                                            value={bookDetails.classificationNumber}
+                                            onChange={handleBookInputChange}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group as={Col}>
                                         <Form.Label>Voume No.</Form.Label>
                                         <Form.Control
                                             type="number"
@@ -531,7 +556,6 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
-
                                     <Form.Group as={Col}>
                                         <Form.Label>Full Call No.</Form.Label>
                                         <Form.Control
@@ -541,7 +565,9 @@ const FillBookDetails = () => {
                                             onChange={handleBookInputChange}
                                         />
                                     </Form.Group>
+                                </Row>
 
+                                <Row className="mb-3">
                                     <Form.Group as={Col}>
                                         <Form.Label>Accession No.</Form.Label>
                                         <Form.Control

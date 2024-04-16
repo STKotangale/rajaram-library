@@ -12,7 +12,7 @@ import { AuthProvider } from './components/Auth/AuthProvider';
 // import App from './App';
 import LoginPage from './components/Auth/LoginPage';
 
-import Dashboard from './components/Library/MainDashboard/Dashboard';
+import Dashboard from './components/CommonFiles/Dashboard';
 
 import ContactUs from './components/CommonFiles/ContactUs';
 import AboutUs from './components/CommonFiles/AboutUs';

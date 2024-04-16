@@ -4,16 +4,16 @@ import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlu
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import '../LibraryCSS/Dashboard.css';
-import '../LibraryCSS/PurchaseBookDashboardData.css';
+import '../CommonFiles/CommonCSS/Dashboard.css';
+import '../../components/Library/LibraryCSS/PurchaseBookDashboardData.css';
 
-import logoImage from '../../../assets/rajalib.png';
-import Footer from '../../CommonFiles/Footer';
-import FillPurchaseDetails from '../FillPurchaseBookDetails/FillPurchaseDetails';
-import FillBookDetails from '../FillPurchaseBookDetails/FillBookDetails';
-import DashboardData from '../FillPurchaseBookDetails/DashboardData';
+import logoImage from '../../assets/rajalib.png';
+import Footer from './Footer';
+import FillPurchaseDetails from '../Library/Purchase/FillPurchaseDetails';
+import FillBookDetails from '../Library/Purchase/FillBookDetails';
+import DashboardData from '../Library/Purchase/DashboardData';
 
-import { useAuth } from '../../Auth/AuthProvider';
+import { useAuth } from '../Auth/AuthProvider';
 
 const Dashboard = () => {
     const navigate = useNavigate();
