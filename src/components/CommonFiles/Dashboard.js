@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, Bookshelf, Globe } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { useAuth } from '../Auth/AuthProvider';
 
 import '../CommonFiles/CommonCSS/Dashboard.css';
-import '../../components/Library/LibraryCSS/PurchaseBookDashboardData.css';
+import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
 
 import logoImage from '../../assets/rajalib.png';
 import Footer from './Footer';
 
 import DashboardData from './StaticDashboardData';
 
-import BookDetails from '../Library/Purchase/BookDetails';
-import PurchaseDetails from '../Library/Purchase/PurchaseDetails';
-import ShowPurchase from '../Library/Purchase/ShowPurchase';
+import PurchaseDetails from '../Inventory/Purchase/PurchaseDetails';
+import BookDetails from '../Inventory/Purchase/BookDetails';
 
-import { useAuth } from '../Auth/AuthProvider';
-import BookLanguages from '../Library/BookLanguages';
-import BookNames from '../Library/BookNames';
-import BookTypes from '../Library/BookTypes';
+import BookLanguages from '../Inventory/Book/BookLanguages';
+import BookNames from '../Inventory/Book/BookNames';
+import BookTypes from '../Inventory/Book/BookTypes';
 
-// import BookTypes from '../Library/BookType';
+import ShowPurchase from '../Inventory/Purchase/ShowPurchase';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -142,7 +141,6 @@ const Dashboard = () => {
         const { password, confirmPassword } = credentials;
         if (password === confirmPassword) {
             console.log('Password changed successfully!');
-            // Here, you'd handle the password change logic
             setShowChangePasswordModal(false);
             setCredentials({ password: '', confirmPassword: '' });
         } else {
@@ -156,6 +154,7 @@ const Dashboard = () => {
         toast.success('You have been logged out.');
         navigate('/');
     };
+
     // const handleGroupMemberLogin = () => {
     //     navigate('/')
     // }
@@ -171,10 +170,16 @@ const Dashboard = () => {
     }
 
 
-    const [showSubItems, setShowSubItems] = useState(false);
+    const [showInventorySubItems, setShowInventorySubItems] = useState(false);
 
-    const toggleSubItems = () => {
-        setShowSubItems(!showSubItems);
+    const toggleInventorySubItems = () => {
+        setShowInventorySubItems(!showInventorySubItems);
+    };
+
+    const [showMasterSubItems, setShowMasterSubItems] = useState(false);
+
+    const toggleMasterSubItems = () => {
+        setShowMasterSubItems(!showMasterSubItems);
     };
 
     return (
@@ -185,27 +190,32 @@ const Dashboard = () => {
                         <Image src={logoImage} className="rajalib-logo" height="50" />
                         <span className="h4 ms-2 mt-3">Rajaram Library</span>
                     </div>
-                    <ListGroup variant="flush" className="mt-5 custom-list-group">
+                    <ListGroup variant="flush" className="mt-5 ms-1 custom-list-group">
                         <Col lg={11} className="">
                             <ListGroup.Item className="home-icon" action onClick={handleHomeClick}>
                                 <HouseDoorFill className="icon" /> Home
                             </ListGroup.Item>
-                            <ListGroup.Item className="admin-general-icon mt-2" action>
-                                <Book className="icon" /> Library
-                            </ListGroup.Item>
-                            <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
-                                <CartPlusFill className="icon" /> Purchase
-                            </ListGroup.Item>
-                            <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
-                                <BookFill className="icon" /> Book Details
-                            </ListGroup.Item>
 
-
-                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={toggleSubItems}>
-                                <Book className="me-2" /> Book
+                            <ListGroup.Item className="admin-general-icon mt-2" action onClick={toggleInventorySubItems}>
+                                <Archive className="icon me-2" /> Inventory
                             </ListGroup.Item>
-                            {showSubItems && (
+                            {showInventorySubItems && (
                                 <>
+                                    <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
+                                        <CartPlusFill className="icon" /> Purchase
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
+                                        <BookFill className="icon" /> Book Details
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
+                                        <ExclamationTriangleFill className="icon" /> Issue
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
+                                        <ArrowReturnLeft className="icon" /> Issue Return
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
+                                        <CartDashFill className="icon" /> Purchase Return
+                                    </ListGroup.Item>
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
                                         <Globe className="me-2" /> Book Languages
                                     </ListGroup.Item>
@@ -218,39 +228,30 @@ const Dashboard = () => {
                                 </>
                             )}
 
-                            {/* <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
-                                <Globe className="me-2" /> Book Languages
-                            </ListGroup.Item>
-
-                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookName}>
-                                <Book className="me-2" /> Book Names
-                            </ListGroup.Item>
-
-                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
-                                <Bookshelf className="me-2" /> Book Types
-                            </ListGroup.Item> */}
-
-
                             {/* <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
                                 <ExclamationTriangleFill className="icon" /> Show Purchase
                             </ListGroup.Item> */}
-                            <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
-                                <ExclamationTriangleFill className="icon" /> Issue
-                            </ListGroup.Item>
-                            <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
-                                <ArrowReturnLeft className="icon" /> Issue Return
-                            </ListGroup.Item>
-                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
-                                <CartDashFill className="icon" /> Purchase Return
-                            </ListGroup.Item>
 
 
+                            <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
+                                <GearWideConnected className="icon" /> Master
+                            </ListGroup.Item>
+                            {showMasterSubItems && (
+                                <>
+                                    <ListGroup.Item className="admin-icon mt-2" action>
+                                        <PersonFill className="icon" />Admin
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="admin-icon mt-2" action>
+                                        <PeopleFill className="permanent-members-icon" />Permanent Members
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="admin-icon mt-2" action>
+                                        <People className="icon" /> General Member
+                                    </ListGroup.Item>
+                                </>
+                            )}
 
-                            {/* <ListGroup.Item className="admin-general-icon mt-2" action>
-                                    <People className="icon" /> General Member
-                                </ListGroup.Item>
-                                <ListGroup.Item className="login-icon mt-1" action onClick={handleGroupMemberLogin}>
-                                    <BoxArrowInRight className="icon" />Login
+                            {/* <ListGroup.Item className="login-icon mt-1" action onClick={handleGroupMemberLogin}>
+                                        <BoxArrowInRight className="icon" />Login
                                 </ListGroup.Item> */}
                         </Col>
                     </ListGroup>
@@ -281,20 +282,15 @@ const Dashboard = () => {
                         </Navbar.Collapse>
                     </Navbar>
                     <Container fluid className="min-vh-100 d-flex flex-column justify-content-between main-content">
-                        {/* <Container fluid className="container-fluid main-details"> */}
+
                         {viewDashboard && <DashboardData />}
                         {fillPurchaseDetails && <PurchaseDetails />}
                         {fillBookDetails && <BookDetails />}
-
                         {bookLanguages && <BookLanguages />}
-
                         {bookName && <BookNames />}
-
                         {bookType && <BookTypes />}
 
-
                         {viewPurchaseDetails && <ShowPurchase />}
-
                     </Container>
                     <Footer />
                 </div>

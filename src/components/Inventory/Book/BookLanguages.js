@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
-import { useAuth } from '../../components/Auth/AuthProvider';
+import { useAuth } from '../../Auth/AuthProvider';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
 
 const BookLanguages = () => {

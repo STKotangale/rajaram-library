@@ -1,57 +1,65 @@
-
 /* fixed siderbar and navabar */
 #sidebar-wrapper {
-    min-width: 250px;
-    max-width: 250px;
-    height: 100vh;
-    position: fixed;
-  }
-  
-  #page-content-wrapper {
-    width: 100%;
-    margin-top: 55px;
-    margin-left: 265px;
-    padding: 1.4px;
-  }
-  
-  
-  /* fixed navabar */
-  .dashboard-navabar {
-    padding: 0.75rem 1rem;
-    position: fixed;
-    top: 0;
-    left: 266px;
-    right: 0;
-    z-index: 2;
-  }
-  
-  /* .bg-orange {
+  min-width: 250px;
+  max-width: 250px;
+  height: 100vh;
+  position: fixed;
+  overflow-y: auto;
+  /* Add this line */
+
+}
+
+#page-content-wrapper {
+  width: 100%;
+  margin-top: 55px;
+  margin-left: 265px;
+  padding: 1.4px;
+}
+
+
+/* fixed navabar */
+.dashboard-navabar {
+  padding: 0.75rem 1rem;
+  position: fixed;
+  top: 0;
+  left: 266px;
+  right: 0;
+  z-index: 2;
+}
+
+/* .bg-orange {
       background-color: #ff4500;
   } */
-  
-  .border-right {
-    border-right: 1px solid #ddd;
-  }
-  
-  .icon {
-    margin-right: 0.5rem;
-  }
-  
-  /* //sidebar remove horizontal line */
-  .custom-list-group .list-group-item {
-    border: none;
-  }
-  
-  /* .custom-list-group .list-group-item + .list-group-item {
+
+.border-right {
+  border-right: 1px solid #ddd;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+/* //sidebar remove horizontal line */
+.custom-list-group .list-group-item {
+  border: none;
+}
+
+/* .custom-list-group .list-group-item + .list-group-item {
       border-top: none; 
     } */
-  
-  
-  .main-content {
-    padding: 1rem;
-  }
-  
-  .navbar .nav-link.dropdown-toggle::after {
-    display: none !important;
-  }
-  
+
+
+.main-content {
+  padding: 1rem;
+}
+
+.navbar .nav-link.dropdown-toggle::after {
+  display: none !important;
+}
+
+
+.admin-general-icon {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}

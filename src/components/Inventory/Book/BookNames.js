@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../Auth/AuthProvider';
+import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
