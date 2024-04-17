@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, Bookshelf, Globe } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
@@ -18,7 +18,10 @@ import ShowPurchase from '../Library/Purchase/ShowPurchase';
 
 import { useAuth } from '../Auth/AuthProvider';
 import BookLanguages from '../Library/BookLanguages';
-import BookTypes from '../Library/BookType';
+import BookNames from '../Library/BookNames';
+import BookTypes from '../Library/BookTypes';
+
+// import BookTypes from '../Library/BookType';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -27,8 +30,11 @@ const Dashboard = () => {
     const [fillPurchaseDetails, setFillPurchaseDetails] = useState(false);
     const [fillBookDetails, setFillBookDetails] = useState(false);
 
-    const [bookType, setBookType] = useState(false);
+    const [bookName, setBookName] = useState(false);
     const [bookLanguages, setBookLanguages] = useState(false);
+
+    const [bookType, setBookType] = useState(false);
+
 
     const [viewPurchaseDetails, setViewPurchaseDetails] = useState(false);
 
@@ -52,6 +58,7 @@ const Dashboard = () => {
         setFillPurchaseDetails(false);
         setFillBookDetails(false);
         setViewPurchaseDetails(false);
+        setBookName(false);
         setBookType(false);
     };
 
@@ -61,9 +68,8 @@ const Dashboard = () => {
         setViewDashboard(false);
         setViewPurchaseDetails(false);
         setBookLanguages(false);
+        setBookName(false);
         setBookType(false);
-
-
     };
 
     const handleBookDetailsClick = () => {
@@ -72,9 +78,8 @@ const Dashboard = () => {
         setViewDashboard(false);
         setViewPurchaseDetails(false);
         setBookLanguages(false);
+        setBookName(false);
         setBookType(false);
-
-
     };
 
     const handleBookLanguages = () => {
@@ -83,12 +88,15 @@ const Dashboard = () => {
         setFillBookDetails(false);
         setFillPurchaseDetails(false);
         setViewDashboard(false);
+        setBookName(false);
         setBookType(false);
-
     };
 
-    const handleShowPurchase = () => {
-        setViewPurchaseDetails(true);
+
+
+    const handleBookName = () => {
+        setBookName(true);
+        setViewPurchaseDetails(false);
         setFillBookDetails(false);
         setFillPurchaseDetails(false);
         setViewDashboard(false);
@@ -97,16 +105,27 @@ const Dashboard = () => {
     };
 
     const handleBookType = () => {
+        setBookType(true);
         setViewPurchaseDetails(false);
         setFillBookDetails(false);
         setFillPurchaseDetails(false);
         setViewDashboard(false);
         setBookLanguages(false);
-        setBookType(true);
+        setBookName(false);
     };
 
 
 
+
+    // const handleShowPurchase = () => {
+    //     setViewPurchaseDetails(true);
+    //     setFillBookDetails(false);
+    //     setFillPurchaseDetails(false);
+    //     setViewDashboard(false);
+    //     setBookLanguages(false);
+    //     setBookName(false);
+    //     setBookType(false);
+    // };
 
 
     //change password
@@ -151,6 +170,13 @@ const Dashboard = () => {
 
     }
 
+
+    const [showSubItems, setShowSubItems] = useState(false);
+
+    const toggleSubItems = () => {
+        setShowSubItems(!showSubItems);
+    };
+
     return (
         <div className='main-dashboard'>
             <div className="d-flex sidebar" id="wrapper">
@@ -174,20 +200,40 @@ const Dashboard = () => {
                                 <BookFill className="icon" /> Book Details
                             </ListGroup.Item>
 
-                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
-                                Book Languages
+
+                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={toggleSubItems}>
+                                <Book className="me-2" /> Book
+                            </ListGroup.Item>
+                            {showSubItems && (
+                                <>
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
+                                        <Globe className="me-2" /> Book Languages
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookName}>
+                                        <Book className="me-2" /> Book Names
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
+                                        <Bookshelf className="me-2" /> Book Types
+                                    </ListGroup.Item>
+                                </>
+                            )}
+
+                            {/* <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
+                                <Globe className="me-2" /> Book Languages
+                            </ListGroup.Item>
+
+                            <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookName}>
+                                <Book className="me-2" /> Book Names
                             </ListGroup.Item>
 
                             <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
-                                Book Type
-                            </ListGroup.Item>
+                                <Bookshelf className="me-2" /> Book Types
+                            </ListGroup.Item> */}
 
 
-
-
-                            <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
+                            {/* <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
                                 <ExclamationTriangleFill className="icon" /> Show Purchase
-                            </ListGroup.Item>
+                            </ListGroup.Item> */}
                             <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
                                 <ExclamationTriangleFill className="icon" /> Issue
                             </ListGroup.Item>
@@ -241,6 +287,8 @@ const Dashboard = () => {
                         {fillBookDetails && <BookDetails />}
 
                         {bookLanguages && <BookLanguages />}
+
+                        {bookName && <BookNames />}
 
                         {bookType && <BookTypes />}
 
