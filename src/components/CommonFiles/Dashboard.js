@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
 import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill } from 'react-bootstrap-icons';
@@ -20,7 +21,6 @@ import BookLanguages from '../Inventory/Book/BookLanguages';
 import BookNames from '../Inventory/Book/BookNames';
 import BookTypes from '../Inventory/Book/BookTypes';
 
-import ShowPurchase from '../Inventory/Purchase/ShowPurchase';
 
 const Dashboard = () => {
     const navigate = useNavigate();
@@ -289,8 +289,6 @@ const Dashboard = () => {
                         {bookLanguages && <BookLanguages />}
                         {bookName && <BookNames />}
                         {bookType && <BookTypes />}
-
-                        {viewPurchaseDetails && <ShowPurchase />}
                     </Container>
                     <Footer />
                 </div>

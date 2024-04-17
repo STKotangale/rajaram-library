@@ -27,7 +27,8 @@ const BookDetails = () => {
     //get book name and languages
     useEffect(() => {
         fetchBookNames();
-        fetchLanguages();
+        fetchBookLanguages();
+        fetchBookTypes();
     }, []);
 
     const fetchBookNames = async () => {
@@ -86,19 +87,56 @@ const BookDetails = () => {
     };
 
     // get languages
-    const [languages, setLanguages] = useState([]);
-    const fetchLanguages = async () => {
+    const [bookLanguages, setBookLanguages] = useState([]);
+    // const fetchLanguages = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/languages`);
+    //         if (!response.ok) {
+    //             throw new Error('Failed to fetch languages');
+    //         }
+    //         const languagesData = await response.json();
+    //         setLanguages(languagesData);
+    //     } catch (error) {
+    //         console.error('Error fetching languages:', error.message);
+    //         toast.error('Error fetching languages:', error.message);
+    //     }
+    // };
+
+    const fetchBookLanguages = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/languages`);
+            const response = await fetch(`${BaseURL}/api/auth/book-languages`);
             if (!response.ok) {
-                throw new Error('Failed to fetch languages');
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const languagesData = await response.json();
-            setLanguages(languagesData);
+            const data = await response.json();
+            setBookLanguages(data.data);
         } catch (error) {
-            console.error('Error fetching languages:', error.message);
-            toast.error('Error fetching languages:', error.message);
+            console.error('Error fetching book languages:', error);
         }
+    };
+
+    //get book types
+    const fetchBookTypes = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching book types: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setBookTypes(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching book types. Please try again later.');
+        }
+    };
+
+    const handleBookTypeChange = (event) => {
+        const selectedType = event.target.value;
+        setSelectedBookType(selectedType);
     };
 
     // get price
@@ -233,27 +271,7 @@ const BookDetails = () => {
         setBookPrice(event.target.value); // Update bookPrice with the input's current value
     };
 
-    //get book types
-    useEffect(() => {
-        const fetchBookTypes = async () => {
-            try {
-                const response = await fetch(`${BaseURL}/api/bookTypes`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch book types');
-                }
-                const data = await response.json();
-                setBookTypes(data);
-            } catch (error) {
-                console.error('Error fetching book types:', error);
-            }
-        };
-        fetchBookTypes();
-    }, []);
 
-    const handleBookTypeChange = (event) => {
-        const selectedType = event.target.value;
-        setSelectedBookType(selectedType);
-    };
 
     return (
         <div className="main-content-book-details">
@@ -336,7 +354,7 @@ const BookDetails = () => {
                                             onChange={handleBookInputChange}
                                         >
                                             <option value="">Select Language</option>
-                                            {languages.map((language, index) => (
+                                            {bookLanguages.map((language, index) => (
                                                 <option key={index} value={language.bookLangName}>
                                                     {language.bookLangName}
                                                 </option>
