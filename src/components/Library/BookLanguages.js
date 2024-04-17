@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
@@ -9,7 +10,6 @@ const BookLanguages = () => {
     const [bookLanguages, setBookLanguages] = useState([]);
 
     const [isBlock, setIsBlock] = useState(false);
-
 
     //add new book lang
     const [addBookLangName, setAddBookLangName] = useState('');
@@ -51,9 +51,8 @@ const BookLanguages = () => {
         event.preventDefault();
         const payload = {
             bookLangName: addBookLangName,
-            isBlock: isBlock
+            // isBlock: isBlock
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/auth/book-languages`, {
                 method: 'POST',
@@ -68,8 +67,8 @@ const BookLanguages = () => {
             const data = await response.json();
 
             setBookLanguages([...bookLanguages, data.data]);
-            setShowAddLanguage(false);  // Close the modal after successful addition
-            setAddBookLangName('');  // Reset the input field
+            setShowAddLanguage(false);  
+            setAddBookLangName('');  
         } catch (error) {
             console.error('Error adding book language:', error.message);
         }
@@ -165,7 +164,7 @@ const BookLanguages = () => {
             <div className=''>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
-                        Add Book
+                        Add Book language
                     </Button>
                 </div>
                 <div className='mt-3'>
@@ -216,7 +215,7 @@ const BookLanguages = () => {
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="isBlocked">
+                            {/* <Form.Group className="mb-3" controlId="isBlocked">
                                 <Form.Label>Is Blocked</Form.Label>
                                 <Form.Select
                                     value={isBlock ? 'Yes' : 'No'}
@@ -226,7 +225,7 @@ const BookLanguages = () => {
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </Form.Select>
-                            </Form.Group>
+                            </Form.Group> */}
                             <Button className='button-color' type="submit">
                                 Submit
                             </Button>
@@ -254,7 +253,7 @@ const BookLanguages = () => {
                             <Form.Group className="mb-3" controlId="isBlocked">
                                 <Form.Label>Is Blocked</Form.Label>
                                 <Form.Select
-                                    value={editableLanguage.isBlock ? 'Yes' : 'No'} // Use editableLanguage.isBlock
+                                    value={editableLanguage.isBlock ? 'Yes' : 'No'} 
                                     onChange={(e) => setEditableLanguage({ ...editableLanguage, isBlock: e.target.value === 'Yes' })}
                                     required
                                 >

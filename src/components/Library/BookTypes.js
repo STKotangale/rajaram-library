@@ -9,7 +9,7 @@ import 'react-toastify/dist/ReactToastify.css';
 const BookTypes = () => {
     const [bookTypes, setBookTypes] = useState([]);
     const [newBookTypeName, setNewBookTypeName] = useState('');
-    // const [isBlock, setIsBlock] = useState(false);
+    const [isBlock, setIsBlock] = useState(false);
     const [selectedBookTypeId, setSelectedBookTypeId] = useState(null);
     const [showAddBookTypeModal, setShowAddBookTypeModal] = useState(false);
     const [showEditBookTypeModal, setShowEditBookTypeModal] = useState(false);
@@ -74,7 +74,7 @@ const BookTypes = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ bookTypeName: newBookTypeName }),
+                body: JSON.stringify({ bookTypeName: newBookTypeName,isBlock: isBlock.toString()  }),
             });
             if (!response.ok) {
                 throw new Error(`Error editing book type: ${response.statusText}`);
@@ -82,13 +82,14 @@ const BookTypes = () => {
             const updatedBookTypeData = await response.json();
             const updatedBookTypes = bookTypes.map(bookType => {
                 if (bookType.id === selectedBookTypeId) {
-                    return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName };
+                    return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName,isBlock: updatedBookTypeData.data.isBlock };
                 }
                 return bookType;
             });
             setBookTypes(updatedBookTypes);
             setShowEditBookTypeModal(false);
             setNewBookTypeName('');
+            setIsBlock(false);
             toast.success('Book type edited successfully.');
         } catch (error) {
             console.error(error);
@@ -130,6 +131,7 @@ const BookTypes = () => {
                     <tr>
                         <th>Book Type ID</th>
                         <th>Book Type Name</th>
+                        <th>Is Blocked</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -138,12 +140,17 @@ const BookTypes = () => {
                         <tr key={bookType.id}>
                             <td>{bookType.id}</td>
                             <td>{bookType.bookTypeName}</td>
+                            <td>{bookType.isBlock === 'true' ? 'Yes' : 'No'}</td>
+
                             <td>
                                 <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                     setSelectedBookTypeId(bookType.id);
                                     setNewBookTypeName(bookType.bookTypeName);
                                     setShowEditBookTypeModal(true);
+                                    setIsBlock(bookType.isBlock === 'true');
+
                                 }} />
+                             
                                 <Trash className="ms-3 action-icon delete-icon" onClick={() => {
                                     setSelectedBookTypeId(bookType.id);
                                     setShowDeleteConfirmation(true);
@@ -198,6 +205,17 @@ const BookTypes = () => {
                                 onChange={(e) => setNewBookTypeName(e.target.value)}
                                 required
                             />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="editedBookIsBlocked">
+                            <Form.Label>Is Blocked</Form.Label>
+                            <Form.Select
+                                value={isBlock ? 'Yes' : 'No'}
+                                onChange={(e) => setIsBlock(e.target.value === 'Yes')}
+                                required
+                            >
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </Form.Select>
                         </Form.Group>
                         <div className='d-flex justify-content-end'>
                             <Button className='button-color' type="submit">

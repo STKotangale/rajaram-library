@@ -49,7 +49,9 @@ const BookNames = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ bookName: newBookName, isBlock: isBlock.toString() }),
+                body: JSON.stringify({ bookName: newBookName }),
+                // body: JSON.stringify({ bookName: newBookName, isBlock: isBlock.toString() }),
+
             });
             if (!response.ok) {
                 throw new Error(`Error adding book: ${response.statusText}`);
@@ -58,7 +60,7 @@ const BookNames = () => {
             setBooks([...books, newBook.data]);
             setShowAddBookModal(false);
             setNewBookName('');
-            setIsBlock(false);
+            // setIsBlock(false);
             toast.success('Book added successfully.');
         } catch (error) {
             console.error(error);
@@ -122,7 +124,7 @@ const BookNames = () => {
         <Container>
             <div className='mt-3'>
             <Button onClick={() => setShowAddBookModal(true)} className="button-color">
-                Add Book
+                Add Book Name
             </Button>
             </div>
             <div className='mt-3'>
@@ -178,7 +180,7 @@ const BookNames = () => {
                                 required
                             />
                         </Form.Group>
-                        <Form.Group className="mb-3" controlId="isBlock">
+                        {/* <Form.Group className="mb-3" controlId="isBlock">
                             <Form.Label>Is Blocked</Form.Label>
                             <Form.Select
                                 value={isBlock ? 'Yes' : 'No'}
@@ -188,7 +190,7 @@ const BookNames = () => {
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
                             </Form.Select>
-                        </Form.Group>
+                        </Form.Group> */}
                         <div className='d-flex justify-content-end'>
                             <Button className='button-color' type="submit">
                                 Submit
