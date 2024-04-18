@@ -1,0 +1,7 @@
+
+
+.table-container-permanent-member {
+    flex: 1; 
+    overflow-y: auto;
+    margin-right: 80px;
+}

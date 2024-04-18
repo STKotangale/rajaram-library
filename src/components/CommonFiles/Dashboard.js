@@ -18,8 +18,9 @@ import PurchaseDetails from '../Inventory/Purchase/PurchaseDetails';
 import BookDetails from '../Inventory/Purchase/BookDetails';
 
 import BookLanguages from '../Inventory/Book/BookLanguages';
-import BookNames from '../Inventory/Book/BookNames';
+import BookNames from '../Inventory/Book/Books';
 import BookTypes from '../Inventory/Book/BookTypes';
+import PermanentMember from '../Inventory/PermanentMember';
 
 
 const Dashboard = () => {
@@ -34,6 +35,7 @@ const Dashboard = () => {
 
     const [bookType, setBookType] = useState(false);
 
+    const [permanentMember, setPermanentMember] = useState(false);
 
     const [viewPurchaseDetails, setViewPurchaseDetails] = useState(false);
 
@@ -59,6 +61,7 @@ const Dashboard = () => {
         setViewPurchaseDetails(false);
         setBookName(false);
         setBookType(false);
+        setPermanentMember(false);
     };
 
     const handlePurchaseDetailsClick = () => {
@@ -69,6 +72,7 @@ const Dashboard = () => {
         setBookLanguages(false);
         setBookName(false);
         setBookType(false);
+        setPermanentMember(false);
     };
 
     const handleBookDetailsClick = () => {
@@ -79,6 +83,7 @@ const Dashboard = () => {
         setBookLanguages(false);
         setBookName(false);
         setBookType(false);
+        setPermanentMember(false);
     };
 
     const handleBookLanguages = () => {
@@ -89,6 +94,7 @@ const Dashboard = () => {
         setViewDashboard(false);
         setBookName(false);
         setBookType(false);
+        setPermanentMember(false);
     };
 
 
@@ -101,6 +107,7 @@ const Dashboard = () => {
         setViewDashboard(false);
         setBookLanguages(false);
         setBookType(false);
+        setPermanentMember(false);
     };
 
     const handleBookType = () => {
@@ -111,6 +118,19 @@ const Dashboard = () => {
         setViewDashboard(false);
         setBookLanguages(false);
         setBookName(false);
+        setPermanentMember(false);
+    };
+
+    const handlePermanentMember = () => {
+        setBookType(false);
+        setViewPurchaseDetails(false);
+        setFillBookDetails(false);
+        setFillPurchaseDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookName(false);
+        setPermanentMember(true);
+
     };
 
 
@@ -244,7 +264,7 @@ const Dashboard = () => {
                                     <ListGroup.Item className="admin-icon mt-2" action>
                                         <PeopleFill className="permanent-members-icon" />Permanent Members
                                     </ListGroup.Item>
-                                    <ListGroup.Item className="admin-icon mt-2" action>
+                                    <ListGroup.Item className="admin-icon mt-2" action  onClick={handleBookType}>
                                         <People className="icon" /> General Member
                                     </ListGroup.Item>
                                 </>
@@ -253,6 +273,10 @@ const Dashboard = () => {
                             {/* <ListGroup.Item className="login-icon mt-1" action onClick={handleGroupMemberLogin}>
                                         <BoxArrowInRight className="icon" />Login
                                 </ListGroup.Item> */}
+
+                            <ListGroup.Item className="admin-icon mt-2" action onClick={handlePermanentMember}>
+                                <People className="icon" /> Permanent Member
+                            </ListGroup.Item>
                         </Col>
                     </ListGroup>
                 </div>
@@ -289,6 +313,9 @@ const Dashboard = () => {
                         {bookLanguages && <BookLanguages />}
                         {bookName && <BookNames />}
                         {bookType && <BookTypes />}
+
+                        {permanentMember && <PermanentMember />}
+
                     </Container>
                     <Footer />
                 </div>
