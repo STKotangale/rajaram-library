@@ -20,6 +20,7 @@ import BookDetails from '../Inventory/Purchase/BookDetails';
 import BookLanguages from '../Inventory/Book/BookLanguages';
 import BookNames from '../Inventory/Book/Books';
 import BookTypes from '../Inventory/Book/BookTypes';
+
 // import PermanentMember from '../Auth/PermanentMember';
 
 
@@ -227,7 +228,7 @@ const Dashboard = () => {
                                     <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
                                         <BookFill className="icon" /> Book Details
                                     </ListGroup.Item>
-                                    <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
+                                    {/* <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
                                         <ExclamationTriangleFill className="icon" /> Issue
                                     </ListGroup.Item>
                                     <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
@@ -235,12 +236,12 @@ const Dashboard = () => {
                                     </ListGroup.Item>
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
                                         <CartDashFill className="icon" /> Purchase Return
-                                    </ListGroup.Item>
+                                    </ListGroup.Item> */}
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
                                         <Globe className="me-2" /> Book Languages
                                     </ListGroup.Item>
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookName}>
-                                        <Book className="me-2" /> Book Names
+                                        <Book className="me-2" /> Book
                                     </ListGroup.Item>
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
                                         <Bookshelf className="me-2" /> Book Types
@@ -253,7 +254,7 @@ const Dashboard = () => {
                             </ListGroup.Item> */}
 
 
-                            <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
+                            {/* <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
                                 <GearWideConnected className="icon" /> Master
                             </ListGroup.Item>
                             {showMasterSubItems && (
@@ -268,7 +269,7 @@ const Dashboard = () => {
                                         <People className="icon" /> General Member
                                     </ListGroup.Item>
                                 </>
-                            )}
+                            )} */}
 
                             {/* <ListGroup.Item className="login-icon mt-1" action onClick={handleGroupMemberLogin}>
                                         <BoxArrowInRight className="icon" />Login
