@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../components/Auth/AuthProvider';
+import { useAuth } from './AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
 import { PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './Pm.css';
+import './AuthCSS/PermanentMember.css';
 const PermanentMember = () => {
     const [permanentMember, setPermanentMember] = useState([
         {

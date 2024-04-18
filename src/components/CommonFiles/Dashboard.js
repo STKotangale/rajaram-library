@@ -20,7 +20,7 @@ import BookDetails from '../Inventory/Purchase/BookDetails';
 import BookLanguages from '../Inventory/Book/BookLanguages';
 import BookNames from '../Inventory/Book/Books';
 import BookTypes from '../Inventory/Book/BookTypes';
-import PermanentMember from '../Inventory/PermanentMember';
+// import PermanentMember from '../Auth/PermanentMember';
 
 
 const Dashboard = () => {
@@ -274,9 +274,9 @@ const Dashboard = () => {
                                         <BoxArrowInRight className="icon" />Login
                                 </ListGroup.Item> */}
 
-                            <ListGroup.Item className="admin-icon mt-2" action onClick={handlePermanentMember}>
+                            {/* <ListGroup.Item className="admin-icon mt-2" action onClick={handlePermanentMember}>
                                 <People className="icon" /> Permanent Member
-                            </ListGroup.Item>
+                            </ListGroup.Item> */}
                         </Col>
                     </ListGroup>
                 </div>
@@ -314,7 +314,7 @@ const Dashboard = () => {
                         {bookName && <BookNames />}
                         {bookType && <BookTypes />}
 
-                        {permanentMember && <PermanentMember />}
+                        {/* {permanentMember && <PermanentMember />} */}
 
                     </Container>
                     <Footer />
