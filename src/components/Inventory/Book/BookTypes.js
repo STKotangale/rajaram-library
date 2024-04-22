@@ -74,7 +74,7 @@ const BookTypes = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ bookTypeName: newBookTypeName,isBlock: isBlock.toString()  }),
+                body: JSON.stringify({ bookTypeName: newBookTypeName, isBlock: isBlock.toString() }),
             });
             if (!response.ok) {
                 throw new Error(`Error editing book type: ${response.statusText}`);
@@ -82,7 +82,7 @@ const BookTypes = () => {
             const updatedBookTypeData = await response.json();
             const updatedBookTypes = bookTypes.map(bookType => {
                 if (bookType.id === selectedBookTypeId) {
-                    return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName,isBlock: updatedBookTypeData.data.isBlock };
+                    return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName, isBlock: updatedBookTypeData.data.isBlock };
                 }
                 return bookType;
             });
@@ -118,130 +118,134 @@ const BookTypes = () => {
     };
 
     return (
-        <Container>
-            <div className='mt-3'>
-            <Button onClick={() => setShowAddBookTypeModal(true)} className="button-color">
-                Add Book Type
-            </Button>
-            </div>
-            <div className='mt-3'>
+        <div className="main-content">
 
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Book Type ID</th>
-                        <th>Book Type Name</th>
-                        <th>Is Blocked</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {bookTypes.map((bookType) => (
-                        <tr key={bookType.id}>
-                            <td>{bookType.id}</td>
-                            <td>{bookType.bookTypeName}</td>
-                            <td>{bookType.isBlock === 'true' ? 'Yes' : 'No'}</td>
-
-                            <td>
-                                <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                    setSelectedBookTypeId(bookType.id);
-                                    setNewBookTypeName(bookType.bookTypeName);
-                                    setShowEditBookTypeModal(true);
-                                    setIsBlock(bookType.isBlock === 'true');
-
-                                }} />
-                             
-                                <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                    setSelectedBookTypeId(bookType.id);
-                                    setShowDeleteConfirmation(true);
-                                }} />
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-            </div>
-
-
-            {/* Add Book Type Modal */}
-            <Modal show={showAddBookTypeModal} onHide={() => setShowAddBookTypeModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add New Book Type</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={addBookType}>
-                        <Form.Group className="mb-3" controlId="newBookTypeName">
-                            <Form.Label>Book Type Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter book type name"
-                                value={newBookTypeName}
-                                onChange={(e) => setNewBookTypeName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <div className='d-flex justify-content-end'>
-                            <Button className='button-color' type="submit">
-                                Submit
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
-            </Modal>
-
-            {/* Edit Book Type Modal */}
-            <Modal show={showEditBookTypeModal} onHide={() => setShowEditBookTypeModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Book Type</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={editBookType}>
-                        <Form.Group className="mb-3" controlId="editedBookTypeName">
-                            <Form.Label>Book Type Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter edited book type name"
-                                value={newBookTypeName}
-                                onChange={(e) => setNewBookTypeName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="editedBookIsBlocked">
-                            <Form.Label>Is Blocked</Form.Label>
-                            <Form.Select
-                                value={isBlock ? 'Yes' : 'No'}
-                                onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                required
-                            >
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <div className='d-flex justify-content-end'>
-                            <Button className='button-color' type="submit">
-                                Update
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
-            </Modal>
-
-            {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Delete</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this book type?</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
-                        Cancel
+            <Container>
+                <div className='mt-3'>
+                    <Button onClick={() => setShowAddBookTypeModal(true)} className="button-color">
+                        Add Book Type
                     </Button>
-                    <Button variant="danger" onClick={deleteBookType}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </Container>
+                </div>
+                <div className='mt-3'>
+
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Book Type ID</th>
+                                <th>Book Type Name</th>
+                                <th>Is Blocked</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {bookTypes.map((bookType) => (
+                                <tr key={bookType.id}>
+                                    <td>{bookType.id}</td>
+                                    <td>{bookType.bookTypeName}</td>
+                                    <td>{bookType.isBlock === 'true' ? 'Yes' : 'No'}</td>
+
+                                    <td>
+                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                            setSelectedBookTypeId(bookType.id);
+                                            setNewBookTypeName(bookType.bookTypeName);
+                                            setShowEditBookTypeModal(true);
+                                            setIsBlock(bookType.isBlock === 'true');
+
+                                        }} />
+
+                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                            setSelectedBookTypeId(bookType.id);
+                                            setShowDeleteConfirmation(true);
+                                        }} />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
+
+
+                {/* Add Book Type Modal */}
+                <Modal show={showAddBookTypeModal} onHide={() => setShowAddBookTypeModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add New Book Type</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={addBookType}>
+                            <Form.Group className="mb-3" controlId="newBookTypeName">
+                                <Form.Label>Book Type Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter book type name"
+                                    value={newBookTypeName}
+                                    onChange={(e) => setNewBookTypeName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Submit
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
+                {/* Edit Book Type Modal */}
+                <Modal show={showEditBookTypeModal} onHide={() => setShowEditBookTypeModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit Book Type</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={editBookType}>
+                            <Form.Group className="mb-3" controlId="editedBookTypeName">
+                                <Form.Label>Book Type Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter edited book type name"
+                                    value={newBookTypeName}
+                                    onChange={(e) => setNewBookTypeName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="editedBookIsBlocked">
+                                <Form.Label>Is Blocked</Form.Label>
+                                <Form.Select
+                                    value={isBlock ? 'Yes' : 'No'}
+                                    onChange={(e) => setIsBlock(e.target.value === 'Yes')}
+                                    required
+                                >
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </Form.Select>
+                            </Form.Group>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Update
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
+                {/* Delete Confirmation Modal */}
+                <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Delete</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>Are you sure you want to delete this book type?</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={deleteBookType}>
+                            Delete
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </Container>
+        </div>
+
     );
 };
 

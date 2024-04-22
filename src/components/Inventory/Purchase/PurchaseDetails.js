@@ -245,7 +245,6 @@ const PurchaseDetails = () => {
                                         <Form.Control
                                             type="text"
                                             value={invoiceNumber}
-                                            readOnly
                                             onChange={(e) => setInvoiceNumber(e.target.value)}
                                         />
                                     </Form.Group>
@@ -381,7 +380,7 @@ const PurchaseDetails = () => {
                                             <td></td>
                                             <td></td>
                                             <td></td>
-                                            <td>Grand Total:</td>
+                                            <td>Grand Total</td>
                                             <td>{calculateGrandTotal()}</td>
                                         </tr>
                                     </tbody>

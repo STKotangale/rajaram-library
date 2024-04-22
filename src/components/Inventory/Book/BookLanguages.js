@@ -160,8 +160,9 @@ const BookLanguages = () => {
 
 
     return (
+        <div className="main-content">
+
         <Container>
-            <div className=''>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
                         Add Book language
@@ -288,8 +289,9 @@ const BookLanguages = () => {
                     </Modal.Footer>
                 </Modal>
 
-            </div>
         </Container>
+        </div>
+
     );
 };
 

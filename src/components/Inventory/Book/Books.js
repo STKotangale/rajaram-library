@@ -6,7 +6,7 @@ import { PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const BookNames = () => {
+const Books = () => {
     const [books, setBooks] = useState([]);
     const [newBookName, setNewBookName] = useState('');
     const [isBlock, setIsBlock] = useState(false);
@@ -121,66 +121,68 @@ const BookNames = () => {
     };
 
     return (
-        <Container>
-            <div className='mt-3'>
-            <Button onClick={() => setShowAddBookModal(true)} className="button-color">
-                Add Book Name
-            </Button>
-            </div>
-            <div className='mt-3'>
+        <div className="main-content">
 
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Book ID</th>
-                        <th>Book Name</th>
-                        <th>Is Blocked</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {books.map((book) => (
-                        <tr key={book.bookId}>
-                            <td>{book.bookId}</td>
-                            <td>{book.bookName}</td>
-                            <td>{book.isBlock === 'true' ? 'Yes' : 'No'}</td>
-                            <td>
-                                <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                    setSelectedBookId(book.bookId);
-                                    setNewBookName(book.bookName);
-                                    setIsBlock(book.isBlock === 'true');
-                                    setShowEditBookModal(true);
-                                }} />
-                                <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                    setSelectedBookId(book.bookId);
-                                    setShowDeleteConfirmation(true);
-                                }} />
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-            </div>
+            <Container>
+                <div className='mt-3'>
+                    <Button onClick={() => setShowAddBookModal(true)} className="button-color">
+                        Add Book
+                    </Button>
+                </div>
+                <div className='mt-3'>
+
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Book ID</th>
+                                <th>Book</th>
+                                <th>Is Blocked</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {books.map((book) => (
+                                <tr key={book.bookId}>
+                                    <td>{book.bookId}</td>
+                                    <td>{book.bookName}</td>
+                                    <td>{book.isBlock === 'true' ? 'Yes' : 'No'}</td>
+                                    <td>
+                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                            setSelectedBookId(book.bookId);
+                                            setNewBookName(book.bookName);
+                                            setIsBlock(book.isBlock === 'true');
+                                            setShowEditBookModal(true);
+                                        }} />
+                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                            setSelectedBookId(book.bookId);
+                                            setShowDeleteConfirmation(true);
+                                        }} />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </div>
 
 
-            {/* Add Book Modal */}
-            <Modal show={showAddBookModal} onHide={() => setShowAddBookModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add New Book</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={addBook}>
-                        <Form.Group className="mb-3" controlId="newBookName">
-                            <Form.Label>Book Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter book name"
-                                value={newBookName}
-                                onChange={(e) => setNewBookName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        {/* <Form.Group className="mb-3" controlId="isBlock">
+                {/* Add Book Modal */}
+                <Modal show={showAddBookModal} onHide={() => setShowAddBookModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add New Book</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={addBook}>
+                            <Form.Group className="mb-3" controlId="newBookName">
+                                <Form.Label>Book Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter book name"
+                                    value={newBookName}
+                                    onChange={(e) => setNewBookName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            {/* <Form.Group className="mb-3" controlId="isBlock">
                             <Form.Label>Is Blocked</Form.Label>
                             <Form.Select
                                 value={isBlock ? 'Yes' : 'No'}
@@ -191,69 +193,71 @@ const BookNames = () => {
                                 <option value="No">No</option>
                             </Form.Select>
                         </Form.Group> */}
-                        <div className='d-flex justify-content-end'>
-                            <Button className='button-color' type="submit">
-                                Submit
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
-            </Modal>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Submit
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
 
-            {/* Edit Book Modal */}
-            <Modal show={showEditBookModal} onHide={() => setShowEditBookModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Book</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={editBook}>
-                        <Form.Group className="mb-3" controlId="editedBookName">
-                            <Form.Label>Book Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter edited book name"
-                                value={newBookName}
-                                onChange={(e) => setNewBookName(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="editedBookIsBlocked">
-                            <Form.Label>Is Blocked</Form.Label>
-                            <Form.Select
-                                value={isBlock ? 'Yes' : 'No'}
-                                onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                required
-                            >
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <div className='d-flex justify-content-end'>
-                            <Button className='button-color' type="submit">
-                                Update
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
-            </Modal>
+                {/* Edit Book Modal */}
+                <Modal show={showEditBookModal} onHide={() => setShowEditBookModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit Book</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={editBook}>
+                            <Form.Group className="mb-3" controlId="editedBookName">
+                                <Form.Label>Book Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter edited book name"
+                                    value={newBookName}
+                                    onChange={(e) => setNewBookName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="editedBookIsBlocked">
+                                <Form.Label>Is Blocked</Form.Label>
+                                <Form.Select
+                                    value={isBlock ? 'Yes' : 'No'}
+                                    onChange={(e) => setIsBlock(e.target.value === 'Yes')}
+                                    required
+                                >
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </Form.Select>
+                            </Form.Group>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Update
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
 
-            {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Delete</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this book?</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={deleteBook}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </Container>
+                {/* Delete Confirmation Modal */}
+                <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Delete</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>Are you sure you want to delete this book?</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={deleteBook}>
+                            Delete
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </Container>
+        </div>
+
     );
 };
 
-export default BookNames;
+export default Books;

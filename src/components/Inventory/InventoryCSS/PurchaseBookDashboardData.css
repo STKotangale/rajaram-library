@@ -52,11 +52,11 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .dashboard-card .card-title {
     font-size: 2rem;
   }
-}
+} */
 
 /* fill purchase and book details */
 .button-color {
@@ -68,12 +68,14 @@
 .table-bordered-dark th,
 .table-bordered-dark td {
   border: none;
-  background-color: rgba(242, 126, 0, 0);
+  background-color:whitesmoke;
+  /* background-color: rgba(242, 126, 0, 0); */
 
 }
 
-.page-details {
-  background-color: rgba(242, 126, 0, 0.1);
+.dashboard-page-details {
+  /* background-color: rgba(242, 126, 0, 0.1); */
+  background-color:light;
 }
 
 /* .table-bordered-dark tr {

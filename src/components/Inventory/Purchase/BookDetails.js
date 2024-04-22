@@ -274,7 +274,7 @@ const BookDetails = () => {
 
 
     return (
-        <div className="main-content-book-details">
+        <div className="main-content">
             <Container>
                 <Row className="book-details-main">
                     <Col xs={12} md={10} lg={10}>
