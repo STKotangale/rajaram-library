@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill , Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -14,7 +14,7 @@ import Footer from './Footer';
 
 import DashboardData from './StaticDashboardData';
 
-import PurchaseDetails from '../Inventory/Purchase/PurchaseDetails';
+// import PurchaseDetails from '../Inventory/Purchase/PurchaseDetails';
 import BookDetails from '../Inventory/Purchase/BookDetails';
 
 import BookLanguages from '../Inventory/Book/BookLanguages';
@@ -22,24 +22,28 @@ import Books from '../Inventory/Book/Books';
 import BookTypes from '../Inventory/Book/BookTypes';
 import ViewPurchase from '../Inventory/Purchase/ViewPurchase';
 
-// import PermanentMember from '../Auth/PermanentMember';
+import PermanentMember from '../Auth/PermanentMember';
+import GeneralMember from '../Auth/GeneralMember';
+
 
 
 const Dashboard = () => {
     const navigate = useNavigate();
 
     const [viewDashboard, setViewDashboard] = useState(true);
-    const [fillPurchaseDetails, setFillPurchaseDetails] = useState(false);
+    // const [fillPurchaseDetails, setFillPurchaseDetails] = useState(false);
     const [fillBookDetails, setFillBookDetails] = useState(false);
 
     const [books, setBooks] = useState(false);
     const [bookLanguages, setBookLanguages] = useState(false);
     const [bookType, setBookType] = useState(false);
 
+    const [viewPurchase, setViewPurchase] = useState(false);
 
     const [permanentMember, setPermanentMember] = useState(false);
 
-    const [viewPurchase, setViewPurchase] = useState(false);
+    const [generalMember, setGeneralMember] = useState(false);
+
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -58,92 +62,106 @@ const Dashboard = () => {
 
     const handleHomeClick = () => {
         setViewDashboard(true);
-        setFillPurchaseDetails(false);
         setFillBookDetails(false);
-        setViewPurchase(false);
-        setBooks(false);
-        setBookType(false);
-        setPermanentMember(false);
-    };
-
-    const handlePurchaseDetailsClick = () => {
-        setFillPurchaseDetails(true);
-        setFillBookDetails(false);
-        setViewDashboard(false);
         setViewPurchase(false);
         setBookLanguages(false);
         setBooks(false);
         setBookType(false);
         setPermanentMember(false);
+        setGeneralMember(false);
     };
+
+    // const handlePurchaseDetailsClick = () => {
+    //     setFillPurchaseDetails(true);
+    //     setFillBookDetails(false);
+    //     setViewDashboard(false);
+    //     setViewPurchase(false);
+    //     setBookLanguages(false);
+    //     setBooks(false);
+    //     setBookType(false);
+    //     setPermanentMember(false);
+    //     setGeneralMember(false);
+    // };
 
     const handleBookDetailsClick = () => {
         setFillBookDetails(true);
-        setFillPurchaseDetails(false);
         setViewDashboard(false);
         setViewPurchase(false);
         setBookLanguages(false);
         setBooks(false);
         setBookType(false);
         setPermanentMember(false);
+        setGeneralMember(false);
     };
 
     const handleBookLanguages = () => {
         setBookLanguages(true);
         setViewPurchase(false);
         setFillBookDetails(false);
-        setFillPurchaseDetails(false);
         setViewDashboard(false);
         setBooks(false);
         setBookType(false);
         setPermanentMember(false);
+        setGeneralMember(false);
     };
-
 
 
     const handleBookName = () => {
         setBooks(true);
         setViewPurchase(false);
         setFillBookDetails(false);
-        setFillPurchaseDetails(false);
         setViewDashboard(false);
         setBookLanguages(false);
         setBookType(false);
         setPermanentMember(false);
+        setGeneralMember(false);
     };
 
     const handleBookType = () => {
         setBookType(true);
         setViewPurchase(false);
         setFillBookDetails(false);
-        setFillPurchaseDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBooks(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+    };
+
+    const handleShowPurchase = () => {
+        setViewPurchase(true);
+        setBookType(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBooks(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+    };
+
+
+    const handlePermanentMember = () => {
+        setPermanentMember(true);
+        setBookType(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBooks(false);
+        setGeneralMember(false);
+    };
+
+
+    const handleGeneralMember = () => {
+        setGeneralMember(true);
+        setBookType(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
         setViewDashboard(false);
         setBookLanguages(false);
         setBooks(false);
         setPermanentMember(false);
     };
-
-    const handleShowPurchase = () => {
-        setViewPurchase(true);
-        setFillBookDetails(false);
-        setFillPurchaseDetails(false);
-        setViewDashboard(false);
-        setBookLanguages(false);
-        setBooks(false);
-        setBookType(false);
-    };
-
-
-    // const handlePermanentMember = () => {
-    //     setBookType(false);
-    //     setViewPurchase(false);
-    //     setFillBookDetails(false);
-    //     setFillPurchaseDetails(false);
-    //     setViewDashboard(false);
-    //     setBookLanguages(false);
-    //     setBooks(false);
-    //     setPermanentMember(true);
-    // };
 
     //change password
     const handleChange = (event) => {
@@ -219,11 +237,11 @@ const Dashboard = () => {
                             </ListGroup.Item>
                             {showInventorySubItems && (
                                 <>
-                                    <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
+                                    {/* <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
                                         <CartPlusFill className="icon" /> Purchase
-                                    </ListGroup.Item>
+                                    </ListGroup.Item> */}
                                     <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
-                                        <CartPlus className="icon" /> Show Purchase
+                                        <CartPlus className="icon" /> Purchase
                                     </ListGroup.Item>
                                     <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
                                         <BookFill className="icon" /> Book Details
@@ -246,11 +264,11 @@ const Dashboard = () => {
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
                                         <Bookshelf className="me-2" /> Book Types
                                     </ListGroup.Item>
-                                   
+
                                 </>
                             )}
 
-                            {/* <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
+                            <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
                                 <GearWideConnected className="icon" /> Master
                             </ListGroup.Item>
                             {showMasterSubItems && (
@@ -258,14 +276,14 @@ const Dashboard = () => {
                                     <ListGroup.Item className="admin-icon mt-2" action>
                                         <PersonFill className="icon" />Admin
                                     </ListGroup.Item>
-                                    <ListGroup.Item className="admin-icon mt-2" action>
-                                        <PeopleFill className="permanent-members-icon" />Permanent Members
+                                    <ListGroup.Item className="admin-icon mt-2" action onClick={handlePermanentMember}>
+                                        <PeopleFill className="me-2" /> Permanent Members
                                     </ListGroup.Item>
-                                    <ListGroup.Item className="admin-icon mt-2" action  onClick={handleBookType}>
+                                    <ListGroup.Item className="admin-icon mt-2" action onClick={handleGeneralMember}>
                                         <People className="icon" /> General Member
                                     </ListGroup.Item>
                                 </>
-                            )} */}
+                            )}
 
                             {/* <ListGroup.Item className="login-icon mt-1" action onClick={handleGroupMemberLogin}>
                                         <BoxArrowInRight className="icon" />Login
@@ -277,7 +295,7 @@ const Dashboard = () => {
                         </Col>
                     </ListGroup>
                 </div>
-                
+
                 <div id="page-content-wrapper" className='dashboard-page-details bg-light'>
                     <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-navabar">
                         <Navbar.Brand href="#Dashboard">Library Management System</Navbar.Brand>
@@ -301,16 +319,16 @@ const Dashboard = () => {
                     <Container fluid className="min-vh-100 d-flex flex-column justify-content-between main-content">
 
                         {viewDashboard && <DashboardData />}
-                        {fillPurchaseDetails && <PurchaseDetails />}
+                        {/* {fillPurchaseDetails && <PurchaseDetails />} */}
                         {fillBookDetails && <BookDetails />}
 
                         {bookLanguages && <BookLanguages />}
                         {books && <Books />}
                         {bookType && <BookTypes />}
-
                         {viewPurchase && <ViewPurchase />}
 
-                        {/* {permanentMember && <PermanentMember />} */}
+                        {permanentMember && <PermanentMember />}
+                        {generalMember && <GeneralMember />}
 
                     </Container>
                     <Footer />

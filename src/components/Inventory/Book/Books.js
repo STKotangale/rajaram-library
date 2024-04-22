@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
-import { PencilSquare, Trash } from 'react-bootstrap-icons';
+import { Button, Modal, Form, Table, Container, Row, Col, Pagination } from 'react-bootstrap';
+import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -120,6 +120,32 @@ const Books = () => {
         }
     };
 
+    //view modal
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewBook, setViewBook] = useState(null);
+
+    const handleShowViewModal = (book) => {
+        setViewBook(book);
+        setShowViewModal(true);
+    };
+
+
+    //pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(books.length / itemsPerPage);
+    const handlePageClick = (page) => setCurrentPage(page);
+
+    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
+            {number}
+        </Pagination.Item>
+    ));
+
+    const indexOfLastPurchase = currentPage * itemsPerPage;
+    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
+    const currentPurchases = books.slice(indexOfFirstPurchase, indexOfLastPurchase);
+
     return (
         <div className="main-content">
 
@@ -134,34 +160,35 @@ const Books = () => {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>Book ID</th>
+                                <th>Sr.No</th>
+                                {/* <th>Book ID</th> */}
                                 <th>Book</th>
-                                <th>Is Blocked</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {books.map((book) => (
+                            {currentPurchases.map((book, index) => (
                                 <tr key={book.bookId}>
-                                    <td>{book.bookId}</td>
+                                    <td>{indexOfFirstPurchase + index + 1}</td>
+                                    {/* <td>{book.bookId}</td> */}
                                     <td>{book.bookName}</td>
-                                    <td>{book.isBlock === 'true' ? 'Yes' : 'No'}</td>
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                             setSelectedBookId(book.bookId);
                                             setNewBookName(book.bookName);
-                                            setIsBlock(book.isBlock === 'true');
                                             setShowEditBookModal(true);
                                         }} />
                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => {
                                             setSelectedBookId(book.bookId);
                                             setShowDeleteConfirmation(true);
                                         }} />
+                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(book)} />
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
+                    <Pagination>{paginationItems}</Pagination>
                 </div>
 
 
@@ -219,7 +246,7 @@ const Books = () => {
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="editedBookIsBlocked">
+                            {/* <Form.Group className="mb-3" controlId="editedBookIsBlocked">
                                 <Form.Label>Is Blocked</Form.Label>
                                 <Form.Select
                                     value={isBlock ? 'Yes' : 'No'}
@@ -229,7 +256,7 @@ const Books = () => {
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </Form.Select>
-                            </Form.Group>
+                            </Form.Group> */}
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Update
@@ -254,6 +281,29 @@ const Books = () => {
                         </Button>
                     </Modal.Footer>
                 </Modal>
+
+
+                {/* view modal */}
+                <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>View Book </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label> Book</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewBook ? viewBook.bookName : ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
             </Container>
         </div>
 

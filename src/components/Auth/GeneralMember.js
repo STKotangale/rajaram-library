@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { PencilSquare, Trash } from 'react-bootstrap-icons';
+import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './AuthCSS/PermanentMember.css';
+import './AuthCSS/PermanentGeneralMember.css';
 
 
 const GeneralMember = () => {
@@ -119,6 +119,19 @@ const GeneralMember = () => {
         }
     };
 
+
+    //edit function
+    const [editGeneralMemberData, setEditGeneralMemberData] = useState(null);
+
+    // Function to handle opening edit modal and setting data
+    const handleEditOpenGeneralMember = (memberId) => {
+        const memberToEdit = generalMember.find(member => member.id === memberId);
+        if (memberToEdit) {
+            setEditGeneralMemberData(memberToEdit);
+            setShowEditGeneralMemberModal(true);
+        }
+    };
+
     const editGeneralMember = async (e) => {
         e.preventDefault();
         try {
@@ -171,6 +184,19 @@ const GeneralMember = () => {
         }
     };
 
+        // view general Member
+        const [showViewGeneralMemberModal, setShowViewGeneralMemberModal] = useState(false);
+        const [viewGeneralMemberData, setViewGeneralMemberData] = useState(null);
+    
+    
+        const handleViewOpenGeneralMember = (memberId) => {
+            const memberToView = generalMember.find(member => member.id === memberId);
+            if (memberToView) {
+                setViewGeneralMemberData(memberToView);
+                setShowViewGeneralMemberModal(true);
+            }
+        };
+
     return (
         <div className="main-content-1">
             <Container >
@@ -220,7 +246,7 @@ const GeneralMember = () => {
                                     <td>{member.confirmDate}</td>
                                     <td>{member.isBlocked ? 'Yes' : 'No'}</td>
                                     <td>
-                                        <PencilSquare
+                                        {/* <PencilSquare
                                             className="ms-3 action-icon edit-icon"
                                             onClick={() => {
                                                 setSelectedGeneralMemberId(member.id);
@@ -228,6 +254,10 @@ const GeneralMember = () => {
                                                 setShowEditGeneralMemberModal(true);
                                                 setIsBlock(member.isBlocked);
                                             }}
+                                        /> */}
+                                         <PencilSquare
+                                            className="ms-3 action-icon edit-icon"
+                                            onClick={() => handleEditOpenGeneralMember(member.id)}
                                         />
                                         <Trash
                                             className="ms-3 action-icon delete-icon"
@@ -235,6 +265,10 @@ const GeneralMember = () => {
                                                 setSelectedGeneralMemberId(member.id);
                                                 setShowDeleteConfirmation(true);
                                             }}
+                                        />
+                                            <Eye
+                                            className="ms-3 action-icon view-icon"
+                                            onClick={() => handleViewOpenGeneralMember(member.id)}
                                         />
                                     </td>
                                 </tr>
@@ -245,7 +279,7 @@ const GeneralMember = () => {
             </Container>
 
             {/* Add permanent member Modal */}
-            <Modal show={showAddGeneralMemberModal} onHide={() => setShowAddGeneralMemberModal(false)}>
+            <Modal show={showAddGeneralMemberModal} onHide={() => setShowAddGeneralMemberModal(false)} dialogClassName="modal-lg">
                 <Modal.Header closeButton>
                     <Modal.Title>Add New General Member</Modal.Title>
                 </Modal.Header>
@@ -274,9 +308,6 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
 
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberLastName">
                                 <Form.Label>Last Name</Form.Label>
@@ -288,7 +319,9 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
+                        </Row>
 
+                        <Row className="mb-3">
                             <Form.Group className="mb-3" as={Col} controlId="newPermGeneralMemberRegisterDate">
                                 <Form.Label>Register Date</Form.Label>
                                 <Form.Control
@@ -298,9 +331,7 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-                        </Row>
 
-                        <Row className="mb-3">
                             <Form.Group className="mb-3" as={Col} controlId="newPGeneralMemberAadharCard">
                                 <Form.Label>Aadhar Number</Form.Label>
                                 <Form.Control
@@ -346,9 +377,7 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-                        </Row>
 
-                        <Row className="mb-3">
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberOccupation">
                                 <Form.Label>Occupation</Form.Label>
                                 <Form.Control
@@ -359,7 +388,9 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
+                        </Row>
 
+                        <Row className="mb-3">
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberMobileNo">
                                 <Form.Label>Mobile No</Form.Label>
                                 <Form.Control
@@ -371,9 +402,7 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-                        </Row>
 
-                        <Row className="mb-3">
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberEmailId">
                                 <Form.Label>Email Id</Form.Label>
                                 <Form.Control
@@ -396,6 +425,7 @@ const GeneralMember = () => {
                                 />
                             </Form.Group>
                         </Row>
+
                         <div className='d-flex justify-content-end'>
                             <Button className='button-color' type="submit">
                                 Submit
@@ -405,34 +435,168 @@ const GeneralMember = () => {
                 </Modal.Body>
             </Modal>
 
-            {/* Edit permanent member Modal */}
-            <Modal show={showEditGeneralMemberModal} onHide={() => setShowEditGeneralMemberModal(false)}>
+             {/* Edit permanent member Modal */}
+             <Modal show={showEditGeneralMemberModal} onHide={() => setShowEditGeneralMemberModal(false)} dialogClassName="modal-lg">
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit General Member</Modal.Title>
+                    <Modal.Title>Edit Permanent Member</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={editGeneralMember}>
-                        <Form.Group className="mb-3" controlId="editedGeneralMemberName">
-                            <Form.Label>General member Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter edited general member name"
-                                value={newGeneralMember}
-                                onChange={(e) => setNewGeneralMember(e.target.value)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3" controlId="editedGeneralMemberIsBlocked">
-                            <Form.Label>Is Blocked</Form.Label>
-                            <Form.Select
-                                value={isBlock ? 'Yes' : 'No'}
-                                onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                required
-                            >
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Select>
-                        </Form.Group>
+
+                        <Row className="mb-3">
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberFirstName">
+                                <Form.Label>First Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="First Name"
+                                    value={editGeneralMemberData ? editGeneralMemberData.firstName : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, firstName: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberMiddleName">
+                                <Form.Label>Middle Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Middle Name"
+                                    value={editGeneralMemberData ? editGeneralMemberData.middleName : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, middleName: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberLastName">
+                                <Form.Label>Last Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Last Name"
+                                    value={editGeneralMemberData ? editGeneralMemberData.lastName : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, lastName: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberRegisterDate">
+                                <Form.Label>Register Date</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    value={editGeneralMemberData ? editGeneralMemberData.registerDate : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, registerDate: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberAadharCard">
+                                <Form.Label>Aadhar Number</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Aadhar"
+                                    maxLength={12}
+                                    value={editGeneralMemberData ? editGeneralMemberData.aadharCard : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, aadharCard: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberAddress">
+                                <Form.Label>Address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Address"
+                                    value={editGeneralMemberData ? editGeneralMemberData.memberAddress : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberAddress: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberDateOfBirth">
+                                <Form.Label>Date Of Birth</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    value={editGeneralMemberData ? editGeneralMemberData.dateOfBirth : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, dateOfBirth: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                       
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberEducation">
+                                <Form.Label>Education</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Education"
+                                    value={editGeneralMemberData ? editGeneralMemberData.memberEducation : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberEducation: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberOccupation">
+                                <Form.Label>Occupation</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Occupation"
+                                    value={editGeneralMemberData ? editGeneralMemberData.memberOccupation : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberOccupation: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberMobileNo">
+                                <Form.Label>Mobile No</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Mobile number"
+                                    maxLength={10}
+                                    value={editGeneralMemberData ? editGeneralMemberData.mobileNo : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, mobileNo: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberEmailId">
+                                <Form.Label>Email Id</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Email"
+                                    value={editGeneralMemberData ? editGeneralMemberData.memberEmailId : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberEmailId: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberConfirmDate">
+                                <Form.Label>Confirm Date</Form.Label>
+                                <Form.Control
+                                    type="date"
+                                    value={editGeneralMemberData ? editGeneralMemberData.confirmDate : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, confirmDate: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                        </Row>
+
+                        <Row className="mb-3">
+                            <Form.Group className="mb-3" as={Col} md={4} controlId="editedGeneralMemberIsBlocked">
+                                <Form.Label>Is Blocked</Form.Label>
+                                <Form.Select
+                                    value={editGeneralMemberData ? (editGeneralMemberData.isBlocked ? 'Yes' : 'No') : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, isBlocked: e.target.value === 'Yes' })}
+                                    required
+                                >
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </Form.Select>
+                            </Form.Group>
+                        </Row>
+
                         <div className='d-flex justify-content-end'>
                             <Button className='button-color' type="submit">
                                 Update
@@ -441,6 +605,7 @@ const GeneralMember = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
+
 
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
@@ -454,6 +619,97 @@ const GeneralMember = () => {
                     </Button>
                     <Button variant="danger" onClick={deleteGeneralMember}>
                         Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+
+             {/* view General member */}
+             <Modal show={showViewGeneralMemberModal} onHide={() => setShowViewGeneralMemberModal(false)} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>View General Member Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {viewGeneralMemberData && (
+                        <Form>
+                            <Row className="mb-3">
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control type="text"
+                                        readOnly
+                                        defaultValue={viewGeneralMemberData.firstName}
+                                    />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label>Middle Name</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.middleName} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Last Name</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.lastName} />
+                                </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Register Date</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.registerDate} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Aadhar No</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.aadharCard} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Address</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberAddress} />
+                                </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Date of Birth</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.dateOfBirth} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Education</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberEducation} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Occupation</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberOccupation} />
+                                </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Mobile No</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.mobileNo} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Email</Form.Label>
+                                    <Form.Control type="email" readOnly defaultValue={viewGeneralMemberData.memberEmailId} />
+                                </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label >Confirm Date</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirmDate} />
+                                </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
+                                <Form.Group as={Col} md={4}  className="mb-3">
+                                    <Form.Label >Is Blocked</Form.Label>
+                                    <Form.Control type="text"
+                                        readOnly
+                                        defaultValue={viewGeneralMemberData.isBlocked ? 'Yes' : 'No'}
+                                    />
+                                </Form.Group>
+                            </Row>
+                        </Form>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowViewGeneralMemberModal(false)}>
+                        Close
                     </Button>
                 </Modal.Footer>
             </Modal>

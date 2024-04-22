@@ -1,9 +1,9 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
 import { useAuth } from '../../Auth/AuthProvider';
-import { PencilSquare, Trash } from 'react-bootstrap-icons';
+import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 
 const BookLanguages = () => {
     //get all book lang
@@ -67,8 +67,8 @@ const BookLanguages = () => {
             const data = await response.json();
 
             setBookLanguages([...bookLanguages, data.data]);
-            setShowAddLanguage(false);  
-            setAddBookLangName('');  
+            setShowAddLanguage(false);
+            setAddBookLangName('');
         } catch (error) {
             console.error('Error adding book language:', error.message);
         }
@@ -84,7 +84,7 @@ const BookLanguages = () => {
         });
         setShowEditModal(true);
     };
-    
+
 
 
     const handleEditLanguageChange = (e) => {
@@ -103,11 +103,11 @@ const BookLanguages = () => {
                 },
                 body: JSON.stringify({ bookLangName: editableLanguage.bookLangName, isBlock: editableLanguage.isBlock.toString() })
             });
-    
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-    
+
             const updatedLanguage = await response.json();
             const updatedLanguages = bookLanguages.map(lang => lang.bookLangId === updatedLanguage.data.bookLangId ? updatedLanguage.data : lang);
             setBookLanguages(updatedLanguages);
@@ -116,8 +116,8 @@ const BookLanguages = () => {
             console.error('Error updating book language:', error);
         }
     };
-    
-    
+
+
 
     const handleCloseEditModal = () => {
         setShowEditModal(false);
@@ -159,45 +159,75 @@ const BookLanguages = () => {
     };
 
 
+    //view modal
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewLanguage, setViewLanguage] = useState(null);
+
+    const handleShowViewModal = (language) => {
+        setViewLanguage(language);
+        setShowViewModal(true);
+    };
+
+    //pagination
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(bookLanguages.length / itemsPerPage);
+    const handlePageClick = (page) => setCurrentPage(page);
+
+    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
+            {number}
+        </Pagination.Item>
+    ));
+
+    const indexOfLastPurchase = currentPage * itemsPerPage;
+    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
+    const currentPurchases = bookLanguages.slice(indexOfFirstPurchase, indexOfLastPurchase);
+
+
+
     return (
         <div className="main-content">
 
-        <Container>
+            <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
                         Add Book language
                     </Button>
                 </div>
                 <div className='mt-3'>
-                <Table striped bordered hover className='mt-3'>
-                    <thead>
-                        <tr>
-                            <th>Language ID</th>
-                            <th>Language</th>
-                            <th>Is Blocked</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {bookLanguages.map((language) => (
-                            <tr key={language.bookLangId}>
-                                <td>{language.bookLangId}</td>
-                                <td>{language.bookLangName}</td>
-                                <td>{language.isBlock ? 'Yes' : 'No'}</td>
-                                <td>
-                                    <PencilSquare
-                                        className="ms-3 action-icon edit-icon"
-                                        onClick={() => handleShowEditModal(language)}
-                                    />
-                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => handleShowDeleteConfirmation(language.bookLangId)} />
-
-                                </td>
+                    <Table striped bordered hover className='mt-3'>
+                        <thead>
+                            <tr>
+                                <th>Sr.No</th>
+                                {/* <th>Language ID</th> */}
+                                <th>Language</th>
+                                <th>Action</th>
                             </tr>
-                        ))}
+                        </thead>
+                        <tbody>
+                            {currentPurchases.map((language, index) => (
+                                <tr key={language.bookLangId}>
+                                    <td>{indexOfFirstPurchase + index + 1}</td>
+                                    {/* <td>{language.bookLangId}</td> */}
+                                    <td>{language.bookLangName}</td>
+                                    <td>
+                                        <PencilSquare
+                                            className="ms-3 action-icon edit-icon"
+                                            onClick={() => handleShowEditModal(language)}
+                                        />
+                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => handleShowDeleteConfirmation(language.bookLangId)} />
+                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(language)} />
+                                    </td>
+                                </tr>
+                            ))}
 
-                    </tbody>
-                </Table>
-               </div>
+                        </tbody>
+                    </Table>
+                    <Pagination>{paginationItems}</Pagination>
+
+                </div>
 
                 {/* add book insert type */}
                 <Modal show={showAddLanguage} onHide={() => setShowAddLanguage(false)}>
@@ -216,17 +246,6 @@ const BookLanguages = () => {
                                     required
                                 />
                             </Form.Group>
-                            {/* <Form.Group className="mb-3" controlId="isBlocked">
-                                <Form.Label>Is Blocked</Form.Label>
-                                <Form.Select
-                                    value={isBlock ? 'Yes' : 'No'}
-                                    onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                    required
-                                >
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Form.Group> */}
                             <Button className='button-color' type="submit">
                                 Submit
                             </Button>
@@ -251,7 +270,7 @@ const BookLanguages = () => {
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="isBlocked">
+                            {/* <Form.Group className="mb-3" controlId="isBlocked">
                                 <Form.Label>Is Blocked</Form.Label>
                                 <Form.Select
                                     value={editableLanguage.isBlock ? 'Yes' : 'No'} 
@@ -261,7 +280,7 @@ const BookLanguages = () => {
                                     <option value="Yes">Yes</option>
                                     <option value="No">No</option>
                                 </Form.Select>
-                            </Form.Group>
+                            </Form.Group> */}
                             <Button type="submit" className="button-color">
                                 Save Changes
                             </Button>
@@ -289,7 +308,28 @@ const BookLanguages = () => {
                     </Modal.Footer>
                 </Modal>
 
-        </Container>
+                {/* view modal */}
+                <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>View Book Language</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label>Language Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewLanguage ? viewLanguage.bookLangName : ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                        </Form>
+                    </Modal.Body>
+                </Modal>
+
+            </Container>
         </div>
 
     );

@@ -14,7 +14,7 @@ const Footer = () => {
     const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
 
     return (
-        <Container fluid className="bg-dark text-light pt-4 pb-3 mt-5">
+        <Container fluid className="bg-dark text-light pt-4 pb-3 mt-5 main-footer">
             <Row className="align-items-start heading-center">
                 <Col xs={12} md={3} className="px-md-3">
                     <h2 className="rajaram-library">Rajaram Library</h2>

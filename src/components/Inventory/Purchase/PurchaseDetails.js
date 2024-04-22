@@ -6,7 +6,8 @@ import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
 
 import { useAuth } from '../../Auth/AuthProvider';
 
-const PurchaseDetails = () => {
+const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
+
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
     const [discountPercentage, setDiscountPercentage] = useState(0);
@@ -134,6 +135,7 @@ const PurchaseDetails = () => {
     };
 
     //handle submit
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!selectedLedgerName.trim()) {
@@ -180,10 +182,11 @@ const PurchaseDetails = () => {
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
+                onSubmit();
 
-                // Increment the invoice number
-                const numberPart = parseInt(invoiceNumber.substring(3)) + 1;
-                setInvoiceNumber(`TIN${numberPart}`);
+                // // Increment the invoice number
+                // const numberPart = parseInt(invoiceNumber.substring(3)) + 1;
+                // setInvoiceNumber(`TIN${numberPart}`);
 
                 // Reset form fields
                 setInvoiceDate('');
@@ -386,9 +389,14 @@ const PurchaseDetails = () => {
                                     </tbody>
                                 </Table>
                                 <div className="d-flex justify-content-end">
+                                    <div className='ms-3'>
+                                        <Button onClick={onBackButtonClick}>Back</Button>
+                                    </div>
+                                    <div className='ms-3'>
                                     <Button className="button-color" type="submit">
                                         Submit
                                     </Button>
+                                    </div>
                                 </div>
                             </Form>
                         </div>

@@ -4,22 +4,25 @@ import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'rea
 import { PencilSquare, Trash, Eye } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
+import PurchaseDetails from './PurchaseDetails';
 // import PurchaseDetails from './PurchaseDetails';
 
 const ViewPurchase = () => {
+    // Pagination
+    const itemsPerPage = 10;
     const [purchases, setPurchases] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
+
     //edit 
     const [showModal, setShowModal] = useState(false);
-
-    const [discountPercentage, setDiscountPercentage] = useState("");
-    const [gstPercentage, setGstPercentage] = useState("");
 
     //view
     const [viewPurchaseModal, setViewPurchaseModal] = useState(false);
 
     const [selectedPurchase, setSelectedPurchase] = useState(null);
-    const itemsPerPage = 10;
+
+    const [discountPercentage, setDiscountPercentage] = useState("");
+    const [gstPercentage, setGstPercentage] = useState("");
 
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const { username, accessToken } = useAuth();
@@ -273,6 +276,21 @@ const ViewPurchase = () => {
     };
 
 
+
+
+
+    //view purchase
+    const [showAddPurchase, setShowAddPurchase] = useState(false);
+
+    const handlePurchaseSubmit = () => {
+        setShowAddPurchase(false);
+        fetchPurchases();
+    };
+
+    const handleBackButtonClick = () => {
+        setShowAddPurchase(false);
+    };
+
     //pagination
     const totalPages = Math.ceil(purchases.length / itemsPerPage);
     const handlePageClick = (page) => setCurrentPage(page);
@@ -287,56 +305,55 @@ const ViewPurchase = () => {
     const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
     const currentPurchases = purchases.slice(indexOfFirstPurchase, indexOfLastPurchase);
 
-
-    // const [showAddPurchase, setShowAddPurchase] = useState(false);
-
-
     return (
         <div className="main-content">
             <Container>
-                {/* <div className='mt-2'>
-                    <div className='mt-3'>
-                        <Button onClick={() => setShowAddPurchase(true)} className="button-color">
-                            Add purchase
-                        </Button>
+                {!showAddPurchase && (
+                    <div className='mt-2'>
+                        <div className='mt-3'>
+                            <Button onClick={() => setShowAddPurchase(true)} className="button-color">
+                                Add purchase
+                            </Button>
+                        </div>
+                        <Table striped bordered hover className='mt-4'>
+                            <thead>
+                                <tr>
+                                    <th>Sr. No.</th>
+                                    <th>Ledger Name</th>
+                                    <th>Invoice No</th>
+                                    <th>Invoice Date</th>
+                                    <th>Grand Total</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentPurchases.map((purchase, index) => (
+                                    <tr key={index}>
+                                        <td>{indexOfFirstPurchase + index + 1}</td>
+                                        <td>{purchase.ledger_name}</td>
+                                        <td>{purchase.invoiceNo}</td>
+                                        <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
+                                        <td>{purchase.grandTotal}</td>
+                                        <td>
+                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(purchase)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(purchase)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                        <Pagination>{paginationItems}</Pagination>
                     </div>
-                    {showAddPurchase && <PurchaseDetails />}
-                </div> */}
-
-                <Table striped bordered hover className='mt-4'>
-                    <thead>
-                        <tr>
-                            <th>Sr. No.</th>
-                            <th>Ledger Name</th>
-                            <th>Invoice No</th>
-                            <th>Invoice Date</th>
-                            <th>Grand Total</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {currentPurchases.map((purchase, index) => (
-                            <tr key={index}>
-                                <td>{indexOfFirstPurchase + index + 1}</td>
-                                <td>{purchase.ledger_name}</td>
-                                <td>{purchase.invoiceNo}</td>
-                                <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
-                                <td>{purchase.grandTotal}</td>
-                                <td>
-                                    <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} />
-                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(purchase)} />
-                                    <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(purchase)} />
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-                <Pagination>{paginationItems}</Pagination>
+                )}
+                {showAddPurchase && (
+                    <PurchaseDetails onSubmit={handlePurchaseSubmit} onBackButtonClick={handleBackButtonClick} />
+                )}
             </Container>
 
             {/* Edit Purchase Modal */}
             {selectedPurchase && (
-                <Modal show={showModal} onHide={handleCloseModal} centered>
+                <Modal show={showModal} onHide={handleCloseModal} centered size='lg'>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Purchase</Modal.Title>
                     </Modal.Header>
@@ -502,7 +519,7 @@ const ViewPurchase = () => {
 
             {/* View Purchase Modal */}
             {selectedPurchase && (
-                <Modal show={viewPurchaseModal} onHide={handleCloseModal} centered>
+                <Modal show={viewPurchaseModal} onHide={handleCloseModal} centered size='lg'>
                     <Modal.Header closeButton>
                         <Modal.Title>View Purchase</Modal.Title>
                     </Modal.Header>
@@ -526,9 +543,7 @@ const ViewPurchase = () => {
                                         className="custom-date-picker"
                                     />
                                 </Form.Group>
-                            </Row>
 
-                            <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Ledger Name</Form.Label>
                                     <Form.Control

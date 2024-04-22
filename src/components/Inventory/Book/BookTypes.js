@@ -1,8 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
-import { PencilSquare, Trash } from 'react-bootstrap-icons';
+import { Button, Modal, Form, Table, Container, Row, Col, Pagination } from 'react-bootstrap';
+import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -117,6 +117,34 @@ const BookTypes = () => {
         }
     };
 
+
+    //view modal
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewBookType, setViewBookType] = useState(null);
+
+    const handleShowViewModal = (bookType) => {
+        setViewBookType(bookType);
+        setShowViewModal(true);
+    };
+
+
+    //pagination
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+    const totalPages = Math.ceil(bookTypes.length / itemsPerPage);
+    const handlePageClick = (page) => setCurrentPage(page);
+
+    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
+            {number}
+        </Pagination.Item>
+    ));
+
+    const indexOfLastPurchase = currentPage * itemsPerPage;
+    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
+    const currentPurchases = bookTypes.slice(indexOfFirstPurchase, indexOfLastPurchase);
+
     return (
         <div className="main-content">
 
@@ -131,37 +159,39 @@ const BookTypes = () => {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>Book Type ID</th>
+                                <th>Sr.No</th>
+                                {/* <th>Book Type ID</th> */}
                                 <th>Book Type Name</th>
-                                <th>Is Blocked</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {bookTypes.map((bookType) => (
+                            {currentPurchases.map((bookType, index) => (
                                 <tr key={bookType.id}>
-                                    <td>{bookType.id}</td>
+                                    <td>{indexOfFirstPurchase + index + 1}</td>
+                                    {/* <td>{bookType.id}</td> */}
                                     <td>{bookType.bookTypeName}</td>
-                                    <td>{bookType.isBlock === 'true' ? 'Yes' : 'No'}</td>
-
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                             setSelectedBookTypeId(bookType.id);
                                             setNewBookTypeName(bookType.bookTypeName);
                                             setShowEditBookTypeModal(true);
-                                            setIsBlock(bookType.isBlock === 'true');
-
                                         }} />
 
                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => {
                                             setSelectedBookTypeId(bookType.id);
                                             setShowDeleteConfirmation(true);
                                         }} />
+                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(bookType)} />
+
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
                     </Table>
+                    <div className='pagination-container'>
+                        <Pagination  className='pagination'>{paginationItems}</Pagination>
+                    </div>
                 </div>
 
 
@@ -208,17 +238,6 @@ const BookTypes = () => {
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="editedBookIsBlocked">
-                                <Form.Label>Is Blocked</Form.Label>
-                                <Form.Select
-                                    value={isBlock ? 'Yes' : 'No'}
-                                    onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                    required
-                                >
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Form.Group>
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Update
@@ -242,6 +261,29 @@ const BookTypes = () => {
                             Delete
                         </Button>
                     </Modal.Footer>
+                </Modal>
+
+
+
+                {/* view modal */}
+                <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>View Book </Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label> Book</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewBookType ? viewBookType.bookTypeName : ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                        </Form>
+                    </Modal.Body>
                 </Modal>
             </Container>
         </div>
