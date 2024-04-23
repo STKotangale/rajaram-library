@@ -355,155 +355,156 @@ const ViewPurchase = () => {
             {/* Edit Purchase Modal */}
             {selectedPurchase && (
                 <Modal show={showModal} onHide={handleCloseModal} centered size='xl'>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Edit Purchase</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                            <Row className="mb-3">
-                                <Form.Group as={Col} sm={3} >
-                                    <Form.Label>Invoice No</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={selectedPurchase.invoiceNo}
-                                        onChange={(e) => handleInputChange(e, 'invoiceNo')}
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col} sm={3}>
-                                    <Form.Label>Invoice Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
-                                        onChange={(e) => handleInputChange(e, 'invoiceDate')}
-                                        className="custom-date-picker"
-                                    />
+                    <div className="bg-light">
+                        <Modal.Header closeButton>
+                            <Modal.Title>Edit Purchase</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} sm={3} >
+                                        <Form.Label>Invoice No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedPurchase.invoiceNo}
+                                            onChange={(e) => handleInputChange(e, 'invoiceNo')}
+                                        />
+                                    </Form.Group>
+                                    <Form.Group as={Col} sm={3}>
+                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
+                                            onChange={(e) => handleInputChange(e, 'invoiceDate')}
+                                            className="custom-date-picker"
+                                        />
 
-                                </Form.Group>
-                                <Form.Group as={Col} sm={5}>
-                                    <Form.Label>Purchaser Name</Form.Label>
-                                    <Form.Control
-                                        readOnly
-                                        value={selectedPurchase.ledger_name || ''}
-                                    >
-                                    </Form.Control>
-                                </Form.Group>
-                            </Row>
+                                    </Form.Group>
+                                    <Form.Group as={Col} sm={5}>
+                                        <Form.Label>Purchaser Name</Form.Label>
+                                        <Form.Control
+                                            readOnly
+                                            value={selectedPurchase.ledger_name || ''}
+                                        >
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Row>
 
 
-                            <Table striped bordered hover className="table-bordered-dark">
-                                <thead>
-                                    <tr>
-                                        <th className="table-header sr-size">Sr.No</th>
-                                        <th className="table-header book-name-size">Book Name</th>
-                                        <th className="table-header quantity-size">Quantity</th>
-                                        <th className="table-header rate-size">Rate</th>
-                                        <th className="table-header amount-size amount-align">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedPurchase.purchaseDetails.map((detail, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="text"
-                                                    value={detail.bookName}
-                                                    onChange={(e) => handleInputChange(e, 'bookName', index)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={detail.qty}
-                                                    onChange={(e) => handleInputChange(e, 'qty', index)}
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={detail.rate}
-                                                    onChange={(e) => handleInputChange(e, 'rate', index)}
-                                                />
-                                            </td>
-                                            <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
-
+                                <Table striped bordered hover className="table-bordered-dark">
+                                    <thead>
+                                        <tr>
+                                            <th className="table-header sr-size">Sr.No</th>
+                                            <th className="table-header book-name-size">Book Name</th>
+                                            <th className="table-header quantity-size">Quantity</th>
+                                            <th className="table-header rate-size">Rate</th>
+                                            <th className="table-header amount-size amount-align">Amount</th>
                                         </tr>
-                                    ))}
+                                    </thead>
+                                    <tbody>
+                                        {selectedPurchase.purchaseDetails.map((detail, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={detail.bookName}
+                                                        onChange={(e) => handleInputChange(e, 'bookName', index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={detail.qty}
+                                                        onChange={(e) => handleInputChange(e, 'qty', index)}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={detail.rate}
+                                                        onChange={(e) => handleInputChange(e, 'rate', index)}
+                                                    />
+                                                </td>
+                                                <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
 
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Bill Total</td>
-                                        <td className="amount-align">{selectedPurchase.billTotal}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Discount</td>
-                                        <td>
-                                            <div className="discount-container">
-                                                <Form.Control className='right-align'
-                                                    type="number"
-                                                    value={discountPercentage}
-                                                    onChange={(e) => {
-                                                        const newDiscount = parseFloat(e.target.value);
-                                                        setDiscountPercentage(newDiscount);
-                                                        handleDiscountChange(e);
-                                                    }}
-                                                />
-                                                <span>%</span>
-                                            </div>
-                                        </td>
-                                        <td className="amount-align">{selectedPurchase.discountAmount}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Total After Discount</td>
-                                        <td></td>
-                                        <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">GST</td>
-                                        <td>
-                                            <div className="gst-container">
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={gstPercentage}
-                                                    onChange={(e) => {
-                                                        const newGst = parseFloat(e.target.value);
-                                                        setGstPercentage(newGst);
-                                                        handleGstChange(e);
-                                                    }}
-                                                />
-                                                <span>%</span>
-                                            </div>
-                                        </td>
-                                        <td className="amount-align">{selectedPurchase.gstAmount}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Grand Total</td>
-                                        <td></td>
-                                        <td className="amount-align">{selectedPurchase.grandTotal}</td>
-                                    </tr>
-                                </tbody>
-                            </Table>
+                                            </tr>
+                                        ))}
 
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseModal}>
-                            Close
-                        </Button>
-                        <Button variant="primary" onClick={handleEditPurchase}>
-                            Update
-                        </Button>
-                    </Modal.Footer>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Bill Total</td>
+                                            <td className="amount-align">{selectedPurchase.billTotal}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Discount</td>
+                                            <td>
+                                                <div className="discount-container">
+                                                    <Form.Control className='right-align'
+                                                        type="number"
+                                                        value={discountPercentage}
+                                                        onChange={(e) => {
+                                                            const newDiscount = parseFloat(e.target.value);
+                                                            setDiscountPercentage(newDiscount);
+                                                            handleDiscountChange(e);
+                                                        }}
+                                                    />
+                                                    <span>%</span>
+                                                </div>
+                                            </td>
+                                            <td className="amount-align">{selectedPurchase.discountAmount}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Total After Discount</td>
+                                            <td></td>
+                                            <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">GST</td>
+                                            <td>
+                                                <div className="gst-container">
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={gstPercentage}
+                                                        onChange={(e) => {
+                                                            const newGst = parseFloat(e.target.value);
+                                                            setGstPercentage(newGst);
+                                                            handleGstChange(e);
+                                                        }}
+                                                    />
+                                                    <span>%</span>
+                                                </div>
+                                            </td>
+                                            <td className="amount-align">{selectedPurchase.gstAmount}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Grand Total</td>
+                                            <td></td>
+                                            <td className="amount-align">{selectedPurchase.grandTotal}</td>
+                                        </tr>
+                                    </tbody>
+                                </Table>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleCloseModal}>
+                                Close
+                            </Button>
+                            <Button variant="primary" onClick={handleEditPurchase}>
+                                Update
+                            </Button>
+                        </Modal.Footer>
+                    </div>
                 </Modal>
             )}
 
@@ -529,142 +530,144 @@ const ViewPurchase = () => {
             {/* View Purchase Modal */}
             {selectedPurchase && (
                 <Modal show={viewPurchaseModal} onHide={handleCloseModal} centered size='xl'>
-                    <Modal.Header closeButton>
-                        <Modal.Title>View Purchase</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                            <Row className="mb-3">
-                                <Form.Group as={Col} sm={3}>
-                                    <Form.Label>Invoice No</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={selectedPurchase.invoiceNo}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col} sm={3}>
-                                    <Form.Label>Invoice Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
-                                        readOnly
-                                        className="custom-date-picker"
-                                    />
-                                </Form.Group>
+                    <div className="bg-light">
+                        <Modal.Header closeButton>
+                            <Modal.Title>View Purchase</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} sm={3}>
+                                        <Form.Label>Invoice No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedPurchase.invoiceNo}
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                    <Form.Group as={Col} sm={3}>
+                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
+                                            readOnly
+                                            className="custom-date-picker"
+                                        />
+                                    </Form.Group>
 
-                                <Form.Group as={Col} sm={5}>
-                                    <Form.Label>Ledger Name</Form.Label>
-                                    <Form.Control
-                                        readOnly
-                                        value={selectedPurchase.ledger_name || ''}
-                                    />
-                                </Form.Group>
-                            </Row>
+                                    <Form.Group as={Col} sm={5}>
+                                        <Form.Label>Purchaser Name</Form.Label>
+                                        <Form.Control
+                                            readOnly
+                                            value={selectedPurchase.ledger_name || ''}
+                                        />
+                                    </Form.Group>
+                                </Row>
 
-                            <Table striped bordered hover className="table-bordered-dark">
-                                <thead>
-                                    <tr>
-                                        <th className="table-header sr-size">Sr.No</th>
-                                        <th className="table-header book-name-size">Book Name</th>
-                                        <th className="table-header quantity-size">Quantity</th>
-                                        <th className="table-header rate-size">Rate</th>
-                                        <th className="table-header amount-size amount-align">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {selectedPurchase.purchaseDetails.map((detail, index) => (
-                                        <tr key={index}>
-                                            <td>{index + 1}</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="text"
-                                                    value={detail.bookName}
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={detail.qty}
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td>
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={detail.rate}
-                                                    readOnly
-                                                />
-                                            </td>
-                                            <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                <Table striped bordered hover className="table-bordered-dark">
+                                    <thead>
+                                        <tr>
+                                            <th className="table-header sr-size">Sr.No</th>
+                                            <th className="table-header book-name-size">Book Name</th>
+                                            <th className="table-header quantity-size">Quantity</th>
+                                            <th className="table-header rate-size">Rate</th>
+                                            <th className="table-header amount-size amount-align">Amount</th>
                                         </tr>
-                                    ))}
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td >Bill Total</td>
-                                        <td className="amount-align">{selectedPurchase.billTotal}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Discount</td>
-                                        <td>
-                                            <div className="discount-container">
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={selectedPurchase.discountPercent}
-                                                    readOnly
-                                                />
-                                                <span>%</span>
-                                            </div>
+                                    </thead>
+                                    <tbody>
+                                        {selectedPurchase.purchaseDetails.map((detail, index) => (
+                                            <tr key={index}>
+                                                <td>{index + 1}</td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={detail.bookName}
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={detail.qty}
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={detail.rate}
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                            </tr>
+                                        ))}
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td >Bill Total</td>
+                                            <td className="amount-align">{selectedPurchase.billTotal}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Discount</td>
+                                            <td>
+                                                <div className="discount-container">
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={selectedPurchase.discountPercent}
+                                                        readOnly
+                                                    />
+                                                    <span>%</span>
+                                                </div>
 
 
-                                        </td>
-                                        <td className="amount-align">{selectedPurchase.discountAmount}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Total After Discount</td>
-                                        <td></td>
-                                        <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">GST</td>
-                                        <td>
-                                            <div className="gst-container">
-                                                <Form.Control className="right-align"
-                                                    type="number"
-                                                    value={selectedPurchase.gstPercent}
-                                                    readOnly
-                                                />
-                                                <span>%</span>
-                                            </div>
+                                            </td>
+                                            <td className="amount-align">{selectedPurchase.discountAmount}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Total After Discount</td>
+                                            <td></td>
+                                            <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">GST</td>
+                                            <td>
+                                                <div className="gst-container">
+                                                    <Form.Control className="right-align"
+                                                        type="number"
+                                                        value={selectedPurchase.gstPercent}
+                                                        readOnly
+                                                    />
+                                                    <span>%</span>
+                                                </div>
 
-                                        </td>
-                                        <td className="amount-align">{selectedPurchase.gstAmount}</td>
-                                    </tr>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td className="right-align">Grand Total</td>
-                                        <td></td>
-                                        <td className="amount-align">{selectedPurchase.grandTotal}</td>
-                                    </tr>
-                                </tbody>
-                            </Table>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseModal}>
-                            Close
-                        </Button>
-                    </Modal.Footer>
+                                            </td>
+                                            <td className="amount-align">{selectedPurchase.gstAmount}</td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Grand Total</td>
+                                            <td></td>
+                                            <td className="amount-align">{selectedPurchase.grandTotal}</td>
+                                        </tr>
+                                    </tbody>
+                                </Table>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={handleCloseModal}>
+                                Close
+                            </Button>
+                        </Modal.Footer>
+                    </div>
                 </Modal>
             )}
 

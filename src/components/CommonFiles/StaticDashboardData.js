@@ -24,7 +24,7 @@ const DashboardData = () => {
       <Container>
         <Row className="mb-4">
           <Col>
-          <div className="welcome-message">Welcome, {username}!</div>
+          {/* <div className="welcome-message">Welcome, {username}!</div> */}
           </Col>
         </Row>
         <Row xs={1} md={2} lg={3} className="g-4">

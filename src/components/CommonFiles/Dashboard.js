@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, CartPlusFill, Book, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -298,7 +298,7 @@ const Dashboard = () => {
 
                 <div id="page-content-wrapper" className='dashboard-page-details bg-light'>
                     <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-navabar">
-                        <Navbar.Brand href="#Dashboard">Library Management System</Navbar.Brand>
+                        <Navbar.Brand href="#Dashboard">Welcome ! Admin {username}</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="ms-auto">

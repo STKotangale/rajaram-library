@@ -155,3 +155,23 @@
 }
 
 
+.back-icon{
+  cursor: pointer;
+  font-size: 2.5rem;
+  border: 1px solid black; 
+  padding: 0.5rem;
+}
+
+
+/* remove the up-down sign for input under */
+/* For Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* For Firefox
+input[type=number] {
+  -moz-appearance: textfield;
+} */

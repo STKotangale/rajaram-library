@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
+import { ArrowReturnLeft } from 'react-bootstrap-icons';
 
 import { useAuth } from '../../Auth/AuthProvider';
 
@@ -235,175 +236,190 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     );
 
     return (
-        <div className="main-content">
-            <Container>
-                <Row className="purchase-main">
-                    <Col xs={12} md={10} lg={10}>
-                        <h1 className="mt-4">Purchase</h1>
-                        <div className="mt-5 border-style-1">
-                            <Form onSubmit={handleSubmit}>
-                                <Row className="mb-3">
-                                    <Form.Group as={Col}>
-                                        <Form.Label>Invoice No</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={invoiceNumber}
-                                            onChange={(e) => setInvoiceNumber(e.target.value)}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group as={Col}>
-                                        <Form.Label>Invoice Date</Form.Label>
-                                        <Form.Control
-                                            type="date"
-                                            value={invoiceDate}
-                                            onChange={handleInvoiceDateChange}
-                                            className="custom-date-picker"
-                                        />
-                                    </Form.Group>
+        <>
+            <div className=''>
+                <ArrowReturnLeft className="back-icon" onClick={onBackButtonClick}>Back</ArrowReturnLeft>
+            </div>
 
-                                    <Form.Group as={Col}>
-                                        <Form.Label>Ledger Name</Form.Label>
-                                        <Form.Control
-                                            as="input"
-                                            list="ledgerNames"
-                                            value={selectedLedgerName}
-                                            onChange={handleLedgerChange}
-                                            placeholder="Search or select ledger name"
-                                        />
-                                        <datalist id="ledgerNames">
-                                            {filteredLedgerName.map((ledger) => (
-                                                <option key={ledger.ledgerId} value={ledger.ledgerName} />
-                                            ))}
-                                        </datalist>
-                                    </Form.Group>
-                                </Row>
+            <div className="main-content">
 
-                                <Table striped bordered hover className="table-bordered-dark mt-5">
-                                    <thead>
-                                        <tr>
-                                            <th className="table-header">Sr.No</th>
-                                            <th className="table-header">Book Name</th>
-                                            <th className="table-header">No Of Quantity</th>
-                                            <th className="table-header">Rate</th>
-                                            <th className="table-header">Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row, index) => (
-                                            <tr key={index}>
-                                                <td>{index + 1}</td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="text"
-                                                        name="bookName"
-                                                        value={row.bookName}
-                                                        onChange={(e) => handleRowChange(index, e)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="number"
-                                                        name="quantity"
-                                                        value={row.quantity}
-                                                        onChange={(e) => handleRowChange(index, e)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="number"
-                                                        name="rate"
-                                                        value={row.rate}
-                                                        onChange={(e) => handleRowChange(index, e)}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    {(row.quantity && row.rate) ? (parseFloat(row.quantity) * parseFloat(row.rate)) : ''}
+                <Container>
 
-                                                </td>
+                    <Row className="purchase-main">
+
+                        <Col xs={12} md={10} lg={10}>
+                            <h1 className="mt-4">Purchase</h1>
+                            <div className="mt-5 border-style-1">
+                                <Form onSubmit={handleSubmit}>
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col} sm={3}>
+                                            <Form.Label>Invoice No</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={invoiceNumber}
+                                                onChange={(e) => setInvoiceNumber(e.target.value)}
+                                            />
+                                        </Form.Group>
+                                        <Form.Group as={Col} sm={3}>
+                                            <Form.Label>Invoice Date</Form.Label>
+                                            <Form.Control
+                                                type="date"
+                                                value={invoiceDate}
+                                                onChange={handleInvoiceDateChange}
+                                                className="custom-date-picker"
+                                            />
+                                        </Form.Group>
+
+                                        <Form.Group as={Col} sm={6}>
+                                            <Form.Label>Purchaser Name</Form.Label>
+                                            <Form.Control
+                                                as="input"
+                                                list="ledgerNames"
+                                                value={selectedLedgerName}
+                                                onChange={handleLedgerChange}
+                                                placeholder="Search or select ledger name"
+                                            />
+                                            <datalist id="ledgerNames">
+                                                {filteredLedgerName.map((ledger) => (
+                                                    <option key={ledger.ledgerId} value={ledger.ledgerName} />
+                                                ))}
+                                            </datalist>
+                                        </Form.Group>
+                                    </Row>
+
+                                    <Table striped bordered hover className="table-bordered-dark mt-5">
+                                        <thead>
+                                            <tr>
+                                                <th className="table-header sr-size">Sr.No</th>
+                                                <th className="table-header book-name-size">Book Name</th>
+                                                <th className="table-header quantity-size">Quantity</th>
+                                                <th className="table-header rate-size">Rate</th>
+                                                <th className="table-header amount-size amount-align">Amount</th>
                                             </tr>
-                                        ))}
-                                        <tr>
-                                            <td></td>
-                                            <td>
-                                                <Button onClick={addRow} className="button-color">
-                                                    Add Book
-                                                </Button>
-                                            </td>
-                                            <td>
-                                                <Button className="button-color" onClick={() => deleteRow(rows.length - 1)}>
-                                                    Delete Book
-                                                </Button>
-                                            </td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td>Bill Total</td>
-                                            <td>{calculateBillTotal()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td>Discount</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    placeholder="Enter discount"
-                                                    value={discountPercentage}
-                                                    onChange={handleDiscountChange}
-                                                />
-                                            </td>
-                                            <td>{calculateDiscount()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td>Total After Discount</td>
-                                            <td></td>
-                                            <td>{calculateTotalAfterDiscount()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td>GST</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    placeholder="Enter GST"
-                                                    value={gstPercentage}
-                                                    onChange={handleGstChange}
-                                                />
-                                            </td>
-                                            <td>{calculateGst()}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td>Grand Total</td>
-                                            <td>{calculateGrandTotal()}</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
-                                <div className="d-flex justify-content-end">
-                                    <div className='ms-3'>
-                                        <Button onClick={onBackButtonClick}>Back</Button>
+                                        </thead>
+                                        <tbody>
+                                            {rows.map((row, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>
+                                                        <Form.Control
+                                                            type="text"
+                                                            name="bookName"
+                                                            value={row.bookName}
+                                                            onChange={(e) => handleRowChange(index, e)}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            name="quantity"
+                                                            value={row.quantity}
+                                                            onChange={(e) => handleRowChange(index, e)}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            name="rate"
+                                                            value={row.rate}
+                                                            onChange={(e) => handleRowChange(index, e)}
+                                                        />
+                                                    </td>
+                                                    <td className="amount-align">
+                                                        {(row.quantity && row.rate) ? (parseFloat(row.quantity) * parseFloat(row.rate)) : ''}
+
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            <tr>
+                                                <td></td>
+                                                <td>
+                                                    <Button onClick={addRow} className="button-color">
+                                                        Add Book
+                                                    </Button>
+                                                </td>
+                                                <td>
+                                                    <Button className="button-color" onClick={() => deleteRow(rows.length - 1)}>
+                                                        Delete Book
+                                                    </Button>
+                                                </td>
+                                                <td></td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Bill Total</td>
+                                                <td className="amount-align">{calculateBillTotal()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Discount</td>
+                                                <td>
+                                                    <div className="discount-container">
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            placeholder="Enter discount"
+                                                            value={discountPercentage}
+                                                            onChange={handleDiscountChange}
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="amount-align">{calculateDiscount()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Total After Discount</td>
+                                                <td></td>
+                                                <td className="amount-align">{calculateTotalAfterDiscount()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">GST</td>
+                                                <td>
+                                                    <div className="gst-container">
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            placeholder="Enter GST"
+                                                            value={gstPercentage}
+                                                            onChange={handleGstChange}
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="amount-align">{calculateGst()}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Grand Total</td>
+                                                <td className="amount-align">{calculateGrandTotal()}</td>
+                                            </tr>
+                                        </tbody>
+                                    </Table>
+                                    <div className="d-flex justify-content-end">
+                                        <div className='ms-3'>
+                                            <Button onClick={onBackButtonClick}>Back</Button>
+                                        </div>
+                                        <div className='ms-3'>
+                                            <Button className="button-color" type="submit">
+                                                Submit
+                                            </Button>
+                                        </div>
                                     </div>
-                                    <div className='ms-3'>
-                                    <Button className="button-color" type="submit">
-                                        Submit
-                                    </Button>
-                                    </div>
-                                </div>
-                            </Form>
-                        </div>
-                    </Col>
-                </Row>
-            </Container>
-        </div>
+                                </Form>
+                            </div>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        </>
     );
 };
 
