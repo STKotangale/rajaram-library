@@ -9,49 +9,13 @@ import './AuthCSS/PermanentGeneralMember.css';
 
 
 const GeneralMember = () => {
-    const [generalMember, setGeneralMember] = useState([
-        {
-            id: 1,
-            firstName: 'John',
-            middleName: '',
-            lastName: 'Doe',
-            registerDate: '2024-04-18',
-            aadharCard: '123456789012',
-            memberAddress: '123 Main St, City',
-            dateOfBirth: '1990-01-01',
-            memberEducation: 'Bachelor\'s Degree',
-            memberOccupation: 'Engineer',
-            mobileNo: '1234567890',
-            memberEmailId: 'john@example.com',
-            confirmDate: '2024-04-18',
-            isBlocked: false
-        },
-        {
-            id: 2,
-            firstName: 'Jane',
-            middleName: '',
-            lastName: 'Smith',
-            registerDate: '2024-04-19',
-            aadharCard: '987654321098',
-            memberAddress: '456 Oak St, Town',
-            dateOfBirth: '1995-05-15',
-            memberEducation: 'Master\'s Degree',
-            memberOccupation: 'Doctor',
-            mobileNo: '9876543210',
-            memberEmailId: 'jane@example.com',
-            confirmDate: '2024-04-19',
-            isBlocked: false
-        },
-    ]);
-
-
+    const [generalMember, setGeneralMember] = useState([]);
     const [newGeneralMember, setNewGeneralMember] = useState({
-        memberId: '',
         firstName: '',
         middleName: '',
         lastName: '',
         registerDate: '',
-        aadharCard: '',
+        adharCard: '',
         memberAddress: '',
         dateOfBirth: '',
         memberEducation: '',
@@ -59,12 +23,8 @@ const GeneralMember = () => {
         mobileNo: '',
         memberEmailId: '',
         confirmDate: '',
-        isBlocked: false
     });
     const [showAddGeneralMemberModal, setShowAddGeneralMemberModal] = useState(false);
-    // const [newPermanentMemberName, setNewPermanentMemberName] = useState('');
-
-    const [isBlock, setIsBlock] = useState(false);
     const [selectedGeneralMemberId, setSelectedGeneralMemberId] = useState(null);
     const [showEditGeneralMemberModal, setShowEditGeneralMemberModal] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -72,38 +32,40 @@ const GeneralMember = () => {
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    const fetchGeneralMember = async () => {
+    const fetchGeneralMembers = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/general-member`, {
+            const response = await fetch(`${BaseURL}/api/general-members`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching general member: ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
             setGeneralMember(data.data);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching general member. Please try again later.');
+            console.error("Failed to fetch general members:", error);
+            toast.error('Failed to load general members. Please try again later.');
         }
     };
 
     useEffect(() => {
-        fetchGeneralMember();
+        fetchGeneralMembers();
     }, []);
 
     const addGeneralMember = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/general-member`, {
+            const mobileNo = parseInt(newGeneralMember.mobileNo);
+
+            const response = await fetch(`${BaseURL}/api/general-members`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ GeneralMemberName: newGeneralMember }),
+                body: JSON.stringify({ ...newGeneralMember, mobileNo }),
             });
             if (!response.ok) {
                 throw new Error(`Error adding general member: ${response.statusText}`);
@@ -111,102 +73,126 @@ const GeneralMember = () => {
             const data = await response.json();
             setGeneralMember([...generalMember, data.data]);
             setShowAddGeneralMemberModal(false);
-            setNewGeneralMember('');
+            // Reset form fields
+            setNewGeneralMember({
+                firstName: '',
+                middleName: '',
+                lastName: '',
+                registerDate: '',
+                adharCard: '',
+                memberAddress: '',
+                dateOfBirth: '',
+                memberEducation: '',
+                memberOccupation: '',
+                mobileNo: '',
+                memberEmailId: '',
+                confirmDate: '',
+            });
             toast.success('General member added successfully.');
         } catch (error) {
             console.error(error);
-            toast.error('Error adding General member. Please try again later.');
+            toast.error('Error adding general member. Please try again later.');
         }
     };
 
 
+
     //edit function
-    const [editGeneralMemberData, setEditGeneralMemberData] = useState(null);
+    const [editGeneralMemberData, setEditGeneralMemberData] = useState({});
 
     // Function to handle opening edit modal and setting data
     const handleEditOpenGeneralMember = (memberId) => {
-        const memberToEdit = generalMember.find(member => member.id === memberId);
+        const memberToEdit = generalMember.find(member => member.memberId === memberId);
         if (memberToEdit) {
             setEditGeneralMemberData(memberToEdit);
             setShowEditGeneralMemberModal(true);
         }
     };
 
+
     const editGeneralMember = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/general-member/${selectedGeneralMemberId}`, {
+            if (!editGeneralMemberData || !editGeneralMemberData.memberId) {
+                throw new Error('No memberId provided for editing.');
+            }
+            // Filter out the 'isBlock' property if it's present
+            const { isBlock, ...requestData } = editGeneralMemberData;
+
+            const response = await fetch(`${BaseURL}/api/general-members/${editGeneralMemberData.memberId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ generalMemberName: newGeneralMember, isBlock: isBlock.toString() }),
+                body: JSON.stringify(requestData),
             });
+
             if (!response.ok) {
-                throw new Error(`Error editing General member: ${response.statusText}`);
+                throw new Error(`Error editing general member: ${response.statusText}`);
             }
             const updatedGeneralMemberData = await response.json();
-            const updatedGeneralMember = generalMember.map(generalMember => {
-                if (generalMember.id === selectedGeneralMemberId) {
-                    return { ...generalMember,generalMemberName: updatedGeneralMemberData.data.generalMemberName, isBlock: updatedGeneralMemberData.data.isBlock };
+            const updatedGeneralMembers = generalMember.map(member => {
+                if (member.memberId === updatedGeneralMemberData.data.memberId) {
+                    return updatedGeneralMemberData.data;
                 }
-                return generalMember;
+                return member;
             });
-            setGeneralMember(updatedGeneralMember);
+            setGeneralMember(updatedGeneralMembers);
             setShowEditGeneralMemberModal(false);
-            setNewGeneralMember('');
-            setIsBlock(false);
             toast.success('General member edited successfully.');
         } catch (error) {
             console.error(error);
-            toast.error('Error editing General member. Please try again later.');
+            toast.error('Error editing general member. Please try again later.');
         }
     };
 
+
+
     const deleteGeneralMember = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/General-member/${selectedGeneralMemberId}`, {
+            const response = await fetch(`${BaseURL}/api/general-members/${selectedGeneralMemberId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
             });
             if (!response.ok) {
-                throw new Error(`Error deleting General member: ${response.statusText}`);
+                throw new Error(`Error deleting general member: ${response.statusText}`);
             }
             setGeneralMember(generalMember.filter(generalMember => generalMember.id !== selectedGeneralMemberId));
             setShowDeleteConfirmation(false);
             toast.success('General member deleted successfully.');
+            fetchGeneralMembers();
+
         } catch (error) {
             console.error(error);
-            toast.error('Error deleting General member. Please try again later.');
+            toast.error('Error deleting general member. Please try again later.');
         }
     };
 
-        // view general Member
-        const [showViewGeneralMemberModal, setShowViewGeneralMemberModal] = useState(false);
-        const [viewGeneralMemberData, setViewGeneralMemberData] = useState(null);
-    
-    
-        const handleViewOpenGeneralMember = (memberId) => {
-            const memberToView = generalMember.find(member => member.id === memberId);
-            if (memberToView) {
-                setViewGeneralMemberData(memberToView);
-                setShowViewGeneralMemberModal(true);
-            }
-        };
+
+
+    //view modal
+    const [showViewGeneralMemberModal, setShowViewGeneralMemberModal] = useState(false);
+    const [viewGeneralMemberData, setViewGeneralMemberData] = useState(null);
+
+    const handleViewOpenGeneralMember = (member) => {
+        setViewGeneralMemberData(member);
+        setShowViewGeneralMemberModal(true);
+    };
+
+
+
 
     return (
         <div className="main-content-1">
-            <Container >
-
+            <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddGeneralMemberModal(true)} className="button-color">
                         Add General Member
                     </Button>
                 </div>
-
                 <div className='mt-3 table-container-general-member'>
                     <Table striped bordered hover style={{ minWidth: '2400px' }}>
                         <thead>
@@ -217,26 +203,25 @@ const GeneralMember = () => {
                                 <th>Last Name</th>
                                 <th>Register Date</th>
                                 <th>Aadhar No</th>
-                                <th> Address</th>
+                                <th>Address</th>
                                 <th>Date of Birth</th>
-                                <th> Education</th>
-                                <th> Occupation</th>
+                                <th>Education</th>
+                                <th>Occupation</th>
                                 <th>Mobile No</th>
-                                <th> Email </th>
+                                <th>Email</th>
                                 <th>Confirm Date</th>
-                                <th>Is Blocked</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {generalMember.map((member) => (
-                                <tr key={member.id}>
-                                    <td>{member.id}</td>
+                                <tr key={member.memberId}>
+                                    <td>{member.memberId}</td>
                                     <td>{member.firstName}</td>
                                     <td>{member.middleName}</td>
                                     <td>{member.lastName}</td>
                                     <td>{member.registerDate}</td>
-                                    <td>{member.aadharCard}</td>
+                                    <td>{member.adharCard}</td>
                                     <td>{member.memberAddress}</td>
                                     <td>{member.dateOfBirth}</td>
                                     <td>{member.memberEducation}</td>
@@ -244,31 +229,21 @@ const GeneralMember = () => {
                                     <td>{member.mobileNo}</td>
                                     <td>{member.memberEmailId}</td>
                                     <td>{member.confirmDate}</td>
-                                    <td>{member.isBlocked ? 'Yes' : 'No'}</td>
                                     <td>
-                                        {/* <PencilSquare
+                                        <PencilSquare
                                             className="ms-3 action-icon edit-icon"
-                                            onClick={() => {
-                                                setSelectedGeneralMemberId(member.id);
-                                                setNewGeneralMember(member.firstName);
-                                                setShowEditGeneralMemberModal(true);
-                                                setIsBlock(member.isBlocked);
-                                            }}
-                                        /> */}
-                                         <PencilSquare
-                                            className="ms-3 action-icon edit-icon"
-                                            onClick={() => handleEditOpenGeneralMember(member.id)}
+                                            onClick={() => handleEditOpenGeneralMember(member.memberId)}
                                         />
                                         <Trash
                                             className="ms-3 action-icon delete-icon"
                                             onClick={() => {
-                                                setSelectedGeneralMemberId(member.id);
+                                                setSelectedGeneralMemberId(member.memberId);
                                                 setShowDeleteConfirmation(true);
                                             }}
                                         />
-                                            <Eye
+                                        <Eye
                                             className="ms-3 action-icon view-icon"
-                                            onClick={() => handleViewOpenGeneralMember(member.id)}
+                                            onClick={() => handleViewOpenGeneralMember(member)}
                                         />
                                     </td>
                                 </tr>
@@ -278,8 +253,9 @@ const GeneralMember = () => {
                 </div>
             </Container>
 
-            {/* Add permanent member Modal */}
-            <Modal show={showAddGeneralMemberModal} onHide={() => setShowAddGeneralMemberModal(false)} dialogClassName="modal-lg">
+
+            {/* Add General member Modal */}
+            <Modal show={showAddGeneralMemberModal} onHide={() => setShowAddGeneralMemberModal(false)} size='xl'>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New General Member</Modal.Title>
                 </Modal.Header>
@@ -322,7 +298,7 @@ const GeneralMember = () => {
                         </Row>
 
                         <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newPermGeneralMemberRegisterDate">
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberRegisterDate">
                                 <Form.Label>Register Date</Form.Label>
                                 <Form.Control
                                     type="date"
@@ -332,14 +308,14 @@ const GeneralMember = () => {
                                 />
                             </Form.Group>
 
-                            <Form.Group className="mb-3" as={Col} controlId="newPGeneralMemberAadharCard">
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberAadharCard">
                                 <Form.Label>Aadhar Number</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Aadhar"
                                     maxLength={12}
-                                    value={newGeneralMember.aadharCard}
-                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, aadharCard: e.target.value })}
+                                    value={newGeneralMember.adharCard}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, adharCard: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -394,7 +370,7 @@ const GeneralMember = () => {
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberMobileNo">
                                 <Form.Label>Mobile No</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="Mobile number"
                                     maxLength={10}
                                     value={newGeneralMember.mobileNo}
@@ -418,7 +394,6 @@ const GeneralMember = () => {
                                 <Form.Label>Confirm Date</Form.Label>
                                 <Form.Control
                                     type="date"
-                                    // placeholder=""
                                     value={newGeneralMember.confirmDate}
                                     onChange={(e) => setNewGeneralMember({ ...newGeneralMember, confirmDate: e.target.value })}
                                     required
@@ -435,10 +410,10 @@ const GeneralMember = () => {
                 </Modal.Body>
             </Modal>
 
-             {/* Edit permanent member Modal */}
-             <Modal show={showEditGeneralMemberModal} onHide={() => setShowEditGeneralMemberModal(false)} dialogClassName="modal-lg">
+            {/* Edit General member Modal */}
+            <Modal show={showEditGeneralMemberModal} onHide={() => setShowEditGeneralMemberModal(false)} size='xl'>
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Permanent Member</Modal.Title>
+                    <Modal.Title>Edit General Member</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={editGeneralMember}>
@@ -466,7 +441,7 @@ const GeneralMember = () => {
                                 />
                             </Form.Group>
 
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberLastName">
+                            <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberLastName">
                                 <Form.Label>Last Name</Form.Label>
                                 <Form.Control
                                     type="text"
@@ -492,11 +467,11 @@ const GeneralMember = () => {
                             <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberAadharCard">
                                 <Form.Label>Aadhar Number</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="Aadhar"
                                     maxLength={12}
-                                    value={editGeneralMemberData ? editGeneralMemberData.aadharCard : ''}
-                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, aadharCard: e.target.value })}
+                                    value={editGeneralMemberData ? editGeneralMemberData.adharCard : ''}
+                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, adharCard: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -523,7 +498,7 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-                       
+
                             <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberEducation">
                                 <Form.Label>Education</Form.Label>
                                 <Form.Control
@@ -551,7 +526,7 @@ const GeneralMember = () => {
                             <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberMobileNo">
                                 <Form.Label>Mobile No</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="Mobile number"
                                     maxLength={10}
                                     value={editGeneralMemberData ? editGeneralMemberData.mobileNo : ''}
@@ -581,22 +556,6 @@ const GeneralMember = () => {
                                 />
                             </Form.Group>
                         </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} md={4} controlId="editedGeneralMemberIsBlocked">
-                                <Form.Label>Is Blocked</Form.Label>
-                                <Form.Select
-                                    value={editGeneralMemberData ? (editGeneralMemberData.isBlocked ? 'Yes' : 'No') : ''}
-                                    onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, isBlocked: e.target.value === 'Yes' })}
-                                    required
-                                >
-                                    <option value="">Select</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Row>
-
                         <div className='d-flex justify-content-end'>
                             <Button className='button-color' type="submit">
                                 Update
@@ -612,7 +571,7 @@ const GeneralMember = () => {
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Delete</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this general member?</Modal.Body>
+                <Modal.Body>Are you sure you want to delete this General member?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteConfirmation(false)}>
                         Cancel
@@ -623,9 +582,7 @@ const GeneralMember = () => {
                 </Modal.Footer>
             </Modal>
 
-
-             {/* view General member */}
-             <Modal show={showViewGeneralMemberModal} onHide={() => setShowViewGeneralMemberModal(false)} size="lg">
+            <Modal show={showViewGeneralMemberModal} onHide={() => setShowViewGeneralMemberModal(false)} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>View General Member Details</Modal.Title>
                 </Modal.Header>
@@ -635,73 +592,57 @@ const GeneralMember = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>First Name</Form.Label>
-                                    <Form.Control type="text"
-                                        readOnly
-                                        defaultValue={viewGeneralMemberData.firstName}
-                                    />
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.firstName} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>Middle Name</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.middleName} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Last Name</Form.Label>
+                                    <Form.Label>Last Name</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.lastName} />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Register Date</Form.Label>
+                                    <Form.Label>Register Date</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.registerDate} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Aadhar No</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.aadharCard} />
+                                    <Form.Label>Aadhar No</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.adharCard} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Address</Form.Label>
+                                    <Form.Label>Address</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberAddress} />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Date of Birth</Form.Label>
+                                    <Form.Label>Date of Birth</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.dateOfBirth} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Education</Form.Label>
+                                    <Form.Label>Education</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberEducation} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Occupation</Form.Label>
+                                    <Form.Label>Occupation</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberOccupation} />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Mobile No</Form.Label>
+                                    <Form.Label>Mobile No</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.mobileNo} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Email</Form.Label>
+                                    <Form.Label>Email</Form.Label>
                                     <Form.Control type="email" readOnly defaultValue={viewGeneralMemberData.memberEmailId} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Confirm Date</Form.Label>
+                                    <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirmDate} />
-                                </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
-                                <Form.Group as={Col} md={4}  className="mb-3">
-                                    <Form.Label >Is Blocked</Form.Label>
-                                    <Form.Control type="text"
-                                        readOnly
-                                        defaultValue={viewGeneralMemberData.isBlocked ? 'Yes' : 'No'}
-                                    />
                                 </Form.Group>
                             </Row>
                         </Form>
@@ -713,6 +654,8 @@ const GeneralMember = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+
         </div>
     );
 };

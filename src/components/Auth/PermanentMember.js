@@ -10,49 +10,13 @@ import './AuthCSS/PermanentGeneralMember.css';
 
 
 const PermanentMember = () => {
-    const [permanentMember, setPermanentMember] = useState([
-        {
-            id: 1,
-            firstName: 'John',
-            middleName: '',
-            lastName: 'Doe',
-            registerDate: '2024-04-18',
-            aadharCard: '123456789012',
-            memberAddress: '123 Main St, City',
-            dateOfBirth: '1990-01-01',
-            memberEducation: 'Bachelor\'s Degree',
-            memberOccupation: 'Engineer',
-            mobileNo: '1234567890',
-            memberEmailId: 'john@example.com',
-            confirmDate: '2024-04-18',
-            isBlocked: false
-        },
-        {
-            id: 2,
-            firstName: 'Jane',
-            middleName: '',
-            lastName: 'Smith',
-            registerDate: '2024-04-19',
-            aadharCard: '987654321098',
-            memberAddress: '456 Oak St, Town',
-            dateOfBirth: '1995-05-15',
-            memberEducation: 'Master\'s Degree',
-            memberOccupation: 'Doctor',
-            mobileNo: '9876543210',
-            memberEmailId: 'jane@example.com',
-            confirmDate: '2024-04-19',
-            isBlocked: false
-        },
-    ]);
-
-
+    const [permanentMember, setPermanentMember] = useState([]);
     const [newPermanentMember, setNewPermanentMember] = useState({
-        memberId: '',
         firstName: '',
         middleName: '',
         lastName: '',
         registerDate: '',
-        aadharCard: '',
+        adharCard: '',
         memberAddress: '',
         dateOfBirth: '',
         memberEducation: '',
@@ -60,12 +24,8 @@ const PermanentMember = () => {
         mobileNo: '',
         memberEmailId: '',
         confirmDate: '',
-        isBlocked: false
     });
     const [showAddPermanentMemberModal, setShowAddPermanentMemberModal] = useState(false);
-    // const [newPermanentMemberName, setNewPermanentMemberName] = useState('');
-
-    const [isBlock, setIsBlock] = useState(false);
     const [selectedPermanentMemberId, setSelectedPermanentMemberId] = useState(null);
     const [showEditPermanentMemberModal, setShowEditPermanentMemberModal] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -73,38 +33,40 @@ const PermanentMember = () => {
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    const fetchPermanentMember = async () => {
+    const fetchPermanentMembers = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/permanent-member`, {
+            const response = await fetch(`${BaseURL}/api/permanent-members`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching permanent member: ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
             setPermanentMember(data.data);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching permanent member. Please try again later.');
+            console.error("Failed to fetch permanent members:", error);
+            toast.error('Failed to load permanent members. Please try again later.');
         }
     };
 
     useEffect(() => {
-        fetchPermanentMember();
+        fetchPermanentMembers();
     }, []);
 
     const addPermanentMember = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/permanent-member`, {
+            const mobileNo = parseInt(newPermanentMember.mobileNo);
+
+            const response = await fetch(`${BaseURL}/api/permanent-members`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ PermanentMemberName: newPermanentMember }),
+                body: JSON.stringify({ ...newPermanentMember, mobileNo }),
             });
             if (!response.ok) {
                 throw new Error(`Error adding permanent member: ${response.statusText}`);
@@ -112,7 +74,21 @@ const PermanentMember = () => {
             const data = await response.json();
             setPermanentMember([...permanentMember, data.data]);
             setShowAddPermanentMemberModal(false);
-            setNewPermanentMember('');
+            // Reset form fields
+            setNewPermanentMember({
+                firstName: '',
+                middleName: '',
+                lastName: '',
+                registerDate: '',
+                adharCard: '',
+                memberAddress: '',
+                dateOfBirth: '',
+                memberEducation: '',
+                memberOccupation: '',
+                mobileNo: '',
+                memberEmailId: '',
+                confirmDate: '',
+            });
             toast.success('Permanent member added successfully.');
         } catch (error) {
             console.error(error);
@@ -121,12 +97,13 @@ const PermanentMember = () => {
     };
 
 
+
     //edit function
-    const [editPermanentMemberData, setEditPermanentMemberData] = useState(null);
+    const [editPermanentMemberData, setEditPermanentMemberData] = useState({});
 
     // Function to handle opening edit modal and setting data
     const handleEditOpenPermanentMember = (memberId) => {
-        const memberToEdit = permanentMember.find(member => member.id === memberId);
+        const memberToEdit = permanentMember.find(member => member.memberId === memberId);
         if (memberToEdit) {
             setEditPermanentMemberData(memberToEdit);
             setShowEditPermanentMemberModal(true);
@@ -137,28 +114,33 @@ const PermanentMember = () => {
     const editPermanentMember = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/permanent-member/${selectedPermanentMemberId}`, {
+            if (!editPermanentMemberData || !editPermanentMemberData.memberId) {
+                throw new Error('No memberId provided for editing.');
+            }
+            // Filter out the 'isBlock' property if it's present
+            const { isBlock, ...requestData } = editPermanentMemberData;
+
+            const response = await fetch(`${BaseURL}/api/permanent-members/${editPermanentMemberData.memberId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ permanentMemberName: newPermanentMember, isBlock: isBlock.toString() }),
+                body: JSON.stringify(requestData),
             });
+
             if (!response.ok) {
                 throw new Error(`Error editing permanent member: ${response.statusText}`);
             }
             const updatedPermanentMemberData = await response.json();
-            const updatedPermanentMember = permanentMember.map(permanentMember => {
-                if (permanentMember.id === selectedPermanentMemberId) {
-                    return { ...permanentMember, permanentMemberName: updatedPermanentMemberData.data.permanentmemberName, isBlock: updatedPermanentMemberData.data.isBlock };
+            const updatedPermanentMembers = permanentMember.map(member => {
+                if (member.memberId === updatedPermanentMemberData.data.memberId) {
+                    return updatedPermanentMemberData.data;
                 }
-                return permanentMember;
+                return member;
             });
-            setPermanentMember(updatedPermanentMember);
+            setPermanentMember(updatedPermanentMembers);
             setShowEditPermanentMemberModal(false);
-            setNewPermanentMember('');
-            setIsBlock(false);
             toast.success('Permanent member edited successfully.');
         } catch (error) {
             console.error(error);
@@ -166,9 +148,11 @@ const PermanentMember = () => {
         }
     };
 
+
+
     const deletePermanentMember = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/permanent-member/${selectedPermanentMemberId}`, {
+            const response = await fetch(`${BaseURL}/api/permanent-members/${selectedPermanentMemberId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -180,37 +164,37 @@ const PermanentMember = () => {
             setPermanentMember(permanentMember.filter(permanentMember => permanentMember.id !== selectedPermanentMemberId));
             setShowDeleteConfirmation(false);
             toast.success('Permanent member deleted successfully.');
+            fetchPermanentMembers();
+
         } catch (error) {
             console.error(error);
             toast.error('Error deleting permanent member. Please try again later.');
         }
     };
 
-    // view permanent Member
+
+
+    //view modal
     const [showViewPermanentMemberModal, setShowViewPermanentMemberModal] = useState(false);
     const [viewPermanentMemberData, setViewPermanentMemberData] = useState(null);
 
-
-    const handleViewOpenPermanentMember = (memberId) => {
-        const memberToView = permanentMember.find(member => member.id === memberId);
-        if (memberToView) {
-            setViewPermanentMemberData(memberToView);
-            setShowViewPermanentMemberModal(true);
-        }
+    const handleViewOpenPermanentMember = (member) => {
+        setViewPermanentMemberData(member);
+        setShowViewPermanentMemberModal(true);
     };
+
+
 
 
     return (
         <div className="main-content-1">
-            <Container >
-
+            <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddPermanentMemberModal(true)} className="button-color">
-                        Add Permanent Member
+                        Add General Member
                     </Button>
                 </div>
-
-                <div className='mt-3 table-container-permanent-member'>
+                <div className='mt-3 table-container-general-member'>
                     <Table striped bordered hover style={{ minWidth: '2400px' }}>
                         <thead>
                             <tr>
@@ -220,26 +204,25 @@ const PermanentMember = () => {
                                 <th>Last Name</th>
                                 <th>Register Date</th>
                                 <th>Aadhar No</th>
-                                <th> Address</th>
+                                <th>Address</th>
                                 <th>Date of Birth</th>
-                                <th> Education</th>
-                                <th> Occupation</th>
+                                <th>Education</th>
+                                <th>Occupation</th>
                                 <th>Mobile No</th>
-                                <th> Email </th>
+                                <th>Email</th>
                                 <th>Confirm Date</th>
-                                <th>Is Blocked</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             {permanentMember.map((member) => (
-                                <tr key={member.id}>
-                                    <td>{member.id}</td>
+                                <tr key={member.memberId}>
+                                    <td>{member.memberId}</td>
                                     <td>{member.firstName}</td>
                                     <td>{member.middleName}</td>
                                     <td>{member.lastName}</td>
                                     <td>{member.registerDate}</td>
-                                    <td>{member.aadharCard}</td>
+                                    <td>{member.adharCard}</td>
                                     <td>{member.memberAddress}</td>
                                     <td>{member.dateOfBirth}</td>
                                     <td>{member.memberEducation}</td>
@@ -247,22 +230,21 @@ const PermanentMember = () => {
                                     <td>{member.mobileNo}</td>
                                     <td>{member.memberEmailId}</td>
                                     <td>{member.confirmDate}</td>
-                                    <td>{member.isBlocked ? 'Yes' : 'No'}</td>
                                     <td>
                                         <PencilSquare
                                             className="ms-3 action-icon edit-icon"
-                                            onClick={() => handleEditOpenPermanentMember(member.id)}
+                                            onClick={() => handleEditOpenPermanentMember(member.memberId)}
                                         />
                                         <Trash
                                             className="ms-3 action-icon delete-icon"
                                             onClick={() => {
-                                                setSelectedPermanentMemberId(member.id);
+                                                setSelectedPermanentMemberId(member.memberId);
                                                 setShowDeleteConfirmation(true);
                                             }}
                                         />
                                         <Eye
                                             className="ms-3 action-icon view-icon"
-                                            onClick={() => handleViewOpenPermanentMember(member.id)}
+                                            onClick={() => handleViewOpenPermanentMember(member)}
                                         />
                                     </td>
                                 </tr>
@@ -272,8 +254,9 @@ const PermanentMember = () => {
                 </div>
             </Container>
 
+
             {/* Add permanent member Modal */}
-            <Modal show={showAddPermanentMemberModal} onHide={() => setShowAddPermanentMemberModal(false)} dialogClassName="modal-lg">
+            <Modal show={showAddPermanentMemberModal} onHide={() => setShowAddPermanentMemberModal(false)} size='xl'>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Permanent Member</Modal.Title>
                 </Modal.Header>
@@ -332,8 +315,8 @@ const PermanentMember = () => {
                                     type="text"
                                     placeholder="Aadhar"
                                     maxLength={12}
-                                    value={newPermanentMember.aadharCard}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, aadharCard: e.target.value })}
+                                    value={newPermanentMember.adharCard}
+                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, adharCard: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -388,7 +371,7 @@ const PermanentMember = () => {
                             <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMobileNo">
                                 <Form.Label>Mobile No</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="Mobile number"
                                     maxLength={10}
                                     value={newPermanentMember.mobileNo}
@@ -412,7 +395,6 @@ const PermanentMember = () => {
                                 <Form.Label>Confirm Date</Form.Label>
                                 <Form.Control
                                     type="date"
-                                    // placeholder=""
                                     value={newPermanentMember.confirmDate}
                                     onChange={(e) => setNewPermanentMember({ ...newPermanentMember, confirmDate: e.target.value })}
                                     required
@@ -430,7 +412,9 @@ const PermanentMember = () => {
             </Modal>
 
             {/* Edit permanent member Modal */}
-            <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} dialogClassName="modal-lg">
+            {/* <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} dialogClassName="modal-lg"> */}
+            <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} size='xl '>
+
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Permanent Member</Modal.Title>
                 </Modal.Header>
@@ -486,11 +470,11 @@ const PermanentMember = () => {
                             <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAadharCard">
                                 <Form.Label>Aadhar Number</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="Aadhar"
                                     maxLength={12}
-                                    value={editPermanentMemberData ? editPermanentMemberData.aadharCard : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, aadharCard: e.target.value })}
+                                    value={editPermanentMemberData ? editPermanentMemberData.adharCard : ''}
+                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, adharCard: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -545,7 +529,7 @@ const PermanentMember = () => {
                             <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMobileNo">
                                 <Form.Label>Mobile No</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="number"
                                     placeholder="Mobile number"
                                     maxLength={10}
                                     value={editPermanentMemberData ? editPermanentMemberData.mobileNo : ''}
@@ -575,22 +559,6 @@ const PermanentMember = () => {
                                 />
                             </Form.Group>
                         </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} md={4} controlId="editedPermanentMemberIsBlocked">
-                                <Form.Label>Is Blocked</Form.Label>
-                                <Form.Select
-                                    value={editPermanentMemberData ? (editPermanentMemberData.isBlocked ? 'Yes' : 'No') : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, isBlocked: e.target.value === 'Yes' })}
-                                    required
-                                >
-                                    <option value="">Select</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Form.Group>
-                        </Row>
-
                         <div className='d-flex justify-content-end'>
                             <Button className='button-color' type="submit">
                                 Update
@@ -617,8 +585,7 @@ const PermanentMember = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* view permanent member */}
-            <Modal show={showViewPermanentMemberModal} onHide={() => setShowViewPermanentMemberModal(false)} size="lg">
+            <Modal show={showViewPermanentMemberModal} onHide={() => setShowViewPermanentMemberModal(false)} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>View Permanent Member Details</Modal.Title>
                 </Modal.Header>
@@ -628,73 +595,57 @@ const PermanentMember = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>First Name</Form.Label>
-                                    <Form.Control type="text"
-                                        readOnly
-                                        defaultValue={viewPermanentMemberData.firstName}
-                                    />
+                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.firstName} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>Middle Name</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.middleName} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Last Name</Form.Label>
+                                    <Form.Label>Last Name</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.lastName} />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Register Date</Form.Label>
+                                    <Form.Label>Register Date</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.registerDate} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Aadhar No</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.aadharCard} />
+                                    <Form.Label>Aadhar No</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.adharCard} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Address</Form.Label>
+                                    <Form.Label>Address</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberAddress} />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Date of Birth</Form.Label>
+                                    <Form.Label>Date of Birth</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.dateOfBirth} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Education</Form.Label>
+                                    <Form.Label>Education</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberEducation} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Occupation</Form.Label>
+                                    <Form.Label>Occupation</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberOccupation} />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Mobile No</Form.Label>
+                                    <Form.Label>Mobile No</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.mobileNo} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Email</Form.Label>
+                                    <Form.Label>Email</Form.Label>
                                     <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.memberEmailId} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label >Confirm Date</Form.Label>
+                                    <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.confirmDate} />
-                                </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
-                                <Form.Group as={Col} md={4}  className="mb-3">
-                                    <Form.Label >Is Blocked</Form.Label>
-                                    <Form.Control type="text"
-                                        readOnly
-                                        defaultValue={viewPermanentMemberData.isBlocked ? 'Yes' : 'No'}
-                                    />
                                 </Form.Group>
                             </Row>
                         </Form>
@@ -706,6 +657,7 @@ const PermanentMember = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
 
         </div>
     );

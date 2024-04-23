@@ -112,3 +112,46 @@
   z-index: 1 !important;
 }
  */
+
+/* percentage sign % */
+ .discount-container {
+  display: flex;
+  align-items: center;
+}
+
+.gst-container {
+  display: flex;
+  align-items: center;
+}
+
+
+/* align */
+.right-align {
+  text-align: right;
+}
+.amount-align {
+  text-align: center;
+}
+
+
+/* size */
+.sr-size{
+  width: 100px;
+}
+
+.book-name-size{
+  width: 300px;
+}
+.quantity-size{
+  width: 250px;
+
+}
+.rate-size{
+  width: 250px;
+
+}
+.amount-size{
+  width: 200px;
+}
+
+

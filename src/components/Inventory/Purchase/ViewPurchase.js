@@ -5,7 +5,8 @@ import { PencilSquare, Trash, Eye } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import PurchaseDetails from './PurchaseDetails';
-// import PurchaseDetails from './PurchaseDetails';
+
+import '../InventoryCSS/PurchaseBookDashboardData.css'
 
 const ViewPurchase = () => {
     // Pagination
@@ -353,14 +354,14 @@ const ViewPurchase = () => {
 
             {/* Edit Purchase Modal */}
             {selectedPurchase && (
-                <Modal show={showModal} onHide={handleCloseModal} centered size='lg'>
+                <Modal show={showModal} onHide={handleCloseModal} centered size='xl'>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Purchase</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} sm={3} >
                                     <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -368,7 +369,7 @@ const ViewPurchase = () => {
                                         onChange={(e) => handleInputChange(e, 'invoiceNo')}
                                     />
                                 </Form.Group>
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} sm={3}>
                                     <Form.Label>Invoice Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -378,8 +379,8 @@ const ViewPurchase = () => {
                                     />
 
                                 </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>Ledger Name</Form.Label>
+                                <Form.Group as={Col} sm={5}>
+                                    <Form.Label>Purchaser Name</Form.Label>
                                     <Form.Control
                                         readOnly
                                         value={selectedPurchase.ledger_name || ''}
@@ -388,14 +389,15 @@ const ViewPurchase = () => {
                                 </Form.Group>
                             </Row>
 
+
                             <Table striped bordered hover className="table-bordered-dark">
                                 <thead>
                                     <tr>
-                                        <th className="table-header">Sr.No</th>
-                                        <th className="table-header">Book Name</th>
-                                        <th className="table-header">Quantity</th>
-                                        <th className="table-header">Rate</th>
-                                        <th className="table-header">Amount</th>
+                                        <th className="table-header sr-size">Sr.No</th>
+                                        <th className="table-header book-name-size">Book Name</th>
+                                        <th className="table-header quantity-size">Quantity</th>
+                                        <th className="table-header rate-size">Rate</th>
+                                        <th className="table-header amount-size amount-align">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -410,20 +412,20 @@ const ViewPurchase = () => {
                                                 />
                                             </td>
                                             <td>
-                                                <Form.Control
+                                                <Form.Control className="right-align"
                                                     type="number"
                                                     value={detail.qty}
                                                     onChange={(e) => handleInputChange(e, 'qty', index)}
                                                 />
                                             </td>
                                             <td>
-                                                <Form.Control
+                                                <Form.Control className="right-align"
                                                     type="number"
                                                     value={detail.rate}
                                                     onChange={(e) => handleInputChange(e, 'rate', index)}
                                                 />
                                             </td>
-                                            <td>{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                            <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
 
                                         </tr>
                                     ))}
@@ -432,59 +434,66 @@ const ViewPurchase = () => {
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>Bill Total</td>
-                                        <td>{selectedPurchase.billTotal}</td>
+                                        <td className="right-align">Bill Total</td>
+                                        <td className="amount-align">{selectedPurchase.billTotal}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Discount</td>
+                                        <td className="right-align">Discount</td>
                                         <td>
-                                            <Form.Control
-                                                type="number"
-                                                value={discountPercentage}
-                                                onChange={(e) => {
-                                                    const newDiscount = parseFloat(e.target.value);
-                                                    setDiscountPercentage(newDiscount);
-                                                    handleDiscountChange(e);
-                                                }}
-                                            />
+                                            <div className="discount-container">
+                                                <Form.Control className='right-align'
+                                                    type="number"
+                                                    value={discountPercentage}
+                                                    onChange={(e) => {
+                                                        const newDiscount = parseFloat(e.target.value);
+                                                        setDiscountPercentage(newDiscount);
+                                                        handleDiscountChange(e);
+                                                    }}
+                                                />
+                                                <span>%</span>
+                                            </div>
                                         </td>
-                                        <td>{selectedPurchase.discountAmount}</td>
+                                        <td className="amount-align">{selectedPurchase.discountAmount}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Total After Discount</td>
+                                        <td className="right-align">Total After Discount</td>
                                         <td></td>
-                                        <td>{selectedPurchase.totalAfterDiscount}</td>
+                                        <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>GST</td>
+                                        <td className="right-align">GST</td>
                                         <td>
-                                            <Form.Control
-                                                type="number"
-                                                value={gstPercentage}
-                                                onChange={(e) => {
-                                                    const newGst = parseFloat(e.target.value);
-                                                    setGstPercentage(newGst);
-                                                    handleGstChange(e);
-                                                }}
-                                            />
+                                            <div className="gst-container">
+                                                <Form.Control className="right-align"
+                                                    type="number"
+                                                    value={gstPercentage}
+                                                    onChange={(e) => {
+                                                        const newGst = parseFloat(e.target.value);
+                                                        setGstPercentage(newGst);
+                                                        handleGstChange(e);
+                                                    }}
+                                                />
+                                                <span>%</span>
+                                            </div>
                                         </td>
-                                        <td>{selectedPurchase.gstAmount}</td>
+                                        <td className="amount-align">{selectedPurchase.gstAmount}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Grand Total</td>
+                                        <td className="right-align">Grand Total</td>
                                         <td></td>
-                                        <td>{selectedPurchase.grandTotal}</td>
+                                        <td className="amount-align">{selectedPurchase.grandTotal}</td>
                                     </tr>
                                 </tbody>
                             </Table>
+
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -519,14 +528,14 @@ const ViewPurchase = () => {
 
             {/* View Purchase Modal */}
             {selectedPurchase && (
-                <Modal show={viewPurchaseModal} onHide={handleCloseModal} centered size='lg'>
+                <Modal show={viewPurchaseModal} onHide={handleCloseModal} centered size='xl'>
                     <Modal.Header closeButton>
                         <Modal.Title>View Purchase</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} sm={3}>
                                     <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -534,7 +543,7 @@ const ViewPurchase = () => {
                                         readOnly
                                     />
                                 </Form.Group>
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} sm={3}>
                                     <Form.Label>Invoice Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -544,7 +553,7 @@ const ViewPurchase = () => {
                                     />
                                 </Form.Group>
 
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} sm={5}>
                                     <Form.Label>Ledger Name</Form.Label>
                                     <Form.Control
                                         readOnly
@@ -556,11 +565,11 @@ const ViewPurchase = () => {
                             <Table striped bordered hover className="table-bordered-dark">
                                 <thead>
                                     <tr>
-                                        <th className="table-header">Sr.No</th>
-                                        <th className="table-header">Book Name</th>
-                                        <th className="table-header">Quantity</th>
-                                        <th className="table-header">Rate</th>
-                                        <th className="table-header">Amount</th>
+                                        <th className="table-header sr-size">Sr.No</th>
+                                        <th className="table-header book-name-size">Book Name</th>
+                                        <th className="table-header quantity-size">Quantity</th>
+                                        <th className="table-header rate-size">Rate</th>
+                                        <th className="table-header amount-size amount-align">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -575,68 +584,77 @@ const ViewPurchase = () => {
                                                 />
                                             </td>
                                             <td>
-                                                <Form.Control
+                                                <Form.Control className="right-align"
                                                     type="number"
                                                     value={detail.qty}
                                                     readOnly
                                                 />
                                             </td>
                                             <td>
-                                                <Form.Control
+                                                <Form.Control className="right-align"
                                                     type="number"
                                                     value={detail.rate}
                                                     readOnly
                                                 />
                                             </td>
-                                            <td>{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                            <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
                                         </tr>
                                     ))}
                                     <tr>
                                         <td></td>
                                         <td></td>
                                         <td></td>
-                                        <td>Bill Total</td>
-                                        <td>{selectedPurchase.billTotal}</td>
+                                        <td >Bill Total</td>
+                                        <td className="amount-align">{selectedPurchase.billTotal}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Discount (%)</td>
+                                        <td className="right-align">Discount</td>
                                         <td>
-                                            <Form.Control
-                                                type="number"
-                                                value={selectedPurchase.discountPercent}
-                                                readOnly
-                                            />
+                                            <div className="discount-container">
+                                                <Form.Control className="right-align"
+                                                    type="number"
+                                                    value={selectedPurchase.discountPercent}
+                                                    readOnly
+                                                />
+                                                <span>%</span>
+                                            </div>
+
+
                                         </td>
-                                        <td>{selectedPurchase.discountAmount}</td>
+                                        <td className="amount-align">{selectedPurchase.discountAmount}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Total After Discount</td>
+                                        <td className="right-align">Total After Discount</td>
                                         <td></td>
-                                        <td>{selectedPurchase.totalAfterDiscount}</td>
+                                        <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>GST (%)</td>
+                                        <td className="right-align">GST</td>
                                         <td>
-                                            <Form.Control
-                                                type="number"
-                                                value={selectedPurchase.gstPercent}
-                                                readOnly
-                                            />
+                                            <div className="gst-container">
+                                                <Form.Control className="right-align"
+                                                    type="number"
+                                                    value={selectedPurchase.gstPercent}
+                                                    readOnly
+                                                />
+                                                <span>%</span>
+                                            </div>
+
                                         </td>
-                                        <td>{selectedPurchase.gstAmount}</td>
+                                        <td className="amount-align">{selectedPurchase.gstAmount}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td>Grand Total</td>
+                                        <td className="right-align">Grand Total</td>
                                         <td></td>
-                                        <td>{selectedPurchase.grandTotal}</td>
+                                        <td className="amount-align">{selectedPurchase.grandTotal}</td>
                                     </tr>
                                 </tbody>
                             </Table>
