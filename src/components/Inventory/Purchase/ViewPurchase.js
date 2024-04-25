@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'react-bootstrap';
@@ -35,7 +36,7 @@ const ViewPurchase = () => {
     //get purchase
     const fetchPurchases = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/purchase/all`, {
+            const response = await fetch(`${BaseURL}/api/purchase`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -59,9 +60,23 @@ const ViewPurchase = () => {
         setGstPercentage(purchase.gstPercent);
     };
 
+
+
+    // //edit purchase
+    // const handleEditClick = (purchase) => {
+    //     setSelectedPurchase(purchase);
+    //     setShowModal(true);
+    //     setDiscountPercentage(purchase.discountPercent || "");
+    //     setGstPercentage(purchase.gstPercent || "");
+    // };
+
     //edit purchase
     const handleEditClick = (purchase) => {
-        setSelectedPurchase(purchase);
+        const updatedPurchase = {
+            ...purchase,
+            purchaseDetails: purchase.purchaseDetails.filter(detail => !detail.deleted)
+        };
+        setSelectedPurchase(updatedPurchase);
         setShowModal(true);
         setDiscountPercentage(purchase.discountPercent || "");
         setGstPercentage(purchase.gstPercent || "");
@@ -83,9 +98,9 @@ const ViewPurchase = () => {
             gstPercent: gstPercentage,
             gstAmount: parseFloat(selectedPurchase.gstAmount),
             grandTotal: parseFloat(selectedPurchase.grandTotal),
-            ledgerId: selectedPurchase.ledger_id,
+            ledgerId: selectedPurchase.ledgerId,
             purchaseDetails: selectedPurchase.purchaseDetails.map(detail => ({
-                bookName: detail.bookName,
+                bookId: detail.bookId,
                 qty: parseInt(detail.qty),
                 rate: parseFloat(detail.rate),
                 amount: parseFloat(detail.amount)
@@ -125,6 +140,10 @@ const ViewPurchase = () => {
             if (field === 'qty' || field === 'rate') {
                 updatedDetails[index][field] = parseInt(value);
                 updatedDetails[index].amount = updatedDetails[index].rate * updatedDetails[index].qty;
+            } else if (field === 'bookName') {
+                const selectedBook = bookName.find(book => book.bookName === value);
+                updatedDetails[index].bookId = selectedBook ? selectedBook.bookId : null;
+                updatedDetails[index][field] = value;
             } else {
                 updatedDetails[index][field] = value;
             }
@@ -292,6 +311,61 @@ const ViewPurchase = () => {
         setShowAddPurchase(false);
     };
 
+
+    //get books
+    const [bookName, setBookName] = useState([]);
+    const [selectedBooks, setSelectedBooks] = useState([]);
+    const [rowBooks, setRowBooks] = useState("");
+
+    const handleBookChangeForRow = (index, event) => {
+        const name = event.target.value;
+        const selectedBook = bookName.find(book => book.bookName === name);
+        const updatedRowBooks = [...rowBooks];
+
+        if (selectedBook) {
+            updatedRowBooks[index] = { ...updatedRowBooks[index], bookId: selectedBook.bookId };
+            updatedRowBooks[index].bookName = name;
+        } else {
+            updatedRowBooks[index] = { ...updatedRowBooks[index], bookId: null };
+            updatedRowBooks[index].bookName = name;
+        }
+        setRowBooks(updatedRowBooks);
+    };
+
+
+    // Filtered book names based on selectedBooks
+    const filteredBookNamesForRow = (rowIndex) => {
+        return bookName.filter(book =>
+            !selectedBooks.includes(book.bookId) ||
+            selectedBooks[rowIndex] === book.bookId
+        );
+    };
+
+    const fetchBooks = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching books: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setBookName(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching books. Please try again later.');
+        }
+    };
+
+    useEffect(() => {
+        fetchBooks();
+    }, []);
+
+
+
+
     //pagination
     const totalPages = Math.ceil(purchases.length / itemsPerPage);
     const handlePageClick = (page) => setCurrentPage(page);
@@ -305,6 +379,47 @@ const ViewPurchase = () => {
     const indexOfLastPurchase = currentPage * itemsPerPage;
     const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
     const currentPurchases = purchases.slice(indexOfFirstPurchase, indexOfLastPurchase);
+
+
+
+
+    const addRow = () => {
+        const newRow = {
+            bookId: null,
+            bookName: '',
+            qty: '',
+            rate: '',
+            amount: ''
+        };
+        setSelectedPurchase(prevPurchase => ({
+            ...prevPurchase,
+            purchaseDetails: [...prevPurchase.purchaseDetails, newRow]
+        }));
+    };
+
+    //edit modal under delete
+    // const deleteRow = (index) => {
+    //     const updatedDetails = [...selectedPurchase.purchaseDetails];
+    //     updatedDetails[index].deleted = true; // Mark the row as deleted
+    //     setSelectedPurchase(prevPurchase => ({
+    //         ...prevPurchase,
+    //         purchaseDetails: updatedDetails
+    //     }));
+    // };
+
+
+    const deleteRow = (index) => {
+        const updatedDetails = selectedPurchase.purchaseDetails.filter((_, i) => i !== index);
+        setSelectedPurchase(prevPurchase => ({
+            ...prevPurchase,
+            purchaseDetails: updatedDetails,
+            purchase: updatedDetails
+
+        }));
+    };
+
+
+
 
     return (
         <div className="main-content">
@@ -320,7 +435,7 @@ const ViewPurchase = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
-                                    <th>Ledger Name</th>
+                                    <th>Purchaser Name</th>
                                     <th>Invoice No</th>
                                     <th>Invoice Date</th>
                                     <th>Grand Total</th>
@@ -331,11 +446,12 @@ const ViewPurchase = () => {
                                 {currentPurchases.map((purchase, index) => (
                                     <tr key={index}>
                                         <td>{indexOfFirstPurchase + index + 1}</td>
-                                        <td>{purchase.ledger_name}</td>
+                                        <td>{purchase.ledgerName}</td>
                                         <td>{purchase.invoiceNo}</td>
                                         <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
                                         <td>{purchase.grandTotal}</td>
                                         <td>
+
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(purchase)} />
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(purchase)} />
@@ -384,7 +500,7 @@ const ViewPurchase = () => {
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            value={selectedPurchase.ledger_name || ''}
+                                            value={selectedPurchase.ledgerName || ''}
                                         >
                                         </Form.Control>
                                     </Form.Group>
@@ -399,18 +515,34 @@ const ViewPurchase = () => {
                                             <th className="table-header quantity-size">Quantity</th>
                                             <th className="table-header rate-size">Rate</th>
                                             <th className="table-header amount-size amount-align">Amount</th>
+                                            <th className="table-header action-align">Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {selectedPurchase.purchaseDetails.map((detail, index) => (
+
                                             <tr key={index}>
                                                 <td>{index + 1}</td>
                                                 <td>
-                                                    <Form.Control
+                                                    {/* <Form.Control
                                                         type="text"
                                                         value={detail.bookName}
                                                         onChange={(e) => handleInputChange(e, 'bookName', index)}
-                                                    />
+                                                    /> */}
+                                                    <Form.Group >
+                                                        <Form.Control
+                                                            as="input"
+                                                            list={`bookName-${index}`}
+                                                            value={detail.bookName}
+                                                            onChange={(e) => { handleBookChangeForRow(index, e); handleInputChange(e, 'bookName', index) }}
+                                                            placeholder="Search or select book name"
+                                                        />
+                                                        <datalist id={`bookName-${index}`}>
+                                                            {filteredBookNamesForRow(index).map((book) => (
+                                                                <option key={book.bookId} value={book.bookName} />
+                                                            ))}
+                                                        </datalist>
+                                                    </Form.Group>
                                                 </td>
                                                 <td>
                                                     <Form.Control className="right-align"
@@ -427,9 +559,23 @@ const ViewPurchase = () => {
                                                     />
                                                 </td>
                                                 <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
-
+                                                <td>
+                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
+                                                </td>
                                             </tr>
                                         ))}
+                                        <tr>
+                                            <td></td>
+                                            <td>
+                                                <Button onClick={addRow} className="button-color">
+                                                    Add Book
+                                                </Button>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
 
                                         <tr>
                                             <td></td>
@@ -437,6 +583,7 @@ const ViewPurchase = () => {
                                             <td></td>
                                             <td className="right-align">Bill Total</td>
                                             <td className="amount-align">{selectedPurchase.billTotal}</td>
+                                            <td></td>
                                         </tr>
                                         <tr>
                                             <td></td>
@@ -457,6 +604,7 @@ const ViewPurchase = () => {
                                                 </div>
                                             </td>
                                             <td className="amount-align">{selectedPurchase.discountAmount}</td>
+                                            <td></td>
                                         </tr>
                                         <tr>
                                             <td></td>
@@ -464,6 +612,7 @@ const ViewPurchase = () => {
                                             <td className="right-align">Total After Discount</td>
                                             <td></td>
                                             <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
+                                            <td></td>
                                         </tr>
                                         <tr>
                                             <td></td>
@@ -484,6 +633,7 @@ const ViewPurchase = () => {
                                                 </div>
                                             </td>
                                             <td className="amount-align">{selectedPurchase.gstAmount}</td>
+                                            <td></td>
                                         </tr>
                                         <tr>
                                             <td></td>
@@ -491,6 +641,7 @@ const ViewPurchase = () => {
                                             <td className="right-align">Grand Total</td>
                                             <td></td>
                                             <td className="amount-align">{selectedPurchase.grandTotal}</td>
+                                            <td></td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -559,7 +710,7 @@ const ViewPurchase = () => {
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            value={selectedPurchase.ledger_name || ''}
+                                            value={selectedPurchase.ledgerName || ''}
                                         />
                                     </Form.Group>
                                 </Row>

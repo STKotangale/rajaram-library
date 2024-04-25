@@ -191,7 +191,7 @@ const PermanentMember = () => {
             <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddPermanentMemberModal(true)} className="button-color">
-                        Add General Member
+                        Add Permanent Member
                     </Button>
                 </div>
                 <div className='mt-3 table-container-general-member'>

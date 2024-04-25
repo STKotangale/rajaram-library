@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle   } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -24,6 +24,9 @@ import ViewPurchase from '../Inventory/Purchase/ViewPurchase';
 
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
+import Purchaser from '../Inventory/Purchase/Purchaser';
+import CreateUser from '../Auth/CreateUser';
+import User from '../Auth/User';
 
 
 
@@ -43,6 +46,10 @@ const Dashboard = () => {
     const [permanentMember, setPermanentMember] = useState(false);
 
     const [generalMember, setGeneralMember] = useState(false);
+
+    const [purchaser, setPurchaser] = useState(false);
+
+    const [createUser, setCreateUser] = useState(false);
 
 
     //change password
@@ -69,6 +76,9 @@ const Dashboard = () => {
         setBookType(false);
         setPermanentMember(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
     // const handlePurchaseDetailsClick = () => {
@@ -92,6 +102,9 @@ const Dashboard = () => {
         setBookType(false);
         setPermanentMember(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
     const handleBookLanguages = () => {
@@ -103,6 +116,9 @@ const Dashboard = () => {
         setBookType(false);
         setPermanentMember(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
 
@@ -115,6 +131,9 @@ const Dashboard = () => {
         setBookType(false);
         setPermanentMember(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
     const handleBookType = () => {
@@ -126,6 +145,9 @@ const Dashboard = () => {
         setBooks(false);
         setPermanentMember(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
     const handleShowPurchase = () => {
@@ -137,6 +159,9 @@ const Dashboard = () => {
         setBooks(false);
         setPermanentMember(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
 
@@ -149,11 +174,43 @@ const Dashboard = () => {
         setBookLanguages(false);
         setBooks(false);
         setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
     };
 
 
     const handleGeneralMember = () => {
         setGeneralMember(true);
+        setBookType(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBooks(false);
+        setPermanentMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+
+    };
+
+    const handlePurchaser = () => {
+        setPurchaser(true);
+        setGeneralMember(false);
+        setBookType(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBooks(false);
+        setPermanentMember(false);
+        setCreateUser(false);
+    };
+
+    const handleCreateUser = () => {
+        setCreateUser(true);
+        setPurchaser(false);
+        setGeneralMember(false);
         setBookType(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -218,6 +275,12 @@ const Dashboard = () => {
         setShowMasterSubItems(!showMasterSubItems);
     };
 
+    const [showAccountSubItems, setShowAccountSubItems] = useState(false);
+
+    const toggleAccountSubItems = () => {
+        setShowAccountSubItems(!showAccountSubItems);
+    };
+
     return (
         <div className='main-dashboard'>
             <div className="d-flex sidebar" id="wrapper">
@@ -255,6 +318,7 @@ const Dashboard = () => {
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
                                         <CartDashFill className="icon" /> Purchase Return
                                     </ListGroup.Item> */}
+                                 
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookLanguages}>
                                         <Globe className="me-2" /> Book Languages
                                     </ListGroup.Item>
@@ -268,13 +332,27 @@ const Dashboard = () => {
                                 </>
                             )}
 
+                            <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleAccountSubItems}>
+                                <Archive className="icon me-2" /> Account
+                            </ListGroup.Item>
+                            {showAccountSubItems && (
+                                <>
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaser}>
+                                        <PersonFill className="me-2" /> Purchaser
+                                    </ListGroup.Item>
+                                </>
+                            )}
+
                             <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
                                 <GearWideConnected className="icon" /> Master
                             </ListGroup.Item>
                             {showMasterSubItems && (
                                 <>
                                     <ListGroup.Item className="admin-icon mt-2" action>
-                                        <PersonFill className="icon" />Admin
+                                        <PersonCircle className="icon" />Admin
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="admin-icon mt-2" action onClick={handleCreateUser}>
+                                    <PersonFill className="icon" />  User
                                     </ListGroup.Item>
                                     <ListGroup.Item className="admin-icon mt-2" action onClick={handlePermanentMember}>
                                         <PeopleFill className="me-2" /> Permanent Members
@@ -282,6 +360,8 @@ const Dashboard = () => {
                                     <ListGroup.Item className="admin-icon mt-2" action onClick={handleGeneralMember}>
                                         <People className="icon" /> General Member
                                     </ListGroup.Item>
+
+                                    
                                 </>
                             )}
 
@@ -298,7 +378,7 @@ const Dashboard = () => {
 
                 <div id="page-content-wrapper" className='dashboard-page-details bg-light'>
                     <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-navabar">
-                        <Navbar.Brand href="#Dashboard">Welcome ! Admin {username}</Navbar.Brand>
+                        <Navbar.Brand href="#Dashboard">Welcome Admin !.. {username}</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="ms-auto">
@@ -329,6 +409,12 @@ const Dashboard = () => {
 
                         {permanentMember && <PermanentMember />}
                         {generalMember && <GeneralMember />}
+
+                        {purchaser && <Purchaser />}
+
+                        {createUser && <User />}
+
+
 
                     </Container>
                     <Footer />

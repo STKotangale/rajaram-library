@@ -17,6 +17,7 @@ import Dashboard from './components/CommonFiles/Dashboard';
 import ContactUs from './components/CommonFiles/ContactUs';
 import AboutUs from './components/CommonFiles/AboutUs';
 import ForgotPassword from './components/Auth/ForgotPassword';
+import MemberDashboard from './components/CommonFiles/MemberDashboard';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -32,6 +33,9 @@ ReactDOM.render(
           <Route path="/forgotpassword" element={<ForgotPassword />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
+
+          <Route path="/memberdashboard" element={<MemberDashboard />} />
+
 
         </Routes>
 

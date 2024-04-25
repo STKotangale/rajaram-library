@@ -113,16 +113,7 @@
 }
  */
 
-/* percentage sign % */
- .discount-container {
-  display: flex;
-  align-items: center;
-}
 
-.gst-container {
-  display: flex;
-  align-items: center;
-}
 
 
 /* align */
@@ -137,21 +128,22 @@
 /* size */
 .sr-size{
   width: 100px;
+  text-align: center;
 }
 
 .book-name-size{
-  width: 300px;
+  width: 450px;
 }
 .quantity-size{
-  width: 250px;
+  width: 160px;
 
 }
 .rate-size{
-  width: 250px;
+  width: 170px;
 
 }
 .amount-size{
-  width: 200px;
+  width: 150px;
 }
 
 
@@ -175,3 +167,25 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 } */
+
+/* percentage sign % */
+ .discount-container {
+  display: flex;
+  align-items: center;
+}
+
+.gst-container {
+  display: flex;
+  align-items: center;
+}
+
+/* gst and discount add % sign */
+.input-with-suffix {
+  display: flex;
+  align-items: center;
+}
+
+.input-with-suffix span {
+  margin-left: 5px;
+  color: #6c757d; 
+}

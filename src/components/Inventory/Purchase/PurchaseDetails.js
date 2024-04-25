@@ -1,9 +1,10 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
-import { ArrowReturnLeft } from 'react-bootstrap-icons';
+import { ArrowReturnLeft, Trash } from 'react-bootstrap-icons';
 
 import { useAuth } from '../../Auth/AuthProvider';
 
@@ -11,69 +12,78 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
 
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
-    const [discountPercentage, setDiscountPercentage] = useState(0);
-    const [gstPercentage, setGstPercentage] = useState(0);
+    const [discountPercentage, setDiscountPercentage] = useState("");
+    const [gstPercentage, setGstPercentage] = useState("");
     // Function to handle search query change
     const [searchQuery] = useState('');
     //get ledger name
     const [ledgerName, setLedgerName] = useState([]);
     const [selectedLedgerName, setSelectedLedgerName] = useState("");
-    const [selectedLedgerId, setSelectedLedgerId] = useState('');
+    const [selectedLedgerID, setSelectedLedgerID] = useState('');
+
+
     // get  date 
     const [invoiceDate, setInvoiceDate] = useState();
-    const [invoiceNumber, setInvoiceNumber] = useState(() => {
-        return sessionStorage.getItem('invoiceNumber') || 'TIN1';
-    });
+    //invoice number
+    // const [invoiceNumber, setInvoiceNumber] = useState(() => {
+    //     return sessionStorage.getItem('invoiceNumber') || 'TIN1';
+    // });
+
+    const [invoiceNumber, setInvoiceNumber] = useState();
 
     const { username, accessToken } = useAuth();
 
     //get username and access token
     useEffect(() => {
-        sessionStorage.setItem('invoiceNumber', invoiceNumber);
 
-    }, [username, accessToken, invoiceNumber]);
+    }, [username, accessToken]);
 
     // useEffect(() => {
+    // sessionStorage.setItem('invoiceNumber', invoiceNumber);
+
     // }, [invoiceNumber]);
 
-    //ledger name
-    const handleLedgerChange = (event) => {
-        const name = event.target.value;
-        setSelectedLedgerName(name);
-        const ledger = ledgerName.find(l => l.ledgerName === name);
-        if (ledger) {
-            setSelectedLedgerId(ledger.ledgerId);
-        } else {
-            setSelectedLedgerId("");
-        }
-    };
 
+    //ledger name
     useEffect(() => {
         const fetchLedgerNames = async () => {
             try {
-                if (!accessToken) {
-                    throw new Error('Access token not found');
-                }
-                const response = await fetch(`${BaseURL}/api/ledger/list`, {
+                const response = await fetch(`${BaseURL}/api/ledger`, {
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                     },
                 });
                 if (!response.ok) {
-                    if (response.status === 401) {
-                        throw new Error('Unauthorized - Access token may be invalid or expired');
-                    } else {
-                        throw new Error(`Failed to fetch party names - ${response.status}`);
-                    }
+                    throw new Error(`Failed to fetch ledger names - ${response.status}`);
                 }
-                const ledgerNameId = await response.json();
-                setLedgerName(ledgerNameId);
+                const data = await response.json();
+                setLedgerName(data.data);
             } catch (error) {
-                console.error('Error fetching party names:', error.message);
+                console.error('Error fetching ledger names:', error.message);
+                toast.error('Error fetching ledger names. Please try again later.');
             }
         };
         fetchLedgerNames();
-    }, []);
+    }, [accessToken]);
+
+    const handleLedgerChange = (event) => {
+        const name = event.target.value;
+        setSelectedLedgerName(name);
+        const ledger = ledgerName.find(l => l.ledgerName === name);
+        if (ledger) {
+            setSelectedLedgerID(ledger.ledgerID);
+        } else {
+            setSelectedLedgerID('');
+        }
+    };
+
+    const filteredLedgerName = ledgerName.filter(ledger =>
+        ledger.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+
+
+
 
     //bill total
     const calculateBillTotal = () => {
@@ -120,7 +130,8 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     const calculateGst = () => {
         const totalAfterDiscount = calculateTotalAfterDiscount();
         const gstAmount = totalAfterDiscount * (gstPercentage / 100);
-        return Math.floor(gstAmount);
+        // return Math.floor(gstAmount);
+        return gstAmount;
     };
 
     //grand total
@@ -140,7 +151,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         if (!selectedLedgerName.trim()) {
-            toast.error('Please select ledger name !');
+            toast.error('Please select purchaser name !');
             return;
         }
         const isBookFilled = rows.some(row => row.bookName.trim() !== '');
@@ -152,7 +163,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
         const payload = {
             invoiceNo: invoiceNumber,
             invoiceDate: invoiceDate,
-            ledgerId: selectedLedgerId,
+            ledgerId: selectedLedgerID,
             billTotal: calculateBillTotal(),
             discountPercent: discountPercentage,
             discountAmount: calculateDiscount(),
@@ -161,7 +172,8 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
             gstAmount: calculateGst(),
             grandTotal: calculateGrandTotal(),
             purchaseDetails: filteredRows.map(row => ({
-                bookName: row.bookName,
+                // bookName: row.bookName,
+                bookId: bookName.find(book => book.bookName === row.bookName)?.bookId,
                 qty: parseFloat(row.quantity),
                 rate: parseFloat(row.rate),
                 amount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
@@ -191,10 +203,11 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
 
                 // Reset form fields
                 setInvoiceDate('');
-                setSelectedLedgerId('');
+                setSelectedLedgerID('');
                 setDiscountPercentage(0);
                 setGstPercentage(0);
                 setSelectedLedgerName('');
+                setInvoiceNumber('');
                 const resetRows = rows.map(row => ({
                     ...row,
                     bookName: '',
@@ -210,13 +223,15 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
         }
     };
 
-    //handle change
+    // handle change
     const handleRowChange = (index, e) => {
         const { name, value } = e.target;
         const newRows = [...rows];
         newRows[index][name] = value;
         setRows(newRows);
     };
+
+
 
     //  invoice date change
     const handleInvoiceDateChange = (e) => {
@@ -230,10 +245,57 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
         setRows(updatedRows);
     };
 
-    // fillter name
-    const filteredLedgerName = ledgerName.filter(ledger =>
-        ledger.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
+    //get books
+    const [bookName, setBookName] = useState([]);
+    const [selectedBooks, setSelectedBooks] = useState([]);
+
+    const handleBookChangeForRow = (index, event) => {
+        const name = event.target.value;
+        const selectedBook = bookName.find(book => book.bookName === name);
+        const updatedRows = [...rows];
+
+        if (selectedBook) {
+            updatedRows[index].bookName = name;
+        } else {
+            updatedRows[index].bookName = name;
+        }
+        setRows(updatedRows);
+    };
+
+
+    // Filtered book names based on selectedBooks
+    const filteredBookNamesForRow = (rowIndex) => {
+        return bookName.filter(book =>
+            !selectedBooks.includes(book.bookId) ||
+            selectedBooks[rowIndex] === book.bookId
+        );
+    };
+
+    const fetchBooks = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching books: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setBookName(data.data); // Assuming the response contains an array under the key 'data'
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching books. Please try again later.');
+        }
+    };
+
+    useEffect(() => {
+        fetchBooks();
+    }, []);
+
+
+
 
     return (
         <>
@@ -241,13 +303,13 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                 <ArrowReturnLeft className="back-icon" onClick={onBackButtonClick}>Back</ArrowReturnLeft>
             </div>
 
-            <div className="main-content">
+            <div className="main-content-1">
 
                 <Container>
 
-                    <Row className="purchase-main">
+                    <Row className="purchase-main-1">
 
-                        <Col xs={12} md={10} lg={10}>
+                        <Col xs={12} md={10} lg={12}>
                             <h1 className="mt-4">Purchase</h1>
                             <div className="mt-5 border-style-1">
                                 <Form onSubmit={handleSubmit}>
@@ -255,6 +317,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                         <Form.Group as={Col} sm={3}>
                                             <Form.Label>Invoice No</Form.Label>
                                             <Form.Control
+                                                placeholder="Invoice number"
                                                 type="text"
                                                 value={invoiceNumber}
                                                 onChange={(e) => setInvoiceNumber(e.target.value)}
@@ -277,7 +340,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 list="ledgerNames"
                                                 value={selectedLedgerName}
                                                 onChange={handleLedgerChange}
-                                                placeholder="Search or select ledger name"
+                                                placeholder="Search or select purchaser name"
                                             />
                                             <datalist id="ledgerNames">
                                                 {filteredLedgerName.map((ledger) => (
@@ -295,20 +358,48 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 <th className="table-header quantity-size">Quantity</th>
                                                 <th className="table-header rate-size">Rate</th>
                                                 <th className="table-header amount-size amount-align">Amount</th>
+                                                <th className="table-header action-align">Action</th>
+
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {rows.map((row, index) => (
                                                 <tr key={index}>
-                                                    <td>{index + 1}</td>
+                                                    <td className='sr-size'>{index + 1}</td>
                                                     <td>
-                                                        <Form.Control
-                                                            type="text"
+
+                                                        {/* <Form.Control
+                                                            as="select"
                                                             name="bookName"
                                                             value={row.bookName}
                                                             onChange={(e) => handleRowChange(index, e)}
-                                                        />
+                                                        >
+                                                            <option value="">Select Book</option>
+                                                            {books.map((book) => (
+                                                                <option key={book.id} value={book.bookName}>
+                                                                    {book.bookName}
+                                                                </option>
+                                                            ))}
+
+                                                        </Form.Control> */}
+
+                                                        <Form.Group as={Col} sm={12}>
+                                                            <Form.Control
+                                                                as="input"
+                                                                list={`bookName-${index}`}
+                                                                value={row.bookName}
+                                                                onChange={(e) => { handleBookChangeForRow(index, e); }}
+                                                                placeholder="Search or select book name"
+                                                            />
+                                                            <datalist id={`bookName-${index}`}>
+                                                                {filteredBookNamesForRow(index).map((book) => (
+                                                                    <option key={book.bookId} value={book.bookName} />
+                                                                ))}
+                                                            </datalist>
+                                                        </Form.Group>
+
                                                     </td>
+
                                                     <td>
                                                         <Form.Control className="right-align"
                                                             type="number"
@@ -323,11 +414,16 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                             name="rate"
                                                             value={row.rate}
                                                             onChange={(e) => handleRowChange(index, e)}
+
                                                         />
+
                                                     </td>
                                                     <td className="amount-align">
-                                                        {(row.quantity && row.rate) ? (parseFloat(row.quantity) * parseFloat(row.rate)) : ''}
-
+                                                        {/* {(row.quantity && row.rate) ? (parseFloat(row.quantity) * parseFloat(row.rate)) : ''} */}
+                                                        {row.quantity && row.rate ? ((row.quantity) * (row.rate)).toFixed(2) : ''}
+                                                    </td>
+                                                    <td>
+                                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
                                                     </td>
                                                 </tr>
                                             ))}
@@ -339,10 +435,11 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                     </Button>
                                                 </td>
                                                 <td>
-                                                    <Button className="button-color" onClick={() => deleteRow(rows.length - 1)}>
+                                                    {/* <Button className="button-color" onClick={() => deleteRow(rows.length - 1)}>
                                                         Delete Book
-                                                    </Button>
+                                                    </Button> */}
                                                 </td>
+                                                <td></td>
                                                 <td></td>
                                                 <td></td>
                                             </tr>
@@ -351,24 +448,31 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">Bill Total</td>
-                                                <td className="amount-align">{calculateBillTotal()}</td>
+                                                <td className="amount-align">{calculateBillTotal().toFixed(2)}</td>
+                                                <td></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">Discount</td>
                                                 <td>
-                                                    <div className="discount-container">
+                                                    {/* <div className="discount-container">
                                                         <Form.Control className="right-align"
                                                             type="number"
-                                                            placeholder="Enter discount"
+                                                            placeholder="Discount"
                                                             value={discountPercentage}
                                                             onChange={handleDiscountChange}
                                                         />
                                                         <span>%</span>
+                                                    </div> */}
+                                                    <div className="input-with-suffix">
+                                                        <Form.Control className="right-align" type="number" placeholder="Discount" value={discountPercentage} onChange={handleDiscountChange} />
+                                                        <span>%</span>
                                                     </div>
+
                                                 </td>
                                                 <td className="amount-align">{calculateDiscount()}</td>
+                                                <td></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -376,23 +480,29 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 <td className="right-align">Total After Discount</td>
                                                 <td></td>
                                                 <td className="amount-align">{calculateTotalAfterDiscount()}</td>
+                                                <td></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">GST</td>
                                                 <td>
-                                                    <div className="gst-container">
+                                                    {/* <div className="gst-container">
                                                         <Form.Control className="right-align"
                                                             type="number"
-                                                            placeholder="Enter GST"
+                                                            placeholder=" GST"
                                                             value={gstPercentage}
                                                             onChange={handleGstChange}
                                                         />
                                                         <span>%</span>
+                                                    </div> */}
+                                                    <div className="input-with-suffix">
+                                                        <Form.Control className="right-align" type="number" placeholder="GST" value={gstPercentage} onChange={handleGstChange} />
+                                                        <span>%</span>
                                                     </div>
                                                 </td>
                                                 <td className="amount-align">{calculateGst()}</td>
+                                                <td></td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -400,6 +510,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td className="amount-align">{calculateGrandTotal()}</td>
+                                                <td></td>
                                             </tr>
                                         </tbody>
                                     </Table>
@@ -424,3 +535,6 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
 };
 
 export default PurchaseDetails;
+
+
+

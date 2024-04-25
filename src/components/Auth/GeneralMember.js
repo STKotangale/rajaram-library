@@ -23,6 +23,7 @@ const GeneralMember = () => {
         mobileNo: '',
         memberEmailId: '',
         confirmDate: '',
+        password:'',
     });
     const [showAddGeneralMemberModal, setShowAddGeneralMemberModal] = useState(false);
     const [selectedGeneralMemberId, setSelectedGeneralMemberId] = useState(null);
@@ -58,7 +59,7 @@ const GeneralMember = () => {
         e.preventDefault();
         try {
             const mobileNo = parseInt(newGeneralMember.mobileNo);
-
+    
             const response = await fetch(`${BaseURL}/api/general-members`, {
                 method: 'POST',
                 headers: {
@@ -67,6 +68,9 @@ const GeneralMember = () => {
                 },
                 body: JSON.stringify({ ...newGeneralMember, mobileNo }),
             });
+    
+            console.log('Response status:', response.status); // Add this line for debugging
+    
             if (!response.ok) {
                 throw new Error(`Error adding general member: ${response.statusText}`);
             }
@@ -87,6 +91,7 @@ const GeneralMember = () => {
                 mobileNo: '',
                 memberEmailId: '',
                 confirmDate: '',
+                password:'',
             });
             toast.success('General member added successfully.');
         } catch (error) {
@@ -94,6 +99,7 @@ const GeneralMember = () => {
             toast.error('Error adding general member. Please try again later.');
         }
     };
+    
 
 
 
@@ -396,6 +402,17 @@ const GeneralMember = () => {
                                     type="date"
                                     value={newGeneralMember.confirmDate}
                                     onChange={(e) => setNewGeneralMember({ ...newGeneralMember, confirmDate: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberPassword">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Password"
+                                    value={newGeneralMember.password}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, password: e.target.value })}
                                     required
                                 />
                             </Form.Group>
