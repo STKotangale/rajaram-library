@@ -11,6 +11,7 @@ import './AuthCSS/PermanentGeneralMember.css';
 const GeneralMember = () => {
     const [generalMember, setGeneralMember] = useState([]);
     const [newGeneralMember, setNewGeneralMember] = useState({
+        username: '',
         firstName: '',
         middleName: '',
         lastName: '',
@@ -23,7 +24,7 @@ const GeneralMember = () => {
         mobileNo: '',
         memberEmailId: '',
         confirmDate: '',
-        password:'',
+        password: '',
     });
     const [showAddGeneralMemberModal, setShowAddGeneralMemberModal] = useState(false);
     const [selectedGeneralMemberId, setSelectedGeneralMemberId] = useState(null);
@@ -59,7 +60,7 @@ const GeneralMember = () => {
         e.preventDefault();
         try {
             const mobileNo = parseInt(newGeneralMember.mobileNo);
-    
+
             const response = await fetch(`${BaseURL}/api/general-members`, {
                 method: 'POST',
                 headers: {
@@ -68,9 +69,9 @@ const GeneralMember = () => {
                 },
                 body: JSON.stringify({ ...newGeneralMember, mobileNo }),
             });
-    
+
             console.log('Response status:', response.status); // Add this line for debugging
-    
+
             if (!response.ok) {
                 throw new Error(`Error adding general member: ${response.statusText}`);
             }
@@ -79,6 +80,7 @@ const GeneralMember = () => {
             setShowAddGeneralMemberModal(false);
             // Reset form fields
             setNewGeneralMember({
+                username: '',
                 firstName: '',
                 middleName: '',
                 lastName: '',
@@ -91,7 +93,7 @@ const GeneralMember = () => {
                 mobileNo: '',
                 memberEmailId: '',
                 confirmDate: '',
-                password:'',
+                password: '',
             });
             toast.success('General member added successfully.');
         } catch (error) {
@@ -99,7 +101,7 @@ const GeneralMember = () => {
             toast.error('Error adding general member. Please try again later.');
         }
     };
-    
+
 
 
 
@@ -192,49 +194,35 @@ const GeneralMember = () => {
 
 
     return (
-        <div className="main-content-1">
+        <div className="main-content">
             <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddGeneralMemberModal(true)} className="button-color">
                         Add General Member
                     </Button>
                 </div>
-                <div className='mt-3 table-container-general-member'>
-                    <Table striped bordered hover style={{ minWidth: '2400px' }}>
+                <div className='mt-3 table-container-general-member-1'>
+                    <Table striped bordered hover >
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Sr.No</th>
                                 <th>First Name</th>
                                 <th>Middle Name</th>
                                 <th>Last Name</th>
                                 <th>Register Date</th>
-                                <th>Aadhar No</th>
-                                <th>Address</th>
-                                <th>Date of Birth</th>
-                                <th>Education</th>
-                                <th>Occupation</th>
                                 <th>Mobile No</th>
-                                <th>Email</th>
-                                <th>Confirm Date</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {generalMember.map((member) => (
+                            {generalMember.map((member, index) => (
                                 <tr key={member.memberId}>
-                                    <td>{member.memberId}</td>
+                                    <td>{index + 1}</td>
                                     <td>{member.firstName}</td>
                                     <td>{member.middleName}</td>
                                     <td>{member.lastName}</td>
                                     <td>{member.registerDate}</td>
-                                    <td>{member.adharCard}</td>
-                                    <td>{member.memberAddress}</td>
-                                    <td>{member.dateOfBirth}</td>
-                                    <td>{member.memberEducation}</td>
-                                    <td>{member.memberOccupation}</td>
                                     <td>{member.mobileNo}</td>
-                                    <td>{member.memberEmailId}</td>
-                                    <td>{member.confirmDate}</td>
                                     <td>
                                         <PencilSquare
                                             className="ms-3 action-icon edit-icon"
@@ -269,6 +257,18 @@ const GeneralMember = () => {
                     <Form onSubmit={addGeneralMember}>
 
                         <Row className="mb-3">
+
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberUsename">
+                                <Form.Label>Username</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Username"
+                                    value={newGeneralMember.username}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, username: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberFirstName">
                                 <Form.Label>First Name</Form.Label>
                                 <Form.Control
@@ -291,6 +291,11 @@ const GeneralMember = () => {
                                 />
                             </Form.Group>
 
+
+                        </Row>
+
+                        <Row className="mb-3">
+
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberLastName">
                                 <Form.Label>Last Name</Form.Label>
                                 <Form.Control
@@ -301,15 +306,14 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberRegisterDate">
-                                <Form.Label>Register Date</Form.Label>
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberMobileNo">
+                                <Form.Label>Mobile No</Form.Label>
                                 <Form.Control
-                                    type="date"
-                                    value={newGeneralMember.registerDate}
-                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, registerDate: e.target.value })}
+                                    type="number"
+                                    placeholder="Mobile number"
+                                    maxLength={10}
+                                    value={newGeneralMember.mobileNo}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, mobileNo: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -326,25 +330,19 @@ const GeneralMember = () => {
                                 />
                             </Form.Group>
 
-                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberAddress">
-                                <Form.Label>Address </Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Address"
-                                    value={newGeneralMember.memberAddress}
-                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, memberAddress: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
+
                         </Row>
 
                         <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberDateOfBirth">
-                                <Form.Label>Date Of Birth</Form.Label>
+
+
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberEmailId">
+                                <Form.Label>Email Id</Form.Label>
                                 <Form.Control
-                                    type="date"
-                                    value={newGeneralMember.dateOfBirth}
-                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, dateOfBirth: e.target.value })}
+                                    type="text"
+                                    placeholder="Email"
+                                    value={newGeneralMember.memberEmailId}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, memberEmailId: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -359,7 +357,6 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
-
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberOccupation">
                                 <Form.Label>Occupation</Form.Label>
                                 <Form.Control
@@ -370,31 +367,31 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
+
                         </Row>
 
                         <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberMobileNo">
-                                <Form.Label>Mobile No</Form.Label>
+
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberDateOfBirth">
+                                <Form.Label>Date Of Birth</Form.Label>
                                 <Form.Control
-                                    type="number"
-                                    placeholder="Mobile number"
-                                    maxLength={10}
-                                    value={newGeneralMember.mobileNo}
-                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, mobileNo: e.target.value })}
+                                    type="date"
+                                    value={newGeneralMember.dateOfBirth}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, dateOfBirth: e.target.value })}
                                     required
                                 />
                             </Form.Group>
 
-                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberEmailId">
-                                <Form.Label>Email Id</Form.Label>
+                            <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberRegisterDate">
+                                <Form.Label>Register Date</Form.Label>
                                 <Form.Control
-                                    type="text"
-                                    placeholder="Email"
-                                    value={newGeneralMember.memberEmailId}
-                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, memberEmailId: e.target.value })}
+                                    type="date"
+                                    value={newGeneralMember.registerDate}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, registerDate: e.target.value })}
                                     required
                                 />
                             </Form.Group>
+
 
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberConfirmDate">
                                 <Form.Label>Confirm Date</Form.Label>
@@ -405,11 +402,25 @@ const GeneralMember = () => {
                                     required
                                 />
                             </Form.Group>
+                        </Row>
+                        <Row className="mb-3">
+                           
+
+                        <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberAddress">
+                                <Form.Label>Address </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Address"
+                                    value={newGeneralMember.memberAddress}
+                                    onChange={(e) => setNewGeneralMember({ ...newGeneralMember, memberAddress: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
 
                             <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberPassword">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="password"
                                     placeholder="Password"
                                     value={newGeneralMember.password}
                                     onChange={(e) => setNewGeneralMember({ ...newGeneralMember, password: e.target.value })}

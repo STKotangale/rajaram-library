@@ -442,6 +442,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 <td></td>
                                                 <td></td>
                                                 <td></td>
+
                                             </tr>
                                             <tr>
                                                 <td></td>

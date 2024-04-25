@@ -9,7 +9,6 @@ import 'react-toastify/dist/ReactToastify.css';
 const Books = () => {
     const [books, setBooks] = useState([]);
     const [newBookName, setNewBookName] = useState('');
-    const [isBlock, setIsBlock] = useState(false);
     const [selectedBookId, setSelectedBookId] = useState(null);
     const [showAddBookModal, setShowAddBookModal] = useState(false);
     const [showEditBookModal, setShowEditBookModal] = useState(false);
@@ -50,8 +49,6 @@ const Books = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ bookName: newBookName }),
-                // body: JSON.stringify({ bookName: newBookName, isBlock: isBlock.toString() }),
-
             });
             if (!response.ok) {
                 throw new Error(`Error adding book: ${response.statusText}`);
@@ -60,7 +57,6 @@ const Books = () => {
             setBooks([...books, newBook.data]);
             setShowAddBookModal(false);
             setNewBookName('');
-            // setIsBlock(false);
             toast.success('Book added successfully.');
         } catch (error) {
             console.error(error);
@@ -77,7 +73,7 @@ const Books = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ bookName: newBookName, isBlock: isBlock.toString() }),
+                body: JSON.stringify({ bookName: newBookName}),
             });
             if (!response.ok) {
                 throw new Error(`Error editing book: ${response.statusText}`);
@@ -85,14 +81,13 @@ const Books = () => {
             const updatedBookData = await response.json();
             const updatedBooks = books.map(book => {
                 if (book.bookId === selectedBookId) {
-                    return { ...book, bookName: updatedBookData.data.bookName, isBlock: updatedBookData.data.isBlock };
+                    return { ...book, bookName: updatedBookData.data.bookName};
                 }
                 return book;
             });
             setBooks(updatedBooks);
             setShowEditBookModal(false);
             setNewBookName('');
-            setIsBlock(false);
             toast.success('Book edited successfully.');
         } catch (error) {
             console.error(error);
@@ -161,7 +156,6 @@ const Books = () => {
                         <thead>
                             <tr>
                                 <th>Sr.No</th>
-                                {/* <th>Book ID</th> */}
                                 <th>Book</th>
                                 <th>Action</th>
                             </tr>
@@ -170,7 +164,6 @@ const Books = () => {
                             {currentPurchases.map((book, index) => (
                                 <tr key={book.bookId}>
                                     <td>{indexOfFirstPurchase + index + 1}</td>
-                                    {/* <td>{book.bookId}</td> */}
                                     <td>{book.bookName}</td>
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
@@ -200,26 +193,15 @@ const Books = () => {
                     <Modal.Body>
                         <Form onSubmit={addBook}>
                             <Form.Group className="mb-3" controlId="newBookName">
-                                <Form.Label>Book Name</Form.Label>
+                                <Form.Label>Book </Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter book name"
+                                    placeholder="Enter book"
                                     value={newBookName}
                                     onChange={(e) => setNewBookName(e.target.value)}
                                     required
                                 />
                             </Form.Group>
-                            {/* <Form.Group className="mb-3" controlId="isBlock">
-                            <Form.Label>Is Blocked</Form.Label>
-                            <Form.Select
-                                value={isBlock ? 'Yes' : 'No'}
-                                onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                required
-                            >
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Select>
-                        </Form.Group> */}
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Submit
@@ -240,23 +222,12 @@ const Books = () => {
                                 <Form.Label>Book Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter edited book name"
+                                    placeholder="Enter edited book "
                                     value={newBookName}
                                     onChange={(e) => setNewBookName(e.target.value)}
                                     required
                                 />
                             </Form.Group>
-                            {/* <Form.Group className="mb-3" controlId="editedBookIsBlocked">
-                                <Form.Label>Is Blocked</Form.Label>
-                                <Form.Select
-                                    value={isBlock ? 'Yes' : 'No'}
-                                    onChange={(e) => setIsBlock(e.target.value === 'Yes')}
-                                    required
-                                >
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Form.Group> */}
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Update

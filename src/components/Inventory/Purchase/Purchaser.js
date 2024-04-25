@@ -264,7 +264,7 @@ const Purchaser = () => {
                         <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Ledger</Form.Label>
+                                    <Form.Label>Purchaser Name</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={viewLedger ? viewLedger.ledgerName : ''}

@@ -9,8 +9,6 @@ const BookLanguages = () => {
     //get all book lang
     const [bookLanguages, setBookLanguages] = useState([]);
 
-    const [isBlock, setIsBlock] = useState(false);
-
     //add new book lang
     const [addBookLangName, setAddBookLangName] = useState('');
     const [showAddLanguage, setShowAddLanguage] = useState(false);
@@ -51,7 +49,6 @@ const BookLanguages = () => {
         event.preventDefault();
         const payload = {
             bookLangName: addBookLangName,
-            // isBlock: isBlock
         };
         try {
             const response = await fetch(`${BaseURL}/api/auth/book-languages`, {
@@ -75,16 +72,14 @@ const BookLanguages = () => {
     };
 
     //edit lang
-
     const handleShowEditModal = (language) => {
         setEditableLanguage({
             id: language.bookLangId,
             bookLangName: language.bookLangName,
-            isBlock: language.isBlock === 'true' // Convert string to boolean
+            isBlock: language.isBlock === 'true' 
         });
         setShowEditModal(true);
     };
-
 
 
     const handleEditLanguageChange = (e) => {
@@ -189,7 +184,6 @@ const BookLanguages = () => {
 
     return (
         <div className="main-content">
-
             <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
@@ -201,7 +195,6 @@ const BookLanguages = () => {
                         <thead>
                             <tr>
                                 <th>Sr.No</th>
-                                {/* <th>Language ID</th> */}
                                 <th>Language</th>
                                 <th>Action</th>
                             </tr>
@@ -210,7 +203,6 @@ const BookLanguages = () => {
                             {currentPurchases.map((language, index) => (
                                 <tr key={language.bookLangId}>
                                     <td>{indexOfFirstPurchase + index + 1}</td>
-                                    {/* <td>{language.bookLangId}</td> */}
                                     <td>{language.bookLangName}</td>
                                     <td>
                                         <PencilSquare
@@ -237,18 +229,20 @@ const BookLanguages = () => {
                     <Modal.Body>
                         <Form onSubmit={addLanguage}>
                             <Form.Group className="mb-3" controlId="newLanguage">
-                                <Form.Label>Book Language Name</Form.Label>
+                                <Form.Label>Book Language</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter book language name"
+                                    placeholder="Enter book language"
                                     value={addBookLangName}
                                     onChange={(e) => setAddBookLangName(e.target.value)}
                                     required
                                 />
                             </Form.Group>
-                            <Button className='button-color' type="submit">
-                                Submit
-                            </Button>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Submit
+                                </Button>
+                            </div>
                         </Form>
                     </Modal.Body>
                 </Modal>
@@ -261,7 +255,7 @@ const BookLanguages = () => {
                     <Modal.Body>
                         <Form onSubmit={handleEditLanguageSubmit}>
                             <Form.Group className="mb-3" controlId="editLanguage">
-                                <Form.Label>Book Language Name</Form.Label>
+                                <Form.Label>Book Language</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Enter book language name"
@@ -270,20 +264,11 @@ const BookLanguages = () => {
                                     required
                                 />
                             </Form.Group>
-                            {/* <Form.Group className="mb-3" controlId="isBlocked">
-                                <Form.Label>Is Blocked</Form.Label>
-                                <Form.Select
-                                    value={editableLanguage.isBlock ? 'Yes' : 'No'} 
-                                    onChange={(e) => setEditableLanguage({ ...editableLanguage, isBlock: e.target.value === 'Yes' })}
-                                    required
-                                >
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Form.Group> */}
-                            <Button type="submit" className="button-color">
-                                Save Changes
-                            </Button>
+                            <div className='d-flex justify-content-end'>
+                                <Button type="submit" className="button-color">
+                                    Update
+                                </Button>
+                            </div>
                         </Form>
                     </Modal.Body>
                 </Modal>
@@ -330,7 +315,7 @@ const BookLanguages = () => {
                 </Modal>
 
             </Container>
-        </div>
+        </div >
 
     );
 };

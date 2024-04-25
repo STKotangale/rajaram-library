@@ -161,7 +161,7 @@ const BookTypes = () => {
                             <tr>
                                 <th>Sr.No</th>
                                 {/* <th>Book Type ID</th> */}
-                                <th>Book Type Name</th>
+                                <th>Book Type</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -190,7 +190,7 @@ const BookTypes = () => {
                         </tbody>
                     </Table>
                     <div className='pagination-container'>
-                        <Pagination  className='pagination'>{paginationItems}</Pagination>
+                        <Pagination className='pagination'>{paginationItems}</Pagination>
                     </div>
                 </div>
 
@@ -206,7 +206,7 @@ const BookTypes = () => {
                                 <Form.Label>Book Type Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter book type name"
+                                    placeholder="Enter book type "
                                     value={newBookTypeName}
                                     onChange={(e) => setNewBookTypeName(e.target.value)}
                                     required
@@ -229,10 +229,10 @@ const BookTypes = () => {
                     <Modal.Body>
                         <Form onSubmit={editBookType}>
                             <Form.Group className="mb-3" controlId="editedBookTypeName">
-                                <Form.Label>Book Type Name</Form.Label>
+                                <Form.Label>Book Type</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter edited book type name"
+                                    placeholder="Enter edited book type "
                                     value={newBookTypeName}
                                     onChange={(e) => setNewBookTypeName(e.target.value)}
                                     required
@@ -268,13 +268,13 @@ const BookTypes = () => {
                 {/* view modal */}
                 <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
                     <Modal.Header closeButton>
-                        <Modal.Title>View Book </Modal.Title>
+                        <Modal.Title>View Book Type </Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label> Book</Form.Label>
+                                    <Form.Label> Book Type</Form.Label>
                                     <Form.Control
                                         type="text"
                                         value={viewBookType ? viewBookType.bookTypeName : ''}
