@@ -178,7 +178,7 @@ const LoginPage = () => {
           <div class="copyright">
             <div class="row">
               <div class="col-lg-6">
-                <span class="mt-1 text-size ms-3">@copy Rajaram Library</span>
+                <span class="mt-1 text-size ms-3">@copyright Rajaram Library</span>
               </div>
               <div class="col-lg-6 text-lg-end">
                 <span class="mt-1 text-size me-3">Developed By Enbee Systems, 9881888180</span>
