@@ -61,7 +61,6 @@ const ViewPurchase = () => {
     };
 
 
-
     // //edit purchase
     // const handleEditClick = (purchase) => {
     //     setSelectedPurchase(purchase);
@@ -380,9 +379,7 @@ const ViewPurchase = () => {
     const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
     const currentPurchases = purchases.slice(indexOfFirstPurchase, indexOfLastPurchase);
 
-
-
-
+//add row
     const addRow = () => {
         const newRow = {
             bookId: null,
@@ -557,10 +554,10 @@ const ViewPurchase = () => {
                                                         onChange={(e) => handleInputChange(e, 'rate', index)}
                                                     />
                                                 </td>
-                                                <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
-                                                {/* <td className="amount-align">
-                                                    {!isNaN(detail.amount) ? (detail.amount).toFixed(2) : ''}
-                                                </td> */}
+                                                {/* <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td> */}
+                                                <td className="amount-align">
+                                                    {!isNaN(detail.amount) ? Number(detail.amount).toFixed(2) : ''}
+                                                </td>
                                                 <td>
                                                     <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
                                                 </td>

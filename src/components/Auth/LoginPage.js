@@ -77,11 +77,10 @@ const LoginPage = () => {
 
   return (
     <>
-      <Container fluid className="min-vh-100 d-flex flex-column main-landingpage">
         {/* <Navbar bg="white" className="border-bottom  ms-5 mt-3 navabar-color"> */}
         <Navbar bg="white" expand="lg" className="navabar-color">
           <Navbar.Brand href="#home">
-            <Image src={logoImage} alt="Library Logo" height="60" />
+            <Image src={logoImage} alt="Library Logo" className='ms-3' height="60" />
             <span className="h4 ms-4">Rajaram Library</span>
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -173,19 +172,23 @@ const LoginPage = () => {
         <BooksImages />
         <Footer />
 
-        <div class="copy-right">
-            <div class=" copy-right-text">
-              <span class="mt-1 text-size ms-2">@copy Rajaram Library</span>
-              <span class="mt-1 text-size abcd ">Developed By Enbee Systems, 9881888180</span>
+    
+
+        <div class="copy-right fixed-bottom ">
+          <div class="copyright">
+            <div class="row">
+              <div class="col-lg-6">
+                <span class="mt-1 text-size ms-3">@copy Rajaram Library</span>
+              </div>
+              <div class="col-lg-6 text-lg-end">
+                <span class="mt-1 text-size me-3">Developed By Enbee Systems, 9881888180</span>
+              </div>
             </div>
-            {/* <div class="copy-right-text">
-              <span class="mt-1 text-size">Developed By Enbee Systems, 9881888180</span>
-            </div> */}
+          </div>
         </div>
 
 
 
-      </Container >
     </>
   );
 };
