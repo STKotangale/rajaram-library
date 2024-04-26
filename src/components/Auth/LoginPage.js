@@ -73,13 +73,13 @@ const LoginPage = () => {
       toast.error(error.message);
     }
   };
-  
+
 
   return (
     <>
       <Container fluid className="min-vh-100 d-flex flex-column main-landingpage">
         {/* <Navbar bg="white" className="border-bottom  ms-5 mt-3 navabar-color"> */}
-        <Navbar bg="white" expand="lg" className="mb-4 navabar-color">
+        <Navbar bg="white" expand="lg" className="navabar-color">
           <Navbar.Brand href="#home">
             <Image src={logoImage} alt="Library Logo" height="60" />
             <span className="h4 ms-4">Rajaram Library</span>
@@ -94,43 +94,47 @@ const LoginPage = () => {
           </Navbar.Collapse>
         </Navbar>
 
-        <Row className="flex-grow-1 align-items-center">
-          <Col lg={7} md={8} className="mx-auto">
-            <div className="p-5 login-form">
-              <h2 className="mb-5 heading-login">Login</h2>
-              <Form onSubmit={handleLogin}>
-                <Row>
-                  <Col sm={6} className="mb-3">
+        <div className='login-container'>
 
-                    <Form.Group className="mb-5 position-relative icon-inside-input" controlId="formBasicEmail">
-                      <Form.Control type="username" placeholder="Username" className="input-with-icon"
-                        value={username} onChange={(e) => setUsername(e.target.value)}
-                      />
-                      <FontAwesomeIcon icon={faUser} className="icon-position" />
-                    </Form.Group>
+          <Row className="flex-grow-1 align-items-center ">
+            <Col lg={7} md={8} className="mx-auto">
+              <div className="p-5 login-form">
+                <h2 className="mb-5 heading-login">Login</h2>
+                <Form onSubmit={handleLogin}>
+                  <Row>
+                    <Col sm={6} className="mb-3">
 
-                    <Form.Group className="mb-3 position-relative icon-inside-input" controlId="formBasicPassword">
-                      <Form.Control type="password" placeholder="Password" className="input-with-icon"
-                        value={password} onChange={(e) => setPassword(e.target.value)}
-                      />
-                      <FontAwesomeIcon icon={faLock} className="icon-position" />
-                    </Form.Group>
+                      <Form.Group className="mb-5 position-relative icon-inside-input" controlId="formBasicEmail">
+                        <Form.Control type="username" placeholder="Username" className="input-with-icon"
+                          value={username} onChange={(e) => setUsername(e.target.value)}
+                        />
+                        <FontAwesomeIcon icon={faUser} className="icon-position" />
+                      </Form.Group>
 
-                  </Col>
-                </Row>
-                <Button type='submit' size="lg" className="w-50 mb-2 button-color">
-                  Login
-                </Button>
-                <Form.Text className="d-block">
-                  <a href="/forgotpassword" className='forgotpassword'>Forgot password?</a>
-                </Form.Text>
-              </Form>
-            </div>
-          </Col>
-          <Col lg={5} md={4}>
-            <Image src={illustrationImage} alt="Boy Reading a Book" className="img-fluid" />
-          </Col>
-        </Row>
+                      <Form.Group className="mb-3 position-relative icon-inside-input" controlId="formBasicPassword">
+                        <Form.Control type="password" placeholder="Password" className="input-with-icon"
+                          value={password} onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <FontAwesomeIcon icon={faLock} className="icon-position" />
+                      </Form.Group>
+
+                    </Col>
+                  </Row>
+                  <Button type='submit' size="lg" className="w-50 mb-2 button-color">
+                    Login
+                  </Button>
+                  <Form.Text className="d-block">
+                    <a href="/forgotpassword" className='forgotpassword'>Forgot password?</a>
+                  </Form.Text>
+                </Form>
+              </div>
+            </Col>
+            <Col lg={5} md={4}>
+              <Image src={illustrationImage} alt="Boy Reading a Book" className="img-fluid" />
+            </Col>
+          </Row>
+
+        </div>
 
         <Container fluid className="pt-4 pb-3 container-fluid">
           <Row className="my-4 text-center services-background">
@@ -168,6 +172,18 @@ const LoginPage = () => {
 
         <BooksImages />
         <Footer />
+
+        <div class="copy-right">
+            <div class=" copy-right-text">
+              <span class="mt-1 text-size ms-2">@copy Rajaram Library</span>
+              <span class="mt-1 text-size abcd ">Developed By Enbee Systems, 9881888180</span>
+            </div>
+            {/* <div class="copy-right-text">
+              <span class="mt-1 text-size">Developed By Enbee Systems, 9881888180</span>
+            </div> */}
+        </div>
+
+
 
       </Container >
     </>

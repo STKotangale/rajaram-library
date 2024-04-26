@@ -7,10 +7,11 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AuthCSS/PermanentGeneralMember.css';
 
-
-
 const PermanentMember = () => {
+    //get
     const [permanentMember, setPermanentMember] = useState([]);
+    //add
+    const [showAddPermanentMemberModal, setShowAddPermanentMemberModal] = useState(false);
     const [newPermanentMember, setNewPermanentMember] = useState({
         firstName: '',
         middleName: '',
@@ -25,14 +26,22 @@ const PermanentMember = () => {
         memberEmailId: '',
         confirmDate: '',
     });
-    const [showAddPermanentMemberModal, setShowAddPermanentMemberModal] = useState(false);
-    const [selectedPermanentMemberId, setSelectedPermanentMemberId] = useState(null);
+    //edit function
     const [showEditPermanentMemberModal, setShowEditPermanentMemberModal] = useState(false);
+    const [editPermanentMemberData, setEditPermanentMemberData] = useState({});
+    //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [selectedPermanentMemberId, setSelectedPermanentMemberId] = useState(null);
+    //view 
+    const [showViewPermanentMemberModal, setShowViewPermanentMemberModal] = useState(false);
+    const [viewPermanentMemberData, setViewPermanentMemberData] = useState(null);
 
+    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+
+    //get api
     const fetchPermanentMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/permanent-members`, {
@@ -55,6 +64,7 @@ const PermanentMember = () => {
         fetchPermanentMembers();
     }, []);
 
+    //add api
     const addPermanentMember = async (e) => {
         e.preventDefault();
         try {
@@ -97,11 +107,7 @@ const PermanentMember = () => {
     };
 
 
-
     //edit function
-    const [editPermanentMemberData, setEditPermanentMemberData] = useState({});
-
-    // Function to handle opening edit modal and setting data
     const handleEditOpenPermanentMember = (memberId) => {
         const memberToEdit = permanentMember.find(member => member.memberId === memberId);
         if (memberToEdit) {
@@ -110,7 +116,7 @@ const PermanentMember = () => {
         }
     };
 
-
+    //edit api
     const editPermanentMember = async (e) => {
         e.preventDefault();
         try {
@@ -149,7 +155,7 @@ const PermanentMember = () => {
     };
 
 
-
+    //delete api
     const deletePermanentMember = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/permanent-members/${selectedPermanentMemberId}`, {
@@ -173,63 +179,42 @@ const PermanentMember = () => {
     };
 
 
-
-    //view modal
-    const [showViewPermanentMemberModal, setShowViewPermanentMemberModal] = useState(false);
-    const [viewPermanentMemberData, setViewPermanentMemberData] = useState(null);
-
+    //view
     const handleViewOpenPermanentMember = (member) => {
         setViewPermanentMemberData(member);
         setShowViewPermanentMemberModal(true);
     };
 
-
-
-
     return (
-        <div className="main-content-1">
+        <div className="main-content">
             <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddPermanentMemberModal(true)} className="button-color">
                         Add Permanent Member
                     </Button>
                 </div>
-                <div className='mt-3 table-container-general-member'>
-                    <Table striped bordered hover style={{ minWidth: '2400px' }}>
+                <div className='mt-3 table-container-general-member-1'>
+                    <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Sr.No</th>
                                 <th>First Name</th>
                                 <th>Middle Name</th>
                                 <th>Last Name</th>
                                 <th>Register Date</th>
-                                <th>Aadhar No</th>
-                                <th>Address</th>
-                                <th>Date of Birth</th>
-                                <th>Education</th>
-                                <th>Occupation</th>
                                 <th>Mobile No</th>
-                                <th>Email</th>
-                                <th>Confirm Date</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {permanentMember.map((member) => (
+                            {permanentMember.map((member, index) => (
                                 <tr key={member.memberId}>
-                                    <td>{member.memberId}</td>
+                                    <td>{index + 1}</td>
                                     <td>{member.firstName}</td>
                                     <td>{member.middleName}</td>
                                     <td>{member.lastName}</td>
                                     <td>{member.registerDate}</td>
-                                    <td>{member.adharCard}</td>
-                                    <td>{member.memberAddress}</td>
-                                    <td>{member.dateOfBirth}</td>
-                                    <td>{member.memberEducation}</td>
-                                    <td>{member.memberOccupation}</td>
                                     <td>{member.mobileNo}</td>
-                                    <td>{member.memberEmailId}</td>
-                                    <td>{member.confirmDate}</td>
                                     <td>
                                         <PencilSquare
                                             className="ms-3 action-icon edit-icon"
@@ -254,318 +239,319 @@ const PermanentMember = () => {
                 </div>
             </Container>
 
-
             {/* Add permanent member Modal */}
             <Modal show={showAddPermanentMemberModal} onHide={() => setShowAddPermanentMemberModal(false)} size='xl'>
-                <Modal.Header closeButton>
-                    <Modal.Title>Add New Permanent Member</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={addPermanentMember}>
+                <div className="bg-light">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Add New Permanent Member</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={addPermanentMember}>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberFirstName">
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="First Name"
+                                        value={newPermanentMember.firstName}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, firstName: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMiddleName">
+                                    <Form.Label>Middle Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Middle Name"
+                                        value={newPermanentMember.middleName}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, middleName: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberLastName">
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Last Name"
+                                        value={newPermanentMember.lastName}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, lastName: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
 
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberFirstName">
-                                <Form.Label>First Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="First Name"
-                                    value={newPermanentMember.firstName}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, firstName: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMobileNo">
+                                    <Form.Label>Mobile No</Form.Label>
+                                    <Form.Control
+                                        type="tel"
+                                        placeholder="Mobile number"
+                                        value={newPermanentMember.mobileNo}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (/^\d*$/.test(value) && value.length <= 10) {
+                                                setNewPermanentMember({ ...newPermanentMember, mobileNo: value });
+                                            }
+                                        }}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberAadharCard">
+                                    <Form.Label>Aadhar Number</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Aadhar"
+                                        maxLength={12}
+                                        pattern="\d{12}"
+                                        value={newPermanentMember.adharCard}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value.length <= 12 && /^\d*$/.test(value)) {
+                                                setNewPermanentMember({ ...newPermanentMember, adharCard: value })
+                                            }
+                                        }}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberEmailId">
+                                    <Form.Label>Email Id</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Email"
+                                        value={newPermanentMember.memberEmailId}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberEmailId: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
 
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMiddleName">
-                                <Form.Label>Middle Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Middle Name"
-                                    value={newPermanentMember.middleName}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, middleName: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberEducation">
+                                    <Form.Label> Education</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Education"
+                                        value={newPermanentMember.memberEducation}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberEducation: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberOccupation">
+                                    <Form.Label>Occupation</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Occupation"
+                                        value={newPermanentMember.memberOccupation}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberOccupation: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberAddress">
+                                    <Form.Label>Address </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Address"
+                                        value={newPermanentMember.memberAddress}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberAddress: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
 
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberLastName">
-                                <Form.Label>Last Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Last Name"
-                                    value={newPermanentMember.lastName}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, lastName: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberRegisterDate">
-                                <Form.Label>Register Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={newPermanentMember.registerDate}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, registerDate: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberAadharCard">
-                                <Form.Label>Aadhar Number</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Aadhar"
-                                    maxLength={12}
-                                    value={newPermanentMember.adharCard}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, adharCard: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberAddress">
-                                <Form.Label>Address </Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Address"
-                                    value={newPermanentMember.memberAddress}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberAddress: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberDateOfBirth">
-                                <Form.Label>Date Of Birth</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={newPermanentMember.dateOfBirth}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, dateOfBirth: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberEducation">
-                                <Form.Label> Education</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Education"
-                                    value={newPermanentMember.memberEducation}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberEducation: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberOccupation">
-                                <Form.Label>Occupation</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Occupation"
-                                    value={newPermanentMember.memberOccupation}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberOccupation: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMobileNo">
-                                <Form.Label>Mobile No</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="Mobile number"
-                                    maxLength={10}
-                                    value={newPermanentMember.mobileNo}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, mobileNo: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberEmailId">
-                                <Form.Label>Email Id</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Email"
-                                    value={newPermanentMember.memberEmailId}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberEmailId: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberConfirmDate">
-                                <Form.Label>Confirm Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={newPermanentMember.confirmDate}
-                                    onChange={(e) => setNewPermanentMember({ ...newPermanentMember, confirmDate: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <div className='d-flex justify-content-end'>
-                            <Button className='button-color' type="submit">
-                                Submit
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberDateOfBirth">
+                                    <Form.Label>Date Of Birth</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={newPermanentMember.dateOfBirth}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, dateOfBirth: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberRegisterDate">
+                                    <Form.Label>Register Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={newPermanentMember.registerDate}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, registerDate: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberConfirmDate">
+                                    <Form.Label>Confirm Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={newPermanentMember.confirmDate}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, confirmDate: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Submit
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </div>
             </Modal>
 
             {/* Edit permanent member Modal */}
             {/* <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} dialogClassName="modal-lg"> */}
             <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} size='xl '>
+                <div className="bg-light">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Edit Permanent Member</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form onSubmit={editPermanentMember}>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberFirstName">
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="First Name"
+                                        value={editPermanentMemberData ? editPermanentMemberData.firstName : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, firstName: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMiddleName">
+                                    <Form.Label>Middle Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Middle Name"
+                                        value={editPermanentMemberData ? editPermanentMemberData.middleName : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, middleName: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberLastName">
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Last Name"
+                                        value={editPermanentMemberData ? editPermanentMemberData.lastName : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, lastName: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
 
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Permanent Member</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form onSubmit={editPermanentMember}>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMobileNo">
+                                    <Form.Label>Mobile No</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="Mobile number"
+                                        value={editPermanentMemberData ? editPermanentMemberData.mobileNo : ''}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value.length <= 12 && /^\d*$/.test(value)) {
+                                                setEditPermanentMemberData({ ...editPermanentMemberData, mobileNo: value })
+                                            }
+                                        }}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAadharCard">
+                                    <Form.Label>Aadhar Number</Form.Label>
+                                    <Form.Control
+                                        type="number"
+                                        placeholder="Aadhar"
+                                        value={editPermanentMemberData ? editPermanentMemberData.adharCard : ''}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value.length <= 12 && /^\d*$/.test(value)) {
+                                                setEditPermanentMemberData({ ...editPermanentMemberData, adharCard: value })
+                                            }
+                                        }}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberEmailId">
+                                    <Form.Label>Email Id</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Email"
+                                        value={editPermanentMemberData ? editPermanentMemberData.memberEmailId : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEmailId: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
 
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberFirstName">
-                                <Form.Label>First Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="First Name"
-                                    value={editPermanentMemberData ? editPermanentMemberData.firstName : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, firstName: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberEducation">
+                                    <Form.Label>Education</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Education"
+                                        value={editPermanentMemberData ? editPermanentMemberData.memberEducation : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEducation: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberOccupation">
+                                    <Form.Label>Occupation</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Occupation"
+                                        value={editPermanentMemberData ? editPermanentMemberData.memberOccupation : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberOccupation: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAddress">
+                                    <Form.Label>Address</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Address"
+                                        value={editPermanentMemberData ? editPermanentMemberData.memberAddress : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberAddress: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
 
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMiddleName">
-                                <Form.Label>Middle Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Middle Name"
-                                    value={editPermanentMemberData ? editPermanentMemberData.middleName : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, middleName: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberLastName">
-                                <Form.Label>Last Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Last Name"
-                                    value={editPermanentMemberData ? editPermanentMemberData.lastName : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, lastName: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberRegisterDate">
-                                <Form.Label>Register Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={editPermanentMemberData ? editPermanentMemberData.registerDate : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, registerDate: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAadharCard">
-                                <Form.Label>Aadhar Number</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="Aadhar"
-                                    maxLength={12}
-                                    value={editPermanentMemberData ? editPermanentMemberData.adharCard : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, adharCard: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAddress">
-                                <Form.Label>Address</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Address"
-                                    value={editPermanentMemberData ? editPermanentMemberData.memberAddress : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberAddress: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberDateOfBirth">
-                                <Form.Label>Date Of Birth</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={editPermanentMemberData ? editPermanentMemberData.dateOfBirth : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, dateOfBirth: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberEducation">
-                                <Form.Label>Education</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Education"
-                                    value={editPermanentMemberData ? editPermanentMemberData.memberEducation : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEducation: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberOccupation">
-                                <Form.Label>Occupation</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Occupation"
-                                    value={editPermanentMemberData ? editPermanentMemberData.memberOccupation : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberOccupation: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-
-                        <Row className="mb-3">
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMobileNo">
-                                <Form.Label>Mobile No</Form.Label>
-                                <Form.Control
-                                    type="number"
-                                    placeholder="Mobile number"
-                                    maxLength={10}
-                                    value={editPermanentMemberData ? editPermanentMemberData.mobileNo : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, mobileNo: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberEmailId">
-                                <Form.Label>Email Id</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Email"
-                                    value={editPermanentMemberData ? editPermanentMemberData.memberEmailId : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEmailId: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-
-                            <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberConfirmDate">
-                                <Form.Label>Confirm Date</Form.Label>
-                                <Form.Control
-                                    type="date"
-                                    value={editPermanentMemberData ? editPermanentMemberData.confirmDate : ''}
-                                    onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, confirmDate: e.target.value })}
-                                    required
-                                />
-                            </Form.Group>
-                        </Row>
-                        <div className='d-flex justify-content-end'>
-                            <Button className='button-color' type="submit">
-                                Update
-                            </Button>
-                        </div>
-                    </Form>
-                </Modal.Body>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberDateOfBirth">
+                                    <Form.Label>Date Of Birth</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={editPermanentMemberData ? editPermanentMemberData.dateOfBirth : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, dateOfBirth: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberRegisterDate">
+                                    <Form.Label>Register Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={editPermanentMemberData ? editPermanentMemberData.registerDate : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, registerDate: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberConfirmDate">
+                                    <Form.Label>Confirm Date</Form.Label>
+                                    <Form.Control
+                                        type="date"
+                                        value={editPermanentMemberData ? editPermanentMemberData.confirmDate : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, confirmDate: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Update
+                                </Button>
+                            </div>
+                        </Form>
+                    </Modal.Body>
+                </div>
             </Modal>
 
 
@@ -585,7 +571,9 @@ const PermanentMember = () => {
                 </Modal.Footer>
             </Modal>
 
+            {/* view Modal */}
             <Modal show={showViewPermanentMemberModal} onHide={() => setShowViewPermanentMemberModal(false)} size="xl">
+            <div className="bg-light">
                 <Modal.Header closeButton>
                     <Modal.Title>View Permanent Member Details</Modal.Title>
                 </Modal.Header>
@@ -606,25 +594,23 @@ const PermanentMember = () => {
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.lastName} />
                                 </Form.Group>
                             </Row>
+
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Register Date</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.registerDate} />
+                                    <Form.Label>Mobile No</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.mobileNo} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>Aadhar No</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.adharCard} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Address</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberAddress} />
+                                    <Form.Label>Email</Form.Label>
+                                    <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.memberEmailId} />
                                 </Form.Group>
                             </Row>
+
                             <Row className="mb-3">
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Date of Birth</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.dateOfBirth} />
-                                </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>Education</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberEducation} />
@@ -633,15 +619,20 @@ const PermanentMember = () => {
                                     <Form.Label>Occupation</Form.Label>
                                     <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberOccupation} />
                                 </Form.Group>
+                                <Form.Group as={Col} className="mb-3">
+                                    <Form.Label>Address</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberAddress} />
+                                </Form.Group>
                             </Row>
+
                             <Row className="mb-3">
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Mobile No</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.mobileNo} />
+                                    <Form.Label>Date of Birth</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.dateOfBirth} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Email</Form.Label>
-                                    <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.memberEmailId} />
+                                    <Form.Label>Register Date</Form.Label>
+                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.registerDate} />
                                 </Form.Group>
                                 <Form.Group as={Col} className="mb-3">
                                     <Form.Label>Confirm Date</Form.Label>
@@ -656,9 +647,8 @@ const PermanentMember = () => {
                         Close
                     </Button>
                 </Modal.Footer>
+                </div>
             </Modal>
-
-
         </div>
     );
 };

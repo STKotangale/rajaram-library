@@ -130,8 +130,8 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     const calculateGst = () => {
         const totalAfterDiscount = calculateTotalAfterDiscount();
         const gstAmount = totalAfterDiscount * (gstPercentage / 100);
-        // return Math.floor(gstAmount);
-        return gstAmount;
+        return Math.floor(gstAmount);
+        // return gstAmount;
     };
 
     //grand total
@@ -304,11 +304,8 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
             </div>
 
             <div className="main-content-1">
-
                 <Container>
-
                     <Row className="purchase-main-1">
-
                         <Col xs={12} md={10} lg={12}>
                             <h1 className="mt-4">Purchase</h1>
                             <div className="mt-5 border-style-1">
@@ -332,7 +329,6 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 className="custom-date-picker"
                                             />
                                         </Form.Group>
-
                                         <Form.Group as={Col} sm={6}>
                                             <Form.Label>Purchaser Name</Form.Label>
                                             <Form.Control
@@ -367,7 +363,6 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
-
                                                         {/* <Form.Control
                                                             as="select"
                                                             name="bookName"
@@ -382,7 +377,6 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                             ))}
 
                                                         </Form.Control> */}
-
                                                         <Form.Group as={Col} sm={12}>
                                                             <Form.Control
                                                                 as="input"
@@ -397,9 +391,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                                 ))}
                                                             </datalist>
                                                         </Form.Group>
-
                                                     </td>
-
                                                     <td>
                                                         <Form.Control className="right-align"
                                                             type="number"
@@ -416,7 +408,6 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                             onChange={(e) => handleRowChange(index, e)}
 
                                                         />
-
                                                     </td>
                                                     <td className="amount-align">
                                                         {/* {(row.quantity && row.rate) ? (parseFloat(row.quantity) * parseFloat(row.rate)) : ''} */}

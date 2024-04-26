@@ -168,10 +168,10 @@ const ViewPurchase = () => {
     };
 
 
-    // claculation in float datatype
-    const formatNumber = (number) => {
-        return parseFloat(number.toFixed(2)).toString();
-    };
+    // // claculation in float datatype
+    // const formatNumber = (number) => {
+    //     return parseFloat(number.toFixed(2)).toString();
+    // };
 
     // Calculate the total bill amount
     const calculateBillTotal = (details) => {
@@ -181,7 +181,8 @@ const ViewPurchase = () => {
                 allTotal += parseFloat(detail.qty) * parseFloat(detail.rate);
             }
         });
-        return formatNumber(allTotal);
+        return Math.floor(allTotal);
+        // return formatNumber(allTotal);
     };
 
     // Calculate the discount amount
@@ -189,14 +190,16 @@ const ViewPurchase = () => {
         if (discountPercentage === "") return "0.00";
         const billTotal = parseFloat(calculateBillTotal(details));
         const discountAmount = billTotal * (parseFloat(discountPercentage / 100));
-        return formatNumber(discountAmount);
+        return Math.floor(discountAmount);
+        // return formatNumber(discountAmount);
     };
 
     // Calculate the total after discount
     const calculateTotalAfterDiscount = (details) => {
         const billTotal = parseFloat(calculateBillTotal(details));
         const totalAfterDiscount = billTotal - parseFloat(calculateDiscount(details));
-        return formatNumber(totalAfterDiscount);
+        return Math.floor(totalAfterDiscount);
+        // return formatNumber(totalAfterDiscount);
     };
 
     // Calculate GST amount
@@ -204,14 +207,16 @@ const ViewPurchase = () => {
         if (gstPercentage === "") return "0.00";
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(details));
         const gstAmount = totalAfterDiscount * (parseFloat(gstPercentage) / 100);
-        return formatNumber(gstAmount);
+        return Math.floor(gstAmount);
+        // return formatNumber(gstAmount);
     };
 
     // Calculate the grand total
     const calculateGrandTotal = (details) => {
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(details));
         const grandTotal = totalAfterDiscount + parseFloat(calculateGst(details));
-        return formatNumber(grandTotal);
+        return Math.floor(grandTotal);
+        // return formatNumber(grandTotal);
     };
 
 
@@ -296,9 +301,6 @@ const ViewPurchase = () => {
     };
 
 
-
-
-
     //view purchase
     const [showAddPurchase, setShowAddPurchase] = useState(false);
 
@@ -362,8 +364,6 @@ const ViewPurchase = () => {
     useEffect(() => {
         fetchBooks();
     }, []);
-
-
 
 
     //pagination
@@ -506,7 +506,6 @@ const ViewPurchase = () => {
                                     </Form.Group>
                                 </Row>
 
-
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
@@ -522,7 +521,7 @@ const ViewPurchase = () => {
                                         {selectedPurchase.purchaseDetails.map((detail, index) => (
 
                                             <tr key={index}>
-                                                <td>{index + 1}</td>
+                                                <td className='sr-size'>{index + 1}</td>
                                                 <td>
                                                     {/* <Form.Control
                                                         type="text"
@@ -559,6 +558,9 @@ const ViewPurchase = () => {
                                                     />
                                                 </td>
                                                 <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                                {/* <td className="amount-align">
+                                                    {!isNaN(detail.amount) ? (detail.amount).toFixed(2) : ''}
+                                                </td> */}
                                                 <td>
                                                     <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
                                                 </td>
@@ -821,9 +823,6 @@ const ViewPurchase = () => {
                     </div>
                 </Modal>
             )}
-
-
-
         </div>
     );
 };

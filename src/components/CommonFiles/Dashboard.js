@@ -306,9 +306,9 @@ const Dashboard = () => {
                                     <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
                                         <CartPlus className="icon" /> Purchase
                                     </ListGroup.Item>
-                                    <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
+                                    {/* <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
                                         <BookFill className="icon" /> Book Details
-                                    </ListGroup.Item>
+                                    </ListGroup.Item> */}
                                     {/* <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
                                         <ExclamationTriangleFill className="icon" /> Issue
                                     </ListGroup.Item>
@@ -344,7 +344,7 @@ const Dashboard = () => {
                             )}
 
                             <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
-                                <GearWideConnected className="icon" /> Master
+                                <Archive className="icon" /> Master
                             </ListGroup.Item>
                             {showMasterSubItems && (
                                 <>

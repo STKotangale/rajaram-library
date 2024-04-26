@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill  } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, ExclamationTriangleFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -37,7 +37,7 @@ const MemberDashboard = () => {
 
     const handleHomeClick = () => {
         setViewDashboard(true);
-  
+
     };
 
 
@@ -83,14 +83,14 @@ const MemberDashboard = () => {
                             <ListGroup.Item className="home-icon" action onClick={handleHomeClick}>
                                 <HouseDoorFill className="icon-member" /> Home
                             </ListGroup.Item>
-                             
-
-
+                            <ListGroup.Item className="home-icon" action >
+                                <ExclamationTriangleFill className="icon-member" /> Book Issue
+                            </ListGroup.Item>
                         </Col>
                     </ListGroup>
                 </div>
 
-                <div  className='dashboard-member-page-details bg-light'>
+                <div className='dashboard-member-page-details bg-light'>
                     <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-member-navabar">
                         <Navbar.Brand href="#Dashboard">Welcome Member !.. {username}</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -98,7 +98,7 @@ const MemberDashboard = () => {
                             <Nav className="ms-auto">
                             </Nav>
                             <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
-                             
+
                                 <NavDropdown.Item onClick={setShowChangePasswordModal}>
                                     <LockFill className="icon" /> Change Password
                                 </NavDropdown.Item>

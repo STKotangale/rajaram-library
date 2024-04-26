@@ -51,11 +51,34 @@
 
 
 /* forgot password css */
-.forgot-password{
+.forgot-password {
   margin-top: 100px;
   padding-bottom: 50px;
-  }
-  
-  .footer-forgot-page{
-      margin-top: 100px;
-  }
+}
+
+.footer-forgot-page {
+  margin-top: 100px;
+}
+
+
+
+/* copyright */
+.copy-right {
+  position: fixed;
+  background-color: #f27e00;
+  width: 100%;
+  bottom: 0;
+  height: 30px;
+}
+
+.copy-right-text {
+
+  /* text-align: center */
+}
+
+.text-size {
+  font-size: 15px;
+}
+.abcd{
+  margin-left: 800px;
+}

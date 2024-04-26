@@ -175,8 +175,8 @@ const User = () => {
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                             setSelectedUserId(user.id);
                                             setNewUserName(user.username);
-                                            setNewUserEmail(user.email); // Set email value
-                                            setNewUserPassword(''); // Clear password field
+                                            setNewUserEmail(user.email); 
+                                            setNewUserPassword('');
                                             setShowEditUserModal(true);
                                         }} />
                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => {
@@ -256,7 +256,6 @@ const User = () => {
                                     required
                                 />
                             </Form.Group>
-
                             <Form.Group className="mb-3" controlId="editedEmail">
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control
@@ -270,14 +269,13 @@ const User = () => {
                             <Form.Group className="mb-3" controlId="editedPassword">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="password"
                                     placeholder="Enter edited password"
                                     value={newUserPassword}
                                     onChange={(e) => setNewUserPassword(e.target.value)}
                                     required
                                 />
                             </Form.Group>
-
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Update
