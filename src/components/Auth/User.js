@@ -51,7 +51,7 @@ const User = () => {
             {number}
         </Pagination.Item>
     )) : null;
-    
+
 
     const indexOfLastUser = users ? currentPage * itemsPerPage : 0;
     const indexOfFirstUser = users ? indexOfLastUser - itemsPerPage : 0;
@@ -67,10 +67,10 @@ const User = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     username: newUserName,
                     email: newUserEmail,
-                    password: newUserPassword 
+                    password: newUserPassword
                 }),
             });
             if (!response.ok) {
@@ -100,7 +100,7 @@ const User = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: newUserName,email: newUserEmail, password: newUserPassword }),
+                body: JSON.stringify({ username: newUserName, email: newUserEmail, password: newUserPassword }),
             });
             if (!response.ok) {
                 throw new Error(`Error editing User: ${response.statusText}`);
@@ -115,6 +115,10 @@ const User = () => {
             setUsers(updatedUsers);
             setShowEditUserModal(false);
             toast.success('User edited successfully.');
+            // Reset form fields
+            setNewUserName('');
+            setNewUserEmail('');
+            setNewUserPassword('');
             fetchUsers();
         } catch (error) {
             console.error(error);
@@ -166,16 +170,16 @@ const User = () => {
                             </tr>
                         </thead>
                         <tbody>
-                        {currentUsers.map((user, index) => (
-                            <tr key={user.id}>
-                                <td>{index + 1}</td>
-                                <td>{user.username}</td>
-                                <td>{user.email}</td>
+                            {currentUsers.map((user, index) => (
+                                <tr key={user.id}>
+                                    <td>{index + 1}</td>
+                                    <td>{user.username}</td>
+                                    <td>{user.email}</td>
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                             setSelectedUserId(user.id);
                                             setNewUserName(user.username);
-                                            setNewUserEmail(user.email); 
+                                            setNewUserEmail(user.email);
                                             setNewUserPassword('');
                                             setShowEditUserModal(true);
                                         }} />
@@ -219,7 +223,7 @@ const User = () => {
                                     onChange={(e) => setNewUserEmail(e.target.value)}
                                     required
                                 />
-                            </Form.Group>  
+                            </Form.Group>
                             <Form.Group className="mb-3" controlId="newUserPassword">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control
@@ -321,7 +325,7 @@ const User = () => {
                             </Row>
                             <Row className="mb-3">
 
-                            <Form.Group as={Col}>
+                                <Form.Group as={Col}>
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control
                                         type="text"

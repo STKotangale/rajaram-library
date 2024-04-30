@@ -76,7 +76,7 @@ const BookLanguages = () => {
         setEditableLanguage({
             id: language.bookLangId,
             bookLangName: language.bookLangName,
-            isBlock: language.isBlock === 'true' 
+            isBlock: language.isBlock === 'true'
         });
         setShowEditModal(true);
     };
@@ -217,7 +217,18 @@ const BookLanguages = () => {
 
                         </tbody>
                     </Table>
-                    <Pagination>{paginationItems}</Pagination>
+                    {/* <Pagination>{paginationItems}</Pagination> */}
+
+                    <div className="main-content">
+                        <Container>
+                        </Container>
+                        <div className="pagination-container">
+                            <Pagination>{paginationItems}</Pagination>
+                        </div>
+                        <div className="fixed-container">
+                        </div>
+                    </div>
+
 
                 </div>
 

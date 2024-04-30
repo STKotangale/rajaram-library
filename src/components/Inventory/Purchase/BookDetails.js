@@ -60,6 +60,41 @@ const BookDetails = () => {
         }
     };
 
+
+    //use new code for book name get
+    const [books, setBooks] = useState([]);
+    const [selectedBooks, setSelectedBooks] = useState("");
+
+    // Function to fetch the list of books from the API
+    const fetchBooks = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching books: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setBooks(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching books. Please try again later.');
+        }
+    };
+
+    // Fetch the list of books when the component mounts
+    useEffect(() => {
+        fetchBooks();
+    }, []);
+
+    // Event handler for when a book is selected from the dropdown
+    const handleBookChange = (event) => {
+        setSelectedBooks(event.target.value);
+    };
+
+
     // Handler for when a book name is selected
     const handleBookNameChange = async (e) => {
         const selectedBookName = e.target.value;
@@ -87,7 +122,7 @@ const BookDetails = () => {
     };
 
     // get languages
-    const [bookLanguages, setBookLanguages] = useState([]);
+    // const [bookLanguages, setBookLanguages] = useState([]);
     // const fetchLanguages = async () => {
     //     try {
     //         const response = await fetch(`${BaseURL}/api/languages`);
@@ -102,6 +137,9 @@ const BookDetails = () => {
     //     }
     // };
 
+
+    // get languages
+    const [bookLanguages, setBookLanguages] = useState([]);
     const fetchBookLanguages = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book-languages`);
@@ -283,7 +321,8 @@ const BookDetails = () => {
                             <Form onSubmit={handleSubmitBookDetails}>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col}>
+
+                                    {/* <Form.Group as={Col}>
                                         <Form.Label>Book Name</Form.Label>
                                         <Form.Control
                                             as="select"
@@ -298,7 +337,24 @@ const BookDetails = () => {
                                                 </option>
                                             ))}
                                         </Form.Control>
+                                    </Form.Group> */}
+
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Book Name</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            value={selectedBooks}
+                                            onChange={handleBookChange}
+                                        >
+                                            <option value="">Select Book</option>
+                                            {books.map(book => (
+                                                <option key={book.bookId} value={book.bookName}>
+                                                    {book.bookName}
+                                                </option>
+                                            ))}
+                                        </Form.Control>
                                     </Form.Group>
+
                                     <Form.Group as={Col}>
                                         <Form.Label>Purchase Copy No.</Form.Label>
                                         <Form.Control
@@ -318,6 +374,7 @@ const BookDetails = () => {
                                             }
                                         </Form.Control>
                                     </Form.Group>
+
                                     <Form.Group as={Col}>
                                         <Form.Label>Book Price</Form.Label>
                                         {/* <span>{bookPrice}</span> */}

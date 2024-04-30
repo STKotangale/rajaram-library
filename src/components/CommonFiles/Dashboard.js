@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle   } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf   } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -15,7 +15,7 @@ import Footer from './Footer';
 import DashboardData from './StaticDashboardData';
 
 // import PurchaseDetails from '../Inventory/Purchase/PurchaseDetails';
-import BookDetails from '../Inventory/Purchase/BookDetails';
+// import BookDetails from '../Inventory/Purchase/BookDetails';
 
 import BookLanguages from '../Inventory/Book/BookLanguages';
 import Books from '../Inventory/Book/Books';
@@ -25,8 +25,10 @@ import ViewPurchase from '../Inventory/Purchase/ViewPurchase';
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
 import Purchaser from '../Inventory/Purchase/Purchaser';
-import CreateUser from '../Auth/CreateUser';
 import User from '../Auth/User';
+import BookDetailsTable from '../Inventory/Purchase/BookDetailsTable';
+import BookAuthor from '../Inventory/Book/BookAuthor';
+import BookPublication from '../Inventory/Book/BookPublication';
 
 
 
@@ -40,17 +42,15 @@ const Dashboard = () => {
     const [books, setBooks] = useState(false);
     const [bookLanguages, setBookLanguages] = useState(false);
     const [bookType, setBookType] = useState(false);
-
     const [viewPurchase, setViewPurchase] = useState(false);
-
     const [permanentMember, setPermanentMember] = useState(false);
-
     const [generalMember, setGeneralMember] = useState(false);
-
     const [purchaser, setPurchaser] = useState(false);
-
     const [createUser, setCreateUser] = useState(false);
 
+
+    const [bookAuthor, setBookAuthor] = useState(false);
+    const [bookPublication, setBookPublication] = useState(false);
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -78,7 +78,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
     // const handlePurchaseDetailsClick = () => {
@@ -104,7 +105,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
     const handleBookLanguages = () => {
@@ -118,7 +120,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
 
@@ -133,7 +136,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
     const handleBookType = () => {
@@ -147,7 +151,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
     const handleShowPurchase = () => {
@@ -161,7 +166,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
 
@@ -176,7 +182,8 @@ const Dashboard = () => {
         setGeneralMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
 
@@ -191,7 +198,8 @@ const Dashboard = () => {
         setPermanentMember(false);
         setPurchaser(false);
         setCreateUser(false);
-
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
     const handlePurchaser = () => {
@@ -205,6 +213,8 @@ const Dashboard = () => {
         setBooks(false);
         setPermanentMember(false);
         setCreateUser(false);
+        setBookAuthor(false);
+        setBookPublication(false);
     };
 
     const handleCreateUser = () => {
@@ -218,6 +228,38 @@ const Dashboard = () => {
         setBookLanguages(false);
         setBooks(false);
         setPermanentMember(false);
+        setBookAuthor(false);
+        setBookPublication(false);
+    };
+
+    const handleBookAuthor = () => {
+        setBookAuthor(true);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookPublication(false);
+    };
+
+    const handleBookPublication = () => {
+        setBookPublication(true);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
     };
 
     //change password
@@ -306,9 +348,9 @@ const Dashboard = () => {
                                     <ListGroup.Item className="issue-icon mt-1" action onClick={handleShowPurchase}>
                                         <CartPlus className="icon" /> Purchase
                                     </ListGroup.Item>
-                                    {/* <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
+                                    <ListGroup.Item className="book-icon mt-1" action onClick={handleBookDetailsClick}>
                                         <BookFill className="icon" /> Book Details
-                                    </ListGroup.Item> */}
+                                    </ListGroup.Item>
                                     {/* <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
                                         <ExclamationTriangleFill className="icon" /> Issue
                                     </ListGroup.Item>
@@ -327,6 +369,14 @@ const Dashboard = () => {
                                     </ListGroup.Item>
                                     <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookType}>
                                         <Bookshelf className="me-2" /> Book Types
+                                    </ListGroup.Item>
+
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookAuthor}>
+                                        <PersonFill  className="me-2" /> Book Author
+                                    </ListGroup.Item>
+
+                                    <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handleBookPublication}>
+                                        <BookHalf  className="me-2" /> Book Publication
                                     </ListGroup.Item>
 
                                 </>
@@ -400,7 +450,7 @@ const Dashboard = () => {
 
                         {viewDashboard && <DashboardData />}
                         {/* {fillPurchaseDetails && <PurchaseDetails />} */}
-                        {fillBookDetails && <BookDetails />}
+                        {fillBookDetails && <BookDetailsTable />}
 
                         {bookLanguages && <BookLanguages />}
                         {books && <Books />}
@@ -414,7 +464,8 @@ const Dashboard = () => {
 
                         {createUser && <User />}
 
-
+                        {bookAuthor && <BookAuthor />}
+                        {bookPublication && <BookPublication />}
 
                     </Container>
                     <Footer />

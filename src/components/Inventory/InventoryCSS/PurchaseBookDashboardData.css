@@ -189,3 +189,24 @@ input[type=number] {
   margin-left: 5px;
   color: #6c757d; 
 }
+
+
+
+
+/* boook langauges  pagination */
+
+/* .pagination-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.fixed-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #e0e0e0;
+  padding: 20px;
+  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
+} */
