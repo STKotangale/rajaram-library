@@ -5,6 +5,8 @@ import { Button, Modal, Form, Table, Container, Row, Col, Pagination } from 'rea
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './AuthCSS/User.css';
+
 
 const User = () => {
     //get
@@ -243,7 +245,7 @@ const User = () => {
                                     required
                                 />
                             </Form.Group>
-                            
+
                             <Form.Group className="mb-3" controlId="newUserPassword">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control

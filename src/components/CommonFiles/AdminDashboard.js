@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
 import { useRef } from 'react';
 
-import '../CommonFiles/CommonCSS/Dashboard.css';
+import '../CommonFiles/CommonCSS/AdminDashboard.css';
 import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
 
 import logoImage from '../../assets/rajalib.png';
