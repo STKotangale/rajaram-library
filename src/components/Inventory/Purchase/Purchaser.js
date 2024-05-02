@@ -7,16 +7,25 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Purchaser = () => {
+    //get
     const [ledger, setLedger] = useState([]);
-    const [newLedgerName, setNewLedgerName] = useState('');
-    const [selectedLedgerId, setSelectedLedgerId] = useState(null);
+    //add
     const [showAddLedgerModal, setShowAddLedgerModal] = useState(false);
+    const [newLedgerName, setNewLedgerName] = useState('');
+    //edit
     const [showEditLedgerModal, setShowEditLedgerModal] = useState(false);
+    //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
+    //edit and delete
+    const [selectedLedgerId, setSelectedLedgerId] = useState(null);
+    // View 
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewLedger, setViewLedger] = useState(null);
+    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    //get purchaser / ledger
     const fetchLedger = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/ledger`, {
@@ -39,6 +48,12 @@ const Purchaser = () => {
         fetchLedger();
     }, []);
 
+    // Reset form fields
+    const resetFormFields = () => {
+        setNewLedgerName('');
+    };
+
+    //add api
     const addLedger = async (e) => {
         e.preventDefault();
         try {
@@ -56,15 +71,16 @@ const Purchaser = () => {
             }
             const newLedger = await response.json();
             setLedger([...ledger, newLedger.data]);
-            setShowAddLedgerModal(false);
-            setNewLedgerName('');
             toast.success('Ledger added successfully.');
+            setShowAddLedgerModal(false);
+            resetFormFields();
         } catch (error) {
             console.error(error);
             toast.error('Error adding ledger. Please try again later.');
         }
     };
 
+    //edit api
     const editLedger = async (e) => {
         e.preventDefault();
         try {
@@ -74,7 +90,7 @@ const Purchaser = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ledgerName: newLedgerName}),
+                body: JSON.stringify({ ledgerName: newLedgerName }),
             });
             if (!response.ok) {
                 throw new Error(`Error editing ledger: ${response.statusText}`);
@@ -87,15 +103,15 @@ const Purchaser = () => {
                 return item;
             });
             setLedger(updatedLedger);
-            setShowEditLedgerModal(false);
-            setNewLedgerName('');
             toast.success('Ledger edited successfully.');
+            setShowEditLedgerModal(false);
         } catch (error) {
             console.error(error);
             toast.error('Error editing ledger. Please try again later.');
         }
     };
 
+    //delete api
     const deleteLedger = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/ledger/${selectedLedgerId}`, {
@@ -116,10 +132,7 @@ const Purchaser = () => {
         }
     };
 
-    // View modal
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewLedger, setViewLedger] = useState(null);
-
+    //view function
     const handleShowViewModal = (ledger) => {
         setViewLedger(ledger);
         setShowViewModal(true);
@@ -213,14 +226,14 @@ const Purchaser = () => {
                 </Modal>
 
                 {/* Edit Purchaser Modal */}
-                <Modal show={showEditLedgerModal} onHide={() => setShowEditLedgerModal(false)}>
+                <Modal show={showEditLedgerModal} onHide={() => {setShowEditLedgerModal(false);resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Purchaser</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={editLedger}>
                             <Form.Group className="mb-3" controlId="editedLedgerName">
-                                <Form.Label>Ledger Name</Form.Label>
+                                <Form.Label>Purchaser Name</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Enter edited purchaser name"

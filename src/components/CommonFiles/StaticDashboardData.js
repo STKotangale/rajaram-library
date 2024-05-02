@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { Card, Row, Col, Container } from 'react-bootstrap';
-
 import { useAuth } from '../Auth/AuthProvider';
+
+
+import './CommonCSS/CardDashboard.css'
 
 const DashboardData = () => {
   //get username and access token
@@ -12,28 +14,22 @@ const DashboardData = () => {
   }, [username, accessToken]);
 
   const data = [
-    { title: 'Registered users', value: 17, cssClass: 'card-registered-users' },
-    { title: 'Total Book', value: 100, cssClass: 'card-total-books' },
-    { title: 'Total Book Copy\'s', value: 400, cssClass: 'card-total-copies' },
-    { title: 'Book Issue ', value: 1, cssClass: 'card-issue-book' },
-    { title: 'Book Return ', value: 5, cssClass: 'card-return-book' },
+    { title: 'Registered users', value: 17, cssClass: 'card-registered-users teal-card' },
+    { title: 'Total Book', value: 100, cssClass: 'card-total-books blue-card' },
+    { title: 'Total Book Copy\'s', value: 400, cssClass: 'card-total-copies red-card' },
+    { title: 'Book Issue ', value: 1, cssClass: 'card-issue-book green-card' },
+    { title: 'Book Return ', value: 5, cssClass: 'card-return-book orange-card' },
   ];
-
   return (
     <div className="main-content-dashboard-data">
       <Container>
-        <Row className="mb-4">
-          <Col>
-          {/* <div className="welcome-message">Welcome, {username}!</div> */}
-          </Col>
-        </Row>
-        <Row xs={1} md={2} lg={3} className="g-4">
+        <Row xs={1} sm={2} md={3} lg={4} className="g-4">
           {data.map((item, idx) => (
-            <Col key={idx}>
+            <Col key={idx} xs={6} className="custom-col">
               <Card className={`dashboard-card ${item.cssClass}`}>
                 <Card.Body>
-                  <Card.Title>{item.value}</Card.Title>
-                  <Card.Text>{item.title}</Card.Text>
+                  <Card.Title className="card-title">{item.value}</Card.Title>
+                  <Card.Text className="card-text">{item.title}</Card.Text>
                 </Card.Body>
               </Card>
             </Col>

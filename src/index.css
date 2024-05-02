@@ -6,8 +6,12 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   
-    overflow-x: hidden; /* This hides horizontal scrollbar */
-}
+    overflow-x: hidden; 
+    overflow-y: hidden; 
+    /* This hides horizontal scrollbar */
+   
+
+  }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

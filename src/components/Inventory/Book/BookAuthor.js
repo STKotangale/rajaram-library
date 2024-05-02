@@ -7,7 +7,10 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const BookAuthor = () => {
+    //get
     const [bookAuthors, setBookAuthors] = useState([]);
+    //add
+    const [showAddBookAuthorModal, setShowAddBookAuthorModal] = useState(false);
     const [newBookAuthor, setNewBookAuthor] = useState({
         authorName: '',
         address: '',
@@ -15,14 +18,20 @@ const BookAuthor = () => {
         contactNo2: '',
         emailId: ''
     });
-    const [selectedBookAuthorId, setSelectedBookAuthorId] = useState(null);
-    const [showAddBookAuthorModal, setShowAddBookAuthorModal] = useState(false);
+    //edit
     const [showEditBookAuthorModal, setShowEditBookAuthorModal] = useState(false);
+    // delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
+    //edit and delete
+    const [selectedBookAuthorId, setSelectedBookAuthorId] = useState(null);
+    // View modal
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewAuthor, setViewAuthor] = useState(null);
+    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    //get api
     const fetchBookAuthors = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-authors`, {
@@ -45,6 +54,17 @@ const BookAuthor = () => {
         fetchBookAuthors();
     }, []);
 
+    //reset field
+    const resetFormFields = () => {
+        setNewBookAuthor({
+            authorName: '',
+            address: '',
+            contactNo1: '',
+            contactNo2: '',
+            emailId: ''
+        });
+    };
+    //add or post api
     const addBookAuthor = async (e) => {
         e.preventDefault();
         try {
@@ -62,22 +82,16 @@ const BookAuthor = () => {
             const newAuthor = await response.json();
             setBookAuthors([...bookAuthors, newAuthor.data]);
             setShowAddBookAuthorModal(false);
-            setNewBookAuthor({
-                authorName: '',
-                address: '',
-                contactNo1: '',
-                contactNo2: '',
-                emailId: ''
-            });
             toast.success('Book author added successfully.');
+            resetFormFields();
             fetchBookAuthors();
-
         } catch (error) {
             console.error(error);
             toast.error('Error adding book author. Please try again later.');
         }
     };
 
+    //edit api
     const editBookAuthor = async (e) => {
         e.preventDefault();
         try {
@@ -117,6 +131,7 @@ const BookAuthor = () => {
         }
     };
 
+    //delete api
     const deleteBookAuthor = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-authors/${selectedBookAuthorId}`, {
@@ -140,9 +155,6 @@ const BookAuthor = () => {
     };
 
     // View modal
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewAuthor, setViewAuthor] = useState(null);
-
     const handleShowViewModal = (author) => {
         setViewAuthor(author);
         setShowViewModal(true);
@@ -175,48 +187,50 @@ const BookAuthor = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
+                    <div className="table-responsive">
 
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Author Name</th>
-                                <th>Address</th>
-                                <th>Contact No </th>
-                                <th>Email ID</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentAuthors.map((author, index) => (
-                                <tr key={author.authorId}>
-                                    <td>{indexOfFirstAuthor + index + 1}</td>
-                                    <td>{author.authorName}</td>
-                                    <td>{author.address}</td>
-                                    <td>{author.contactNo1}</td>
-                                    <td>{author.emailId}</td>
-                                    <td>
-                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                            setSelectedBookAuthorId(author.authorId);
-                                            setNewBookAuthor({
-                                                authorName: author.authorName,
-                                                address: author.address,
-                                                contactNo1: author.contactNo1,
-                                                contactNo2: author.contactNo2,
-                                                emailId: author.emailId
-                                            });
-                                            setShowEditBookAuthorModal(true);
-                                        }} />
-                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                            setSelectedBookAuthorId(author.authorId);
-                                            setShowDeleteConfirmation(true);
-                                        }} />
-                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(author)} />
-                                    </td>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Author Name</th>
+                                    <th>Address</th>
+                                    <th>Contact No </th>
+                                    <th>Email ID</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {currentAuthors.map((author, index) => (
+                                    <tr key={author.authorId}>
+                                        <td>{indexOfFirstAuthor + index + 1}</td>
+                                        <td>{author.authorName}</td>
+                                        <td>{author.address}</td>
+                                        <td>{author.contactNo1}</td>
+                                        <td>{author.emailId}</td>
+                                        <td>
+                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                                setSelectedBookAuthorId(author.authorId);
+                                                setNewBookAuthor({
+                                                    authorName: author.authorName,
+                                                    address: author.address,
+                                                    contactNo1: author.contactNo1,
+                                                    contactNo2: author.contactNo2,
+                                                    emailId: author.emailId
+                                                });
+                                                setShowEditBookAuthorModal(true);
+                                            }} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                                setSelectedBookAuthorId(author.authorId);
+                                                setShowDeleteConfirmation(true);
+                                            }} />
+                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(author)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
                     <Pagination>{paginationItems}</Pagination>
                 </div>
 
@@ -272,7 +286,7 @@ const BookAuthor = () => {
                                     onChange={(e) => {
                                         const value = e.target.value;
                                         if (value.length <= 10 && /^\d*$/.test(value)) {
-                                        setNewBookAuthor({ ...newBookAuthor, contactNo2: value })
+                                            setNewBookAuthor({ ...newBookAuthor, contactNo2: value })
                                         }
                                     }}
                                 />
@@ -297,7 +311,7 @@ const BookAuthor = () => {
                 </Modal>
 
                 {/* Edit Book Author Modal */}
-                <Modal show={showEditBookAuthorModal} onHide={() => setShowEditBookAuthorModal(false)}>
+                <Modal show={showEditBookAuthorModal} onHide={() =>{ setShowEditBookAuthorModal(false); resetFormFields();}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book Author</Modal.Title>
                     </Modal.Header>
@@ -333,8 +347,8 @@ const BookAuthor = () => {
                                         const value = e.target.value;
                                         if (value.length <= 10 && /^\d*$/.test(value)) {
 
-                                        setNewBookAuthor({ ...newBookAuthor, contactNo1: value })
-                                    }
+                                            setNewBookAuthor({ ...newBookAuthor, contactNo1: value })
+                                        }
                                     }}
                                     required
                                 />
@@ -349,7 +363,7 @@ const BookAuthor = () => {
                                     onChange={(e) => {
                                         const value = e.target.value;
                                         if (value.length <= 10 && /^\d*$/.test(value)) {
-                                        setNewBookAuthor({ ...newBookAuthor, contactNo2: value })
+                                            setNewBookAuthor({ ...newBookAuthor, contactNo2: value })
                                         }
                                     }}
                                     required

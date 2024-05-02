@@ -1,0 +1,35 @@
+/* card css */
+.main-content-dashboard-data{
+  margin-top: 20px;
+}
+.teal-card {
+    background-color: #009688; 
+  }
+  
+  .blue-card {
+    background-color: #2196F3;
+  }
+  
+  .red-card {
+    background-color: #f44336; 
+  }
+  
+  .green-card {
+    background-color: #4CAF50; 
+  }
+  
+  .orange-card {
+    background-color: #FF9800; 
+  }
+  
+.dashboard-card {
+    width: 100%; 
+    margin-bottom: 1rem;
+    min-height: 150px; 
+  }
+  
+  @media (max-width: 767px) {
+    .dashboard-card {
+      height: 150px; 
+    }
+  }

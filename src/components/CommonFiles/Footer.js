@@ -36,7 +36,7 @@ const Footer = () => {
                 </Col>
 
 
-                <Col xs={12} md={3} className="px-md-5">
+                <Col xs={12} md={3} className="px-md-5 mt-3">
                     <h4 className="footer-heading">Links</h4>
                     <ul className="list-unstyled footer-links">
                         <li><a href="#donate" className="footer-link">Donate</a></li>
@@ -46,7 +46,7 @@ const Footer = () => {
                     </ul>
                 </Col>
 
-                <Col xs={12} md={3} className="px-md-5">
+                <Col xs={12} md={3} className="px-md-5 mt-2 ">
                         <h4 className="footer-heading ">Address</h4>
                         <address>
                             Rajaram Sitaram Dixit Library,<br />
@@ -54,7 +54,7 @@ const Footer = () => {
                         </address>
                 </Col>
 
-                <Col xs={12} md={3} className="px-md-5">
+                <Col xs={12} md={3} className="px-md-5 mt-3">
                     <h4 className="footer-heading">Location</h4>
                     <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="footer-link">
                         <img

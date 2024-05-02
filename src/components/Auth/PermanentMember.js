@@ -35,11 +35,9 @@ const PermanentMember = () => {
     //view 
     const [showViewPermanentMemberModal, setShowViewPermanentMemberModal] = useState(false);
     const [viewPermanentMemberData, setViewPermanentMemberData] = useState(null);
-
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-
 
     //get api
     const fetchPermanentMembers = async () => {
@@ -64,6 +62,25 @@ const PermanentMember = () => {
         fetchPermanentMembers();
     }, []);
 
+    // Reset form fields
+    const resetFormFields = () => {
+         // Reset form fields
+         setNewPermanentMember({
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            registerDate: '',
+            adharCard: '',
+            memberAddress: '',
+            dateOfBirth: '',
+            memberEducation: '',
+            memberOccupation: '',
+            mobileNo: '',
+            memberEmailId: '',
+            confirmDate: '',
+        });
+    };
+
     //add api
     const addPermanentMember = async (e) => {
         e.preventDefault();
@@ -82,24 +99,10 @@ const PermanentMember = () => {
                 throw new Error(`Error adding permanent member: ${response.statusText}`);
             }
             const data = await response.json();
-            setPermanentMember([...permanentMember, data.data]);
-            setShowAddPermanentMemberModal(false);
-            // Reset form fields
-            setNewPermanentMember({
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                registerDate: '',
-                adharCard: '',
-                memberAddress: '',
-                dateOfBirth: '',
-                memberEducation: '',
-                memberOccupation: '',
-                mobileNo: '',
-                memberEmailId: '',
-                confirmDate: '',
-            });
+            setPermanentMember([...permanentMember, data.data]);          
             toast.success('Permanent member added successfully.');
+            setShowAddPermanentMemberModal(false);
+            resetFormFields();
         } catch (error) {
             console.error(error);
             toast.error('Error adding permanent member. Please try again later.');
@@ -146,8 +149,8 @@ const PermanentMember = () => {
                 return member;
             });
             setPermanentMember(updatedPermanentMembers);
-            setShowEditPermanentMemberModal(false);
             toast.success('Permanent member edited successfully.');
+            setShowEditPermanentMemberModal(false);
         } catch (error) {
             console.error(error);
             toast.error('Error editing permanent member. Please try again later.');
@@ -194,48 +197,51 @@ const PermanentMember = () => {
                     </Button>
                 </div>
                 <div className='mt-3 table-container-general-member-1'>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>First Name</th>
-                                <th>Middle Name</th>
-                                <th>Last Name</th>
-                                <th>Register Date</th>
-                                <th>Mobile No</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {permanentMember.map((member, index) => (
-                                <tr key={member.memberId}>
-                                    <td>{index + 1}</td>
-                                    <td>{member.firstName}</td>
-                                    <td>{member.middleName}</td>
-                                    <td>{member.lastName}</td>
-                                    <td>{member.registerDate}</td>
-                                    <td>{member.mobileNo}</td>
-                                    <td>
-                                        <PencilSquare
-                                            className="ms-3 action-icon edit-icon"
-                                            onClick={() => handleEditOpenPermanentMember(member.memberId)}
-                                        />
-                                        <Trash
-                                            className="ms-3 action-icon delete-icon"
-                                            onClick={() => {
-                                                setSelectedPermanentMemberId(member.memberId);
-                                                setShowDeleteConfirmation(true);
-                                            }}
-                                        />
-                                        <Eye
-                                            className="ms-3 action-icon view-icon"
-                                            onClick={() => handleViewOpenPermanentMember(member)}
-                                        />
-                                    </td>
+                    <div className="table-responsive">
+
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>First Name</th>
+                                    <th>Middle Name</th>
+                                    <th>Last Name</th>
+                                    <th>Register Date</th>
+                                    <th>Mobile No</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {permanentMember.map((member, index) => (
+                                    <tr key={member.memberId}>
+                                        <td>{index + 1}</td>
+                                        <td>{member.firstName}</td>
+                                        <td>{member.middleName}</td>
+                                        <td>{member.lastName}</td>
+                                        <td>{member.registerDate}</td>
+                                        <td>{member.mobileNo}</td>
+                                        <td>
+                                            <PencilSquare
+                                                className="ms-3 action-icon edit-icon"
+                                                onClick={() => handleEditOpenPermanentMember(member.memberId)}
+                                            />
+                                            <Trash
+                                                className="ms-3 action-icon delete-icon"
+                                                onClick={() => {
+                                                    setSelectedPermanentMemberId(member.memberId);
+                                                    setShowDeleteConfirmation(true);
+                                                }}
+                                            />
+                                            <Eye
+                                                className="ms-3 action-icon view-icon"
+                                                onClick={() => handleViewOpenPermanentMember(member)}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
                 </div>
             </Container>
 
@@ -248,7 +254,7 @@ const PermanentMember = () => {
                     <Modal.Body>
                         <Form onSubmit={addPermanentMember}>
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberFirstName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberFirstName">
                                     <Form.Label>First Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -258,7 +264,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMiddleName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberMiddleName">
                                     <Form.Label>Middle Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -268,7 +274,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberLastName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberLastName">
                                     <Form.Label>Last Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -281,7 +287,7 @@ const PermanentMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberMobileNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberMobileNo">
                                     <Form.Label>Mobile No</Form.Label>
                                     <Form.Control
                                         type="tel"
@@ -296,7 +302,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberAadharCard">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberAadharCard">
                                     <Form.Label>Aadhar Number</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -313,7 +319,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberEmailId">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberEmailId">
                                     <Form.Label>Email Id</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -326,7 +332,7 @@ const PermanentMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberEducation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberEducation">
                                     <Form.Label> Education</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -336,7 +342,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberOccupation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberOccupation">
                                     <Form.Label>Occupation</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -346,7 +352,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberAddress">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberAddress">
                                     <Form.Label>Address </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -359,7 +365,7 @@ const PermanentMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberDateOfBirth">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberDateOfBirth">
                                     <Form.Label>Date Of Birth</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -368,7 +374,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberRegisterDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberRegisterDate">
                                     <Form.Label>Register Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -377,7 +383,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newPermanentMemberConfirmDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberConfirmDate">
                                     <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -399,7 +405,7 @@ const PermanentMember = () => {
 
             {/* Edit permanent member Modal */}
             {/* <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} dialogClassName="modal-lg"> */}
-            <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} size='xl '>
+            <Modal show={showEditPermanentMemberModal} onHide={() => {setShowEditPermanentMemberModal(false); resetFormFields();}} size='xl '>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Permanent Member</Modal.Title>
@@ -407,7 +413,7 @@ const PermanentMember = () => {
                     <Modal.Body>
                         <Form onSubmit={editPermanentMember}>
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberFirstName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberFirstName">
                                     <Form.Label>First Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -417,7 +423,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMiddleName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberMiddleName">
                                     <Form.Label>Middle Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -427,7 +433,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberLastName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberLastName">
                                     <Form.Label>Last Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -440,7 +446,7 @@ const PermanentMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberMobileNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberMobileNo">
                                     <Form.Label>Mobile No</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -455,7 +461,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAadharCard">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberAadharCard">
                                     <Form.Label>Aadhar Number</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -470,7 +476,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberEmailId">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberEmailId">
                                     <Form.Label>Email Id</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -483,7 +489,7 @@ const PermanentMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberEducation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberEducation">
                                     <Form.Label>Education</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -493,7 +499,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberOccupation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberOccupation">
                                     <Form.Label>Occupation</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -503,7 +509,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberAddress">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberAddress">
                                     <Form.Label>Address</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -516,7 +522,7 @@ const PermanentMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberDateOfBirth">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberDateOfBirth">
                                     <Form.Label>Date Of Birth</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -525,7 +531,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberRegisterDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberRegisterDate">
                                     <Form.Label>Register Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -534,7 +540,7 @@ const PermanentMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedPermanentMemberConfirmDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberConfirmDate">
                                     <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -573,80 +579,80 @@ const PermanentMember = () => {
 
             {/* view Modal */}
             <Modal show={showViewPermanentMemberModal} onHide={() => setShowViewPermanentMemberModal(false)} size="xl">
-            <div className="bg-light">
-                <Modal.Header closeButton>
-                    <Modal.Title>View Permanent Member Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {viewPermanentMemberData && (
-                        <Form>
-                            <Row className="mb-3">
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>First Name</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.firstName} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Middle Name</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.middleName} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Last Name</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.lastName} />
-                                </Form.Group>
-                            </Row>
+                <div className="bg-light">
+                    <Modal.Header closeButton>
+                        <Modal.Title>View Permanent Member Details</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {viewPermanentMemberData && (
+                            <Form>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>First Name</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.firstName} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Middle Name</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.middleName} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Last Name</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.lastName} />
+                                    </Form.Group>
+                                </Row>
 
-                            <Row className="mb-3">
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Mobile No</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.mobileNo} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Aadhar No</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.adharCard} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Email</Form.Label>
-                                    <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.memberEmailId} />
-                                </Form.Group>
-                            </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Mobile No</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.mobileNo} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Aadhar No</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.adharCard} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Email</Form.Label>
+                                        <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.memberEmailId} />
+                                    </Form.Group>
+                                </Row>
 
-                            <Row className="mb-3">
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Education</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberEducation} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Occupation</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberOccupation} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Address</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberAddress} />
-                                </Form.Group>
-                            </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Education</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberEducation} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Occupation</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberOccupation} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Address</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.memberAddress} />
+                                    </Form.Group>
+                                </Row>
 
-                            <Row className="mb-3">
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Date of Birth</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.dateOfBirth} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Register Date</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.registerDate} />
-                                </Form.Group>
-                                <Form.Group as={Col} className="mb-3">
-                                    <Form.Label>Confirm Date</Form.Label>
-                                    <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.confirmDate} />
-                                </Form.Group>
-                            </Row>
-                        </Form>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowViewPermanentMemberModal(false)}>
-                        Close
-                    </Button>
-                </Modal.Footer>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Date of Birth</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.dateOfBirth} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Register Date</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.registerDate} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Confirm Date</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.confirmDate} />
+                                    </Form.Group>
+                                </Row>
+                            </Form>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowViewPermanentMemberModal(false)}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
                 </div>
             </Modal>
         </div>

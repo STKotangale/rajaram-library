@@ -1,15 +1,11 @@
-/* CreateUser.css */
+/* User.css */
 
-  .form-label {
-    font-weight: bold;
-  }
-  
-  
-  .create-user-container {
-    /* background-color: #ffffff; */
-    /* border-radius: 8px; */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-top: 20px;
-  }
+.form-label {
+  font-weight: bold;
+}
 
+.create-user-container {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-top: 20px;
+}

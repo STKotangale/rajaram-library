@@ -1,63 +1,3 @@
-/* dashboard data css */
-.welcome-message {
-  margin-bottom: 20px;
-  color: #333;
-  font-size: 30px;
-}
-
-.main-content-dashboard-data {
-  padding: 10px;
-}
-
-.dashboard-card {
-  color: white;
-  margin-bottom: 30px;
-}
-
-.dashboard-card .card-body {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 150px;
-}
-
-.dashboard-card .card-title {
-  font-size: 3rem;
-  font-weight: bold;
-}
-
-.dashboard-card .card-text {
-  font-size: 1rem;
-}
-
-.card-registered-users {
-  background-color: #ff6f61;
-}
-
-.card-total-books {
-  background-color: #26c281;
-}
-
-.card-total-copies {
-  background-color: #00aced;
-}
-
-.card-issue-book {
-  background-color: #ffcc00;
-}
-
-.card-return-book {
-  background-color: cadetblue;
-}
-
-/* Responsive adjustments */
-/* @media (max-width: 768px) {
-  .dashboard-card .card-title {
-    font-size: 2rem;
-  }
-} */
-
 /* fill purchase and book details */
 .button-color {
   background-color: #f27e00 !important;
@@ -68,20 +8,12 @@
 .table-bordered-dark th,
 .table-bordered-dark td {
   border: none;
-  background-color:whitesmoke;
-  /* background-color: rgba(242, 126, 0, 0); */
-
+  background-color: whitesmoke;
 }
 
 .dashboard-page-details {
-  /* background-color: rgba(242, 126, 0, 0.1); */
-  background-color:light;
+  background-color: light;
 }
-
-/* .table-bordered-dark tr {
-    background-color: rgba(242, 126, 0, 0.1);
-  } */
-
 
 
 /* //book details */
@@ -106,51 +38,43 @@
   padding: .375rem .75rem;
 }
 
-
-
-/* .pagination {
-  z-index: 1 !important;
-}
- */
-
-
-
-
-/* align */
+/* align input size */
 .right-align {
   text-align: right;
 }
+
 .amount-align {
   text-align: center;
 }
 
-
 /* size */
-.sr-size{
+.sr-size {
   width: 100px;
   text-align: center;
 }
 
-.book-name-size{
+.book-name-size {
   width: 450px;
 }
-.quantity-size{
+
+.quantity-size {
   width: 160px;
 
 }
-.rate-size{
+
+.rate-size {
   width: 170px;
 
 }
-.amount-size{
+
+.amount-size {
   width: 150px;
 }
 
-
-.back-icon{
+.back-icon {
   cursor: pointer;
   font-size: 2.5rem;
-  border: 1px solid black; 
+  border: 1px solid black;
   padding: 0.5rem;
 }
 
@@ -169,7 +93,7 @@ input[type=number] {
 } */
 
 /* percentage sign % */
- .discount-container {
+.discount-container {
   display: flex;
   align-items: center;
 }
@@ -187,26 +111,38 @@ input[type=number] {
 
 .input-with-suffix span {
   margin-left: 5px;
-  color: #6c757d; 
+  color: #6c757d;
 }
 
 
 
-
-/* boook langauges  pagination */
-
-/* .pagination-container {
-  margin-top: 20px;
-  text-align: center;
+/* input small invoice no ,date,name ledger */
+@media (max-width: 576px) {
+  .small-input {
+    width: 100%;
+  }
 }
 
-.fixed-container {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #ffffff;
-  border-top: 1px solid #e0e0e0;
-  padding: 20px;
-  box-shadow: 0px -2px 5px rgba(0, 0, 0, 0.1);
-} */
+
+@media (max-width: 768px) {
+  .sr-size,
+  .book-name-size,
+  .quantity-size,
+  .rate-size,
+  .amount-size,
+  .action-align,
+  .right-align,
+  .amount-align {
+    text-align: center;
+  }
+
+  .input-with-suffix,
+  .discount-container {
+    min-width: 110px;
+  }
+
+  .book-name-size {
+    min-width: 160px;
+  }
+
+}

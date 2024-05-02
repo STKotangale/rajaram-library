@@ -7,16 +7,32 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Books = () => {
+    //get books
     const [books, setBooks] = useState([]);
-    const [newBookName, setNewBookName] = useState('');
-    const [selectedBookId, setSelectedBookId] = useState(null);
+    //add book
     const [showAddBookModal, setShowAddBookModal] = useState(false);
+    const [newBookName, setNewBookName] = useState('');
+    //edit book
     const [showEditBookModal, setShowEditBookModal] = useState(false);
+    //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
+    //edit and delete
+    const [selectedBookId, setSelectedBookId] = useState(null);
+    // View 
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewBook, setViewBook] = useState(null);
+    //get book author
+    const [authors, setAuthors] = useState([]);
+    const [newBookAuthor, setNewBookAuthor] = useState('');
+    //get book publication
+    const [publications, setPublications] = useState([]);
+    const [newBookPublication, setNewBookPublication] = useState('');
+    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+
+    //get api
     const fetchBooks = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book`, {
@@ -37,33 +53,52 @@ const Books = () => {
 
     useEffect(() => {
         fetchBooks();
+        fetchAuthors();
+        fetchPublications();
     }, []);
 
+
+    // Reset form fields
+    const resetFormFields = () => {
+        setNewBookName('');
+        setNewBookAuthor('');
+        setNewBookPublication('');
+    };
+
+    // Handle add book form submission
     const addBook = async (e) => {
         e.preventDefault();
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                bookName: newBookName,
+                authorId: newBookAuthor,
+                publicationId: newBookPublication
+            }),
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ bookName: newBookName }),
-            });
+            const response = await fetch(`${BaseURL}/api/auth/book`, requestOptions);
+            const responseData = await response.json();
+
             if (!response.ok) {
-                throw new Error(`Error adding book: ${response.statusText}`);
+                throw new Error(`Error adding book: ${responseData.message || response.statusText}`);
             }
-            const newBook = await response.json();
-            setBooks([...books, newBook.data]);
-            setShowAddBookModal(false);
-            setNewBookName('');
+            setBooks(books => [...books, responseData.data]);
             toast.success('Book added successfully.');
+            resetFormFields();
+            setShowAddBookModal(false); 
         } catch (error) {
-            console.error(error);
+            console.error("Error during book addition:", error);
             toast.error('Error adding book. Please try again later.');
         }
     };
 
+
+    // Edit api
     const editBook = async (e) => {
         e.preventDefault();
         try {
@@ -73,7 +108,11 @@ const Books = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ bookName: newBookName}),
+                body: JSON.stringify({
+                    bookName: newBookName,
+                    authorId: newBookAuthor,
+                    publicationId: newBookPublication
+                }),
             });
             if (!response.ok) {
                 throw new Error(`Error editing book: ${response.statusText}`);
@@ -81,13 +120,12 @@ const Books = () => {
             const updatedBookData = await response.json();
             const updatedBooks = books.map(book => {
                 if (book.bookId === selectedBookId) {
-                    return { ...book, bookName: updatedBookData.data.bookName};
+                    return { ...book, bookName: updatedBookData.data.bookName };
                 }
                 return book;
             });
             setBooks(updatedBooks);
             setShowEditBookModal(false);
-            setNewBookName('');
             toast.success('Book edited successfully.');
         } catch (error) {
             console.error(error);
@@ -95,6 +133,7 @@ const Books = () => {
         }
     };
 
+    // Delete api
     const deleteBook = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book/${selectedBookId}`, {
@@ -115,17 +154,44 @@ const Books = () => {
         }
     };
 
-    //view modal
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewBook, setViewBook] = useState(null);
-
+    // View function
     const handleShowViewModal = (book) => {
         setViewBook(book);
         setShowViewModal(true);
     };
 
 
-    //pagination
+    // Fetch authors 
+    const fetchAuthors = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/book-authors`);
+            if (!response.ok) {
+                throw new Error(`Error fetching authors: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setAuthors(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching authors. Please try again later.');
+        }
+    };
+
+    // fetch publications
+    const fetchPublications = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/book-publications`);
+            if (!response.ok) {
+                throw new Error(`Error fetching publications: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setPublications(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching publications. Please try again later.');
+        }
+    };
+
+    // Pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const totalPages = Math.ceil(books.length / itemsPerPage);
@@ -143,7 +209,6 @@ const Books = () => {
 
     return (
         <div className="main-content">
-
             <Container>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddBookModal(true)} className="button-color">
@@ -151,7 +216,6 @@ const Books = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
-
                     <Table striped bordered hover>
                         <thead>
                             <tr>
@@ -169,6 +233,8 @@ const Books = () => {
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                             setSelectedBookId(book.bookId);
                                             setNewBookName(book.bookName);
+                                            setNewBookAuthor(book.author?.authorId);
+                                            setNewBookPublication(book.publication?.publicationId)
                                             setShowEditBookModal(true);
                                         }} />
                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => {
@@ -184,7 +250,6 @@ const Books = () => {
                     <Pagination>{paginationItems}</Pagination>
                 </div>
 
-
                 {/* Add Book Modal */}
                 <Modal show={showAddBookModal} onHide={() => setShowAddBookModal(false)}>
                     <Modal.Header closeButton>
@@ -193,7 +258,7 @@ const Books = () => {
                     <Modal.Body>
                         <Form onSubmit={addBook}>
                             <Form.Group className="mb-3" controlId="newBookName">
-                                <Form.Label>Book </Form.Label>
+                                <Form.Label>Book</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Enter book"
@@ -201,6 +266,32 @@ const Books = () => {
                                     onChange={(e) => setNewBookName(e.target.value)}
                                     required
                                 />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="newBookAuthor">
+                                <Form.Label>Author</Form.Label>
+                                <Form.Select
+                                    value={newBookAuthor}
+                                    onChange={(e) => setNewBookAuthor(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Author</option>
+                                    {authors.map(author => (
+                                        <option key={author.authorId} value={author.authorId}>{author.authorName}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="newBookPublication">
+                                <Form.Label>Publication</Form.Label>
+                                <Form.Select
+                                    value={newBookPublication}
+                                    onChange={(e) => setNewBookPublication(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Publication</option>
+                                    {publications.map(publication => (
+                                        <option key={publication.publicationId} value={publication.publicationId}>{publication.publicationName}</option>
+                                    ))}
+                                </Form.Select>
                             </Form.Group>
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
@@ -212,7 +303,7 @@ const Books = () => {
                 </Modal>
 
                 {/* Edit Book Modal */}
-                <Modal show={showEditBookModal} onHide={() => setShowEditBookModal(false)}>
+                <Modal show={showEditBookModal} onHide={() => { setShowEditBookModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book</Modal.Title>
                     </Modal.Header>
@@ -227,6 +318,32 @@ const Books = () => {
                                     onChange={(e) => setNewBookName(e.target.value)}
                                     required
                                 />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="editedBookAuthor">
+                                <Form.Label>Author</Form.Label>
+                                <Form.Select
+                                    value={newBookAuthor}
+                                    onChange={(e) => setNewBookAuthor(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Author</option>
+                                    {authors.map(author => (
+                                        <option key={author.authorId} value={author.authorId}>{author.authorName}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="editedBookPublication">
+                                <Form.Label>Publication</Form.Label>
+                                <Form.Select
+                                    value={newBookPublication}
+                                    onChange={(e) => setNewBookPublication(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Publication</option>
+                                    {publications.map(publication => (
+                                        <option key={publication.publicationId} value={publication.publicationId}>{publication.publicationName}</option>
+                                    ))}
+                                </Form.Select>
                             </Form.Group>
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
@@ -253,8 +370,7 @@ const Books = () => {
                     </Modal.Footer>
                 </Modal>
 
-
-                {/* view modal */}
+                {/* View modal */}
                 <Modal show={showViewModal} onHide={() => setShowViewModal(false)}>
                     <Modal.Header closeButton>
                         <Modal.Title>View Book </Modal.Title>
@@ -271,13 +387,32 @@ const Books = () => {
                                     />
                                 </Form.Group>
                             </Row>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label>Author</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewBook?.author?.authorName || ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label>Publication</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewBook?.publication?.publicationName || ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
                         </Form>
                     </Modal.Body>
                 </Modal>
 
             </Container>
         </div>
-
     );
 };
 

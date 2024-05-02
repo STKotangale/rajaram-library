@@ -42,7 +42,6 @@ const GeneralMember = () => {
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-
     //get api
     const fetchGeneralMembers = async () => {
         try {
@@ -65,7 +64,26 @@ const GeneralMember = () => {
         fetchGeneralMembers();
     }, []);
 
-
+    // Reset form fields
+    const resetFormFields = () => {
+        setNewGeneralMember({
+            username: '',
+            firstName: '',
+            middleName: '',
+            lastName: '',
+            registerDate: '',
+            adharCard: '',
+            memberAddress: '',
+            dateOfBirth: '',
+            memberEducation: '',
+            memberOccupation: '',
+            mobileNo: '',
+            memberEmailId: '',
+            confirmDate: '',
+            password: '',
+        });
+    };
+    
     //add post api
     const addGeneralMember = async (e) => {
         e.preventDefault();
@@ -86,25 +104,9 @@ const GeneralMember = () => {
             }
             const data = await response.json();
             setGeneralMember([...generalMember, data.data]);
-            setShowAddGeneralMemberModal(false);
-            // Reset form fields
-            setNewGeneralMember({
-                username: '',
-                firstName: '',
-                middleName: '',
-                lastName: '',
-                registerDate: '',
-                adharCard: '',
-                memberAddress: '',
-                dateOfBirth: '',
-                memberEducation: '',
-                memberOccupation: '',
-                mobileNo: '',
-                memberEmailId: '',
-                confirmDate: '',
-                password: '',
-            });
             toast.success('General member added successfully.');
+            setShowAddGeneralMemberModal(false);
+            resetFormFields();
             fetchGeneralMembers();
         } catch (error) {
             console.error(error);
@@ -257,48 +259,51 @@ const GeneralMember = () => {
                     </Button>
                 </div>
                 <div className='mt-3 table-container-general-member-1'>
-                    <Table striped bordered hover >
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>First Name</th>
-                                <th>Middle Name</th>
-                                <th>Last Name</th>
-                                <th>Register Date</th>
-                                <th>Mobile No</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {generalMember.map((member, index) => (
-                                <tr key={member.member_id}>
-                                    <td>{index + 1}</td>
-                                    <td>{member.first_name}</td>
-                                    <td>{member.middle_name}</td>
-                                    <td>{member.last_name}</td>
-                                    <td>{member.register_date}</td>
-                                    <td>{member.mobile_no}</td>
-                                    <td>
-                                        <PencilSquare
-                                            className="ms-3 action-icon edit-icon"
-                                            onClick={() => handleEditOpenGeneralMember(member.member_id)}
-                                        />
-                                        <Trash
-                                            className="ms-3 action-icon delete-icon"
-                                            onClick={() => {
-                                                setSelectedGeneralMemberId(member.member_id);
-                                                setShowDeleteConfirmation(true);
-                                            }}
-                                        />
-                                        <Eye
-                                            className="ms-3 action-icon view-icon"
-                                            onClick={() => handleViewOpenGeneralMember(member)}
-                                        />
-                                    </td>
+                    <div className="table-responsive">
+
+                        <Table striped bordered hover >
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>First Name</th>
+                                    <th>Middle Name</th>
+                                    <th>Last Name</th>
+                                    <th>Register Date</th>
+                                    <th>Mobile No</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {generalMember.map((member, index) => (
+                                    <tr key={member.member_id}>
+                                        <td>{index + 1}</td>
+                                        <td>{member.first_name}</td>
+                                        <td>{member.middle_name}</td>
+                                        <td>{member.last_name}</td>
+                                        <td>{member.register_date}</td>
+                                        <td>{member.mobile_no}</td>
+                                        <td>
+                                            <PencilSquare
+                                                className="ms-3 action-icon edit-icon"
+                                                onClick={() => handleEditOpenGeneralMember(member.member_id)}
+                                            />
+                                            <Trash
+                                                className="ms-3 action-icon delete-icon"
+                                                onClick={() => {
+                                                    setSelectedGeneralMemberId(member.member_id);
+                                                    setShowDeleteConfirmation(true);
+                                                }}
+                                            />
+                                            <Eye
+                                                className="ms-3 action-icon view-icon"
+                                                onClick={() => handleViewOpenGeneralMember(member)}
+                                            />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
                 </div>
             </Container>
 
@@ -312,7 +317,7 @@ const GeneralMember = () => {
                     <Modal.Body>
                         <Form onSubmit={addGeneralMember}>
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberFirstName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberFirstName">
                                     <Form.Label>First Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -322,7 +327,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberMiddleName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberMiddleName">
                                     <Form.Label>Middle Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -332,7 +337,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberLastName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberLastName">
                                     <Form.Label>Last Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -345,7 +350,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberMobileNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberMobileNo">
                                     <Form.Label>Mobile No</Form.Label>
                                     <Form.Control
                                         type="tel"
@@ -360,7 +365,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberAadharCard">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberAadharCard">
                                     <Form.Label>Aadhar Number</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -377,7 +382,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberEmailId">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberEmailId">
                                     <Form.Label>Email Id</Form.Label>
                                     <Form.Control
                                         type="Email"
@@ -390,7 +395,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberEducation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberEducation">
                                     <Form.Label> Education</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -400,7 +405,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberOccupation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberOccupation">
                                     <Form.Label>Occupation</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -410,7 +415,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberAddress">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberAddress">
                                     <Form.Label>Address </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -423,7 +428,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberDateOfBirth">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberDateOfBirth">
                                     <Form.Label>Date Of Birth</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -432,7 +437,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberRegisterDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberRegisterDate">
                                     <Form.Label>Register Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -441,7 +446,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="newGeneralMemberConfirmDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberConfirmDate">
                                     <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -486,7 +491,7 @@ const GeneralMember = () => {
 
 
             {/* Edit General member Modal */}
-            <Modal show={showEditGeneralMemberModal} onHide={() => setShowEditGeneralMemberModal(false)} size='xl'>
+            <Modal show={showEditGeneralMemberModal} onHide={() => {setShowEditGeneralMemberModal(false); resetFormFields();}} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Edit General Member</Modal.Title>
@@ -494,7 +499,7 @@ const GeneralMember = () => {
                     <Modal.Body>
                         <Form onSubmit={editGeneralMember}>
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberFirstName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberFirstName">
                                     <Form.Label>First Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -504,7 +509,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberMiddleName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberMiddleName">
                                     <Form.Label>Middle Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -514,7 +519,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberLastName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberLastName">
                                     <Form.Label>Last Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -527,7 +532,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberMobileNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberMobileNo">
                                     <Form.Label>Mobile No</Form.Label>
                                     <Form.Control
                                         type="tel"
@@ -542,7 +547,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberAadharCard">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberAadharCard">
                                     <Form.Label>Aadhar Number</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -557,7 +562,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberEmailId">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberEmailId">
                                     <Form.Label>Email Id</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -570,7 +575,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberEducation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberEducation">
                                     <Form.Label>Education</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -580,7 +585,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberOccupation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberOccupation">
                                     <Form.Label>Occupation</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -590,7 +595,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberAddress">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberAddress">
                                     <Form.Label>Address</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -603,7 +608,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberDateOfBirth">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberDateOfBirth">
                                     <Form.Label>Date Of Birth</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -612,7 +617,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberRegisterDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberRegisterDate">
                                     <Form.Label>Register Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -621,7 +626,7 @@ const GeneralMember = () => {
                                         required
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="editedGeneralMemberConfirmDate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editedGeneralMemberConfirmDate">
                                     <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control
                                         type="date"
@@ -691,60 +696,60 @@ const GeneralMember = () => {
                         {viewGeneralMemberData && (
                             <Form>
                                 <Row className="mb-3">
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>First Name</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.first_name} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Middle Name</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.middle_name} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Last Name</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.last_name} />
                                     </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Mobile No</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.mobile_no} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Aadhar No</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.adhar_card} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Email</Form.Label>
                                         <Form.Control type="email" readOnly defaultValue={viewGeneralMemberData.email} />
                                     </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Date of Birth</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.date_of_birth} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Register Date</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.register_date} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Confirm Date</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirm_date} />
                                     </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Education</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.member_education} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Occupation</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.member_occupation} />
                                     </Form.Group>
-                                    <Form.Group as={Col} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Address</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.member_address} />
                                     </Form.Group>

@@ -12,12 +12,13 @@ import { AuthProvider } from './components/Auth/AuthProvider';
 // import App from './App';
 import LoginPage from './components/Auth/LoginPage';
 
-import Dashboard from './components/CommonFiles/Dashboard';
+// import Dashboard from './components/CommonFiles/Dashboard';
 
 import ContactUs from './components/CommonFiles/ContactUs';
 import AboutUs from './components/CommonFiles/AboutUs';
 import ForgotPassword from './components/Auth/ForgotPassword';
 import MemberDashboard from './components/CommonFiles/MemberDashboard';
+import AdminDashboard from './components/CommonFiles/AdminDashboard';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -32,8 +33,9 @@ ReactDOM.render(
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/forgotpassword" element={<ForgotPassword />} />
 
-          <Route path="/dashboard" element={<Dashboard />} />
+          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
+          <Route path="/admindashboard" element={<AdminDashboard />} />
           <Route path="/memberdashboard" element={<MemberDashboard />} />
 
 

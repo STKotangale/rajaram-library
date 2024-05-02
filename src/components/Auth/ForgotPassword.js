@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Navbar, Nav, Form, Button, Image, FormGroup } from 'react-bootstrap';
 import logoImage from '../../assets/rajalib.png';
-
-
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-// import Footer from '../MyAboutInfo/Footer';
 
 import './AuthCSS/LoginPage.css'
 
 const ForgotPassword = () => {
-
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -119,7 +115,7 @@ const ForgotPassword = () => {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <Nav.Link className="me-3" href="/">Home</Nav.Link>
-              <Nav.Link className="me-3"href="/aboutus">About Us</Nav.Link>
+              <Nav.Link className="me-3" href="/aboutus">About Us</Nav.Link>
               <Nav.Link className="me-3" href="/contactus">Contact Us</Nav.Link>
             </Nav>
           </Navbar.Collapse>

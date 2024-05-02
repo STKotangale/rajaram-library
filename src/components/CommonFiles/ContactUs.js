@@ -33,7 +33,6 @@ const ContactUs = () => {
         <h2>Contact Us</h2>
         <p className="form-invite contactus-message">Any questions or remarks? Just write us a message!</p>
       </div>
-      {/* <Container fluid className="contact-us-page"> */}
       <Container fluid className="d-flex justify-content-center contact-us-page ">
         <Row >
           <Col md={4} className="contact-info">

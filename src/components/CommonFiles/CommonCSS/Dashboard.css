@@ -1,62 +1,48 @@
+.admin-main-content {
+  margin-top: 20px;
+}
+
 /* fixed siderbar and navabar */
-#sidebar-wrapper {
-  min-width: 250px;
+.admin-sidebar {
+  min-width: 267px;
   max-width: 250px;
   height: 100vh;
   position: fixed;
   overflow-y: auto;
-  /* Add this line */
-
+  border-right: 2px solid #ddd;
+  background-color: white !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-#page-content-wrapper {
-  width: 100%;
+.dashboard-member-page-details {
   margin-top: 55px;
   margin-left: 265px;
   padding: 1.4px;
 }
 
-
 /* fixed navabar */
-.dashboard-navabar {
+.dashboard-member-navabar {
   padding: 0.75rem 1rem;
   position: fixed;
   top: 0;
   left: 266px;
   right: 0;
   z-index: 2;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-/* .bg-orange {
-      background-color: #ff4500;
-  } */
-
-.border-right {
-  border-right: 1px solid #ddd;
-}
-
-.icon {
+.icon-member {
   margin-right: 0.5rem;
 }
 
-/* //sidebar remove horizontal line */
+/* sidebar remove horizontal line */
 .custom-list-group .list-group-item {
   border: none;
-}
-
-/* .custom-list-group .list-group-item + .list-group-item {
-      border-top: none; 
-    } */
-
-
-.main-content {
-  padding: 1rem;
 }
 
 .navbar .nav-link.dropdown-toggle::after {
   display: none !important;
 }
-
 
 .admin-general-icon {
   background-color: #ffffff;
@@ -64,8 +50,74 @@
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
+.home-icon {
+  background: none;
+}
 
+/* For mobile view */
+@media (max-width: 767px) {
+  .sidebar-admin {
+    position: fixed;
+    top: 0;
+    left: -270px;
+    height: calc(100% - 60px);
+    width: 250px;
+    background-color: white !important;
+    transition: left 0.3s ease-in-out;
+    z-index: 1000;
+  }
 
+  .dashboard-member-navabar {
+    padding: 0.75rem 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+  }
 
+  .dashboard-member-page-details {
+    margin-left: 0;
+  }
 
+  .sidebar-admin.active {
+    left: 0;
+  }
 
+  .sidebar-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+  }
+
+  .main-dashboard-member {
+    margin-top: 100px;
+  }
+
+  /* add popup madal */
+  .modal-content {
+    overflow: hidden;
+  }
+}
+
+/* popup modal  input  size*/
+@media (max-width: 576px) {
+  .modal-body .form-group {
+    width: 100%;
+  }
+
+  .modal-body .form-control {
+    width: 100%;
+  }
+}
+
+/* For larger screens */
+@media (min-width: 768px) {
+  .sidebar-toggle {
+    display: none;
+  }
+}

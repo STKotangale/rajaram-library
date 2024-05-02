@@ -7,7 +7,10 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const BookPublication = () => {
+    //get
     const [bookPublication, setBookPublication] = useState([]);
+    //add
+    const [showAddBookPublicationModal, setShowAddBookPublicationModal] = useState(false);
     const [newBookPublication, setNewBookPublication] = useState({
         publicationName: '',
         address: '',
@@ -15,11 +18,16 @@ const BookPublication = () => {
         contactNo2: '',
         emailId: ''
     });
-    const [selectedBookPublicationId, setSelectedBookPublicationId] = useState(null);
-    const [showAddBookPublicationModal, setShowAddBookPublicationModal] = useState(false);
+    //edit
     const [showEditBookPublicationModal, setShowEditBookPublicationModal] = useState(false);
+    //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
+    //edit and delete
+    const [selectedBookPublicationId, setSelectedBookPublicationId] = useState(null);
+    //view
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewPublication, setViewPublication] = useState(null);
+    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -45,6 +53,18 @@ const BookPublication = () => {
         fetchBookPublication();
     }, []);
 
+    //reset fields
+    const resetFormFields = () => {
+        setNewBookPublication({
+            publicationName: '',
+            address: '',
+            contactNo1: '',
+            contactNo2: '',
+            emailId: ''
+        });
+    };
+
+    //add / post api
     const addBookPublication = async (e) => {
         e.preventDefault();
         try {
@@ -62,14 +82,8 @@ const BookPublication = () => {
             const newPublication = await response.json();
             setBookPublication([...bookPublication, newPublication.data]);
             setShowAddBookPublicationModal(false);
-            setNewBookPublication({
-                publicationName: '',
-                address: '',
-                contactNo1: '',
-                contactNo2: '',
-                emailId: ''
-            });
             toast.success('Book publication added successfully.');
+            resetFormFields();
             fetchBookPublication();
 
         } catch (error) {
@@ -78,6 +92,7 @@ const BookPublication = () => {
         }
     };
 
+    //edit api
     const editBookPublication = async (e) => {
         e.preventDefault();
         try {
@@ -101,22 +116,15 @@ const BookPublication = () => {
             });
             setBookPublication(updatedPublication);
             setShowEditBookPublicationModal(false);
-            setNewBookPublication({
-                publicationName: '',
-                address: '',
-                contactNo1: '',
-                contactNo2: '',
-                emailId: ''
-            });
             toast.success('Book publication edited successfully.');
             fetchBookPublication();
-
         } catch (error) {
             console.error(error);
             toast.error('Error editing book publication. Please try again later.');
         }
     };
 
+    //delete api
     const deleteBookPublication = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-publications/${selectedBookPublicationId}`, {
@@ -140,9 +148,6 @@ const BookPublication = () => {
     };
 
     // View modal
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewPublication, setViewPublication] = useState(null);
-
     const handleShowViewModal = (publication) => {
         setViewPublication(publication);
         setShowViewModal(true);
@@ -175,48 +180,50 @@ const BookPublication = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
+                    <div className="table-responsive">
 
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Publication Name</th>
-                                <th>Address</th>
-                                <th>Contact No</th>
-                                <th>Email ID</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentPublication.map((publication, index) => (
-                                <tr key={publication.publicationId}>
-                                    <td>{indexOfFirstPublication + index + 1}</td>
-                                    <td>{publication.publicationName}</td>
-                                    <td>{publication.address}</td>
-                                    <td>{publication.contactNo1}</td>
-                                    <td>{publication.emailId}</td>
-                                    <td>
-                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                            setSelectedBookPublicationId(publication.publicationId);
-                                            setNewBookPublication({
-                                                publicationName: publication.publicationName,
-                                                address: publication.address,
-                                                contactNo1: publication.contactNo1,
-                                                contactNo2: publication.contactNo2,
-                                                emailId: publication.emailId
-                                            });
-                                            setShowEditBookPublicationModal(true);
-                                        }} />
-                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                            setSelectedBookPublicationId(publication.publicationId);
-                                            setShowDeleteConfirmation(true);
-                                        }} />
-                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(publication)} />
-                                    </td>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Publication Name</th>
+                                    <th>Address</th>
+                                    <th>Contact No</th>
+                                    <th>Email ID</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {currentPublication.map((publication, index) => (
+                                    <tr key={publication.publicationId}>
+                                        <td>{indexOfFirstPublication + index + 1}</td>
+                                        <td>{publication.publicationName}</td>
+                                        <td>{publication.address}</td>
+                                        <td>{publication.contactNo1}</td>
+                                        <td>{publication.emailId}</td>
+                                        <td>
+                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                                setSelectedBookPublicationId(publication.publicationId);
+                                                setNewBookPublication({
+                                                    publicationName: publication.publicationName,
+                                                    address: publication.address,
+                                                    contactNo1: publication.contactNo1,
+                                                    contactNo2: publication.contactNo2,
+                                                    emailId: publication.emailId
+                                                });
+                                                setShowEditBookPublicationModal(true);
+                                            }} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                                setSelectedBookPublicationId(publication.publicationId);
+                                                setShowDeleteConfirmation(true);
+                                            }} />
+                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(publication)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
                     <Pagination>{paginationItems}</Pagination>
                 </div>
 
@@ -297,7 +304,7 @@ const BookPublication = () => {
                 </Modal>
 
                 {/* Edit Book Publication Modal */}
-                <Modal show={showEditBookPublicationModal} onHide={() => setShowEditBookPublicationModal(false)}>
+                <Modal show={showEditBookPublicationModal} onHide={() =>{ setShowEditBookPublicationModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book Publication</Modal.Title>
                     </Modal.Header>

@@ -7,26 +7,35 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const User = () => {
+    //get
     const [users, setUsers] = useState([]);
+    //add
+    const [showAddUserModal, setShowAddUserModal] = useState(false);
     const [newUserName, setNewUserName] = useState('');
     const [newUserEmail, setNewUserEmail] = useState('');
     const [newUserPassword, setNewUserPassword] = useState('');
-    const [selectedUserId, setSelectedUserId] = useState(null);
-    const [showAddUserModal, setShowAddUserModal] = useState(false);
+    //edit
     const [showEditUserModal, setShowEditUserModal] = useState(false);
+    //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    //edit and delete
+    const [selectedUserId, setSelectedUserId] = useState(null);
+    //view
     const [showViewModal, setShowViewModal] = useState(false);
     const [viewUser, setViewUser] = useState(null);
+    //auth
+    const { accessToken } = useAuth();
+    const BaseURL = process.env.REACT_APP_BASE_URL;
+    // pagination
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    const { accessToken } = useAuth();
-    const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
+    //get api
     const fetchUsers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/users`, {
@@ -45,19 +54,16 @@ const User = () => {
         }
     };
 
-    const handlePageClick = (page) => setCurrentPage(page);
-    const paginationItems = users ? Array.from({ length: Math.ceil(users.length / itemsPerPage) }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    )) : null;
 
 
-    const indexOfLastUser = users ? currentPage * itemsPerPage : 0;
-    const indexOfFirstUser = users ? indexOfLastUser - itemsPerPage : 0;
-    // const currentUsers = users ? users.slice(indexOfFirstUser, indexOfLastUser) : [];
-    const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
-
+    // Reset form fields
+    const resetFormFields = () => {
+        // Reset form fields
+        setNewUserName('');
+        setNewUserEmail('');
+        setNewUserPassword('');
+    };
+    //post api
     const addUser = async (e) => {
         e.preventDefault();
         try {
@@ -78,12 +84,9 @@ const User = () => {
             }
             const newUser = await response.json();
             setUsers([...users, newUser]);
-            setShowAddUserModal(false);
             toast.success('User added successfully.');
-            // Reset form fields
-            setNewUserName('');
-            setNewUserEmail('');
-            setNewUserPassword('');
+            setShowAddUserModal(false);
+            resetFormFields();
             fetchUsers();
         } catch (error) {
             console.error(error);
@@ -91,6 +94,7 @@ const User = () => {
         }
     };
 
+    //edit api
     const editUser = async (e) => {
         e.preventDefault();
         try {
@@ -126,6 +130,7 @@ const User = () => {
         }
     };
 
+    //delete api
     const deleteUser = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/${selectedUserId}`, {
@@ -146,10 +151,23 @@ const User = () => {
         }
     };
 
+    //view
     const handleShowViewModal = (user) => {
         setViewUser(user);
         setShowViewModal(true);
     };
+
+    // paginationItems
+    const handlePageClick = (page) => setCurrentPage(page);
+    const paginationItems = users ? Array.from({ length: Math.ceil(users.length / itemsPerPage) }, (_, i) => i + 1).map(number => (
+        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
+            {number}
+        </Pagination.Item>
+    )) : null;
+
+    const indexOfLastUser = users ? currentPage * itemsPerPage : 0;
+    const indexOfFirstUser = users ? indexOfLastUser - itemsPerPage : 0;
+    const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
     return (
         <div className="main-content">
@@ -160,42 +178,43 @@ const User = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Users</th>
-                                <th>Email</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {currentUsers.map((user, index) => (
-                                <tr key={user.id}>
-                                    <td>{index + 1}</td>
-                                    <td>{user.username}</td>
-                                    <td>{user.email}</td>
-                                    <td>
-                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                            setSelectedUserId(user.id);
-                                            setNewUserName(user.username);
-                                            setNewUserEmail(user.email);
-                                            setNewUserPassword('');
-                                            setShowEditUserModal(true);
-                                        }} />
-                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                            setSelectedUserId(user.id);
-                                            setShowDeleteConfirmation(true);
-                                        }} />
-                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(user)} />
-                                    </td>
+                    <div className="table-responsive">
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Users</th>
+                                    <th>Email</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {currentUsers.map((user, index) => (
+                                    <tr key={user.id}>
+                                        <td>{index + 1}</td>
+                                        <td>{user.username}</td>
+                                        <td>{user.email}</td>
+                                        <td>
+                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                                setSelectedUserId(user.id);
+                                                setNewUserName(user.username);
+                                                setNewUserEmail(user.email);
+                                                setNewUserPassword('');
+                                                setShowEditUserModal(true);
+                                            }} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                                setSelectedUserId(user.id);
+                                                setShowDeleteConfirmation(true);
+                                            }} />
+                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(user)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
                     <Pagination>{paginationItems}</Pagination>
                 </div>
-
 
                 {/* Add Book Modal */}
                 <Modal show={showAddUserModal} onHide={() => setShowAddUserModal(false)}>
@@ -224,6 +243,7 @@ const User = () => {
                                     required
                                 />
                             </Form.Group>
+                            
                             <Form.Group className="mb-3" controlId="newUserPassword">
                                 <Form.Label>Password</Form.Label>
                                 <Form.Control
@@ -234,6 +254,26 @@ const User = () => {
                                     required
                                 />
                             </Form.Group>
+
+                            {/* <Form.Group className="mb-3" controlId="newUserPassword">
+                                <Form.Label>Password</Form.Label>
+                                <Form.Control
+                                    type="password"
+                                    placeholder="Enter password"
+                                    value={newUserPassword}
+                                    maxLength={8}
+                                    onChange={(e) => setNewUserPassword(e.target.value)}
+                                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
+                                    title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+                                    required
+                                />
+                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{1,6}$"
+                                title="Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+                                <Form.Text className="text-muted">
+                                    Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.
+                                </Form.Text>
+                            </Form.Group> */}
+
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Submit
@@ -244,7 +284,7 @@ const User = () => {
                 </Modal>
 
                 {/* Edit User Modal */}
-                <Modal show={showEditUserModal} onHide={() => setShowEditUserModal(false)}>
+                <Modal show={showEditUserModal} onHide={() => { setShowEditUserModal(false); resetFormFields(); }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit User</Modal.Title>
                     </Modal.Header>
@@ -345,3 +385,12 @@ const User = () => {
 };
 
 export default User;
+
+
+
+
+
+
+
+
+

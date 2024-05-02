@@ -4,11 +4,27 @@ import React, { useState, useEffect } from 'react';
 import { Button, Modal, Form, Table, Row, Col } from 'react-bootstrap';
 import { useAuth } from '../../Auth/AuthProvider';
 import { toast } from 'react-toastify';
+import { PencilSquare } from 'react-bootstrap-icons';
 
 const BookDetailsTable = () => {
+    //get book purchase
     const [bookDetails, setBookDetails] = useState([]);
-    const [selectedBook, setSelectedBook] = useState(null);
+    //update book details
     const [showUpdateBookDetails, setShowUpdateBookDetails] = useState(false);
+    const [selectedBook, setSelectedBook] = useState(null);
+
+    //get languages
+    const [bookLanguages, setBookLanguages] = useState([]);
+    // get book type
+    const [bookTypes, setBookTypes] = useState([]);
+    const [selectedBookType, setSelectedBookType] = useState('');
+    //get book author
+    const [bookAuthors, setBookAuthors] = useState([]);
+    const [selectedAuthor, setSelectedAuthor] = useState('');
+    //book publisher
+    const [bookPublication, setBookPublication] = useState([]);
+    const [selectedPublication, setSelectedPublication] = useState('');
+    //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const { username, accessToken } = useAuth();
 
@@ -16,6 +32,7 @@ const BookDetailsTable = () => {
         fetchBookDetails();
     }, []);
 
+    //get api
     const fetchBookDetails = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/bookdetails`);
@@ -29,14 +46,13 @@ const BookDetailsTable = () => {
         }
     };
 
-
-
     //update book details
     const handleUpdate = (book) => {
         setSelectedBook(book);
         setShowUpdateBookDetails(true);
     };
 
+    //update api
     const updateBookDetails = async (e) => {
         e.preventDefault();
         try {
@@ -62,18 +78,8 @@ const BookDetailsTable = () => {
         }
     };
 
-
-
-    useEffect(() => {
-        fetchBookLanguages();
-        fetchBookTypes();
-        fetchBookAuthors();
-        fetchBookPublication();
-    }, []);
-
-
+    // another api call
     // get languages
-    const [bookLanguages, setBookLanguages] = useState([]);
     const fetchBookLanguages = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book-languages`);
@@ -93,10 +99,6 @@ const BookDetailsTable = () => {
             [name]: value
         }));
     };
-
-    //book type
-    const [bookTypes, setBookTypes] = useState([]);
-    const [selectedBookType, setSelectedBookType] = useState('');
 
     //get book types
     const fetchBookTypes = async () => {
@@ -122,11 +124,7 @@ const BookDetailsTable = () => {
         setSelectedBookType(selectedType);
     };
 
-
-    //get book author
-    const [bookAuthors, setBookAuthors] = useState([]);
-    const [selectedAuthor, setSelectedAuthor] = useState('');
-
+    //get api  book author
     const fetchBookAuthors = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-authors`, {
@@ -149,10 +147,7 @@ const BookDetailsTable = () => {
         setSelectedAuthor(selectedType);
     };
 
-    //book publisher
-    const [bookPublication, setBookPublication] = useState([]);
-    const [selectedPublication, setSelectedPublication] = useState('');
-
+    //get api book publisher
     const fetchBookPublication = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-publications`, {
@@ -176,32 +171,44 @@ const BookDetailsTable = () => {
         setSelectedPublication(selectedType);
     };
 
+    useEffect(() => {
+        fetchBookLanguages();
+        fetchBookTypes();
+        fetchBookAuthors();
+        fetchBookPublication();
+    }, []);
+
+
     return (
+
         <div className='mt-3 table-container-general-member-1'>
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Sr.No.</th>
-                        <th>Book Name</th>
-                        <th>Purchase Copy No.</th>
-                        <th>Rate</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {bookDetails.map((book, index) => (
-                        <tr key={book.id}>
-                            <td>{index + 1}</td>
-                            <td>{book.book_name}</td>
-                            <td>{book.purchase_copy_no}</td>
-                            <td>{book.rate}</td>
-                            <td>
-                                <Button onClick={() => handleUpdate(book)}>Update</Button>
-                            </td>
+            <div className="table-responsive">
+
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>Sr.No.</th>
+                            <th>Book Name</th>
+                            <th>Purchase Copy No.</th>
+                            <th>Rate</th>
+                            <th>Update</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {bookDetails.map((book, index) => (
+                            <tr key={book.id}>
+                                <td>{index + 1}</td>
+                                <td>{book.book_name}</td>
+                                <td>{book.purchase_copy_no}</td>
+                                <td>{book.rate}</td>
+                                <td>
+                                    <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleUpdate(book)} />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </div>
 
             {/* Update Book Details Modal */}
             <Modal show={showUpdateBookDetails} onHide={() => setShowUpdateBookDetails(false)} size='xl'>
@@ -213,7 +220,7 @@ const BookDetailsTable = () => {
                         <Form onSubmit={updateBookDetails}>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="bookName">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="bookName">
                                     <Form.Label>Book Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -221,7 +228,7 @@ const BookDetailsTable = () => {
                                         readOnly
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="copyNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="copyNo">
                                     <Form.Label>Purchase Copy No</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -230,7 +237,7 @@ const BookDetailsTable = () => {
                                     // onChange={(e) => setSelectedBook({ ...selectedBook, purchase_copy_no: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="rate">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="rate">
                                     <Form.Label>Rate</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -242,7 +249,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="isbn">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="isbn">
                                     <Form.Label>ISBN</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -250,7 +257,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, isbn: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="itemNumber">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="itemNumber">
                                     <Form.Label>Item Number</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -258,7 +265,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, itemNumber: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="classificationNumber">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="classificationNumber">
                                     <Form.Label>Classification Number</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -269,7 +276,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
+                                <Form.Group lg={4} as={Col}>
                                     <Form.Label>Language</Form.Label>
                                     <Form.Control
                                         as="select"
@@ -287,7 +294,7 @@ const BookDetailsTable = () => {
                                         ))}
                                     </Form.Control>
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="author">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="author">
                                     <Form.Label>Author</Form.Label>
                                     <Form.Select
                                         value={selectedAuthor}
@@ -304,7 +311,7 @@ const BookDetailsTable = () => {
                                         ))}
                                     </Form.Select>
                                 </Form.Group>
-                                <Form.Group as={Col}>
+                                <Form.Group lg={4} as={Col}>
                                     <Form.Label>Book Type</Form.Label>
                                     <Form.Control
                                         as="select"
@@ -326,7 +333,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="publicaion">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="publicaion">
                                     <Form.Label>Publication Name</Form.Label>
                                     <Form.Select
                                         value={selectedPublication}
@@ -344,7 +351,7 @@ const BookDetailsTable = () => {
                                     </Form.Select>
                                 </Form.Group>
 
-                                <Form.Group className="mb-3" as={Col} controlId="secondTitle">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="secondTitle">
                                     <Form.Label>Second Title</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -352,7 +359,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, secondTitle: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="seriesTitle">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="seriesTitle">
                                     <Form.Label>Series Title</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -363,7 +370,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="edition">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="edition">
                                     <Form.Label>Edition</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -371,7 +378,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, edition: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="placeOfPublication">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="placeOfPublication">
                                     <Form.Label>Place of Publication</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -379,7 +386,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, placeOfPublication: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="title">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="title">
                                     <Form.Label>Title</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -390,7 +397,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="publicationYear">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="publicationYear">
                                     <Form.Label>Publication Year</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -398,7 +405,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, publicationYear: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="numberOfPages">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="numberOfPages">
                                     <Form.Label>Number of Pages</Form.Label>
                                     <Form.Control
                                         type="number"
@@ -406,7 +413,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, numberOfPages: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="subjectHeading">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="subjectHeading">
                                     <Form.Label>Subject Heading</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -417,7 +424,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="secondAuthorEditor">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="secondAuthorEditor">
                                     <Form.Label>Second Author/Editor</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -425,7 +432,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, secondAuthorEditor: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="thirdAuthorEditor">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="thirdAuthorEditor">
                                     <Form.Label>Third Author/Editor</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -433,7 +440,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, thirdAuthorEditor: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="itemType">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
                                     <Form.Label>Item Type</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -444,7 +451,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="permanentLocation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="permanentLocation">
                                     <Form.Label>Permanent Location</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -452,7 +459,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, permanentLocation: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="currentLocation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="currentLocation">
                                     <Form.Label>Current Location</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -460,7 +467,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, currentLocation: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="shelvingLocation">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="shelvingLocation">
                                     <Form.Label>Shelving Location</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -471,7 +478,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="volumeNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="volumeNo">
                                     <Form.Label>Volume No </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -479,7 +486,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, volumeNo: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="fullCallNumber">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="fullCallNumber">
                                     <Form.Label>full Call Number </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -487,7 +494,7 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, fullCallNumber: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group className="mb-3" as={Col} controlId="accessionNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="accessionNo">
                                     <Form.Label>Accession No </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -498,7 +505,7 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" as={Col} controlId="editor">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
                                     <Form.Label>Editor</Form.Label>
                                     <Form.Control
                                         type="text"

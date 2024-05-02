@@ -22,28 +22,7 @@ const LoginPage = () => {
   const BaseURL = process.env.REACT_APP_BASE_URL;
   const { login } = useAuth();
 
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await fetch(`${BaseURL}/api/auth/signin`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ username, password })
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error('Login failed');
-  //     }
-  //     const data = await response.json();
-  //     login(data.username, data.accessToken);
-  //     toast.success("Login successful!");
-  //     navigate('/dashboard');
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     toast.error(error.message);
-  //   }
-  // };
-
-
+  //login api
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -60,7 +39,7 @@ const LoginPage = () => {
       if (userRole === 'ADMIN') {
         login(data.username, data.accessToken);
         toast.success("Login successful!");
-        navigate('/dashboard');
+        navigate('/admindashboard');
       } else if (userRole === 'MEMBER') {
         login(data.username, data.accessToken);
         toast.success("Login successful!");
@@ -77,24 +56,22 @@ const LoginPage = () => {
 
   return (
     <div className='footer-copyright-bottom mb-5'>
-      {/* <Navbar bg="white" className="border-bottom  ms-5 mt-3 navabar-color"> */}
-      <Navbar bg="white" expand="lg" className="navabar-color">
+      <Navbar bg="white" expand="lg" className="navabar-color me-2">
         <Navbar.Brand href="#home">
-          <Image src={logoImage} alt="Library Logo" className='ms-3' height="60" />
+          <Image src={logoImage} alt="Library Logo" className='ms-3 hide-on-mobile' height="60" />
           <span className="h4 ms-4">Rajaram Library</span>
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link href="#home" className="me-3">Home</Nav.Link>
-            <Nav.Link href="/aboutus" className="me-3">About Us</Nav.Link>
-            <Nav.Link href="/contactus" className="me-3">Contact Us</Nav.Link>
+            <Nav.Link href="#home" className="me-3 ms-2">Home</Nav.Link>
+            <Nav.Link href="/aboutus" className="me-3 ms-2">About Us</Nav.Link>
+            <Nav.Link href="/contactus" className="me-3 ms-2">Contact Us</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
 
       <div className='login-container'>
-
         <Row className="flex-grow-1 align-items-center ">
           <Col lg={7} md={8} className="mx-auto">
             <div className="p-5 login-form">
@@ -102,7 +79,6 @@ const LoginPage = () => {
               <Form onSubmit={handleLogin}>
                 <Row>
                   <Col sm={6} className="mb-3">
-
                     <Form.Group className="mb-5 position-relative icon-inside-input" controlId="formBasicEmail">
                       <Form.Control type="username" placeholder="Username" className="input-with-icon"
                         value={username} onChange={(e) => setUsername(e.target.value)}
@@ -120,9 +96,9 @@ const LoginPage = () => {
                   </Col>
                 </Row>
                 <div className='login-button'>
-                <Button type='submit' size="lg" className="w-50 mb-2 button-color">
-                  Login
-                </Button>
+                  <Button type='submit' size="lg" className="w-50 mb-2 button-color">
+                    Login
+                  </Button>
                 </div>
                 <Form.Text className="d-block">
                   <a href="/forgotpassword" className='forgotpassword'>Forgot password?</a>
@@ -138,7 +114,6 @@ const LoginPage = () => {
       </div>
 
       <Container fluid className="pt-4 pb-3 container-fluid">
-      
         <Row className="my-4 text-center services-background">
           <h2>Our services</h2>
           <Col className="service-col" md={3}>
@@ -170,25 +145,10 @@ const LoginPage = () => {
             <p>Benefit from personalized research support with our skilled librarians ready to assist you in finding resources, references, and data for any inquiry or project.</p>
           </Col>
         </Row>
-        
       </Container>
 
       <BooksImages />
       <Footer />
-
-      {/* <div class="copy-right fixed-bottom ">
-        <div class="copyright">
-          <div class="row">
-            <div class="col-lg-6">
-              <span class="mt-1 text-size ms-3">@Copyright Rajaram Library</span>
-            </div>
-            <div class="col-lg-6 text-lg-end">
-              <span class="mt-1 text-size me-3">Developed By Enbee Systems, 9881888180</span>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
 
       <div className="copy-right fixed-bottom">
         <div className="copyright">
@@ -197,7 +157,7 @@ const LoginPage = () => {
               <span className="mt-1 text-size ms-3">@Copyright Rajaram Library</span>
             </div>
             <div className="col-lg-6 text-lg-end">
-              <span className="mt-1 text-size me-3">Developed By Enbee Systems, 9881888180</span>
+              <span className="mt-1 text-size ms-2 me-3">Developed By Enbee Systems, 9881888180</span>
             </div>
           </div>
         </div>

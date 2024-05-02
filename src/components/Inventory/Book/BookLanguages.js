@@ -4,29 +4,33 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 const BookLanguages = () => {
     //get all book lang
     const [bookLanguages, setBookLanguages] = useState([]);
-
     //add new book lang
     const [addBookLangName, setAddBookLangName] = useState('');
     const [showAddLanguage, setShowAddLanguage] = useState(false);
-
     //edit lang
     const [showEditModal, setShowEditModal] = useState(false);
     const [editableLanguage, setEditableLanguage] = useState({ id: null, bookLangName: '', isBlock: null });
-
-    const BaseURL = process.env.REACT_APP_BASE_URL;
-
+    //delete
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [selectedLanguageId, setSelectedLanguageId] = useState(null);
+    //view 
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewLanguage, setViewLanguage] = useState(null);
+    //auth
     const { username, accessToken } = useAuth();
+    const BaseURL = process.env.REACT_APP_BASE_URL;
 
     //get username and access token
     useEffect(() => {
 
     }, [username, accessToken]);
 
-    // Fetch book languages from the API
+    // get api
     const fetchBookLanguages = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book-languages`);
@@ -45,6 +49,12 @@ const BookLanguages = () => {
     }, []);
 
 
+    //reset fields
+    const resetFormFields = () => {
+        setAddBookLangName('');
+    };
+
+    //add  or post api
     const addLanguage = async (event) => {
         event.preventDefault();
         const payload = {
@@ -62,16 +72,17 @@ const BookLanguages = () => {
 
             if (!response.ok) throw new Error(`Network response was not ok. Status: ${response.status}`);
             const data = await response.json();
-
             setBookLanguages([...bookLanguages, data.data]);
+            toast.success('Book language added successfully.');
             setShowAddLanguage(false);
-            setAddBookLangName('');
+            resetFormFields();
         } catch (error) {
             console.error('Error adding book language:', error.message);
+            toast.error('Error adding book language. Please try again later.');
         }
     };
 
-    //edit lang
+    //edit function
     const handleShowEditModal = (language) => {
         setEditableLanguage({
             id: language.bookLangId,
@@ -80,13 +91,11 @@ const BookLanguages = () => {
         });
         setShowEditModal(true);
     };
-
-
     const handleEditLanguageChange = (e) => {
         setEditableLanguage({ ...editableLanguage, bookLangName: e.target.value });
     };
 
-
+    //edit api
     const handleEditLanguageSubmit = async (event) => {
         event.preventDefault();
         try {
@@ -106,23 +115,20 @@ const BookLanguages = () => {
             const updatedLanguage = await response.json();
             const updatedLanguages = bookLanguages.map(lang => lang.bookLangId === updatedLanguage.data.bookLangId ? updatedLanguage.data : lang);
             setBookLanguages(updatedLanguages);
+            toast.success('Book language edited successfully.');
             setShowEditModal(false);
         } catch (error) {
             console.error('Error updating book language:', error);
+            toast.error('Error edit book language. Please try again later.');
+
         }
     };
-
-
 
     const handleCloseEditModal = () => {
         setShowEditModal(false);
     };
 
-
-    //delete
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-    const [selectedLanguageId, setSelectedLanguageId] = useState(null);
-
+    //delete api
     const handleDeleteLanguage = async (languageId) => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book-languages/${languageId}`, {
@@ -137,9 +143,11 @@ const BookLanguages = () => {
             }
 
             setBookLanguages(bookLanguages.filter(language => language.bookLangId !== languageId));
+            toast.success('Book language delete successfully.');
             setShowDeleteConfirmation(false);
         } catch (error) {
             console.error('Error deleting book language:', error);
+            toast.error('Error delete book language. Please try again later.');
         }
     };
 
@@ -154,17 +162,14 @@ const BookLanguages = () => {
     };
 
 
-    //view modal
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewLanguage, setViewLanguage] = useState(null);
 
+    //view function
     const handleShowViewModal = (language) => {
         setViewLanguage(language);
         setShowViewModal(true);
     };
 
     //pagination
-
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const totalPages = Math.ceil(bookLanguages.length / itemsPerPage);
@@ -258,8 +263,8 @@ const BookLanguages = () => {
                     </Modal.Body>
                 </Modal>
 
-
-                <Modal show={showEditModal} onHide={handleCloseEditModal}>
+                {/* edit modal */}
+                <Modal show={showEditModal} onHide={() => { handleCloseEditModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book Language</Modal.Title>
                     </Modal.Header>
@@ -283,8 +288,6 @@ const BookLanguages = () => {
                         </Form>
                     </Modal.Body>
                 </Modal>
-
-
 
                 {/* Delete Confirmation Modal */}
                 <Modal show={showDeleteConfirmation} onHide={handleCloseDeleteConfirmation}>

@@ -10,28 +10,41 @@ import PurchaseDetails from './PurchaseDetails';
 import '../InventoryCSS/PurchaseBookDashboardData.css'
 
 const ViewPurchase = () => {
-    // Pagination
-    const itemsPerPage = 10;
+    //get 
     const [purchases, setPurchases] = useState([]);
-    const [currentPage, setCurrentPage] = useState(1);
-
-    //edit 
+    //add purchase in another page go
+    const [showAddPurchase, setShowAddPurchase] = useState(false);
+    //edit  
     const [showModal, setShowModal] = useState(false);
-
+    //delete function
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    //edit and delete
+    const [selectedPurchase, setSelectedPurchase] = useState(null);
     //view
     const [viewPurchaseModal, setViewPurchaseModal] = useState(false);
 
-    const [selectedPurchase, setSelectedPurchase] = useState(null);
-
+    //discount  and gst
     const [discountPercentage, setDiscountPercentage] = useState("");
     const [gstPercentage, setGstPercentage] = useState("");
 
+    //get books
+    const [bookName, setBookName] = useState([]);
+    const [selectedBooks, setSelectedBooks] = useState([]);
+    const [rowBooks, setRowBooks] = useState("");
+
+    //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const { username, accessToken } = useAuth();
 
-    useEffect(() => {
+
+    // back and submit another page 
+    const handlePurchaseSubmit = () => {
+        setShowAddPurchase(false);
         fetchPurchases();
-    }, [username, accessToken]);
+    };
+    const handleBackButtonClick = () => {
+        setShowAddPurchase(false);
+    };
 
     //get purchase
     const fetchPurchases = async () => {
@@ -52,23 +65,11 @@ const ViewPurchase = () => {
         }
     };
 
-    //view purchase
-    const handleViewClick = (purchase) => {
-        setSelectedPurchase(purchase);
-        setViewPurchaseModal(true);
-        setDiscountPercentage(purchase.discountPercent);
-        setGstPercentage(purchase.gstPercent);
-    };
+    useEffect(() => {
+        fetchPurchases();
+    }, [username, accessToken]);
 
-
-    // //edit purchase
-    // const handleEditClick = (purchase) => {
-    //     setSelectedPurchase(purchase);
-    //     setShowModal(true);
-    //     setDiscountPercentage(purchase.discountPercent || "");
-    //     setGstPercentage(purchase.gstPercent || "");
-    // };
-
+    //edit purchase
     //edit purchase
     const handleEditClick = (purchase) => {
         const updatedPurchase = {
@@ -86,6 +87,7 @@ const ViewPurchase = () => {
         setViewPurchaseModal(false);
     }
 
+    //edit api
     const handleEditPurchase = async (e) => {
         const payload = {
             invoiceNo: selectedPurchase.invoiceNo,
@@ -122,13 +124,13 @@ const ViewPurchase = () => {
             toast.success('Purchase saved successfully.');
             fetchPurchases();
             setShowModal(false);
-
         } catch (error) {
             console.error('Error:', error);
             toast.error('Error saving purchase. Please try again later.');
         }
     };
 
+    //edit change input  
     const handleInputChange = (e, field, index) => {
         let value = e.target.value;
         if (field === 'invoiceDate') {
@@ -158,14 +160,12 @@ const ViewPurchase = () => {
         }));
     };
 
-
     //date format
     const formatDateToISO = (dateString) => {
         if (!dateString) return '';
         const localDate = new Date(dateString);
         return localDate.toISOString();
     };
-
 
     // // claculation in float datatype
     // const formatNumber = (number) => {
@@ -232,7 +232,6 @@ const ViewPurchase = () => {
         }
         recalculateValues();
     };
-
     const handleGstChange = (e) => {
         const value = e.target.value;
         if (value === "") {
@@ -246,7 +245,7 @@ const ViewPurchase = () => {
         recalculateValues();
     };
 
-
+    //recalculate value
     const recalculateValues = () => {
         if (selectedPurchase) {
             setSelectedPurchase(prevPurchase => ({
@@ -260,21 +259,19 @@ const ViewPurchase = () => {
         }
     };
 
-
     useEffect(() => {
         recalculateValues();
     }, [discountPercentage, gstPercentage, selectedPurchase]);
-
+    //end edit purchase
 
 
     //delete function
-    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-
     const handleDeleteClick = (purchase) => {
         setSelectedPurchase(purchase);
         setShowDeleteConfirmation(true);
     };
 
+    //delete api
     const handleDeleteConfirm = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/purchase/${selectedPurchase.purchaseId}`, {
@@ -300,24 +297,7 @@ const ViewPurchase = () => {
     };
 
 
-    //view purchase
-    const [showAddPurchase, setShowAddPurchase] = useState(false);
-
-    const handlePurchaseSubmit = () => {
-        setShowAddPurchase(false);
-        fetchPurchases();
-    };
-
-    const handleBackButtonClick = () => {
-        setShowAddPurchase(false);
-    };
-
-
-    //get books
-    const [bookName, setBookName] = useState([]);
-    const [selectedBooks, setSelectedBooks] = useState([]);
-    const [rowBooks, setRowBooks] = useState("");
-
+    // book edit under edit book name  change input dropdown
     const handleBookChangeForRow = (index, event) => {
         const name = event.target.value;
         const selectedBook = bookName.find(book => book.bookName === name);
@@ -333,7 +313,6 @@ const ViewPurchase = () => {
         setRowBooks(updatedRowBooks);
     };
 
-
     // Filtered book names based on selectedBooks
     const filteredBookNamesForRow = (rowIndex) => {
         return bookName.filter(book =>
@@ -342,6 +321,7 @@ const ViewPurchase = () => {
         );
     };
 
+    //get book
     const fetchBooks = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book`, {
@@ -365,21 +345,7 @@ const ViewPurchase = () => {
     }, []);
 
 
-    //pagination
-    const totalPages = Math.ceil(purchases.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
-
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastPurchase = currentPage * itemsPerPage;
-    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
-    const currentPurchases = purchases.slice(indexOfFirstPurchase, indexOfLastPurchase);
-
-//add row
+    //add row under edit
     const addRow = () => {
         const newRow = {
             bookId: null,
@@ -394,17 +360,7 @@ const ViewPurchase = () => {
         }));
     };
 
-    //edit modal under delete
-    // const deleteRow = (index) => {
-    //     const updatedDetails = [...selectedPurchase.purchaseDetails];
-    //     updatedDetails[index].deleted = true; // Mark the row as deleted
-    //     setSelectedPurchase(prevPurchase => ({
-    //         ...prevPurchase,
-    //         purchaseDetails: updatedDetails
-    //     }));
-    // };
-
-
+    //delete row under edit
     const deleteRow = (index) => {
         const updatedDetails = selectedPurchase.purchaseDetails.filter((_, i) => i !== index);
         setSelectedPurchase(prevPurchase => ({
@@ -415,7 +371,31 @@ const ViewPurchase = () => {
         }));
     };
 
+    //view purchase
+    const handleViewClick = (purchase) => {
+        setSelectedPurchase(purchase);
+        setViewPurchaseModal(true);
+        setDiscountPercentage(purchase.discountPercent);
+        setGstPercentage(purchase.gstPercent);
+    };
 
+
+    //pagination
+    const itemsPerPage = 10;
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const totalPages = Math.ceil(purchases.length / itemsPerPage);
+    const handlePageClick = (page) => setCurrentPage(page);
+
+    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
+            {number}
+        </Pagination.Item>
+    ));
+
+    const indexOfLastPurchase = currentPage * itemsPerPage;
+    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
+    const currentPurchases = purchases.slice(indexOfFirstPurchase, indexOfLastPurchase);
 
 
     return (
@@ -428,35 +408,37 @@ const ViewPurchase = () => {
                                 Add purchase
                             </Button>
                         </div>
-                        <Table striped bordered hover className='mt-4'>
-                            <thead>
-                                <tr>
-                                    <th>Sr. No.</th>
-                                    <th>Purchaser Name</th>
-                                    <th>Invoice No</th>
-                                    <th>Invoice Date</th>
-                                    <th>Grand Total</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {currentPurchases.map((purchase, index) => (
-                                    <tr key={index}>
-                                        <td>{indexOfFirstPurchase + index + 1}</td>
-                                        <td>{purchase.ledgerName}</td>
-                                        <td>{purchase.invoiceNo}</td>
-                                        <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
-                                        <td>{purchase.grandTotal}</td>
-                                        <td>
-
-                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(purchase)} />
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(purchase)} />
-                                        </td>
+                        <div className="table-responsive">
+                            <Table striped bordered hover className='mt-4'>
+                                <thead>
+                                    <tr>
+                                        <th>Sr. No.</th>
+                                        <th>Purchaser Name</th>
+                                        <th>Invoice No</th>
+                                        <th>Invoice Date</th>
+                                        <th>Grand Total</th>
+                                        <th>Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                                </thead>
+                                <tbody>
+                                    {currentPurchases.map((purchase, index) => (
+                                        <tr key={index}>
+                                            <td>{indexOfFirstPurchase + index + 1}</td>
+                                            <td>{purchase.ledgerName}</td>
+                                            <td>{purchase.invoiceNo}</td>
+                                            <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
+                                            <td>{purchase.grandTotal}</td>
+                                            <td>
+
+                                                <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} />
+                                                <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(purchase)} />
+                                                <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(purchase)} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
                         <Pagination>{paginationItems}</Pagination>
                     </div>
                 )}
@@ -479,6 +461,8 @@ const ViewPurchase = () => {
                                         <Form.Label>Invoice No</Form.Label>
                                         <Form.Control
                                             type="text"
+                                            className="small-input"
+
                                             value={selectedPurchase.invoiceNo}
                                             onChange={(e) => handleInputChange(e, 'invoiceNo')}
                                         />
@@ -489,7 +473,7 @@ const ViewPurchase = () => {
                                             type="date"
                                             value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
                                             onChange={(e) => handleInputChange(e, 'invoiceDate')}
-                                            className="custom-date-picker"
+                                            className="custom-date-picker small-input"
                                         />
 
                                     </Form.Group>
@@ -502,148 +486,149 @@ const ViewPurchase = () => {
                                         </Form.Control>
                                     </Form.Group>
                                 </Row>
+                                <div className="table-responsive">
+                                    <Table striped bordered hover className="table-bordered-dark">
+                                        <thead>
+                                            <tr>
+                                                <th className="table-header sr-size">Sr.No</th>
+                                                <th className="table-header book-name-size">Book Name</th>
+                                                <th className="table-header quantity-size">Quantity</th>
+                                                <th className="table-header rate-size">Rate</th>
+                                                <th className="table-header amount-size amount-align">Amount</th>
+                                                <th className="table-header action-align">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {selectedPurchase.purchaseDetails.map((detail, index) => (
 
-                                <Table striped bordered hover className="table-bordered-dark">
-                                    <thead>
-                                        <tr>
-                                            <th className="table-header sr-size">Sr.No</th>
-                                            <th className="table-header book-name-size">Book Name</th>
-                                            <th className="table-header quantity-size">Quantity</th>
-                                            <th className="table-header rate-size">Rate</th>
-                                            <th className="table-header amount-size amount-align">Amount</th>
-                                            <th className="table-header action-align">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedPurchase.purchaseDetails.map((detail, index) => (
-
-                                            <tr key={index}>
-                                                <td className='sr-size'>{index + 1}</td>
-                                                <td>
-                                                    {/* <Form.Control
+                                                <tr key={index}>
+                                                    <td className='sr-size'>{index + 1}</td>
+                                                    <td>
+                                                        {/* <Form.Control
                                                         type="text"
                                                         value={detail.bookName}
                                                         onChange={(e) => handleInputChange(e, 'bookName', index)}
                                                     /> */}
-                                                    <Form.Group >
-                                                        <Form.Control
-                                                            as="input"
-                                                            list={`bookName-${index}`}
-                                                            value={detail.bookName}
-                                                            onChange={(e) => { handleBookChangeForRow(index, e); handleInputChange(e, 'bookName', index) }}
-                                                            placeholder="Search or select book name"
+                                                        <Form.Group >
+                                                            <Form.Control
+                                                                as="input"
+                                                                list={`bookName-${index}`}
+                                                                value={detail.bookName}
+                                                                onChange={(e) => { handleBookChangeForRow(index, e); handleInputChange(e, 'bookName', index) }}
+                                                                placeholder="Search or select book name"
+                                                            />
+                                                            <datalist id={`bookName-${index}`}>
+                                                                {filteredBookNamesForRow(index).map((book) => (
+                                                                    <option key={book.bookId} value={book.bookName} />
+                                                                ))}
+                                                            </datalist>
+                                                        </Form.Group>
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={detail.qty}
+                                                            onChange={(e) => handleInputChange(e, 'qty', index)}
                                                         />
-                                                        <datalist id={`bookName-${index}`}>
-                                                            {filteredBookNamesForRow(index).map((book) => (
-                                                                <option key={book.bookId} value={book.bookName} />
-                                                            ))}
-                                                        </datalist>
-                                                    </Form.Group>
-                                                </td>
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={detail.rate}
+                                                            onChange={(e) => handleInputChange(e, 'rate', index)}
+                                                        />
+                                                    </td>
+                                                    {/* <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td> */}
+                                                    <td className="amount-align">
+                                                        {!isNaN(detail.amount) ? Number(detail.amount).toFixed(2) : ''}
+                                                    </td>
+                                                    <td>
+                                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            <tr>
+                                                <td></td>
                                                 <td>
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={detail.qty}
-                                                        onChange={(e) => handleInputChange(e, 'qty', index)}
-                                                    />
+                                                    <Button onClick={addRow} className="button-color">
+                                                        Add Book
+                                                    </Button>
                                                 </td>
-                                                <td>
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={detail.rate}
-                                                        onChange={(e) => handleInputChange(e, 'rate', index)}
-                                                    />
-                                                </td>
-                                                {/* <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td> */}
-                                                <td className="amount-align">
-                                                    {!isNaN(detail.amount) ? Number(detail.amount).toFixed(2) : ''}
-                                                </td>
-                                                <td>
-                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
-                                                </td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
                                             </tr>
-                                        ))}
-                                        <tr>
-                                            <td></td>
-                                            <td>
-                                                <Button onClick={addRow} className="button-color">
-                                                    Add Book
-                                                </Button>
-                                            </td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
 
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Bill Total</td>
-                                            <td className="amount-align">{selectedPurchase.billTotal}</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Discount</td>
-                                            <td>
-                                                <div className="discount-container">
-                                                    <Form.Control className='right-align'
-                                                        type="number"
-                                                        value={discountPercentage}
-                                                        onChange={(e) => {
-                                                            const newDiscount = parseFloat(e.target.value);
-                                                            setDiscountPercentage(newDiscount);
-                                                            handleDiscountChange(e);
-                                                        }}
-                                                    />
-                                                    <span>%</span>
-                                                </div>
-                                            </td>
-                                            <td className="amount-align">{selectedPurchase.discountAmount}</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Total After Discount</td>
-                                            <td></td>
-                                            <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">GST</td>
-                                            <td>
-                                                <div className="gst-container">
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={gstPercentage}
-                                                        onChange={(e) => {
-                                                            const newGst = parseFloat(e.target.value);
-                                                            setGstPercentage(newGst);
-                                                            handleGstChange(e);
-                                                        }}
-                                                    />
-                                                    <span>%</span>
-                                                </div>
-                                            </td>
-                                            <td className="amount-align">{selectedPurchase.gstAmount}</td>
-                                            <td></td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Grand Total</td>
-                                            <td></td>
-                                            <td className="amount-align">{selectedPurchase.grandTotal}</td>
-                                            <td></td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Bill Total</td>
+                                                <td className="amount-align">{selectedPurchase.billTotal}</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Discount</td>
+                                                <td>
+                                                    <div className="discount-container">
+                                                        <Form.Control className='right-align discount-input'
+                                                            type="number"
+                                                            value={discountPercentage}
+                                                            onChange={(e) => {
+                                                                const newDiscount = parseFloat(e.target.value);
+                                                                setDiscountPercentage(newDiscount);
+                                                                handleDiscountChange(e);
+                                                            }}
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="amount-align">{selectedPurchase.discountAmount}</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Total After Discount</td>
+                                                <td></td>
+                                                <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">GST</td>
+                                                <td>
+                                                    <div className="gst-container">
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={gstPercentage}
+                                                            onChange={(e) => {
+                                                                const newGst = parseFloat(e.target.value);
+                                                                setGstPercentage(newGst);
+                                                                handleGstChange(e);
+                                                            }}
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="amount-align">{selectedPurchase.gstAmount}</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Grand Total</td>
+                                                <td></td>
+                                                <td className="amount-align">{selectedPurchase.grandTotal}</td>
+                                                <td></td>
+                                            </tr>
+                                        </tbody>
+                                    </Table>
+                                </div>
                             </Form>
                         </Modal.Body>
                         <Modal.Footer>
@@ -713,103 +698,104 @@ const ViewPurchase = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
-                                <Table striped bordered hover className="table-bordered-dark">
-                                    <thead>
-                                        <tr>
-                                            <th className="table-header sr-size">Sr.No</th>
-                                            <th className="table-header book-name-size">Book Name</th>
-                                            <th className="table-header quantity-size">Quantity</th>
-                                            <th className="table-header rate-size">Rate</th>
-                                            <th className="table-header amount-size amount-align">Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {selectedPurchase.purchaseDetails.map((detail, index) => (
-                                            <tr key={index}>
-                                                <td>{index + 1}</td>
-                                                <td>
-                                                    <Form.Control
-                                                        type="text"
-                                                        value={detail.bookName}
-                                                        readOnly
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={detail.qty}
-                                                        readOnly
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={detail.rate}
-                                                        readOnly
-                                                    />
-                                                </td>
-                                                <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                <div className="table-responsive">
+                                    <Table striped bordered hover className="table-bordered-dark">
+                                        <thead>
+                                            <tr>
+                                                <th className="table-header sr-size">Sr.No</th>
+                                                <th className="table-header book-name-size">Book Name</th>
+                                                <th className="table-header quantity-size">Quantity</th>
+                                                <th className="table-header rate-size">Rate</th>
+                                                <th className="table-header amount-size amount-align">Amount</th>
                                             </tr>
-                                        ))}
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td >Bill Total</td>
-                                            <td className="amount-align">{selectedPurchase.billTotal}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Discount</td>
-                                            <td>
-                                                <div className="discount-container">
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={selectedPurchase.discountPercent}
-                                                        readOnly
-                                                    />
-                                                    <span>%</span>
-                                                </div>
+                                        </thead>
+                                        <tbody>
+                                            {selectedPurchase.purchaseDetails.map((detail, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>
+                                                        <Form.Control
+                                                            type="text"
+                                                            value={detail.bookName}
+                                                            readOnly
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={detail.qty}
+                                                            readOnly
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={detail.rate}
+                                                            readOnly
+                                                        />
+                                                    </td>
+                                                    <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                                </tr>
+                                            ))}
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td >Bill Total</td>
+                                                <td className="amount-align">{selectedPurchase.billTotal}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Discount</td>
+                                                <td>
+                                                    <div className="discount-container">
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={selectedPurchase.discountPercent}
+                                                            readOnly
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
 
 
-                                            </td>
-                                            <td className="amount-align">{selectedPurchase.discountAmount}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Total After Discount</td>
-                                            <td></td>
-                                            <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">GST</td>
-                                            <td>
-                                                <div className="gst-container">
-                                                    <Form.Control className="right-align"
-                                                        type="number"
-                                                        value={selectedPurchase.gstPercent}
-                                                        readOnly
-                                                    />
-                                                    <span>%</span>
-                                                </div>
+                                                </td>
+                                                <td className="amount-align">{selectedPurchase.discountAmount}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Total After Discount</td>
+                                                <td></td>
+                                                <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">GST</td>
+                                                <td>
+                                                    <div className="gst-container">
+                                                        <Form.Control className="right-align"
+                                                            type="number"
+                                                            value={selectedPurchase.gstPercent}
+                                                            readOnly
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
 
-                                            </td>
-                                            <td className="amount-align">{selectedPurchase.gstAmount}</td>
-                                        </tr>
-                                        <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td className="right-align">Grand Total</td>
-                                            <td></td>
-                                            <td className="amount-align">{selectedPurchase.grandTotal}</td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
+                                                </td>
+                                                <td className="amount-align">{selectedPurchase.gstAmount}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td className="right-align">Grand Total</td>
+                                                <td></td>
+                                                <td className="amount-align">{selectedPurchase.grandTotal}</td>
+                                            </tr>
+                                        </tbody>
+                                    </Table>
+                                </div>
                             </Form>
                         </Modal.Body>
                         <Modal.Footer>

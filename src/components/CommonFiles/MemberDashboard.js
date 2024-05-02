@@ -12,13 +12,15 @@ import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
 import logoImage from '../../assets/rajalib.png';
 import Footer from './Footer';
 
-// import DashboardData from './StaticDashboardData';
+import BookTypes from '../Inventory/Book/BookTypes';
+import { useRef } from 'react';
 
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
+    const sidebarRef = useRef(null);
 
-    const [viewDashboard, setViewDashboard] = useState(true);
+    const [viewBook, setViewBook] = useState(true);
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -28,6 +30,18 @@ const MemberDashboard = () => {
     });
 
     const { username, accessToken } = useAuth();
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+                setShowSidebar(false);
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     //get username and access token
     useEffect(() => {
@@ -35,9 +49,8 @@ const MemberDashboard = () => {
     }, [username, accessToken]);
 
 
-    const handleHomeClick = () => {
-        setViewDashboard(true);
-
+    const handleBookClick = () => {
+        setViewBook(true);
     };
 
 
@@ -68,56 +81,68 @@ const MemberDashboard = () => {
         toast.success('You have been logged out.');
         navigate('/');
     };
+    const [showSidebar, setShowSidebar] = useState(false);
+    const toggleSidebar = () => {
+        setShowSidebar(!showSidebar);
+    };
 
 
     return (
         <div className='main-dashboard-member'>
-            <div className="d-flex sidebar-member" id="wrapper">
-                <div className="member-sidebar" >
-                    <div className='mt-3'>
-                        <Image src={logoImage} className="rajalib-logo ms-2" height="50" />
-                        <span className="h4 ms-2 mt-3">Rajaram Library</span>
+
+            {/* Sidebar */}
+            <div ref={sidebarRef} className={`sidebar ${showSidebar ? 'active' : ''}`}>
+
+                {/* <div className={`sidebar ${showSidebar ? 'active' : ''}`}> */}
+                <div className="d-flex sidebar-member" id="wrapper">
+                    <div className="member-sidebar">
+                        {/* Sidebar content */}
+                        <Image src={logoImage} className="rajalib-logo ms-2 mt-2" height="50" />
+                        <span className="h4 ms-2 mt-5">Rajaram Library</span>
+                        <ListGroup variant="flush" className="mt-5 ms-3 custom-list-group">
+                            <Col lg={11} className="">
+                                <ListGroup.Item className="home-icon" >
+                                    <HouseDoorFill className="icon-member" /> Home
+                                </ListGroup.Item>
+                                <ListGroup.Item className="home-icon" action >
+                                    <ExclamationTriangleFill className="icon-member" action onClick={() => setViewBook(true)} /> Book Issue
+                                </ListGroup.Item>
+                            </Col>
+                        </ListGroup>
                     </div>
-                    <ListGroup variant="flush" className="mt-5 ms-3 custom-list-group">
-                        <Col lg={11} className="">
-                            <ListGroup.Item className="home-icon" action onClick={handleHomeClick}>
-                                <HouseDoorFill className="icon-member" /> Home
-                            </ListGroup.Item>
-                            <ListGroup.Item className="home-icon" action >
-                                <ExclamationTriangleFill className="icon-member" /> Book Issue
-                            </ListGroup.Item>
-                        </Col>
-                    </ListGroup>
-                </div>
-
-                <div className='dashboard-member-page-details bg-light'>
-                    <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-member-navabar">
-                        <Navbar.Brand href="#Dashboard">Welcome Member !.. {username}</Navbar.Brand>
-                        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                        <Navbar.Collapse id="basic-navbar-nav">
-                            <Nav className="ms-auto">
-                            </Nav>
-                            <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
-
-                                <NavDropdown.Item onClick={setShowChangePasswordModal}>
-                                    <LockFill className="icon" /> Change Password
-                                </NavDropdown.Item>
-                                <NavDropdown.Item href="#logout" onClick={handleLogout}>
-                                    <BoxArrowRight className="icon" /> Logout
-                                </NavDropdown.Item>
-                            </NavDropdown>
-                        </Navbar.Collapse>
-                    </Navbar>
-                    <Container fluid className="min-vh-100 d-flex flex-column justify-content-between main-member-content">
-
-                        {/* {viewDashboard && <DashboardData />} */}
-
-                    </Container>
-                    <Footer />
                 </div>
             </div>
 
-            <Modal show={showChangePasswordModal} onHide={() => { setShowChangePasswordModal(false) }}>
+            {/* Main content */}
+            <div className='dashboard-member-page-details bg-light'>
+                {/* Sidebar toggle button for mobile view */}
+                <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-member-navabar">
+                    <div className="sidebar-toggle d-md-none color-black" onClick={toggleSidebar}>
+                        ☰
+                    </div>
+                    <Navbar.Brand href="#Dashboard" className='ms-4'>Welcome Member !.. {username}</Navbar.Brand>
+                    <Navbar.Toggle aria-controls="basic-navbar-nav " />
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <Nav className="ms-auto ">
+                        </Nav>
+                        <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
+                            <NavDropdown.Item onClick={() => setShowChangePasswordModal(true)}>
+                                <LockFill className="icon" /> Change Password
+                            </NavDropdown.Item>
+                            <NavDropdown.Item href="#logout" onClick={handleLogout}>
+                                <BoxArrowRight className="icon" /> Logout
+                            </NavDropdown.Item>
+                        </NavDropdown>
+                    </Navbar.Collapse>
+                </Navbar>
+                <Container fluid className=" d-flex flex-column justify-content-between main-member-content">
+                    {viewBook && <BookTypes />}
+                </Container>
+                <Footer />
+            </div>
+
+            {/* Change Password Modal */}
+            <Modal show={showChangePasswordModal} onHide={() => setShowChangePasswordModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Change Password</Modal.Title>
                 </Modal.Header>
@@ -134,7 +159,6 @@ const MemberDashboard = () => {
                                 required
                             />
                         </Form.Group>
-
                         <Form.Group className="mt-4" controlId="formBasicConfirmPassword">
                             <Form.Label>Confirm Password</Form.Label>
                             <Form.Control
@@ -146,7 +170,6 @@ const MemberDashboard = () => {
                                 required
                             />
                         </Form.Group>
-
                         <div className="d-flex justify-content-end mt-4">
                             <Button className="button-color" type="submit">
                                 Change Password
@@ -155,9 +178,9 @@ const MemberDashboard = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
-
         </div>
     );
 };
 
 export default MemberDashboard;
+

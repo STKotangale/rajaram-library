@@ -42,8 +42,6 @@ const BookDetails = () => {
                 }
             }
             const bookListResponse = await response.json();
-            // console.log("All Book Details:", bookListResponse);
-
             const filteredBooks = bookListResponse.filter(item => item.book_name && item.purchase_copy_no !== null && item.id !== null);
             const uniqueBooks = Array.from(new Set(filteredBooks.map(item => JSON.stringify({
                 bookName: item.book_name,
