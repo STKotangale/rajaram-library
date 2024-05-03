@@ -20,16 +20,18 @@
   
   .orange-card {
     background-color: #FF9800; 
+    height: 100px;
   }
   
 .dashboard-card {
     width: 100%; 
     margin-bottom: 1rem;
-    min-height: 150px; 
+    min-height: 100px; 
   }
   
   @media (max-width: 767px) {
     .dashboard-card {
-      height: 150px; 
+      height: 100px; 
+      font-size: 14px;
     }
   }

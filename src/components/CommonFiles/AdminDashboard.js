@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -10,7 +10,9 @@ import { useRef } from 'react';
 import '../CommonFiles/CommonCSS/AdminDashboard.css';
 import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
 
-import logoImage from '../../assets/rajalib.png';
+// import logoImage from '../../assets/rajalib.png';
+import logo from '../../assets/rajalib-removebg-preview.png';
+
 import Footer from './Footer';
 
 import DashboardData from './StaticDashboardData';
@@ -27,6 +29,7 @@ import Purchaser from '../Inventory/Purchase/Purchaser';
 import User from '../Auth/User';
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
+import BookIssue from '../Inventory/Purchase/BookIssue';
 
 
 const AdminDashboard = () => {
@@ -44,6 +47,8 @@ const AdminDashboard = () => {
     const [createUser, setCreateUser] = useState(false);
     const [bookAuthor, setBookAuthor] = useState(false);
     const [bookPublication, setBookPublication] = useState(false);
+
+    const [bookIssue, setBookIssue] = useState(false);
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -73,6 +78,7 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
     };
 
     const handleBookDetailsClick = () => {
@@ -88,6 +94,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handleBookLanguages = () => {
@@ -103,6 +111,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
 
@@ -119,6 +129,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handleBookType = () => {
@@ -134,6 +146,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handleShowPurchase = () => {
@@ -149,6 +163,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
 
@@ -165,7 +181,10 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
+
 
 
     const handleGeneralMember = () => {
@@ -181,6 +200,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handlePurchaser = () => {
@@ -196,6 +217,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handleCreateUser = () => {
@@ -211,6 +234,8 @@ const AdminDashboard = () => {
         setPermanentMember(false);
         setBookAuthor(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handleBookAuthor = () => {
@@ -226,6 +251,8 @@ const AdminDashboard = () => {
         setPurchaser(false);
         setCreateUser(false);
         setBookPublication(false);
+        setBookIssue(false);
+
     };
 
     const handleBookPublication = () => {
@@ -241,7 +268,25 @@ const AdminDashboard = () => {
         setPurchaser(false);
         setCreateUser(false);
         setBookAuthor(false);
+        setBookIssue(false);
+
     };
+
+    const handleIssueClick = () => {
+        setBookIssue(true);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+    }
 
     //change password
     const handleChange = (event) => {
@@ -272,9 +317,7 @@ const AdminDashboard = () => {
     };
 
 
-    // const handleIssueClick = () => {
 
-    // }
     // const handleIssueReturnClick = () => {
 
     // }
@@ -330,109 +373,112 @@ const AdminDashboard = () => {
 
                 <div className="d-flex sidebar-member" id="wrapper">
                     <div className="admin-sidebar">
-                        <div className='mt-3 ms-4'>
-                            <Image src={logoImage} className="rajalib-logo" height="50" />
+                        <div className='mt-3 mb-3 ms-3'>
+                            <Image src={logo} className="rajalib-logo" height="50" />
                             <span className="h4 ms-2 mt-4">Rajaram Library</span>
                         </div>
-                        <ListGroup variant="flush" className="mt-4 ms-4 custom-list-group">
-                            <Col lg={11} className="">
-                                <ListGroup.Item className="home-icon" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
-                                    <HouseDoorFill className="icon" /> Home
-                                </ListGroup.Item>
+                        <div className='scrollable'>
+                            <ListGroup variant="flush" className="mt-3 custom-list-group">
+                                <Col lg={10} className="ms-3 list-group">
+                                    <ListGroup.Item className="sub-icon" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
+                                        <HouseDoorFill className="icon" /> Home
+                                    </ListGroup.Item>
 
-                                <ListGroup.Item className="admin-general-icon mt-2" action onClick={toggleInventorySubItems}>
-                                    <Archive className="icon me-2" /> Inventory
-                                </ListGroup.Item>
-                                {showInventorySubItems && (
-                                    <>
-                                        <ListGroup.Item className="issue-icon mt-1" action onClick={() => { handleShowPurchase(); setShowSidebar(false); }}>
-                                            <CartPlus className="icon" /> Purchase
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="book-icon mt-1" actio onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
-                                            <BookFill className="icon" /> Book Details
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={() => { handleBookLanguages(); setShowSidebar(false); }}>
-                                            <Globe className="me-2" /> Book Languages
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={() => { handleBookName(); setShowSidebar(false); }}>
-                                            <Book className="me-2" /> Book
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={() => { handleBookType(); setShowSidebar(false); }}>
-                                            <Bookshelf className="me-2" /> Book Types
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={() => { handleBookAuthor(); setShowSidebar(false); }}>
-                                            <PersonFill className="me-2" /> Book Author
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={() => { handleBookPublication(); setShowSidebar(false); }}>
-                                            <BookHalf className="me-2" /> Book Publication
-                                        </ListGroup.Item>
-
-                                        {/* <ListGroup.Item className="issue-icon mt-1" action onClick={handleIssueClick}>
-                                            <ExclamationTriangleFill className="icon" /> Issue
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
+                                    <ListGroup.Item className="admin-general-icon mt-2" action onClick={toggleInventorySubItems}>
+                                        <Archive className="icon me-2" /> Inventory
+                                    </ListGroup.Item>
+                                    {showInventorySubItems && (
+                                        <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleShowPurchase(); setShowSidebar(false); }}>
+                                                <CartPlus className="icon me-2" /> Purchase
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
+                                                <BookFill className="icon me-2" /> Book Details
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookLanguages(); setShowSidebar(false); }}>
+                                                <Globe className="me-2" /> Book Languages
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookName(); setShowSidebar(false); }}>
+                                                <Book className="me-2" /> Book
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookType(); setShowSidebar(false); }}>
+                                                <Bookshelf className="me-2" /> Book Types
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookAuthor(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> Book Author
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookPublication(); setShowSidebar(false); }}>
+                                                <BookHalf className="me-2" /> Book Publication
+                                            </ListGroup.Item>
+                                            {/* <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueClick}>
+                                                <ExclamationTriangleFill className="icon" /> Issue
+                                            </ListGroup.Item> */}
+                                            {/* <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
                                             <ArrowReturnLeft className="icon" /> Issue Return
                                         </ListGroup.Item>
                                         <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
                                             <CartDashFill className="icon" /> Purchase Return
                                         </ListGroup.Item> */}
-                                        {/* <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
+                                            {/* <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
                                             <CartPlusFill className="icon" /> Purchase
                                         </ListGroup.Item> */}
-                                    </>
-                                )}
+                                        </div>
+                                    )}
 
-                                <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleAccountSubItems}>
-                                    <Archive className="icon me-2" /> Account
-                                </ListGroup.Item>
-                                {showAccountSubItems && (
-                                    <>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={() => { handlePurchaser(); setShowSidebar(false); }}>
-                                            <PersonFill className="me-2" /> Purchaser
-                                        </ListGroup.Item>
-                                    </>
-                                )}
+                                    <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleAccountSubItems}>
+                                        <Archive className="icon me-2" /> Account
+                                    </ListGroup.Item>
+                                    {showAccountSubItems && (
+                                        <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handlePurchaser(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> Purchaser
+                                            </ListGroup.Item>
+                                        </div>
+                                    )}
 
-                                <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleMasterSubItems}>
-                                    <Archive className="icon" /> Master
-                                </ListGroup.Item>
-                                {showMasterSubItems && (
-                                    <>
-                                        <ListGroup.Item className="admin-icon mt-2" action>
-                                            <PersonCircle className="icon" />Admin
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="admin-icon mt-2" action onClick={() => { handleCreateUser(); setShowSidebar(false); }}>
-                                            <PersonFill className="icon" />  User
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="admin-icon mt-2" action onClick={() => { handlePermanentMember(); setShowSidebar(false); }}>
-                                            <PeopleFill className="me-2" /> Permanent Members
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="admin-icon mt-2" action onClick={() => { handleGeneralMember(); setShowSidebar(false); }}>
-                                            <People className="icon" /> General Member
-                                        </ListGroup.Item>
-                                    </>
-                                )}
-                            </Col>
-                        </ListGroup>
+                                    <ListGroup.Item className="admin-general-icon mt-3 mb-2" action onClick={toggleMasterSubItems}>
+                                        <Archive className="icon me-2" /> Master
+                                    </ListGroup.Item>
+                                    {showMasterSubItems && (
+                                        <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-2" action>
+                                                <PersonCircle className="icon me-2" />Admin
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-2" action onClick={() => { handleCreateUser(); setShowSidebar(false); }}>
+                                                <PersonFill className="icon me-2" />  User
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-2" action onClick={() => { handlePermanentMember(); setShowSidebar(false); }}>
+                                                <PeopleFill className="me-2" /> Permanent Members
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-2" action onClick={() => { handleGeneralMember(); setShowSidebar(false); }}>
+                                                <People className="icon me-2" /> General Member
+                                            </ListGroup.Item>
+                                        </div>
+                                    )}
+                                </Col>
+                            </ListGroup>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {/* Main content */}
             <div className='dashboard-member-page-details'>
-                <Navbar bg="light" className="mb-4 border-bottom navabar-color dashboard-member-navabar">
-                    <div className="sidebar-toggle d-md-none color-black" onClick={toggleSidebar}>
+                <Navbar className="mb-4 border-bottom navabar-color dashboard-member-navabar">
+                    <div className="sidebar-toggle d-md-none color-black mt-1" onClick={toggleSidebar}>
                         ☰
                     </div>
-                    {/* <Navbar.Brand href="#Dashboard" className='ms-4'>Welcome Member !.. {username}</Navbar.Brand> */}
-                    <Navbar.Brand href="#Dashboard" className='ms-4 welcome-message'>
+                    <Navbar.Brand href="#Dashboard" className='ms-4  mt-2 welcome-username'>Welcome Member !.. {username}</Navbar.Brand>
+                    {/* <Navbar.Brand href="#Dashboard" className='ms-4 welcome-message'>
                         Welcome Member{username && <span className="d-none d-sm-inline"> !.. {username}</span>}
-                    </Navbar.Brand>
+                    </Navbar.Brand> */}
                     <Navbar.Toggle aria-controls="basic-navbar-nav " />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="ms-auto ">
                         </Nav>
-                        <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-0' align="end">
+                        <NavDropdown title={<div className="logo-container"><PersonCircle size={30} /></div>} id="navbarScrollingDropdown" className='ms-0 logo-size' align="end">
+
+                            {/* <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-0 logo-size' align="end"> */}
                             <NavDropdown.Item onClick={() => setShowChangePasswordModal(true)}>
                                 <LockFill className="icon" /> Change Password
                             </NavDropdown.Item>
@@ -456,6 +502,9 @@ const AdminDashboard = () => {
                     {createUser && <User />}
                     {bookAuthor && <BookAuthor />}
                     {bookPublication && <BookPublication />}
+
+                    {bookIssue && <BookIssue />}
+
                 </Container>
                 {/* <Footer /> */}
             </div>

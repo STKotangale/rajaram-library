@@ -58,15 +58,12 @@
 }
 
 .quantity-size {
-  width: 160px;
-
+  width: 170px;
 }
 
 .rate-size {
   width: 170px;
-
 }
-
 .amount-size {
   width: 150px;
 }
@@ -133,16 +130,22 @@ input[type=number] {
   .action-align,
   .right-align,
   .amount-align {
-    text-align: center;
+    text-align: start;
   }
 
   .input-with-suffix,
   .discount-container {
     min-width: 110px;
   }
-
-  .book-name-size {
-    min-width: 160px;
+  .quantity-size {
+    width: 170px;
   }
-
+  .rate-size {
+    width: 170px;
+  }
+  .book-name-size {
+    min-width: 170px;
+  }
 }
+
+

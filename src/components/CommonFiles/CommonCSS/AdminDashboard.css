@@ -8,10 +8,25 @@
   max-width: 250px;
   height: 100vh;
   position: fixed;
-  overflow-y: auto;
+  /* overflow-y: auto; */
   border-right: 2px solid #ddd;
-  background-color: white !important;
+  background-color: lightcyan !important;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* scrollar */
+.scrollable {
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 10px;
 }
 
 .dashboard-member-page-details {
@@ -28,7 +43,8 @@
   left: 266px;
   right: 0;
   z-index: 2;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  background-color: lightcyan !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .icon-member {
@@ -45,14 +61,18 @@
 }
 
 .admin-general-icon {
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
+  background-color: lightcyan;
   border-radius: 10px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-.home-icon {
+.sub-icon {
   background: none;
 }
+/* .sub-icon.list-group-item-action {
+  background-color: transparent !important; 
+} */
 
 /* For mobile view */
 @media (max-width: 767px) {
@@ -65,6 +85,11 @@
     background-color: white !important;
     transition: left 0.3s ease-in-out;
     z-index: 1000;
+  }
+
+
+  .list-group {
+    margin-right: 15px;
   }
 
   .dashboard-member-navabar {
@@ -102,7 +127,30 @@
   .modal-content {
     overflow: hidden;
   }
+
+  .scrollable {
+    overflow-x: auto;
+    max-height: calc(100vh - 130px) !important;
+  }
+
+  /* WebKit scrollbar */
+  ::-webkit-scrollbar {
+    height: 5px;
+  }
+
 }
+
+@media (max-width: 576px) {
+  .welcome-username {
+    font-size: small;
+  }
+
+  .logo-size .logo-container svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
 
 /* popup modal  input  size*/
 @media (max-width: 576px) {
@@ -120,4 +168,13 @@
   .sidebar-toggle {
     display: none;
   }
+
 }
+
+/* @media (min-width: 820px) {
+  .list-group {
+    margin-right: 15px;
+  }
+} */
+
+

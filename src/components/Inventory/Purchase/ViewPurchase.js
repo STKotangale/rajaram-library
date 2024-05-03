@@ -403,7 +403,7 @@ const ViewPurchase = () => {
             <Container>
                 {!showAddPurchase && (
                     <div className='mt-2'>
-                        <div className='mt-3'>
+                        <div className='mt-1'>
                             <Button onClick={() => setShowAddPurchase(true)} className="button-color">
                                 Add purchase
                             </Button>

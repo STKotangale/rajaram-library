@@ -50,14 +50,14 @@
 
 
   .admin-general-icon {
-      background-color: #ffffff;
+      /* background-color: #ffffff; */
       border-radius: 10px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   }
 
-  .home-icon {
+  /* .home-icon {
       background: none;
-  }
+  } */
 
   /* For mobile view */
   @media (max-width: 767px) {

@@ -287,8 +287,8 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     }, []);
 
     return (
-        <div className='mb-5'>
-            <div className='mt-5'>
+        <div className='mb-5 purchase-page'>
+            <div className='mt-1'>
                 <ArrowReturnLeft className="back-icon" onClick={onBackButtonClick}>Back</ArrowReturnLeft>
             </div>
 
@@ -300,7 +300,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                             <div className="mt-5 border-style-1">
                                 <Form onSubmit={handleSubmit}>
                                     <Row className="mb-3">
-                                        <Form.Group as={Col} >
+                                        <Form.Group as={Col} lg={3} >
                                             <Form.Label>Invoice No</Form.Label>
                                             <Form.Control
                                                 placeholder="Invoice number"
@@ -311,7 +311,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 onChange={(e) => setInvoiceNumber(e.target.value)}
                                             />
                                         </Form.Group>
-                                        <Form.Group as={Col} >
+                                        <Form.Group as={Col} lg={3} >
                                             <Form.Label>Invoice Date</Form.Label>
                                             <Form.Control
                                                 type="date"
@@ -320,7 +320,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                                 className="custom-date-picker small-input"
                                             />
                                         </Form.Group>
-                                        <Form.Group as={Col} sm={6}>
+                                        <Form.Group as={Col} lg={6}>
                                             <Form.Label>Purchaser Name</Form.Label>
                                             <Form.Control
                                                 as="input"
@@ -465,7 +465,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                                             </tbody>
                                         </Table>
                                     </div>
-                                    <div className="d-flex justify-content-end">
+                                    <div className="d-flex justify-content-end mt-3">
                                         <div className='ms-3'>
                                             <Button onClick={onBackButtonClick}>Back</Button>
                                         </div>

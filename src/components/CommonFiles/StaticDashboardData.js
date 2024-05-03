@@ -25,7 +25,7 @@ const DashboardData = () => {
       <Container>
         <Row xs={1} sm={2} md={3} lg={4} className="g-4">
           {data.map((item, idx) => (
-            <Col key={idx} xs={6} className="custom-col">
+            <Col key={idx} xs={6} className="custom-col rounded">
               <Card className={`dashboard-card ${item.cssClass}`}>
                 <Card.Body>
                   <Card.Title className="card-title">{item.value}</Card.Title>

@@ -190,12 +190,12 @@ const BookLanguages = () => {
     return (
         <div className="main-content">
             <Container>
-                <div className='mt-3'>
+                <div className='mt-1'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
                         Add Book language
                     </Button>
                 </div>
-                <div className='mt-3'>
+                <div className='mt-4'>
                     <Table striped bordered hover className='mt-3'>
                         <thead>
                             <tr>
