@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container, Row, Col, Pagination } from 'react-bootstrap';
+import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -139,21 +139,7 @@ const BookTypes = () => {
         setShowViewModal(true);
     };
 
-    //pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(bookTypes.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
-
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastPurchase = currentPage * itemsPerPage;
-    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
-    const currentPurchases = bookTypes.slice(indexOfFirstPurchase, indexOfLastPurchase);
+  
 
     return (
         <div className='padding-class'>
@@ -176,9 +162,9 @@ const BookTypes = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentPurchases.map((bookType, index) => (
+                                {bookTypes.map((bookType, index) => (
                                     <tr key={bookType.id}>
-                                        <td>{indexOfFirstPurchase + index + 1}</td>
+                                        <td>{  index + 1}</td>
                                         {/* <td>{bookType.id}</td> */}
                                         <td>{bookType.bookTypeName}</td>
                                         <td>
@@ -199,9 +185,6 @@ const BookTypes = () => {
                                 ))}
                             </tbody>
                         </Table>
-                        {/* <div className='pagination-container'>
-                        <Pagination className='pagination'>{paginationItems}</Pagination>
-                    </div> */}
                     </div>
 
 

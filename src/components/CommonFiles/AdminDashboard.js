@@ -13,7 +13,7 @@ import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
 // import logoImage from '../../assets/rajalib.png';
 import logo from '../../assets/rajalib-removebg-preview.png';
 
-import Footer from './Footer';
+// import Footer from './Footer';
 
 import DashboardData from './StaticDashboardData';
 import ViewPurchase from '../Inventory/Purchase/ViewPurchase';
@@ -29,8 +29,8 @@ import Purchaser from '../Inventory/Purchase/Purchaser';
 import User from '../Auth/User';
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
-import BookIssue from '../Inventory/Purchase/BookIssue';
-
+import Issue from '../Inventory/Book/Issue';
+import IssueReturn from '../Inventory/Book/IssueReturn';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -49,6 +49,8 @@ const AdminDashboard = () => {
     const [bookPublication, setBookPublication] = useState(false);
 
     const [bookIssue, setBookIssue] = useState(false);
+
+
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -410,9 +412,9 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookPublication(); setShowSidebar(false); }}>
                                                 <BookHalf className="me-2" /> Book Publication
                                             </ListGroup.Item>
-                                            {/* <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueClick}>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueClick}>
                                                 <ExclamationTriangleFill className="icon" /> Issue
-                                            </ListGroup.Item> */}
+                                            </ListGroup.Item>
                                             {/* <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
                                             <ArrowReturnLeft className="icon" /> Issue Return
                                         </ListGroup.Item>
@@ -503,7 +505,8 @@ const AdminDashboard = () => {
                     {bookAuthor && <BookAuthor />}
                     {bookPublication && <BookPublication />}
 
-                    {bookIssue && <BookIssue />}
+                    {bookIssue && <Issue />}
+
 
                 </Container>
                 {/* <Footer /> */}

@@ -149,3 +149,10 @@ input[type=number] {
 }
 
 
+/* Add box shadow */
+.bg-light {
+  padding: 20px; 
+}
+.box{
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); 
+}

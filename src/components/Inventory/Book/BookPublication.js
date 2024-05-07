@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container, Row, Pagination } from 'react-bootstrap';
+import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,6 +14,7 @@ const BookPublication = () => {
     const [newBookPublication, setNewBookPublication] = useState({
         publicationName: '',
         address: '',
+        contactPerson: '',
         contactNo1: '',
         contactNo2: '',
         emailId: ''
@@ -58,6 +59,7 @@ const BookPublication = () => {
         setNewBookPublication({
             publicationName: '',
             address: '',
+            contactPerson: '',
             contactNo1: '',
             contactNo2: '',
             emailId: ''
@@ -154,21 +156,7 @@ const BookPublication = () => {
     };
 
 
-    // Pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(bookPublication.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
 
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastPublication = currentPage * itemsPerPage;
-    const indexOfFirstPublication = indexOfLastPublication - itemsPerPage;
-    const currentPublication = bookPublication.slice(indexOfFirstPublication, indexOfLastPublication);
 
     return (
         <div className="main-content">
@@ -194,9 +182,9 @@ const BookPublication = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentPublication.map((publication, index) => (
+                                {bookPublication.map((publication, index) => (
                                     <tr key={publication.publicationId}>
-                                        <td>{indexOfFirstPublication + index + 1}</td>
+                                        <td>{index + 1}</td>
                                         <td>{publication.publicationName}</td>
                                         <td>{publication.address}</td>
                                         <td>{publication.contactNo1}</td>
@@ -224,7 +212,6 @@ const BookPublication = () => {
                             </tbody>
                         </Table>
                     </div>
-                    <Pagination>{paginationItems}</Pagination>
                 </div>
 
 
@@ -242,6 +229,16 @@ const BookPublication = () => {
                                     placeholder="Enter publication name"
                                     value={newBookPublication.publicationName}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, publicationName: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="addBookPublicationContactPerson">
+                                <Form.Label>Contact Person</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Contact person"
+                                    value={newBookPublication.contactPerson}
+                                    onChange={(e) => setNewBookPublication({ ...newBookPublication, contactPerson: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -304,7 +301,7 @@ const BookPublication = () => {
                 </Modal>
 
                 {/* Edit Book Publication Modal */}
-                <Modal show={showEditBookPublicationModal} onHide={() =>{ setShowEditBookPublicationModal(false); resetFormFields()}}>
+                <Modal show={showEditBookPublicationModal} onHide={() => { setShowEditBookPublicationModal(false); resetFormFields() }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book Publication</Modal.Title>
                     </Modal.Header>
@@ -317,6 +314,16 @@ const BookPublication = () => {
                                     placeholder="Enter publication name"
                                     value={newBookPublication.publicationName}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, publicationName: e.target.value })}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="editBookPublicationAddress">
+                                <Form.Label>Contact Person</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Contact person"
+                                    value={newBookPublication.contactPerson}
+                                    onChange={(e) => setNewBookPublication({ ...newBookPublication, contactPerson: e.target.value })}
                                     required
                                 />
                             </Form.Group>
@@ -345,7 +352,6 @@ const BookPublication = () => {
                                     required
                                 />
                             </Form.Group>
-
                             <Form.Group className="mb-3" controlId="editBookPublicationContact2">
                                 <Form.Label>Contact No 2</Form.Label>
                                 <Form.Control
@@ -361,7 +367,6 @@ const BookPublication = () => {
                                     required
                                 />
                             </Form.Group>
-
                             <Form.Group className="mb-3" controlId="editBookPublicationemailId">
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control
@@ -405,52 +410,54 @@ const BookPublication = () => {
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
-                            <Row className="mb-3">
-                                <Form.Group>
-                                    <Form.Label>Publication Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewPublication ? viewPublication.publicationName : ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                                <Form.Group >
-                                    <Form.Label>Address</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewPublication ? viewPublication.address : ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group >
-                                    <Form.Label>Contact No 1</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewPublication ? viewPublication.contactNo1 : ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                                <Form.Group >
-                                    <Form.Label>Contact No 2</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewPublication ? viewPublication.contactNo2 : ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row>
-                                <Form.Group >
-                                    <Form.Label>Email ID</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewPublication ? viewPublication.emailId : ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
+                            <Form.Group className='mt-2'>
+                                <Form.Label>Publication Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={viewPublication ? viewPublication.publicationName : ''}
+                                    readOnly
+                                />
+                            </Form.Group>
+                            <Form.Group className='mt-2'>
+                                <Form.Label>Contact Person</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={viewPublication ? viewPublication.contactPerson : ''}
+                                    readOnly
+                                />
+                            </Form.Group>
+                            <Form.Group className='mt-2' >
+                                <Form.Label>Address</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={viewPublication ? viewPublication.address : ''}
+                                    readOnly
+                                />
+                            </Form.Group>
+                            <Form.Group className='mt-2' >
+                                <Form.Label>Contact No 1</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={viewPublication ? viewPublication.contactNo1 : ''}
+                                    readOnly
+                                />
+                            </Form.Group>
+                            <Form.Group className='mt-2' >
+                                <Form.Label>Contact No 2</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={viewPublication ? viewPublication.contactNo2 : ''}
+                                    readOnly
+                                />
+                            </Form.Group>
+                            <Form.Group className='mt-2' >
+                                <Form.Label>Email ID</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={viewPublication ? viewPublication.emailId : ''}
+                                    readOnly
+                                />
+                            </Form.Group>
                         </Form>
                     </Modal.Body>
                 </Modal>

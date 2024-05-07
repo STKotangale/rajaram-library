@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { Container, Row, Col, Navbar, Nav, Form, Button, Image } from 'react-bootstrap';
 import logoImage from '../../assets/rajalib.png';
 import illustrationImage from '../../assets/rajaram.jpg';
@@ -21,6 +21,8 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const BaseURL = process.env.REACT_APP_BASE_URL;
   const { login } = useAuth();
+
+
 
   //login api
   const handleLogin = async (e) => {
@@ -76,6 +78,7 @@ const LoginPage = () => {
           <Col lg={7} md={8} className="mx-auto">
             <div className="p-5 login-form">
               <h2 className="mb-5 heading-login">Login</h2>
+              
               <Form onSubmit={handleLogin}>
                 <Row>
                   <Col sm={6} className="mb-3">
@@ -100,10 +103,13 @@ const LoginPage = () => {
                     Login
                   </Button>
                 </div>
-                <Form.Text className="d-block">
-                  <a href="/forgotpassword" className='forgotpassword'>Forgot password?</a>
-                </Form.Text>
+                <div className='login-forgot-password'>
+                  <Form.Text className="d-block">
+                    <a href="/forgotpassword" className='forgotpassword'>Forgot password?</a>
+                  </Form.Text>
+                </div>
               </Form>
+              
             </div>
           </Col>
           <Col lg={5} md={4}>

@@ -169,21 +169,6 @@ const BookLanguages = () => {
         setShowViewModal(true);
     };
 
-    //pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(bookLanguages.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
-
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastPurchase = currentPage * itemsPerPage;
-    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
-    const currentPurchases = bookLanguages.slice(indexOfFirstPurchase, indexOfLastPurchase);
 
 
 
@@ -205,9 +190,9 @@ const BookLanguages = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentPurchases.map((language, index) => (
+                            {bookLanguages.map((language, index) => (
                                 <tr key={language.bookLangId}>
-                                    <td>{indexOfFirstPurchase + index + 1}</td>
+                                    <td>{ index + 1}</td>
                                     <td>{language.bookLangName}</td>
                                     <td>
                                         <PencilSquare
@@ -222,19 +207,6 @@ const BookLanguages = () => {
 
                         </tbody>
                     </Table>
-                    {/* <Pagination>{paginationItems}</Pagination> */}
-
-                    <div className="main-content">
-                        <Container>
-                        </Container>
-                        <div className="pagination-container">
-                            <Pagination>{paginationItems}</Pagination>
-                        </div>
-                        <div className="fixed-container">
-                        </div>
-                    </div>
-
-
                 </div>
 
                 {/* add book insert type */}

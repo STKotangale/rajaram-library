@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container, Row, Col, Pagination } from 'react-bootstrap';
+import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -139,22 +139,6 @@ const Purchaser = () => {
     };
 
 
-    // Pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(ledger.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
-
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastLedger = currentPage * itemsPerPage;
-    const indexOfFirstLedger = indexOfLastLedger - itemsPerPage;
-    const currentLedgers = ledger.slice(indexOfFirstLedger, indexOfLastLedger);
-
     return (
         <div className="main-content">
 
@@ -175,9 +159,9 @@ const Purchaser = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {currentLedgers.map((ledger, index) => (
+                            {ledger.map((ledger, index) => (
                                 <tr key={ledger.ledgerID}>
-                                    <td>{indexOfFirstLedger + index + 1}</td>
+                                    <td>{  index + 1}</td>
                                     <td>{ledger.ledgerName}</td>
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
@@ -195,7 +179,6 @@ const Purchaser = () => {
                             ))}
                         </tbody>
                     </Table>
-                    <Pagination>{paginationItems}</Pagination>
                 </div>
 
 

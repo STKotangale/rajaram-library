@@ -387,17 +387,6 @@ const ViewPurchase = () => {
     const totalPages = Math.ceil(purchases.length / itemsPerPage);
     const handlePageClick = (page) => setCurrentPage(page);
 
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastPurchase = currentPage * itemsPerPage;
-    const indexOfFirstPurchase = indexOfLastPurchase - itemsPerPage;
-    const currentPurchases = purchases.slice(indexOfFirstPurchase, indexOfLastPurchase);
-
-
     return (
         <div className="main-content">
             <Container>
@@ -421,9 +410,9 @@ const ViewPurchase = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentPurchases.map((purchase, index) => (
+                                    {purchases.map((purchase, index) => (
                                         <tr key={index}>
-                                            <td>{indexOfFirstPurchase + index + 1}</td>
+                                            <td>{ index + 1}</td>
                                             <td>{purchase.ledgerName}</td>
                                             <td>{purchase.invoiceNo}</td>
                                             <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
@@ -439,7 +428,6 @@ const ViewPurchase = () => {
                                 </tbody>
                             </Table>
                         </div>
-                        <Pagination>{paginationItems}</Pagination>
                     </div>
                 )}
                 {showAddPurchase && (

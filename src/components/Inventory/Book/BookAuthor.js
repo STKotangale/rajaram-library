@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container, Row, Pagination } from 'react-bootstrap';
+import { Button, Modal, Form, Table, Container, Row } from 'react-bootstrap';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -160,23 +160,6 @@ const BookAuthor = () => {
         setShowViewModal(true);
     };
 
-
-    // Pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    const totalPages = Math.ceil(bookAuthors.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
-
-    const paginationItems = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    ));
-
-    const indexOfLastAuthor = currentPage * itemsPerPage;
-    const indexOfFirstAuthor = indexOfLastAuthor - itemsPerPage;
-    const currentAuthors = bookAuthors.slice(indexOfFirstAuthor, indexOfLastAuthor);
-
     return (
         <div className="main-content">
 
@@ -201,9 +184,9 @@ const BookAuthor = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentAuthors.map((author, index) => (
+                                {bookAuthors.map((author, index) => (
                                     <tr key={author.authorId}>
-                                        <td>{indexOfFirstAuthor + index + 1}</td>
+                                        <td>{index + 1}</td>
                                         <td>{author.authorName}</td>
                                         <td>{author.address}</td>
                                         <td>{author.contactNo1}</td>
@@ -231,7 +214,6 @@ const BookAuthor = () => {
                             </tbody>
                         </Table>
                     </div>
-                    <Pagination>{paginationItems}</Pagination>
                 </div>
 
 
@@ -311,7 +293,7 @@ const BookAuthor = () => {
                 </Modal>
 
                 {/* Edit Book Author Modal */}
-                <Modal show={showEditBookAuthorModal} onHide={() =>{ setShowEditBookAuthorModal(false); resetFormFields();}}>
+                <Modal show={showEditBookAuthorModal} onHide={() => { setShowEditBookAuthorModal(false); resetFormFields(); }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book Author</Modal.Title>
                     </Modal.Header>

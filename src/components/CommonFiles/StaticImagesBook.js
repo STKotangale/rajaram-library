@@ -2,66 +2,77 @@ import React from 'react';
 
 import './CommonCSS/StaticImages.css';
 
-import book1 from '../../assets/BooksImages/book1.jpeg'
-import book2 from '../../assets/BooksImages/book2.jpeg'
-import book11 from '../../assets/BooksImages/book11.jpeg'
-import book22 from '../../assets/BooksImages/book22.jpeg'
-import book33 from '../../assets/BooksImages/book33.jpeg'
+// import book1 from '../../assets/BooksImages/book1.jpeg'
+// import book2 from '../../assets/BooksImages/book2.jpeg'
+// import book11 from '../../assets/BooksImages/book11.jpeg'
+// import book22 from '../../assets/BooksImages/book22.jpeg'
+// import book33 from '../../assets/BooksImages/book33.jpeg'
+
+
+import book1 from '../../assets/BookImg/book1.jpg'
+import book2 from '../../assets/BookImg/book 2.jpg'
+import book3 from '../../assets/BookImg/book 3.jpg'
+import book4 from '../../assets/BookImg/book 4.jpg'
+import book5 from '../../assets/BookImg/book 5.jpg'
+import book6 from '../../assets/BookImg/book 6.jpg'
+import book7 from '../../assets/BookImg/book7.jpg'
+import book8 from '../../assets/BookImg/book8.jpg'
+
 
 const books = [
     {
         id: 1,
         imageUrl: book1,
-        author: 'The Last Four Things',
+        author: 'The Women',
         rating: 3.92
 
     },
     {
         id: 2,
-        imageUrl: book11,
-        author: 'Harry Potter',
-        rating: 3.92
+        imageUrl: book2,
+        author: 'The Heiress',
+        rating: 3.86
     },
 
     {
         id: 3,
-        imageUrl: book2,
-        author: 'Avengers',
-        rating: 3.92
+        imageUrl: book3,
+        author: 'Harry Potter',
+        rating: 4.92
     },
     {
         id: 4,
-        imageUrl: book22,
-        author: 'Mathematics',
-        rating: 3.92
+        imageUrl: book4,
+        author: 'Kung Fu Panda 2',
+        rating: 3.65
     },
     {
         id: 5,
-        imageUrl: book33,
-        author: 'The Beauty In Math',
-        rating: 3.92
+        imageUrl: book5,
+        author: 'Captain America',
+        rating: 4.95
     },
     {
         id: 6,
-        imageUrl: book2,
-        author: 'Avengers',
-        rating: 3.92
+        imageUrl: book6,
+        author: 'Neil Gaiman',
+        rating: 3.82
     },
     {
         id: 7,
-        imageUrl: book1,
-        author: 'The Last Four Things',
-        rating: 3.92
+        imageUrl: book7,
+        author: 'Dog Man',
+        rating: 3.70
     },
     {
         id: 8,
-        imageUrl: book33,
-        author: 'The Beauty In Math',
-        rating: 3.92
+        imageUrl: book8,
+        author: 'Blood Of Elves',
+        rating: 3.56
     },
 ];
 
-const BookCard = ({ imageUrl, title, author, rating }) => {
+const BookCard = ({ imageUrl, author, rating }) => {
     return (
         <div className="book-card">
             <img src={imageUrl} className="book-image" alt='img' />
@@ -79,7 +90,6 @@ const BookCard = ({ imageUrl, title, author, rating }) => {
 };
 
 const BooksImages = () => {
-
 
     return (
         <div className='static-images'>

@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../components/Auth/AuthProvider';
-import { Button, Modal, Form, Table, Container, Row, Col, Pagination } from 'react-bootstrap';
+import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -28,9 +28,6 @@ const User = () => {
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-    // pagination
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
 
 
     useEffect(() => {
@@ -159,17 +156,6 @@ const User = () => {
         setShowViewModal(true);
     };
 
-    // paginationItems
-    const handlePageClick = (page) => setCurrentPage(page);
-    const paginationItems = users ? Array.from({ length: Math.ceil(users.length / itemsPerPage) }, (_, i) => i + 1).map(number => (
-        <Pagination.Item key={number} active={number === currentPage} onClick={() => handlePageClick(number)}>
-            {number}
-        </Pagination.Item>
-    )) : null;
-
-    const indexOfLastUser = users ? currentPage * itemsPerPage : 0;
-    const indexOfFirstUser = users ? indexOfLastUser - itemsPerPage : 0;
-    const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
 
     return (
         <div className="main-content">
@@ -191,7 +177,7 @@ const User = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentUsers.map((user, index) => (
+                                {users.map((user, index) => (
                                     <tr key={user.id}>
                                         <td>{index + 1}</td>
                                         <td>{user.username}</td>
@@ -215,7 +201,6 @@ const User = () => {
                             </tbody>
                         </Table>
                     </div>
-                    <Pagination>{paginationItems}</Pagination>
                 </div>
 
                 {/* Add Book Modal */}
