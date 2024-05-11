@@ -53,8 +53,6 @@ const User = () => {
         }
     };
 
-
-
     // Reset form fields
     const resetFormFields = () => {
         // Reset form fields
@@ -62,6 +60,7 @@ const User = () => {
         setNewUserEmail('');
         setNewUserPassword('');
     };
+    
     //post api
     const addUser = async (e) => {
         e.preventDefault();
@@ -103,14 +102,14 @@ const User = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: newUserName, email: newUserEmail, password: newUserPassword }),
+                body: JSON.stringify({ username: newUserName, useremail: newUserEmail, userpassword: newUserPassword }),
             });
             if (!response.ok) {
                 throw new Error(`Error editing User: ${response.statusText}`);
             }
             const updatedUserData = await response.json();
             const updatedUsers = users.map(user => {
-                if (user.id === selectedUserId) {
+                if (user.userId === selectedUserId) {
                     return { ...user, username: updatedUserData.username, block: updatedUserData.block };
                 }
                 return user;
@@ -141,7 +140,7 @@ const User = () => {
             if (!response.ok) {
                 throw new Error(`Error deleting User: ${response.statusText}`);
             }
-            setUsers(users.filter(user => user.id !== selectedUserId));
+            setUsers(users.filter(user => user.userId !== selectedUserId));
             setShowDeleteConfirmation(false);
             toast.success('User deleted successfully.');
         } catch (error) {
@@ -178,20 +177,20 @@ const User = () => {
                             </thead>
                             <tbody>
                                 {users.map((user, index) => (
-                                    <tr key={user.id}>
+                                    <tr key={user.userId}>
                                         <td>{index + 1}</td>
                                         <td>{user.username}</td>
-                                        <td>{user.email}</td>
+                                        <td>{user.useremail}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                                setSelectedUserId(user.id);
+                                                setSelectedUserId(user.userId);
                                                 setNewUserName(user.username);
-                                                setNewUserEmail(user.email);
+                                                setNewUserEmail(user.useremail);
                                                 setNewUserPassword('');
                                                 setShowEditUserModal(true);
                                             }} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                                setSelectedUserId(user.id);
+                                                setSelectedUserId(user.userId);
                                                 setShowDeleteConfirmation(true);
                                             }} />
                                             <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(user)} />
@@ -356,7 +355,7 @@ const User = () => {
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewUser ? viewUser.email : ''}
+                                        value={viewUser ? viewUser.useremail : ''}
                                         readOnly
                                     />
                                 </Form.Group>

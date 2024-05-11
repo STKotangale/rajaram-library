@@ -188,18 +188,18 @@ const BookAuthor = () => {
                                     <tr key={author.authorId}>
                                         <td>{index + 1}</td>
                                         <td>{author.authorName}</td>
-                                        <td>{author.address}</td>
-                                        <td>{author.contactNo1}</td>
-                                        <td>{author.emailId}</td>
+                                        <td>{author.authorAddress}</td>
+                                        <td>{author.authorContactNo1}</td>
+                                        <td>{author.authorEmailId}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                                 setSelectedBookAuthorId(author.authorId);
                                                 setNewBookAuthor({
                                                     authorName: author.authorName,
-                                                    address: author.address,
-                                                    contactNo1: author.contactNo1,
-                                                    contactNo2: author.contactNo2,
-                                                    emailId: author.emailId
+                                                    address: author.authorAddress,
+                                                    contactNo1: author.authorContactNo1,
+                                                    contactNo2: author.authorContactNo2,
+                                                    emailId: author.authorEmailId
                                                 });
                                                 setShowEditBookAuthorModal(true);
                                             }} />
@@ -228,7 +228,7 @@ const BookAuthor = () => {
                                 <Form.Label>Author Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter author name"
+                                    placeholder="Author name"
                                     value={newBookAuthor.authorName}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, authorName: e.target.value })}
                                     required
@@ -238,7 +238,7 @@ const BookAuthor = () => {
                                 <Form.Label>Address</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter address"
+                                    placeholder="Address"
                                     value={newBookAuthor.address}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, address: e.target.value })}
                                     required
@@ -248,7 +248,7 @@ const BookAuthor = () => {
                                 <Form.Label>Contact No 1</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 1"
+                                    placeholder="Contact number 1"
                                     value={newBookAuthor.contactNo1}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -263,7 +263,7 @@ const BookAuthor = () => {
                                 <Form.Label>Contact No 2</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 2"
+                                    placeholder="Contact number 2"
                                     value={newBookAuthor.contactNo2}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -277,7 +277,7 @@ const BookAuthor = () => {
                                 <Form.Label>Email ID</Form.Label>
                                 <Form.Control
                                     type="email"
-                                    placeholder="Enter email ID"
+                                    placeholder="Email"
                                     value={newBookAuthor.emailId}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, emailId: e.target.value })}
                                     required
@@ -303,7 +303,7 @@ const BookAuthor = () => {
                                 <Form.Label>Author Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter author name"
+                                    placeholder="Author name"
                                     value={newBookAuthor.authorName}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, authorName: e.target.value })}
                                     required
@@ -313,7 +313,7 @@ const BookAuthor = () => {
                                 <Form.Label>Address</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter address"
+                                    placeholder="Address"
                                     value={newBookAuthor.address}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, address: e.target.value })}
                                     required
@@ -323,7 +323,7 @@ const BookAuthor = () => {
                                 <Form.Label>Contact No 1</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 1"
+                                    placeholder="Contact number 1"
                                     value={newBookAuthor.contactNo1}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -335,12 +335,11 @@ const BookAuthor = () => {
                                     required
                                 />
                             </Form.Group>
-
                             <Form.Group className="mb-3" controlId="editBookAuthorContact2">
                                 <Form.Label>Contact No 2</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter contact number 1"
+                                    placeholder="Contact number"
                                     value={newBookAuthor.contactNo2}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -408,7 +407,7 @@ const BookAuthor = () => {
                                     <Form.Label>Address</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewAuthor ? viewAuthor.address : ''}
+                                        value={viewAuthor ? viewAuthor.authorAddress : ''}
                                         readOnly
                                     />
                                 </Form.Group>
@@ -418,7 +417,7 @@ const BookAuthor = () => {
                                     <Form.Label>Contact No 1</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewAuthor ? viewAuthor.contactNo1 : ''}
+                                        value={viewAuthor ? viewAuthor.authorContactNo1 : ''}
                                         readOnly
                                     />
                                 </Form.Group>
@@ -426,7 +425,7 @@ const BookAuthor = () => {
                                     <Form.Label>Contact No 2</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewAuthor ? viewAuthor.contactNo2 : ''}
+                                        value={viewAuthor ? viewAuthor.authorContactNo2 : ''}
                                         readOnly
                                     />
                                 </Form.Group>
@@ -436,7 +435,7 @@ const BookAuthor = () => {
                                     <Form.Label>Email ID</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewAuthor ? viewAuthor.emailId : ''}
+                                        value={viewAuthor ? viewAuthor.authorEmailId : ''}
                                         readOnly
                                     />
                                 </Form.Group>

@@ -70,13 +70,18 @@ const ViewPurchase = () => {
     }, [username, accessToken]);
 
     //edit purchase
-    //edit purchase
+    // const handleEditClick = (purchase) => {
+    //     const updatedPurchase = {
+    //         ...purchase,
+    //         purchaseDetails: purchase.purchaseDetails.filter(detail => !detail.deleted)
+    //     };
+    //     setSelectedPurchase(updatedPurchase);
+    //     setShowModal(true);
+    //     setDiscountPercentage(purchase.discountPercent || "");
+    //     setGstPercentage(purchase.gstPercent || "");
+    // };
     const handleEditClick = (purchase) => {
-        const updatedPurchase = {
-            ...purchase,
-            purchaseDetails: purchase.purchaseDetails.filter(detail => !detail.deleted)
-        };
-        setSelectedPurchase(updatedPurchase);
+        setSelectedPurchase(purchase);
         setShowModal(true);
         setDiscountPercentage(purchase.discountPercent || "");
         setGstPercentage(purchase.gstPercent || "");

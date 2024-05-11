@@ -27,6 +27,12 @@ const Books = () => {
     //get book publication
     const [publications, setPublications] = useState([]);
     const [newBookPublication, setNewBookPublication] = useState('');
+    //book type
+    const [bookTypes, setBookTypes] = useState([]);
+    const [newBookTypeName, setNewBookTypeName] = useState('');
+    //book language
+    const [bookLanguages, setBookLanguages] = useState([]);
+    const [addBookLangName, setAddBookLangName] = useState('');
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -55,7 +61,10 @@ const Books = () => {
         fetchBooks();
         fetchAuthors();
         fetchPublications();
+        fetchBookTypes();
+        fetchBookLanguages();
     }, []);
+
 
 
     // Reset form fields
@@ -63,6 +72,8 @@ const Books = () => {
         setNewBookName('');
         setNewBookAuthor('');
         setNewBookPublication('');
+        setNewBookTypeName('');
+        setAddBookLangName('');
     };
 
     // Handle add book form submission
@@ -77,7 +88,9 @@ const Books = () => {
             body: JSON.stringify({
                 bookName: newBookName,
                 authorId: newBookAuthor,
-                publicationId: newBookPublication
+                publicationId: newBookPublication,
+                bookTypeId: newBookTypeName,
+                bookLangId: addBookLangName
             }),
         };
         try {
@@ -111,7 +124,9 @@ const Books = () => {
                 body: JSON.stringify({
                     bookName: newBookName,
                     authorId: newBookAuthor,
-                    publicationId: newBookPublication
+                    publicationId: newBookPublication,
+                    bookTypeId: newBookTypeName,
+                    bookLangId: addBookLangName
                 }),
             });
             if (!response.ok) {
@@ -120,7 +135,7 @@ const Books = () => {
             const updatedBookData = await response.json();
             const updatedBooks = books.map(book => {
                 if (book.bookId === selectedBookId) {
-                    return { ...book, bookName: updatedBookData.data.bookName };
+                    return { ...book, ...updatedBookData.data };
                 }
                 return book;
             });
@@ -193,6 +208,42 @@ const Books = () => {
 
 
 
+
+    //get api
+    const fetchBookTypes = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching book types: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setBookTypes(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching book types. Please try again later.');
+        }
+    };
+
+
+
+    // get api
+    const fetchBookLanguages = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book-languages`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            setBookLanguages(data.data);
+        } catch (error) {
+            console.error('Error fetching book languages:', error);
+        }
+    };
+
     return (
         <div className="main-content">
             <Container>
@@ -207,6 +258,10 @@ const Books = () => {
                             <tr>
                                 <th>Sr.No</th>
                                 <th>Book</th>
+                                {/* <th>Author</th>
+                                <th>Publication</th>
+                                <th>Book Type</th>
+                                <th>Lang</th> */}
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -215,12 +270,18 @@ const Books = () => {
                                 <tr key={book.bookId}>
                                     <td>{index + 1}</td>
                                     <td>{book.bookName}</td>
+                                    {/* <td>{book.authorIdF.authorName}</td>
+                                    <td>{book.publicationIdF.publicationName}</td>
+                                    <td>{book.bookTypeIdF.bookTypeName}</td>
+                                    <td>{book.bookLangIdF.bookLangName}</td> */}
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                             setSelectedBookId(book.bookId);
                                             setNewBookName(book.bookName);
-                                            setNewBookAuthor(book.author?.authorId);
-                                            setNewBookPublication(book.publication?.publicationId)
+                                            setNewBookAuthor(book.authorIdF.authorId);
+                                            setNewBookPublication(book.publicationIdF.publicationId);
+                                            setNewBookTypeName(book.bookTypeIdF.bookTypeId);
+                                            setAddBookLangName(book.bookLangIdF.bookLangId);
                                             setShowEditBookModal(true);
                                         }} />
                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => {
@@ -265,7 +326,7 @@ const Books = () => {
                                     ))}
                                 </Form.Select>
                             </Form.Group>
-                            <Form.Group className="mb-3" controlId="newBookPublication">
+                            <Form.Group className="mb-3" controlId="editedBookPublication">
                                 <Form.Label>Publication</Form.Label>
                                 <Form.Select
                                     value={newBookPublication}
@@ -275,6 +336,35 @@ const Books = () => {
                                     <option value="">Select Publication</option>
                                     {publications.map(publication => (
                                         <option key={publication.publicationId} value={publication.publicationId}>{publication.publicationName}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+
+                            <Form.Group className="mb-3" controlId="newBookPublication">
+                                <Form.Label>Book Type</Form.Label>
+                                <Form.Select
+                                    value={newBookTypeName}
+                                    onChange={(e) => setNewBookTypeName(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Book TYpe</option>
+                                    {bookTypes.map(bookType => (
+                                        <option key={bookType.bookTypeId} value={bookType.bookTypeId}>{bookType.bookTypeName}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="newBookPublication">
+                                <Form.Label>Languages</Form.Label>
+                                <Form.Select
+                                    value={addBookLangName}
+                                    onChange={(e) => setAddBookLangName(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select languages</option>
+                                    {bookLanguages.map(languages => (
+                                        <option key={languages.bookLangId} value={languages.bookLangId}>{languages.bookLangName}</option>
                                     ))}
                                 </Form.Select>
                             </Form.Group>
@@ -330,6 +420,34 @@ const Books = () => {
                                     ))}
                                 </Form.Select>
                             </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="newBookPublication">
+                                <Form.Label>Book Type</Form.Label>
+                                <Form.Select
+                                    value={newBookTypeName}
+                                    onChange={(e) => setNewBookTypeName(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select Book TYpe</option>
+                                    {bookTypes.map(bookType => (
+                                        <option key={bookType.bookTypeId} value={bookType.bookTypeId}>{bookType.bookTypeName}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
+
+                            <Form.Group className="mb-3" controlId="newBookPublication">
+                                <Form.Label>Languages</Form.Label>
+                                <Form.Select
+                                    value={addBookLangName}
+                                    onChange={(e) => setAddBookLangName(e.target.value)}
+                                    required
+                                >
+                                    <option value="">Select languages</option>
+                                    {bookLanguages.map(languages => (
+                                        <option key={languages.bookLangId} value={languages.bookLangId}>{languages.bookLangName}</option>
+                                    ))}
+                                </Form.Select>
+                            </Form.Group>
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Update
@@ -377,7 +495,7 @@ const Books = () => {
                                     <Form.Label>Author</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewBook?.author?.authorName || ''}
+                                        value={viewBook?.authorIdF.authorName || ''}
                                         readOnly
                                     />
                                 </Form.Group>
@@ -387,7 +505,27 @@ const Books = () => {
                                     <Form.Label>Publication</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={viewBook?.publication?.publicationName || ''}
+                                        value={viewBook?.publicationIdF.publicationName || ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label>Book Type</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewBook?.bookTypeIdF.bookTypeName || ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Group as={Col}>
+                                    <Form.Label>Language</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewBook?.bookLangIdF.bookLangName || ''}
                                         readOnly
                                     />
                                 </Form.Group>

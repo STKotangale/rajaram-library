@@ -7,13 +7,12 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
-const IssueReturn = () => {
+const BookIssue = () => {
     const [searchQuery] = useState('');
     const [issue, setIssue] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editData, setEditData] = useState(null);
-    // const [rows, setRows] = useState([{ bookName: '', bookDetails: '' }]);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', bookDetails: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
@@ -129,18 +128,15 @@ const IssueReturn = () => {
     // };
 
 
-// Inside the function that handles opening the edit modal and populating editData
-const handleEditClick = (rowData) => {
-    // Log rowData to ensure it contains the correct data
-    console.log("Row data:", rowData);
+    const handleEditClick = (issue) => {
+        const bookName = issue.purchaseDetails.map(detail => detail.bookName);
+        setEditData({
+            ...issue,
+            bookName: bookName,
+        });
+        setShowEditModal(true);
+    };
 
-    setEditData({
-        ...rowData,
-        bookName: rowData.bookName, // Assuming rowData contains bookName
-        purchaseCopyNo: rowData.purchaseCopyNo, // Assuming rowData contains purchaseCopyNo
-    });
-    setShowEditModal(true);
-};
 
 
     const handleSubmitEdit = async (event) => {
@@ -178,13 +174,28 @@ const handleEditClick = (rowData) => {
         setEditData(null);
     };
 
-
-
     const handleBookChangeForRow = (index, event) => {
         const value = event.target.value;
         const updatedRows = [...rows];
         updatedRows[index] = { ...updatedRows[index], bookName: value };
         setRows(updatedRows);
+    };
+
+    // const handleBookChangeForRow = (index, event) => {
+    //     const { name, value } = event.target;
+    //     const updatedRows = [...rows];
+    //     updatedRows[index] = { ...updatedRows[index], [name]: value };
+    //     setRows(updatedRows);
+    // };
+
+    const handleBookChangeEdit = (index, event) => {
+        const { name, value } = event.target;
+        const updatedRows = [...editData.purchaseDetails];
+        updatedRows[index][name] = value;
+        setEditData(prevState => ({
+            ...prevState,
+            purchaseDetails: updatedRows
+        }));
     };
 
     const handleBookDetailsChangeForRow = (index, event) => {
@@ -202,6 +213,23 @@ const handleEditClick = (rowData) => {
         const updatedRows = rows.filter((row, i) => i !== index);
         setRows(updatedRows);
     };
+
+    const addRowEdit = () => {
+        setEditData(prevState => ({
+            ...prevState,
+            purchaseDetails: [...prevState.purchaseDetails, { bookName: '', bookDetails: '' }]
+        }));
+    };
+
+    const deleteRowEdit = (index) => {
+        const updatedRows = [...editData.purchaseDetails];
+        updatedRows.splice(index, 1);
+        setEditData(prevState => ({
+            ...prevState,
+            purchaseDetails: updatedRows
+        }));
+    };
+
 
     const filteredLedgerName = ledgerName.filter(ledger =>
         ledger.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
@@ -307,8 +335,8 @@ const handleEditClick = (rowData) => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Member Name</th>
-                                    <th>Issue Return No</th>
-                                    <th>Issue Return Date</th>
+                                    <th>Issue No</th>
+                                    <th>Issue Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -338,15 +366,15 @@ const handleEditClick = (rowData) => {
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Issue Return</Modal.Title>
+                        <Modal.Title>Add Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue Return No</Form.Label>
+                                    <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
-                                        placeholder="Issue return number"
+                                        placeholder="Issue number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -354,7 +382,7 @@ const handleEditClick = (rowData) => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue Return Date</Form.Label>
+                                    <Form.Label>Issue Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -418,10 +446,10 @@ const handleEditClick = (rowData) => {
                                                     >
                                                         <option value="">Select Book Details</option>
                                                         {bookDetails
-                                                            .filter((book) => book.book_name === row.bookName)
-                                                            .map((book) => (
-                                                                <option key={book.id} value={book.purchase_copy_no}>
-                                                                    {book.purchase_copy_no}
+                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
+                                                            .map((bookDetail) => (
+                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
+                                                                    {bookDetail.purchaseCopyNo}
                                                                 </option>
                                                             ))}
                                                     </Form.Control>
@@ -458,7 +486,7 @@ const handleEditClick = (rowData) => {
             <Modal centered show={showEditModal} onHide={handleCloseEditModal} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Edit Issue Return</Modal.Title>
+                        <Modal.Title>Edit Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmitEdit}>
@@ -466,7 +494,7 @@ const handleEditClick = (rowData) => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
-                                        placeholder="Issue Return number"
+                                        placeholder="Issue number"
                                         type="text"
                                         className="small-input"
                                         value={editData?.invoiceNo || ''}
@@ -474,7 +502,7 @@ const handleEditClick = (rowData) => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue  Return Date</Form.Label>
+                                    <Form.Label>Issue Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={formatDateForInput(editData?.invoiceDate) || ''}
@@ -512,19 +540,21 @@ const handleEditClick = (rowData) => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {rows.map((row, index) => (
+                                        {editData?.purchaseDetails.map((row, index) => (
                                             <tr key={index}>
                                                 <td>
                                                     <Form.Control
                                                         as="select"
-                                                        value={editData?.bookName || ''}
-                                                        onChange={(e) => setEditData({ ...editData, bookName: e.target.value })}
+                                                        name="bookName"
+                                                        value={row.bookName}
+                                                        onChange={(e) => handleBookChangeEdit(index, e)}
                                                     >
                                                         <option value="">Select a book</option>
                                                         {bookName.map((book, index) => (
                                                             <option key={index} value={book.bookName}>{book.bookName}</option>
                                                         ))}
                                                     </Form.Control>
+
                                                 </td>
                                                 <td>
                                                     <Form.Control
@@ -534,24 +564,24 @@ const handleEditClick = (rowData) => {
                                                     >
                                                         <option value="">Select Book Details</option>
                                                         {bookDetails
-                                                            .filter((book) => book.book_name === row.bookName)
-                                                            .map((book) => (
-                                                                <option key={book.id} value={book.purchase_copy_no}>
-                                                                    {book.purchase_copy_no}
+                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
+                                                            .map((bookDetail) => (
+                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
+                                                                    {bookDetail.purchaseCopyNo}
                                                                 </option>
                                                             ))}
                                                     </Form.Control>
 
                                                 </td>
                                                 <td>
-                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
+                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowEdit(index)} />
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </Table>
                             </div>
-                            <Button onClick={addRowAdd} className="button-color">
+                            <Button onClick={addRowEdit} className="button-color">
                                 Add Book
                             </Button>
                         </Form>
@@ -567,25 +597,26 @@ const handleEditClick = (rowData) => {
                 </div>
             </Modal>
 
-
+            {/* view modal */}
             <Modal centered show={showViewModal} onHide={handleCloseViewModal} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>View Issue Return</Modal.Title>
+                        <Modal.Title>View Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No</Form.Label>
+                                    <Form.Label>Issue No</Form.Label>
                                     <Form.Control
+                                        placeholder="Issue number"
                                         type="text"
                                         value={viewData?.invoiceNo || ''}
-                                        readOnly 
+                                        readOnly
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue Return Date</Form.Label>
+                                    <Form.Label>Issue Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={viewData?.invoiceDate || ''}
@@ -599,7 +630,7 @@ const handleEditClick = (rowData) => {
                                     <Form.Control
                                         type="text"
                                         value={viewData?.ledgerName || ''}
-                                        readOnly 
+                                        readOnly
                                     />
                                 </Form.Group>
                             </Row>
@@ -616,7 +647,7 @@ const handleEditClick = (rowData) => {
                                     {viewData?.purchaseDetails.map((detail, index) => (
                                         <tr key={index}>
                                             <td>{detail.bookName}</td>
-                                            <td>{detail.bookDetails}</td>
+                                            <td>{detail.purchaseCopyNo}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -638,7 +669,7 @@ const handleEditClick = (rowData) => {
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Are you sure you want to delete this issue return?
+                    Are you sure you want to delete this issue?
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCancelDelete}>
@@ -654,4 +685,4 @@ const handleEditClick = (rowData) => {
     );
 };
 
-export default IssueReturn;
+export default BookIssue;

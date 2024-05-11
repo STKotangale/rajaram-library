@@ -79,36 +79,57 @@ const BookTypes = () => {
         }
     };
 
-    //edit api
-    const editBookType = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types/${selectedBookTypeId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ bookTypeName: newBookTypeName }),
-            });
-            if (!response.ok) {
-                throw new Error(`Error editing book type: ${response.statusText}`);
-            }
-            const updatedBookTypeData = await response.json();
-            const updatedBookTypes = bookTypes.map(bookType => {
-                if (bookType.id === selectedBookTypeId) {
-                    return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName, isBlock: updatedBookTypeData.data.isBlock };
-                }
-                return bookType;
-            });
-            setBookTypes(updatedBookTypes);
-            setShowEditBookTypeModal(false);
-            toast.success('Book type edited successfully.');
-        } catch (error) {
-            console.error(error);
-            toast.error('Error editing book type. Please try again later.');
+
+const editBookType = async (e) => {
+    e.preventDefault();
+    try {
+        // Check if selectedBookTypeId is undefined
+        if (!selectedBookTypeId) {
+            throw new Error("Selected book type ID is undefined.");
         }
-    };
+
+        const response = await fetch(`${BaseURL}/api/auth/book-types/${selectedBookTypeId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ bookTypeName: newBookTypeName }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error editing book type: ${response.statusText}`);
+        }
+
+        const updatedBookTypeData = await response.json();
+
+        const updatedBookTypes = bookTypes.map(bookType => {
+            if (bookType.bookTypeId === selectedBookTypeId) {
+                return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName};
+            }
+            return bookType;
+        });
+
+        setBookTypes(updatedBookTypes);
+        setShowEditBookTypeModal(false);
+        toast.success('Book type edited successfully.');
+    } catch (error) {
+        console.error(error);
+        toast.error('Error editing book type. Please try again later.');
+    }
+};
+
+const handleEditClick = (bookType) => {
+    // Check if bookType is valid
+    if (!bookType || !bookType.bookTypeId) {
+        console.error("Invalid book type.");
+        return;
+    }
+    setSelectedBookTypeId(bookType.bookTypeId);
+    setNewBookTypeName(bookType.bookTypeName);
+    setShowEditBookTypeModal(true);
+};
+    
 
     //delete api
     const deleteBookType = async () => {
@@ -122,7 +143,7 @@ const BookTypes = () => {
             if (!response.ok) {
                 throw new Error(`Error deleting book type: ${response.statusText}`);
             }
-            setBookTypes(bookTypes.filter(bookType => bookType.id !== selectedBookTypeId));
+            setBookTypes(bookTypes.filter(bookType => bookType.bookTypeId !== selectedBookTypeId));
             setShowDeleteConfirmation(false);
             toast.success('Book type deleted successfully.');
         } catch (error) {
@@ -163,19 +184,21 @@ const BookTypes = () => {
                             </thead>
                             <tbody>
                                 {bookTypes.map((bookType, index) => (
-                                    <tr key={bookType.id}>
+                                    <tr key={bookType.bookTypeId}>
                                         <td>{  index + 1}</td>
                                         {/* <td>{bookType.id}</td> */}
                                         <td>{bookType.bookTypeName}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                                setSelectedBookTypeId(bookType.id);
-                                                setNewBookTypeName(bookType.bookTypeName);
-                                                setShowEditBookTypeModal(true);
+                                                // setSelectedBookTypeId(bookType.bookTypeId);
+                                                // setNewBookTypeName(bookType.bookTypeName);
+                                                // setShowEditBookTypeModal(true);
+                                               handleEditClick(bookType)
+
                                             }} />
 
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                                setSelectedBookTypeId(bookType.id);
+                                                setSelectedBookTypeId(bookType.bookTypeId);
                                                 setShowDeleteConfirmation(true);
                                             }} />
                                             <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(bookType)} />

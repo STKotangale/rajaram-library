@@ -116,8 +116,8 @@ const GeneralMember = () => {
 
 
     //edit function
-    const handleEditOpenGeneralMember = (member_id) => {
-        const memberToEdit = generalMember.find(member => member.member_id === member_id);
+    const handleEditOpenGeneralMember = (memberId) => {
+        const memberToEdit = generalMember.find(member => member.memberId === memberId);
         if (memberToEdit) {
             setEditGeneralMemberData(memberToEdit);
             setShowEditGeneralMemberModal(true);
@@ -167,29 +167,29 @@ const GeneralMember = () => {
     const editGeneralMember = async (e) => {
         e.preventDefault();
         try {
-            if (!editGeneralMemberData || !editGeneralMemberData.member_id) {
+            if (!editGeneralMemberData || !editGeneralMemberData.memberId) {
                 throw new Error('No memberId provided for editing.');
             }
-            const { member_id, ...requestData } = editGeneralMemberData;
+            const { memberId, ...requestData } = editGeneralMemberData;
 
             const payload = {
-                firstName: requestData.first_name,
-                middleName: requestData.middle_name,
-                lastName: requestData.last_name,
-                registerDate: requestData.register_date,
-                adharCard: requestData.adhar_card,
-                memberAddress: requestData.member_address,
-                dateOfBirth: requestData.date_of_birth,
-                memberEducation: requestData.member_education,
-                memberOccupation: requestData.member_occupation,
-                mobileNo: requestData.mobile_no,
-                memberEmailId: requestData.email,
-                confirmDate: requestData.confirm_date,
-                isBlock: requestData.isBlock,
+                firstName: requestData.firstName,
+                middleName: requestData.middleName,
+                lastName: requestData.lastName,
+                registerDate: requestData.registerDate,
+                adharCard: requestData.adharCard,
+                memberAddress: requestData.memberAddress,
+                dateOfBirth: requestData.dateOfBirth,
+                memberEducation: requestData.memberEducation,
+                memberOccupation: requestData.memberOccupation,
+                mobileNo: requestData.mobileNo,
+                memberEmailId: requestData.useremail,
+                confirmDate: requestData.confirmDate,
+                // isBlock: requestData.isBlock,
                 username: requestData.username,
                 password: requestData.password
             };
-            const response = await fetch(`${BaseURL}/api/general-members/${member_id}`, {
+            const response = await fetch(`${BaseURL}/api/general-members/${memberId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -203,7 +203,7 @@ const GeneralMember = () => {
             }
             const updatedGeneralMemberData = await response.json();
             const updatedGeneralMembers = generalMember.map(member => {
-                if (member.member_id === updatedGeneralMemberData.data.member_id) {
+                if (member.memberId === updatedGeneralMemberData.data.memberId) {
                     return updatedGeneralMemberData.data;
                 }
                 return member;
@@ -275,22 +275,22 @@ const GeneralMember = () => {
                             </thead>
                             <tbody>
                                 {generalMember.map((member, index) => (
-                                    <tr key={member.member_id}>
+                                    <tr key={member.memberId}>
                                         <td>{index + 1}</td>
-                                        <td>{member.first_name}</td>
-                                        <td>{member.middle_name}</td>
-                                        <td>{member.last_name}</td>
-                                        <td>{member.register_date}</td>
-                                        <td>{member.mobile_no}</td>
+                                        <td>{member.firstName}</td>
+                                        <td>{member.middleName}</td>
+                                        <td>{member.lastName}</td>
+                                        <td>{member.registerDate}</td>
+                                        <td>{member.mobileNo}</td>
                                         <td>
                                             <PencilSquare
                                                 className="ms-3 action-icon edit-icon"
-                                                onClick={() => handleEditOpenGeneralMember(member.member_id)}
+                                                onClick={() => handleEditOpenGeneralMember(member.memberId)}
                                             />
                                             <Trash
                                                 className="ms-3 action-icon delete-icon"
                                                 onClick={() => {
-                                                    setSelectedGeneralMemberId(member.member_id);
+                                                    setSelectedGeneralMemberId(member.memberId);
                                                     setShowDeleteConfirmation(true);
                                                 }}
                                             />
@@ -504,8 +504,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="First Name"
-                                        value={editGeneralMemberData ? editGeneralMemberData.first_name : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, first_name: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.firstName : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, firstName: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -514,8 +514,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Middle Name"
-                                        value={editGeneralMemberData ? editGeneralMemberData.middle_name : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, middle_name: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.middleName : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, middleName: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -524,8 +524,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Last Name"
-                                        value={editGeneralMemberData ? editGeneralMemberData.last_name : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, last_name: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.lastName : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, lastName: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -537,11 +537,11 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="tel"
                                         placeholder="Mobile number"
-                                        value={editGeneralMemberData ? editGeneralMemberData.mobile_no : ''}
+                                        value={editGeneralMemberData ? editGeneralMemberData.mobileNo : ''}
                                         onChange={(e) => {
                                             const value = e.target.value;
                                             if (value.length <= 12 && /^\d*$/.test(value)) {
-                                                setEditGeneralMemberData({ ...editGeneralMemberData, mobile_no: value })
+                                                setEditGeneralMemberData({ ...editGeneralMemberData, mobileNo: value })
                                             }
                                         }}
                                         required
@@ -552,11 +552,11 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="number"
                                         placeholder="Aadhar"
-                                        value={editGeneralMemberData ? editGeneralMemberData.adhar_card : ''}
+                                        value={editGeneralMemberData ? editGeneralMemberData.adharCard : ''}
                                         onChange={(e) => {
                                             const value = e.target.value;
                                             if (value.length <= 12 && /^\d*$/.test(value)) {
-                                                setEditGeneralMemberData({ ...editGeneralMemberData, adhar_card: value })
+                                                setEditGeneralMemberData({ ...editGeneralMemberData, adharCard: value })
                                             }
                                         }}
                                         required
@@ -567,8 +567,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Email"
-                                        value={editGeneralMemberData ? editGeneralMemberData.email : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, email: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.useremail : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, useremail: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -580,8 +580,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Education"
-                                        value={editGeneralMemberData ? editGeneralMemberData.member_education : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, member_education: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.memberEducation : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberEducation: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -590,8 +590,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Occupation"
-                                        value={editGeneralMemberData ? editGeneralMemberData.member_occupation : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, member_occupation: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.memberOccupation : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberOccupation: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -600,8 +600,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Address"
-                                        value={editGeneralMemberData ? editGeneralMemberData.member_address : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, member_address: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.memberAddress : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, memberAddress: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -612,8 +612,8 @@ const GeneralMember = () => {
                                     <Form.Label>Date Of Birth</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={editGeneralMemberData ? editGeneralMemberData.date_of_birth : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, date_of_birth: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.dateOfBirth : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, dateOfBirth: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -621,8 +621,8 @@ const GeneralMember = () => {
                                     <Form.Label>Register Date</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={editGeneralMemberData ? editGeneralMemberData.register_date : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, register_date: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.registerDate : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, registerDate: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -630,8 +630,8 @@ const GeneralMember = () => {
                                     <Form.Label>Confirm Date</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={editGeneralMemberData ? editGeneralMemberData.confirm_date : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, confirm_date: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.confirmDate : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, confirmDate: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -698,60 +698,60 @@ const GeneralMember = () => {
                                 <Row className="mb-3">
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>First Name</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.first_name} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.firstName} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Middle Name</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.middle_name} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.middleName} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Last Name</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.last_name} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.lastName} />
                                     </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Mobile No</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.mobile_no} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.mobileNo} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Aadhar No</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.adhar_card} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.adharCard} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Email</Form.Label>
-                                        <Form.Control type="email" readOnly defaultValue={viewGeneralMemberData.email} />
+                                        <Form.Control type="email" readOnly defaultValue={viewGeneralMemberData.useremail} />
                                     </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Date of Birth</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.date_of_birth} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.dateOfBirth} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Register Date</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.register_date} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.registerDate} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Confirm Date</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirm_date} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirmDate} />
                                     </Form.Group>
                                 </Row>
 
                                 <Row className="mb-3">
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Education</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.member_education} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberEducation} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Occupation</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.member_occupation} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberOccupation} />
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Address</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.member_address} />
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberAddress} />
                                     </Form.Group>
                                 </Row>
 

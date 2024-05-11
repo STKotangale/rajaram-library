@@ -14,17 +14,9 @@ const BookDetailsTable = () => {
     //update book details
     const [showUpdateBookDetails, setShowUpdateBookDetails] = useState(false);
     const [selectedBook, setSelectedBook] = useState(null);
-    //get languages
-    const [bookLanguages, setBookLanguages] = useState([]);
     // get book type
     const [bookTypes, setBookTypes] = useState([]);
     const [selectedBookType, setSelectedBookType] = useState('');
-    //get book author
-    const [bookAuthors, setBookAuthors] = useState([]);
-    const [selectedAuthor, setSelectedAuthor] = useState('');
-    //book publisher
-    const [bookPublication, setBookPublication] = useState([]);
-    const [selectedPublication, setSelectedPublication] = useState('');
     //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const { username, accessToken } = useAuth();
@@ -47,13 +39,11 @@ const BookDetailsTable = () => {
         }
     };
 
-    //update book details
     const handleUpdate = (book) => {
         setSelectedBook(book);
         setShowUpdateBookDetails(true);
     };
 
-    //update api
     const updateBookDetails = async (e) => {
         e.preventDefault();
         try {
@@ -61,16 +51,6 @@ const BookDetailsTable = () => {
                 throw new Error('No book selected');
             }
             const updatedBookDetails = {
-                author: selectedAuthor,
-                language: selectedBook.language,
-                nameOfPublisher: selectedPublication,
-                typeofbook: selectedBookType,
-                copyNo: selectedBook.purchase_copy_no,
-                edition: parseFloat(selectedBook.edition),
-                publicationYear: parseFloat(selectedBook.publicationYear),
-                numberOfPages: parseFloat(selectedBook.numberOfPages),
-                volumeNo: parseFloat(selectedBook.volumeNo),
-
                 isbn: selectedBook.isbn,
                 classificationNumber: selectedBook.classificationNumber,
                 itemNumber: selectedBook.itemNumber,
@@ -78,7 +58,9 @@ const BookDetailsTable = () => {
                 title: selectedBook.title,
                 secondTitle: selectedBook.secondTitle,
                 seriesTitle: selectedBook.seriesTitle,
-                placeOfPublication: selectedBook.placeOfPublication,
+                edition: selectedBook.edition,
+                publicationYear: selectedBook.publicationYear,
+                numberOfPages: selectedBook.numberOfPages,
                 subjectHeading: selectedBook.subjectHeading,
                 secondAuthorEditor: selectedBook.secondAuthorEditor,
                 thirdAuthorEditor: selectedBook.thirdAuthorEditor,
@@ -86,10 +68,16 @@ const BookDetailsTable = () => {
                 permanentLocation: selectedBook.permanentLocation,
                 currentLocation: selectedBook.currentLocation,
                 shelvingLocation: selectedBook.shelvingLocation,
+                volumeNo: selectedBook.volumeNo,
                 fullCallNumber: selectedBook.fullCallNumber,
+                copyNo: selectedBook.purchaseCopyNo,
+                typeofbook: selectedBookType,
                 accessionNo: selectedBook.accessionNo,
+                bookIssue: selectedBook.bookIssue,
+                bookWorkingStart: selectedBook.bookWorkingStart,
+                bookLostScrap: selectedBook.bookLostScrap,
             };
-            const response = await fetch(`${BaseURL}/api/purchase/update/book-details/${selectedBook.id}`, {
+            const response = await fetch(`${BaseURL}/api/purchase/update/book-details/${selectedBook.bookDetailId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -99,41 +87,18 @@ const BookDetailsTable = () => {
             if (!response.ok) {
                 throw new Error('Failed to update book details');
             }
-            const bookDetails = await response.json();
+            await response.json();
             toast.success('Book details updated successfully.');
             setShowUpdateBookDetails(false);
+            fetchBookDetails();
         } catch (error) {
             console.error('Error updating book details:', error);
+            toast.error('Error updating book details. Please try again later.');
         }
     };
 
 
     // another api call
-
-    // get languages
-    const fetchBookLanguages = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            setBookLanguages(data.data);
-        } catch (error) {
-            console.error('Error fetching book languages:', error);
-        }
-    };
-
-    const handleBookInputChange = (e) => {
-        const { name, value } = e.target;
-        const index = bookDetails.findIndex(book => book.id === selectedBook.id);
-        const updatedBookDetails = [...bookDetails];
-        updatedBookDetails[index] = {
-            ...updatedBookDetails[index],
-            [name]: value
-        };
-        setBookDetails(updatedBookDetails);
-    };
 
     //get book types
     const fetchBookTypes = async () => {
@@ -161,59 +126,9 @@ const BookDetailsTable = () => {
         }
     };
 
-    //get api  book author
-    const fetchBookAuthors = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/book-authors`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching book authors: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookAuthors(data.data);
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleAuthorChange = (event) => {
-        const selectedType = event.target.value;
-        setSelectedAuthor(selectedType);
-    };
-
-
-    //get api book publisher
-    const fetchBookPublication = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/book-publications`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching book publication: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookPublication(data.data);
-        } catch (error) {
-            console.error(error);
-            toast.error('Error fetching book publication. Please try again later.');
-        }
-    };
-
-    const handlePublicationChange = (event) => {
-        const selectedType = event.target.value;
-        setSelectedPublication(selectedType);
-    };
 
     useEffect(() => {
-        fetchBookLanguages();
         fetchBookTypes();
-        fetchBookAuthors();
-        fetchBookPublication();
     }, []);
 
 
@@ -233,11 +148,11 @@ const BookDetailsTable = () => {
                     </thead>
                     <tbody>
                         {bookDetails.map((book, index) => (
-                            <tr key={book.id}>
+                            <tr key={book.bookDetailId}>
                                 <td>{index + 1}</td>
-                                <td>{book.book_name}</td>
-                                <td>{book.purchase_copy_no}</td>
-                                <td>{book.rate}</td>
+                                <td>{book.bookName}</td>
+                                <td>{book.purchaseCopyNo}</td>
+                                <td>{book.book_rate}</td>
                                 <td>
                                     <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleUpdate(book)} />
                                 </td>
@@ -255,36 +170,6 @@ const BookDetailsTable = () => {
                     </Modal.Header>
                     <Modal.Body className='box'>
                         <Form onSubmit={updateBookDetails}>
-
-                            <Row className="mb-3">
-                                {/* <Form.Group className="mb-3" lg={4} as={Col} controlId="bookName">
-                                    <Form.Label>Book Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={selectedBook?.book_name || ''}
-                                        readOnly
-                                    />
-                                </Form.Group> */}
-                                {/* <Form.Group className="mb-3" lg={4} as={Col} controlId="copyNo">
-                                    <Form.Label>Purchase Copy No</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={selectedBook?.purchase_copy_no || ''}
-                                        readOnly
-                                    // onChange={(e) => setSelectedBook({ ...selectedBook, purchase_copy_no: e.target.value })}
-                                    />
-                                </Form.Group> */}
-                                {/* <Form.Group className="mb-3" lg={4} as={Col} controlId="rate">
-                                    <Form.Label>Rate</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={selectedBook?.rate || ''}
-                                        onChange={(e) => setSelectedBook({ ...selectedBook, rate: e.target.value })}
-                                    // readOnly
-                                    />
-                                </Form.Group> */}
-                            </Row>
-
                             <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="isbn">
                                     <Form.Label>ISBN</Form.Label>
@@ -298,49 +183,11 @@ const BookDetailsTable = () => {
                                     <Form.Label>Purchase Copy No</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={selectedBook?.purchase_copy_no || ''}
+                                        value={selectedBook?.purchaseCopyNo || ''}
                                         readOnly
                                     // onChange={(e) => setSelectedBook({ ...selectedBook, copyNo: e.target.value })}
                                     // onChange={(e) => handleBookTypeChange(e)}
                                     />
-                                </Form.Group>
-                                <Form.Group className="mb-3" lg={4} as={Col} controlId="author">
-                                    <Form.Label>Author</Form.Label>
-                                    <Form.Select
-                                        value={selectedAuthor}
-                                        onChange={(e) => {
-                                            setSelectedAuthor(e.target.value);
-                                            handleAuthorChange(e);
-                                        }}
-                                    >
-                                        <option value="">Select Author </option>
-                                        {bookAuthors.map((bookAuthor, index) => (
-                                            <option key={index} value={bookAuthor.authorName}>
-                                                {bookAuthor.authorName}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-
-                            </Row>
-
-                            <Row className="mb-3">
-                                <Form.Group className="mb-3" lg={4} as={Col} controlId="publicaion">
-                                    <Form.Label>Publication Name</Form.Label>
-                                    <Form.Select
-                                        value={selectedPublication}
-                                        onChange={(e) => {
-                                            setSelectedPublication(e.target.value);
-                                            handlePublicationChange(e);
-                                        }}
-                                    >
-                                        <option value="">Select publiction </option>
-                                        {bookPublication.map((bookPublication, index) => (
-                                            <option key={index} value={bookPublication.publicationName}>
-                                                {bookPublication.publicationName}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
                                 </Form.Group>
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="bookTYPE">
                                     <Form.Label>Book Type</Form.Label>
@@ -354,24 +201,6 @@ const BookDetailsTable = () => {
                                         {bookTypes.map((bookType, index) => (
                                             <option key={index} value={bookType.bookTypeName}>
                                                 {bookType.bookTypeName}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
-                                <Form.Group className="mb-3" lg={4} as={Col} controlId="language">
-                                    <Form.Label>Language</Form.Label>
-                                    <Form.Select
-                                        as="select"
-                                        name="language"
-                                        onChange={(e) => {
-                                            setSelectedBook({ ...selectedBook, language: e.target.value });
-                                            handleBookInputChange(e);
-                                        }}
-                                    >
-                                        <option value="">Select Language</option>
-                                        {bookLanguages.map((language, index) => (
-                                            <option key={index} value={language.bookLangName}>
-                                                {language.bookLangName}
                                             </option>
                                         ))}
                                     </Form.Select>
@@ -406,14 +235,6 @@ const BookDetailsTable = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" lg={4} as={Col} controlId="placeOfPublication">
-                                    <Form.Label>Place of Publication</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={selectedBook?.placeOfPublication || ''}
-                                        onChange={(e) => setSelectedBook({ ...selectedBook, placeOfPublication: e.target.value })}
-                                    />
-                                </Form.Group>
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="publicationYear">
                                     <Form.Label>Publication Year</Form.Label>
                                     <Form.Control
@@ -430,9 +251,6 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, title: e.target.value })}
                                     />
                                 </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="secondTitle">
                                     <Form.Label>Second Title</Form.Label>
                                     <Form.Control
@@ -441,6 +259,9 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, secondTitle: e.target.value })}
                                     />
                                 </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="seriesTitle">
                                     <Form.Label>Series Title</Form.Label>
                                     <Form.Control
@@ -457,10 +278,6 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, subjectHeading: e.target.value })}
                                     />
                                 </Form.Group>
-                            </Row>
-
-
-                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="edition">
                                     <Form.Label>Edition</Form.Label>
                                     <Form.Control
@@ -469,6 +286,10 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, edition: e.target.value })}
                                     />
                                 </Form.Group>
+                            </Row>
+
+
+                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="numberOfPages">
                                     <Form.Label>Number of Pages</Form.Label>
                                     <Form.Control
@@ -485,9 +306,6 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, classificationNumber: e.target.value })}
                                     />
                                 </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="permanentLocation">
                                     <Form.Label>Permanent Location</Form.Label>
                                     <Form.Control
@@ -496,6 +314,9 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, permanentLocation: e.target.value })}
                                     />
                                 </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="currentLocation">
                                     <Form.Label>Current Location</Form.Label>
                                     <Form.Control
@@ -512,9 +333,6 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, shelvingLocation: e.target.value })}
                                     />
                                 </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="volumeNo">
                                     <Form.Label>Volume Number </Form.Label>
                                     <Form.Control
@@ -523,6 +341,48 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, volumeNo: e.target.value })}
                                     />
                                 </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
+                                    <Form.Label>Book Issue</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={selectedBook?.bookIssue || ''}
+                                        onChange={(e) => {
+                                            if (e.target.value.length <= 1) {
+                                                setSelectedBook({ ...selectedBook, bookIssue: e.target.value });
+                                            }
+                                        }}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
+                                    <Form.Label>Book Working Start</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={selectedBook?.bookWorkingStart || ''}
+                                        onChange={(e) => {
+                                            if (e.target.value.length <= 1) {
+                                                setSelectedBook({ ...selectedBook, bookWorkingStart: e.target.value });
+                                            }
+                                        }}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
+                                    <Form.Label>Book Lost Scrap</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={selectedBook?.bookLostScrap || ''}
+                                        onChange={(e) => {
+                                            if (e.target.value.length <= 1) {
+                                                setSelectedBook({ ...selectedBook, bookLostScrap: e.target.value });
+                                            }
+                                        }}
+                                    />
+                                </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="fullCallNumber">
                                     <Form.Label>full Call Number </Form.Label>
                                     <Form.Control
@@ -539,9 +399,6 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, accessionNo: e.target.value })}
                                     />
                                 </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="itemNumber">
                                     <Form.Label>Item Number</Form.Label>
                                     <Form.Control
@@ -550,6 +407,9 @@ const BookDetailsTable = () => {
                                         onChange={(e) => setSelectedBook({ ...selectedBook, itemNumber: e.target.value })}
                                     />
                                 </Form.Group>
+                            </Row>
+
+                            <Row className="mb-3">
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
                                     <Form.Label>Item Type</Form.Label>
                                     <Form.Control

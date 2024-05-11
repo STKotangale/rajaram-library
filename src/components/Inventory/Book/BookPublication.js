@@ -156,8 +156,6 @@ const BookPublication = () => {
     };
 
 
-
-
     return (
         <div className="main-content">
 
@@ -186,18 +184,19 @@ const BookPublication = () => {
                                     <tr key={publication.publicationId}>
                                         <td>{index + 1}</td>
                                         <td>{publication.publicationName}</td>
-                                        <td>{publication.address}</td>
-                                        <td>{publication.contactNo1}</td>
-                                        <td>{publication.emailId}</td>
+                                        <td>{publication.publicationAddress}</td>
+                                        <td>{publication.publicationContactNo1}</td>
+                                        <td>{publication.publicationEmailId}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
                                                 setSelectedBookPublicationId(publication.publicationId);
                                                 setNewBookPublication({
                                                     publicationName: publication.publicationName,
-                                                    address: publication.address,
-                                                    contactNo1: publication.contactNo1,
-                                                    contactNo2: publication.contactNo2,
-                                                    emailId: publication.emailId
+                                                    address: publication.publicationAddress,
+                                                    contactNo1: publication.publicationContactNo1,
+                                                    contactNo2: publication.publicationContactNo2,
+                                                    emailId: publication.publicationEmailId,
+                                                    contactPerson: publication.publicationContactPerson
                                                 });
                                                 setShowEditBookPublicationModal(true);
                                             }} />
@@ -226,7 +225,7 @@ const BookPublication = () => {
                                 <Form.Label>Publication Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter publication name"
+                                    placeholder="Publication name"
                                     value={newBookPublication.publicationName}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, publicationName: e.target.value })}
                                     required
@@ -246,7 +245,7 @@ const BookPublication = () => {
                                 <Form.Label>Address</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter address"
+                                    placeholder="Address"
                                     value={newBookPublication.address}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, address: e.target.value })}
                                     required
@@ -256,7 +255,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact No 1</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 1"
+                                    placeholder="Contact number 1"
                                     value={newBookPublication.contactNo1}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -271,7 +270,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact No 2</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 2"
+                                    placeholder="Contact number 2"
                                     value={newBookPublication.contactNo2}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -285,7 +284,7 @@ const BookPublication = () => {
                                 <Form.Label>Email ID</Form.Label>
                                 <Form.Control
                                     type="email"
-                                    placeholder="Enter email ID"
+                                    placeholder="Email"
                                     value={newBookPublication.emailId}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, emailId: e.target.value })}
                                     required
@@ -311,7 +310,7 @@ const BookPublication = () => {
                                 <Form.Label>Publication Name</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter publication name"
+                                    placeholder="Publication name"
                                     value={newBookPublication.publicationName}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, publicationName: e.target.value })}
                                     required
@@ -331,7 +330,7 @@ const BookPublication = () => {
                                 <Form.Label>Address</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    placeholder="Enter address"
+                                    placeholder="Address"
                                     value={newBookPublication.address}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, address: e.target.value })}
                                     required
@@ -341,7 +340,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact No 1</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 1"
+                                    placeholder="Contact number 1"
                                     value={newBookPublication.contactNo1}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -356,7 +355,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact No 2</Form.Label>
                                 <Form.Control
                                     type="tel"
-                                    placeholder="Enter contact number 1"
+                                    placeholder="Contact number 2"
                                     value={newBookPublication.contactNo2}
                                     onChange={(e) => {
                                         const value = e.target.value;
@@ -422,7 +421,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact Person</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={viewPublication ? viewPublication.contactPerson : ''}
+                                    value={viewPublication ? viewPublication.publicationContactPerson : ''}
                                     readOnly
                                 />
                             </Form.Group>
@@ -430,7 +429,7 @@ const BookPublication = () => {
                                 <Form.Label>Address</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={viewPublication ? viewPublication.address : ''}
+                                    value={viewPublication ? viewPublication.publicationAddress : ''}
                                     readOnly
                                 />
                             </Form.Group>
@@ -438,7 +437,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact No 1</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={viewPublication ? viewPublication.contactNo1 : ''}
+                                    value={viewPublication ? viewPublication.publicationContactNo1 : ''}
                                     readOnly
                                 />
                             </Form.Group>
@@ -446,7 +445,7 @@ const BookPublication = () => {
                                 <Form.Label>Contact No 2</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={viewPublication ? viewPublication.contactNo2 : ''}
+                                    value={viewPublication ? viewPublication.publicationContactNo2 : ''}
                                     readOnly
                                 />
                             </Form.Group>
@@ -454,7 +453,7 @@ const BookPublication = () => {
                                 <Form.Label>Email ID</Form.Label>
                                 <Form.Control
                                     type="text"
-                                    value={viewPublication ? viewPublication.emailId : ''}
+                                    value={viewPublication ? viewPublication.publicationEmailId : ''}
                                     readOnly
                                 />
                             </Form.Group>

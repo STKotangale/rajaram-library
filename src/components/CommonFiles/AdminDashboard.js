@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -29,8 +29,13 @@ import Purchaser from '../Inventory/Purchase/Purchaser';
 import User from '../Auth/User';
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
+
 import Issue from '../Inventory/Book/Issue';
 import IssueReturn from '../Inventory/Book/IssueReturn';
+import PurchaseReturn from '../Inventory/Purchase/PurchhaseReturn';
+
+import Edit from '../Eureka/Edit';
+
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -49,7 +54,10 @@ const AdminDashboard = () => {
     const [bookPublication, setBookPublication] = useState(false);
 
     const [bookIssue, setBookIssue] = useState(false);
+    const [bookIssueReturn, setBookIssueReturn] = useState(false);
+    const [bookPurchaseReturn, setBookPurchaseReturn] = useState(false);
 
+    const [demo, setDemo] = useState(false);
 
 
     //change password
@@ -59,7 +67,7 @@ const AdminDashboard = () => {
         confirmPassword: ''
     });
 
-    const { username, accessToken } = useAuth();
+    const { username, accessToken ,logout} = useAuth();
 
     //get username and access token
     useEffect(() => {
@@ -81,6 +89,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleBookDetailsClick = () => {
@@ -97,6 +107,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
 
     };
 
@@ -114,7 +126,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
 
@@ -132,7 +145,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleBookType = () => {
@@ -149,7 +163,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleShowPurchase = () => {
@@ -166,7 +181,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
 
@@ -184,7 +200,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
 
@@ -203,7 +220,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handlePurchaser = () => {
@@ -220,7 +238,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleCreateUser = () => {
@@ -237,7 +256,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleBookAuthor = () => {
@@ -254,7 +274,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookPublication(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleBookPublication = () => {
@@ -271,7 +292,8 @@ const AdminDashboard = () => {
         setCreateUser(false);
         setBookAuthor(false);
         setBookIssue(false);
-
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
     };
 
     const handleIssueClick = () => {
@@ -288,6 +310,64 @@ const AdminDashboard = () => {
         setPurchaser(false);
         setCreateUser(false);
         setBookAuthor(false);
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
+    }
+
+    const handleIssueReturnClick = () => {
+        setBookIssueReturn(true);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookPurchaseReturn(false);
+    }
+
+
+    const handlePurchaseReturnClick = () => {
+        setBookPurchaseReturn(true);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+    }
+
+    const handleDemo = () => {
+        setDemo(true);
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
     }
 
     //change password
@@ -313,35 +393,24 @@ const AdminDashboard = () => {
 
     //handle logout
     const handleLogout = () => {
+        logout();
         sessionStorage.clear();
         toast.success('You have been logged out.');
         navigate('/');
     };
 
 
-
-    // const handleIssueReturnClick = () => {
-
-    // }
-    // const handlePurchaseReturnClick = () => {
-
-    // }
-
-
     const [showInventorySubItems, setShowInventorySubItems] = useState(false);
-
     const toggleInventorySubItems = () => {
         setShowInventorySubItems(!showInventorySubItems);
     };
 
     const [showMasterSubItems, setShowMasterSubItems] = useState(false);
-
     const toggleMasterSubItems = () => {
         setShowMasterSubItems(!showMasterSubItems);
     };
 
     const [showAccountSubItems, setShowAccountSubItems] = useState(false);
-
     const toggleAccountSubItems = () => {
         setShowAccountSubItems(!showAccountSubItems);
     };
@@ -415,12 +484,12 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueClick}>
                                                 <ExclamationTriangleFill className="icon" /> Issue
                                             </ListGroup.Item>
-                                            {/* <ListGroup.Item className="issue-return-icon mt-1" action onClick={handleIssueReturnClick}>
-                                            <ArrowReturnLeft className="icon" /> Issue Return
-                                        </ListGroup.Item>
-                                        <ListGroup.Item className="purchase-return-icon mt-1" action onClick={handlePurchaseReturnClick}>
-                                            <CartDashFill className="icon" /> Purchase Return
-                                        </ListGroup.Item> */}
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueReturnClick}>
+                                                <ArrowReturnLeft className="icon" /> Issue Return
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={handlePurchaseReturnClick}>
+                                                <CartDashFill className="icon" /> Purchase Return
+                                            </ListGroup.Item>
                                             {/* <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
                                             <CartPlusFill className="icon" /> Purchase
                                         </ListGroup.Item> */}
@@ -435,6 +504,9 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handlePurchaser(); setShowSidebar(false); }}>
                                                 <PersonFill className="me-2" /> Purchaser
                                             </ListGroup.Item>
+                                            {/* <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleDemo(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> edit
+                                            </ListGroup.Item> */}
                                         </div>
                                     )}
 
@@ -506,7 +578,11 @@ const AdminDashboard = () => {
                     {bookPublication && <BookPublication />}
 
                     {bookIssue && <Issue />}
+                    {bookIssueReturn && <IssueReturn />}
+                    {bookPurchaseReturn && <PurchaseReturn />}
 
+
+                    {demo && <Edit/>}
 
                 </Container>
                 {/* <Footer /> */}

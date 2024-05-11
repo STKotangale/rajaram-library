@@ -14,7 +14,7 @@ const BookLanguages = () => {
     const [showAddLanguage, setShowAddLanguage] = useState(false);
     //edit lang
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editableLanguage, setEditableLanguage] = useState({ id: null, bookLangName: '', isBlock: null });
+    const [editableLanguage, setEditableLanguage] = useState({ bookLangName: ''});
     //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [selectedLanguageId, setSelectedLanguageId] = useState(null);
@@ -83,46 +83,48 @@ const BookLanguages = () => {
     };
 
     //edit function
-    const handleShowEditModal = (language) => {
-        setEditableLanguage({
-            id: language.bookLangId,
-            bookLangName: language.bookLangName,
-            isBlock: language.isBlock === 'true'
+ // Function to handle clicking the edit icon
+const handleShowEditModal = (language) => {
+    setEditableLanguage({
+        bookLangId: language.bookLangId,
+        bookLangName: language.bookLangName,
+    });
+    setShowEditModal(true);
+};
+
+// Function to handle changes in the edit form
+const handleEditLanguageChange = (e) => {
+    setEditableLanguage({ ...editableLanguage, bookLangName: e.target.value });
+};
+
+// Function to submit the edited language data
+const handleEditLanguageSubmit = async (event) => {
+    event.preventDefault();
+    try {
+        const response = await fetch(`${BaseURL}/api/auth/book-languages/${editableLanguage.bookLangId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ bookLangName: editableLanguage.bookLangName })
         });
-        setShowEditModal(true);
-    };
-    const handleEditLanguageChange = (e) => {
-        setEditableLanguage({ ...editableLanguage, bookLangName: e.target.value });
-    };
 
-    //edit api
-    const handleEditLanguageSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages/${editableLanguage.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ bookLangName: editableLanguage.bookLangName, isBlock: editableLanguage.isBlock.toString() })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const updatedLanguage = await response.json();
-            const updatedLanguages = bookLanguages.map(lang => lang.bookLangId === updatedLanguage.data.bookLangId ? updatedLanguage.data : lang);
-            setBookLanguages(updatedLanguages);
-            toast.success('Book language edited successfully.');
-            setShowEditModal(false);
-        } catch (error) {
-            console.error('Error updating book language:', error);
-            toast.error('Error edit book language. Please try again later.');
-
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    };
+
+        const updatedLanguage = await response.json();
+        const updatedLanguages = bookLanguages.map(lang => lang.bookLangId === updatedLanguage.data.bookLangId ? updatedLanguage.data : lang);
+        setBookLanguages(updatedLanguages);
+        toast.success('Book language edited successfully.');
+        setShowEditModal(false);
+    } catch (error) {
+        console.error('Error updating book language:', error);
+        toast.error('Error editing book language. Please try again later.');
+    }
+};
+
 
     const handleCloseEditModal = () => {
         setShowEditModal(false);

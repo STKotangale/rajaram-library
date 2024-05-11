@@ -13,7 +13,6 @@ const BookIssue = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editData, setEditData] = useState(null);
-    // const [rows, setRows] = useState([{ bookName: '', bookDetails: '' }]);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', bookDetails: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
@@ -446,11 +445,18 @@ const BookIssue = () => {
                                                         onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                     >
                                                         <option value="">Select Book Details</option>
-                                                        {bookDetails
+                                                        {/* {bookDetails
                                                             .filter((book) => book.book_name === row.bookName)
                                                             .map((book) => (
-                                                                <option key={book.id} value={book.purchase_copy_no}>
-                                                                    {book.purchase_copy_no}
+                                                                <option key={book.id} value={book.purchaseCopyNo}>
+                                                                    {book.purchaseCopyNo}
+                                                                </option>
+                                                            ))} */}
+                                                        {bookDetails
+                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
+                                                            .map((bookDetail) => (
+                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
+                                                                    {bookDetail.purchaseCopyNo}
                                                                 </option>
                                                             ))}
                                                     </Form.Control>
@@ -564,11 +570,18 @@ const BookIssue = () => {
                                                         onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                     >
                                                         <option value="">Select Book Details</option>
-                                                        {bookDetails
+                                                        {/* {bookDetails
                                                             .filter((book) => book.book_name === row.bookName)
                                                             .map((book) => (
                                                                 <option key={book.id} value={book.purchase_copy_no}>
                                                                     {book.purchase_copy_no}
+                                                                </option>
+                                                            ))} */}
+                                                        {bookDetails
+                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
+                                                            .map((bookDetail) => (
+                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
+                                                                    {bookDetail.purchaseCopyNo}
                                                                 </option>
                                                             ))}
                                                     </Form.Control>
@@ -621,7 +634,7 @@ const BookIssue = () => {
                                     <Form.Control
                                         type="date"
                                         value={viewData?.invoiceDate || ''}
-                                        readOnly 
+                                        readOnly
                                     />
                                 </Form.Group>
                             </Row>
@@ -631,7 +644,7 @@ const BookIssue = () => {
                                     <Form.Control
                                         type="text"
                                         value={viewData?.ledgerName || ''}
-                                        readOnly 
+                                        readOnly
                                     />
                                 </Form.Group>
                             </Row>
@@ -648,7 +661,7 @@ const BookIssue = () => {
                                     {viewData?.purchaseDetails.map((detail, index) => (
                                         <tr key={index}>
                                             <td>{detail.bookName}</td>
-                                            <td>{detail.bookDetails}</td>
+                                            <td>{detail.purchaseCopyNo}</td>
                                         </tr>
                                     ))}
                                 </tbody>
