@@ -446,8 +446,7 @@ const ViewPurchase = () => {
                                             <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
                                             <td>{purchase.grandTotal}</td>
                                             <td>
-
-                                                <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} />
+                                                {/* <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} /> */}
                                                 <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(purchase)} />
                                                 <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(purchase)} />
                                             </td>
@@ -488,8 +487,6 @@ const ViewPurchase = () => {
                                         <Form.Control
                                             type="date"
                                             value={selectedPurchase.invoiceDate || ''}
-
-
                                         // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
                                         onChange={(e) => handleInputChange(e, 'invoiceDate')}
                                         className="custom-date-picker small-input"
@@ -702,7 +699,8 @@ const ViewPurchase = () => {
                                         <Form.Label>Invoice Date</Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
+                                            value={selectedPurchase.invoiceDate || ''}
+                                            // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
                                             readOnly
                                             className="custom-date-picker"
                                         />

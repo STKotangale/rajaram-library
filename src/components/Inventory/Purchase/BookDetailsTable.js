@@ -77,7 +77,8 @@ const BookDetailsTable = () => {
                 bookWorkingStart: selectedBook.bookWorkingStart,
                 bookLostScrap: selectedBook.bookLostScrap,
             };
-            const response = await fetch(`${BaseURL}/api/purchase/update/book-details/${selectedBook.bookDetailId}`, {
+            // const response = await fetch(`${BaseURL}/api/purchase/update/book-details/${selectedBook.bookDetailId}`, {
+            const response = await fetch(`${BaseURL}/api/bookdetails/update/book-details/${selectedBook.bookDetailId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
