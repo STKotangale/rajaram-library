@@ -161,7 +161,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
         const payload = {
             invoiceNo: invoiceNumber,
             invoiceDate: invoiceDate,
-            ledgerId: selectedLedgerID,
+            ledgerIDF: selectedLedgerID,
             billTotal: calculateBillTotal(),
             discountPercent: discountPercentage,
             discountAmount: calculateDiscount(),
@@ -169,12 +169,11 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
             gstPercent: gstPercentage,
             gstAmount: calculateGst(),
             grandTotal: calculateGrandTotal(),
-            purchaseDetails: filteredRows.map(row => ({
-                // bookName: row.bookName,
-                bookId: bookName.find(book => book.bookName === row.bookName)?.bookId,
-                qty: parseFloat(row.quantity),
-                rate: parseFloat(row.rate),
-                amount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
+            stockDetails: filteredRows.map(row => ({
+                bookIdF: bookName.find(book => book.bookName === row.bookName)?.bookId,
+                bookQty: parseFloat(row.quantity),
+                bookRate: parseFloat(row.rate),
+                bookAmount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
             }))
         };
         try {
@@ -182,7 +181,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                 toast.error('Access token not found. Please log in again.');
                 return;
             }
-            const response = await fetch(`${BaseURL}/api/purchase`, {
+            const response = await fetch(`${BaseURL}/api/stock`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -191,33 +190,32 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                const purchaseDetails = await response.json();
-                toast.success(purchaseDetails.message);
+                const stockDetails = await response.json();
+                toast.success(stockDetails.message);
                 onSubmit();
 
                 // // Increment the invoice number
                 // const numberPart = parseInt(invoiceNumber.substring(3)) + 1;
                 // setInvoiceNumber(`TIN${numberPart}`);
 
-                // Reset form fields
-                setInvoiceDate('');
-                setSelectedLedgerID('');
-                setDiscountPercentage(0);
-                setGstPercentage(0);
-                setSelectedLedgerName('');
-                setInvoiceNumber('');
-                const resetRows = rows.map(row => ({
-                    ...row,
-                    bookName: '',
-                    quantity: '',
-                    rate: '',
-                }));
-                setRows(resetRows);
+                // // Reset form fields
+                // setInvoiceDate('');
+                // setSelectedLedgerID('');
+                // setDiscountPercentage(0);
+                // setGstPercentage(0);
+                // setSelectedLedgerName('');
+                // setInvoiceNumber('');
+                // const resetRows = rows.map(row => ({
+                //     ...row,
+                //     bookName: '',
+                //     quantity: '',
+                //     rate: '',
+                // }));
+                // setRows(resetRows);
             }
         } catch (error) {
             console.error('Error submitting invoice:', error);
             toast.error('Service Temporarily Unavailable or Error submitting invoice. Please try again.');
-            console.error('Error message:', error.message);
         }
     };
 

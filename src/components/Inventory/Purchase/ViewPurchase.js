@@ -49,7 +49,7 @@ const ViewPurchase = () => {
     //get purchase
     const fetchPurchases = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/purchase`, {
+            const response = await fetch(`${BaseURL}/api/stock`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -58,7 +58,7 @@ const ViewPurchase = () => {
                 throw new Error(`Error fetching purchases: ${response.statusText}`);
             }
             const data = await response.json();
-            setPurchases(data);
+            setPurchases(data.data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching purchases. Please try again later.');
@@ -105,15 +105,15 @@ const ViewPurchase = () => {
             gstAmount: parseFloat(selectedPurchase.gstAmount),
             grandTotal: parseFloat(selectedPurchase.grandTotal),
             ledgerId: selectedPurchase.ledgerId,
-            purchaseDetails: selectedPurchase.purchaseDetails.map(detail => ({
-                bookId: detail.bookId,
-                qty: parseInt(detail.qty),
-                rate: parseFloat(detail.rate),
-                amount: parseFloat(detail.amount)
+            stockDetails: selectedPurchase.stockDetails.map(detail => ({
+                bookIdF: detail.bookId,
+                bookQty: parseInt(detail.bookQty),
+                bookRate: parseFloat(detail.bookRate),
+                bookAmount: parseFloat(detail.bookAmount)
             }))
         };
         try {
-            const response = await fetch(`${BaseURL}/api/purchase/${selectedPurchase.purchaseId}`, {
+            const response = await fetch(`${BaseURL}/api/stock/${selectedPurchase.stockId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,41 +135,61 @@ const ViewPurchase = () => {
         }
     };
 
-    //edit change input  
+    // Handle input changes in the edit modal, including book names and other fields
     const handleInputChange = (e, field, index) => {
         let value = e.target.value;
+
         if (field === 'invoiceDate') {
             value = formatDateToISO(value);
         }
+
         if (index !== undefined) {
-            const updatedDetails = [...selectedPurchase.purchaseDetails];
-            if (field === 'qty' || field === 'rate') {
+            // Modify fields within the stockDetails array
+            const updatedDetails = [...selectedPurchase.stockDetails];
+            if (field === 'bookQty' || field === 'bookRate') {
                 updatedDetails[index][field] = parseInt(value);
-                updatedDetails[index].amount = updatedDetails[index].rate * updatedDetails[index].qty;
+                updatedDetails[index].bookAmount = updatedDetails[index].bookRate * updatedDetails[index].bookQty;
             } else if (field === 'bookName') {
                 const selectedBook = bookName.find(book => book.bookName === value);
-                updatedDetails[index].bookId = selectedBook ? selectedBook.bookId : null;
-                updatedDetails[index][field] = value;
+                if (updatedDetails[index].bookIdF) {
+                    updatedDetails[index].bookIdF.bookId = selectedBook ? selectedBook.bookId : null;
+                    updatedDetails[index].bookIdF.bookName = value;
+                } else {
+                    updatedDetails[index].bookIdF = {
+                        bookId: selectedBook ? selectedBook.bookId : null,
+                        bookName: value
+                    };
+                }
             } else {
                 updatedDetails[index][field] = value;
             }
             setSelectedPurchase(prevPurchase => ({
                 ...prevPurchase,
-                purchaseDetails: updatedDetails
+                stockDetails: updatedDetails
             }));
-            return;
+        } else {
+            // Modify fields not within the stockDetails array
+            setSelectedPurchase(prevPurchase => ({
+                ...prevPurchase,
+                [field]: value
+            }));
         }
-        setSelectedPurchase(prevPurchase => ({
-            ...prevPurchase,
-            [field]: value
-        }));
     };
 
     //date format
+    // const formatDateToISO = (dateString) => {
+    //     if (!dateString) return '';
+    //     const localDate = new Date(dateString);
+    //     return localDate.toISOString();
+    // };
+
     const formatDateToISO = (dateString) => {
         if (!dateString) return '';
         const localDate = new Date(dateString);
-        return localDate.toISOString();
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+        const day = String(localDate.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     };
 
     // // claculation in float datatype
@@ -181,8 +201,8 @@ const ViewPurchase = () => {
     const calculateBillTotal = (details) => {
         let allTotal = 0;
         details.forEach(detail => {
-            if (detail.qty && detail.rate) {
-                allTotal += parseFloat(detail.qty) * parseFloat(detail.rate);
+            if (detail.bookQty && detail.bookRate) {
+                allTotal += parseFloat(detail.bookQty) * parseFloat(detail.bookRate);
             }
         });
         return Math.floor(allTotal);
@@ -255,11 +275,11 @@ const ViewPurchase = () => {
         if (selectedPurchase) {
             setSelectedPurchase(prevPurchase => ({
                 ...prevPurchase,
-                discountAmount: calculateDiscount(prevPurchase.purchaseDetails),
-                gstAmount: calculateGst(prevPurchase.purchaseDetails),
-                totalAfterDiscount: calculateTotalAfterDiscount(prevPurchase.purchaseDetails),
-                grandTotal: calculateGrandTotal(prevPurchase.purchaseDetails),
-                billTotal: calculateBillTotal(prevPurchase.purchaseDetails)
+                discountAmount: calculateDiscount(prevPurchase.stockDetails),
+                gstAmount: calculateGst(prevPurchase.stockDetails),
+                totalAfterDiscount: calculateTotalAfterDiscount(prevPurchase.stockDetails),
+                grandTotal: calculateGrandTotal(prevPurchase.stockDetails),
+                billTotal: calculateBillTotal(prevPurchase.stockDetails)
             }));
         }
     };
@@ -279,7 +299,7 @@ const ViewPurchase = () => {
     //delete api
     const handleDeleteConfirm = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/purchase/${selectedPurchase.purchaseId}`, {
+            const response = await fetch(`${BaseURL}/api/stock/${selectedPurchase.stockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -353,24 +373,27 @@ const ViewPurchase = () => {
     //add row under edit
     const addRow = () => {
         const newRow = {
-            bookId: null,
-            bookName: '',
-            qty: '',
-            rate: '',
-            amount: ''
+            bookIdF: {
+                bookId: null,
+                bookName: '',
+            },
+            bookQty: '',
+            bookRate: '',
+            bookAmount: ''
         };
         setSelectedPurchase(prevPurchase => ({
             ...prevPurchase,
-            purchaseDetails: [...prevPurchase.purchaseDetails, newRow]
+            stockDetails: [...prevPurchase.stockDetails, newRow]
         }));
     };
 
+
     //delete row under edit
     const deleteRow = (index) => {
-        const updatedDetails = selectedPurchase.purchaseDetails.filter((_, i) => i !== index);
+        const updatedDetails = selectedPurchase.stockDetails.filter((_, i) => i !== index);
         setSelectedPurchase(prevPurchase => ({
             ...prevPurchase,
-            purchaseDetails: updatedDetails,
+            stockDetails: updatedDetails,
             purchase: updatedDetails
 
         }));
@@ -385,12 +408,12 @@ const ViewPurchase = () => {
     };
 
 
-    //pagination
-    const itemsPerPage = 10;
-    const [currentPage, setCurrentPage] = useState(1);
+    // //pagination
+    // const itemsPerPage = 10;
+    // const [currentPage, setCurrentPage] = useState(1);
 
-    const totalPages = Math.ceil(purchases.length / itemsPerPage);
-    const handlePageClick = (page) => setCurrentPage(page);
+    // const totalPages = Math.ceil(purchases.length / itemsPerPage);
+    // const handlePageClick = (page) => setCurrentPage(page);
 
     return (
         <div className="main-content">
@@ -417,8 +440,8 @@ const ViewPurchase = () => {
                                 <tbody>
                                     {purchases.map((purchase, index) => (
                                         <tr key={index}>
-                                            <td>{ index + 1}</td>
-                                            <td>{purchase.ledgerName}</td>
+                                            <td>{index + 1}</td>
+                                            <td>{purchase.ledgerIDF.ledgerName}</td>
                                             <td>{purchase.invoiceNo}</td>
                                             <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
                                             <td>{purchase.grandTotal}</td>
@@ -464,17 +487,19 @@ const ViewPurchase = () => {
                                         <Form.Label>Invoice Date</Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
-                                            onChange={(e) => handleInputChange(e, 'invoiceDate')}
-                                            className="custom-date-picker small-input"
-                                        />
+                                            value={selectedPurchase.invoiceDate || ''}
 
+
+                                        // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
+                                        onChange={(e) => handleInputChange(e, 'invoiceDate')}
+                                        className="custom-date-picker small-input"
+                                        />
                                     </Form.Group>
                                     <Form.Group as={Col} sm={5}>
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            value={selectedPurchase.ledgerName || ''}
+                                            value={selectedPurchase.ledgerIDF.ledgerName || ''}
                                         >
                                         </Form.Control>
                                     </Form.Group>
@@ -492,7 +517,7 @@ const ViewPurchase = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedPurchase.purchaseDetails.map((detail, index) => (
+                                            {selectedPurchase.stockDetails.map((detail, index) => (
 
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
@@ -506,7 +531,7 @@ const ViewPurchase = () => {
                                                             <Form.Control
                                                                 as="input"
                                                                 list={`bookName-${index}`}
-                                                                value={detail.bookName}
+                                                                value={detail.bookIdF ? detail.bookIdF.bookName : ''}
                                                                 onChange={(e) => { handleBookChangeForRow(index, e); handleInputChange(e, 'bookName', index) }}
                                                                 placeholder="Search or select book name"
                                                             />
@@ -520,20 +545,20 @@ const ViewPurchase = () => {
                                                     <td>
                                                         <Form.Control className="right-align"
                                                             type="number"
-                                                            value={detail.qty}
-                                                            onChange={(e) => handleInputChange(e, 'qty', index)}
+                                                            value={detail.bookQty}
+                                                            onChange={(e) => handleInputChange(e, 'bookQty', index)}
                                                         />
                                                     </td>
                                                     <td>
                                                         <Form.Control className="right-align"
                                                             type="number"
-                                                            value={detail.rate}
-                                                            onChange={(e) => handleInputChange(e, 'rate', index)}
+                                                            value={detail.bookRate}
+                                                            onChange={(e) => handleInputChange(e, 'bookRate', index)}
                                                         />
                                                     </td>
                                                     {/* <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td> */}
                                                     <td className="amount-align">
-                                                        {!isNaN(detail.amount) ? Number(detail.amount).toFixed(2) : ''}
+                                                        {!isNaN(detail.bookAmount) ? Number(detail.bookAmount).toFixed(2) : ''}
                                                     </td>
                                                     <td>
                                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRow(index)} />
@@ -687,7 +712,7 @@ const ViewPurchase = () => {
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            value={selectedPurchase.ledgerName || ''}
+                                            value={selectedPurchase.ledgerIDF.ledgerName || ''}
                                         />
                                     </Form.Group>
                                 </Row>
@@ -703,31 +728,31 @@ const ViewPurchase = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedPurchase.purchaseDetails.map((detail, index) => (
+                                            {selectedPurchase.stockDetails.map((detail, index) => (
                                                 <tr key={index}>
                                                     <td>{index + 1}</td>
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={detail.bookName}
+                                                            value={detail.bookIdF ? detail.bookIdF.bookName : ''}
                                                             readOnly
                                                         />
                                                     </td>
                                                     <td>
                                                         <Form.Control className="right-align"
                                                             type="number"
-                                                            value={detail.qty}
+                                                            value={detail.bookQty}
                                                             readOnly
                                                         />
                                                     </td>
                                                     <td>
                                                         <Form.Control className="right-align"
                                                             type="number"
-                                                            value={detail.rate}
+                                                            value={detail.bookRate}
                                                             readOnly
                                                         />
                                                     </td>
-                                                    <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td>
+                                                    <td className="amount-align">{!isNaN(detail.bookAmount) ? detail.bookAmount : ''}</td>
                                                 </tr>
                                             ))}
                                             <tr>
