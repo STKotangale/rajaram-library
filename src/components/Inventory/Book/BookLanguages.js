@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
@@ -14,7 +14,7 @@ const BookLanguages = () => {
     const [showAddLanguage, setShowAddLanguage] = useState(false);
     //edit lang
     const [showEditModal, setShowEditModal] = useState(false);
-    const [editableLanguage, setEditableLanguage] = useState({ bookLangName: ''});
+    const [editableLanguage, setEditableLanguage] = useState({ bookLangName: '' });
     //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [selectedLanguageId, setSelectedLanguageId] = useState(null);
@@ -83,47 +83,47 @@ const BookLanguages = () => {
     };
 
     //edit function
- // Function to handle clicking the edit icon
-const handleShowEditModal = (language) => {
-    setEditableLanguage({
-        bookLangId: language.bookLangId,
-        bookLangName: language.bookLangName,
-    });
-    setShowEditModal(true);
-};
-
-// Function to handle changes in the edit form
-const handleEditLanguageChange = (e) => {
-    setEditableLanguage({ ...editableLanguage, bookLangName: e.target.value });
-};
-
-// Function to submit the edited language data
-const handleEditLanguageSubmit = async (event) => {
-    event.preventDefault();
-    try {
-        const response = await fetch(`${BaseURL}/api/auth/book-languages/${editableLanguage.bookLangId}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ bookLangName: editableLanguage.bookLangName })
+    // Function to handle clicking the edit icon
+    const handleShowEditModal = (language) => {
+        setEditableLanguage({
+            bookLangId: language.bookLangId,
+            bookLangName: language.bookLangName,
         });
+        setShowEditModal(true);
+    };
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+    // Function to handle changes in the edit form
+    const handleEditLanguageChange = (e) => {
+        setEditableLanguage({ ...editableLanguage, bookLangName: e.target.value });
+    };
+
+    // Function to submit the edited language data
+    const handleEditLanguageSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book-languages/${editableLanguage.bookLangId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ bookLangName: editableLanguage.bookLangName })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const updatedLanguage = await response.json();
+            const updatedLanguages = bookLanguages.map(lang => lang.bookLangId === updatedLanguage.data.bookLangId ? updatedLanguage.data : lang);
+            setBookLanguages(updatedLanguages);
+            toast.success('Book language edited successfully.');
+            setShowEditModal(false);
+        } catch (error) {
+            console.error('Error updating book language:', error);
+            toast.error('Error editing book language. Please try again later.');
         }
-
-        const updatedLanguage = await response.json();
-        const updatedLanguages = bookLanguages.map(lang => lang.bookLangId === updatedLanguage.data.bookLangId ? updatedLanguage.data : lang);
-        setBookLanguages(updatedLanguages);
-        toast.success('Book language edited successfully.');
-        setShowEditModal(false);
-    } catch (error) {
-        console.error('Error updating book language:', error);
-        toast.error('Error editing book language. Please try again later.');
-    }
-};
+    };
 
 
     const handleCloseEditModal = () => {
@@ -172,43 +172,79 @@ const handleEditLanguageSubmit = async (event) => {
     };
 
 
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(bookLanguages.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = bookLanguages.slice(indexOfNumber, indexOfLastBookType);
+
 
 
     return (
         <div className="main-content">
-            <Container>
-                <div className='mt-1'>
+            <Container className='small-screen-table'>
+                <div className='mt-3'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
                         Add Book language
                     </Button>
                 </div>
-                <div className='mt-4'>
-                    <Table striped bordered hover className='mt-3'>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Language</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {bookLanguages.map((language, index) => (
-                                <tr key={language.bookLangId}>
-                                    <td>{ index + 1}</td>
-                                    <td>{language.bookLangName}</td>
-                                    <td>
-                                        <PencilSquare
-                                            className="ms-3 action-icon edit-icon"
-                                            onClick={() => handleShowEditModal(language)}
-                                        />
-                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => handleShowDeleteConfirmation(language.bookLangId)} />
-                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(language)} />
-                                    </td>
-                                </tr>
-                            ))}
+                <div className='mt-3'>
+                    <div className="table-responsive table-height">
 
-                        </tbody>
-                    </Table>
+                        <Table striped bordered hover className='mt-3'>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Language</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentData.map((language, index) => (
+                                    <tr key={language.bookLangId}>
+                                        <td>{indexOfNumber + index + 1}</td>
+                                        <td>{language.bookLangName}</td>
+                                        <td>
+                                            <PencilSquare
+                                                className="ms-3 action-icon edit-icon"
+                                                onClick={() => handleShowEditModal(language)}
+                                            />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleShowDeleteConfirmation(language.bookLangId)} />
+                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(language)} />
+                                        </td>
+                                    </tr>
+                                ))}
+
+                            </tbody>
+                        </Table>
+                    </div>
+                </div>
+                <div className="pagination-container">
+                    <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                    <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                    <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                    <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                    <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                 </div>
 
                 {/* add book insert type */}
@@ -238,7 +274,7 @@ const handleEditLanguageSubmit = async (event) => {
                 </Modal>
 
                 {/* edit modal */}
-                <Modal show={showEditModal} onHide={() => { handleCloseEditModal(false); resetFormFields()}}>
+                <Modal show={showEditModal} onHide={() => { handleCloseEditModal(false); resetFormFields() }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Book Language</Modal.Title>
                     </Modal.Header>

@@ -7,7 +7,7 @@ import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
 import { ArrowReturnLeft, Trash } from 'react-bootstrap-icons';
 
 import { useAuth } from '../../Auth/AuthProvider';
-
+import '../InventoryCSS/PurchaseBookDashboardData.css'
 const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
 
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
@@ -285,7 +285,7 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     }, []);
 
     return (
-        <div className='mb-5 purchase-page'>
+        <div className='mb-4 purchase-page scrollar'>
             <div className='mt-1'>
                 <ArrowReturnLeft className="back-icon" onClick={onBackButtonClick}>Back</ArrowReturnLeft>
             </div>

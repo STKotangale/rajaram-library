@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import '../InventoryCSS/BookType.css'
 const BookTypes = () => {
     //get
     const [bookTypes, setBookTypes] = useState([]);
@@ -80,56 +80,56 @@ const BookTypes = () => {
     };
 
 
-const editBookType = async (e) => {
-    e.preventDefault();
-    try {
-        // Check if selectedBookTypeId is undefined
-        if (!selectedBookTypeId) {
-            throw new Error("Selected book type ID is undefined.");
-        }
-
-        const response = await fetch(`${BaseURL}/api/auth/book-types/${selectedBookTypeId}`, {
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ bookTypeName: newBookTypeName }),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Error editing book type: ${response.statusText}`);
-        }
-
-        const updatedBookTypeData = await response.json();
-
-        const updatedBookTypes = bookTypes.map(bookType => {
-            if (bookType.bookTypeId === selectedBookTypeId) {
-                return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName};
+    const editBookType = async (e) => {
+        e.preventDefault();
+        try {
+            // Check if selectedBookTypeId is undefined
+            if (!selectedBookTypeId) {
+                throw new Error("Selected book type ID is undefined.");
             }
-            return bookType;
-        });
 
-        setBookTypes(updatedBookTypes);
-        setShowEditBookTypeModal(false);
-        toast.success('Book type edited successfully.');
-    } catch (error) {
-        console.error(error);
-        toast.error('Error editing book type. Please try again later.');
-    }
-};
+            const response = await fetch(`${BaseURL}/api/auth/book-types/${selectedBookTypeId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ bookTypeName: newBookTypeName }),
+            });
 
-const handleEditClick = (bookType) => {
-    // Check if bookType is valid
-    if (!bookType || !bookType.bookTypeId) {
-        console.error("Invalid book type.");
-        return;
-    }
-    setSelectedBookTypeId(bookType.bookTypeId);
-    setNewBookTypeName(bookType.bookTypeName);
-    setShowEditBookTypeModal(true);
-};
-    
+            if (!response.ok) {
+                throw new Error(`Error editing book type: ${response.statusText}`);
+            }
+
+            const updatedBookTypeData = await response.json();
+
+            const updatedBookTypes = bookTypes.map(bookType => {
+                if (bookType.bookTypeId === selectedBookTypeId) {
+                    return { ...bookType, bookTypeName: updatedBookTypeData.data.bookTypeName };
+                }
+                return bookType;
+            });
+
+            setBookTypes(updatedBookTypes);
+            setShowEditBookTypeModal(false);
+            toast.success('Book type edited successfully.');
+        } catch (error) {
+            console.error(error);
+            toast.error('Error editing book type. Please try again later.');
+        }
+    };
+
+    const handleEditClick = (bookType) => {
+        // Check if bookType is valid
+        if (!bookType || !bookType.bookTypeId) {
+            console.error("Invalid book type.");
+            return;
+        }
+        setSelectedBookTypeId(bookType.bookTypeId);
+        setNewBookTypeName(bookType.bookTypeName);
+        setShowEditBookTypeModal(true);
+    };
+
 
     //delete api
     const deleteBookType = async () => {
@@ -160,54 +160,92 @@ const handleEditClick = (bookType) => {
         setShowViewModal(true);
     };
 
-  
+
+
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(bookTypes.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfFirstBookType = indexOfLastBookType - perPage;
+    const currentBookTypes = bookTypes.slice(indexOfFirstBookType, indexOfLastBookType);
+
 
     return (
         <div className='padding-class'>
             <div className="main-content">
-                <Container>
-                    <div className='mt-3'>
-                        <Button onClick={() => setShowAddBookTypeModal(true)} className="button-color">
-                            Add Book Type
-                        </Button>
-                    </div>
-                    <div className='mt-3'>
+                <Container className='small-screen-table'>
+                    <div>
+                        <div className='mt-3'>
+                            <Button onClick={() => setShowAddBookTypeModal(true)} className="button-color">
+                                Add Book Type
+                            </Button>
+                        </div>
+                        <div className='table-responsive mt-3 table-height'>
 
-                        <Table striped bordered hover>
-                            <thead>
-                                <tr>
-                                    <th>Sr.No</th>
-                                    {/* <th>Book Type ID</th> */}
-                                    <th>Book Type</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {bookTypes.map((bookType, index) => (
-                                    <tr key={bookType.bookTypeId}>
-                                        <td>{  index + 1}</td>
-                                        {/* <td>{bookType.id}</td> */}
-                                        <td>{bookType.bookTypeName}</td>
-                                        <td>
-                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                                // setSelectedBookTypeId(bookType.bookTypeId);
-                                                // setNewBookTypeName(bookType.bookTypeName);
-                                                // setShowEditBookTypeModal(true);
-                                               handleEditClick(bookType)
-
-                                            }} />
-
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                                setSelectedBookTypeId(bookType.bookTypeId);
-                                                setShowDeleteConfirmation(true);
-                                            }} />
-                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(bookType)} />
-
-                                        </td>
+                            <Table striped bordered hover>
+                                <thead>
+                                    <tr>
+                                        <th>Sr.No</th>
+                                        {/* <th>Book Type ID</th> */}
+                                        <th>Book Type</th>
+                                        <th>Action</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </Table>
+                                </thead>
+                                <tbody>
+                                    {currentBookTypes.map((bookType, index) => (
+                                        <tr key={bookType.bookTypeId}>
+                                            <td>{indexOfFirstBookType + index + 1}</td>
+                                            {/* <td>{bookType.id}</td> */}
+                                            <td>{bookType.bookTypeName}</td>
+                                            <td>
+                                                <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                                    // setSelectedBookTypeId(bookType.bookTypeId);
+                                                    // setNewBookTypeName(bookType.bookTypeName);
+                                                    // setShowEditBookTypeModal(true);
+                                                    handleEditClick(bookType)
+
+                                                }} />
+
+                                                <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                                    setSelectedBookTypeId(bookType.bookTypeId);
+                                                    setShowDeleteConfirmation(true);
+                                                }} />
+                                                <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(bookType)} />
+
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </div>
+
+                        <div className="pagination-container">
+                            <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                            <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                            <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                            <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                            <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
+                        </div>
+                        
                     </div>
 
 
@@ -238,7 +276,7 @@ const handleEditClick = (bookType) => {
                     </Modal>
 
                     {/* Edit Book Type Modal */}
-                    <Modal show={showEditBookTypeModal} onHide={() => {setShowEditBookTypeModal(false); resetFormFields()}}>
+                    <Modal show={showEditBookTypeModal} onHide={() => { setShowEditBookTypeModal(false); resetFormFields() }}>
                         <Modal.Header closeButton>
                             <Modal.Title>Edit Book Type</Modal.Title>
                         </Modal.Header>

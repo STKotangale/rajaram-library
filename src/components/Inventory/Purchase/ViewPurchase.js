@@ -417,7 +417,7 @@ const ViewPurchase = () => {
 
     return (
         <div className="main-content">
-            <Container>
+            <Container className='small-screen-table'>
                 {!showAddPurchase && (
                     <div className='mt-2'>
                         <div className='mt-1'>

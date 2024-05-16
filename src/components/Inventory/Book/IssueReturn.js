@@ -322,7 +322,7 @@ const BookIssue = () => {
 
     return (
         <div className="main-content">
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">

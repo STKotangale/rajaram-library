@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container, Row } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -160,17 +160,45 @@ const BookAuthor = () => {
         setShowViewModal(true);
     };
 
+
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(bookAuthors.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = bookAuthors.slice(indexOfNumber, indexOfLastBookType);
+
+
     return (
         <div className="main-content">
 
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddBookAuthorModal(true)} className="button-color">
                         Add Book Author
                     </Button>
                 </div>
                 <div className='mt-3'>
-                    <div className="table-responsive">
+                    <div className="table-responsive table-height">
 
                         <Table striped bordered hover>
                             <thead>
@@ -184,9 +212,9 @@ const BookAuthor = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {bookAuthors.map((author, index) => (
+                                {currentData.map((author, index) => (
                                     <tr key={author.authorId}>
-                                        <td>{index + 1}</td>
+                                        <td>{indexOfNumber + index + 1}</td>
                                         <td>{author.authorName}</td>
                                         <td>{author.authorAddress}</td>
                                         <td>{author.authorContactNo1}</td>
@@ -213,6 +241,14 @@ const BookAuthor = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
 

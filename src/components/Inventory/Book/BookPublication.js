@@ -159,7 +159,7 @@ const BookPublication = () => {
     return (
         <div className="main-content">
 
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddBookPublicationModal(true)} className="button-color">
                         Add Book Publication

@@ -102,11 +102,7 @@ address {
 
 
 /* responsive */
-body,
-html {
-  max-width: 100%;
-  overflow-x: hidden;
-}
+
 
 @media (max-width: 768px) {
   .main-footer {

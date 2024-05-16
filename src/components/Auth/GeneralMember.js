@@ -83,7 +83,7 @@ const GeneralMember = () => {
             password: '',
         });
     };
-    
+
     //add post api
     const addGeneralMember = async (e) => {
         e.preventDefault();
@@ -252,7 +252,7 @@ const GeneralMember = () => {
 
     return (
         <div className="main-content">
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddGeneralMemberModal(true)} className="button-color">
                         Add General Member
@@ -491,7 +491,7 @@ const GeneralMember = () => {
 
 
             {/* Edit General member Modal */}
-            <Modal show={showEditGeneralMemberModal} onHide={() => {setShowEditGeneralMemberModal(false); resetFormFields();}} size='xl'>
+            <Modal show={showEditGeneralMemberModal} onHide={() => { setShowEditGeneralMemberModal(false); resetFormFields(); }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Edit General Member</Modal.Title>

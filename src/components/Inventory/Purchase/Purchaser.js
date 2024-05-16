@@ -142,7 +142,7 @@ const Purchaser = () => {
     return (
         <div className="main-content">
 
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddLedgerModal(true)} className="button-color">
                         Add Purchaser
@@ -161,7 +161,7 @@ const Purchaser = () => {
                         <tbody>
                             {ledger.map((ledger, index) => (
                                 <tr key={ledger.ledgerID}>
-                                    <td>{  index + 1}</td>
+                                    <td>{index + 1}</td>
                                     <td>{ledger.ledgerName}</td>
                                     <td>
                                         <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
@@ -209,7 +209,7 @@ const Purchaser = () => {
                 </Modal>
 
                 {/* Edit Purchaser Modal */}
-                <Modal show={showEditLedgerModal} onHide={() => {setShowEditLedgerModal(false);resetFormFields()}}>
+                <Modal show={showEditLedgerModal} onHide={() => { setShowEditLedgerModal(false); resetFormFields() }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Purchaser</Modal.Title>
                     </Modal.Header>

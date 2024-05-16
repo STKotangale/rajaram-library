@@ -70,6 +70,7 @@
 .sub-icon {
   background: none;
 }
+
 /* .sub-icon.list-group-item-action {
   background-color: transparent !important; 
 } */
@@ -177,4 +178,41 @@
   }
 } */
 
+/* body,
+html {
+  max-width: 100%;
+  overflow-x: hidden;
+} */
 
+@media (max-width: 768px) {
+  /* remove margin-top */
+  .small-screen-table {
+    margin-top: -56px;
+  }
+
+  .pagination-container {
+    font-size: 10px;
+  }
+
+  .pagination-container button {
+    font-size: 8px;
+  }
+}
+
+/* pagination */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pagination-container button {
+  margin: 0 10px;
+}
+
+
+/* table height for purcahse */
+.table-height {
+  height: 460px;
+}

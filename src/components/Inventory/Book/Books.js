@@ -246,7 +246,7 @@ const Books = () => {
 
     return (
         <div className="main-content">
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddBookModal(true)} className="button-color">
                         Add Book

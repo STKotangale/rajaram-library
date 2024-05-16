@@ -156,3 +156,10 @@ input[type=number] {
 .box{
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); 
 }
+
+
+/* purchase page */
+.scrollar{
+  overflow: scroll;
+  height: 550px;
+}

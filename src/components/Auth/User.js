@@ -158,7 +158,7 @@ const User = () => {
 
     return (
         <div className="main-content">
-            <Container>
+            <Container className='small-screen-table'>
                 <div className='mt-3'>
                     <Button onClick={() => setShowAddUserModal(true)} className="button-color">
                         Add User
