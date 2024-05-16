@@ -244,7 +244,7 @@ const BookTypes = () => {
                             <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
                             <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                         </div>
-                        
+
                     </div>
 
 

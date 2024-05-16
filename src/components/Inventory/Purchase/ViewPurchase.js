@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PencilSquare, Trash, Eye } from 'react-bootstrap-icons';
+import { PencilSquare, Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import PurchaseDetails from './PurchaseDetails';
@@ -42,6 +42,7 @@ const ViewPurchase = () => {
         setShowAddPurchase(false);
         fetchPurchases();
     };
+
     const handleBackButtonClick = () => {
         setShowAddPurchase(false);
     };
@@ -144,7 +145,6 @@ const ViewPurchase = () => {
         }
 
         if (index !== undefined) {
-            // Modify fields within the stockDetails array
             const updatedDetails = [...selectedPurchase.stockDetails];
             if (field === 'bookQty' || field === 'bookRate') {
                 updatedDetails[index][field] = parseInt(value);
@@ -168,7 +168,6 @@ const ViewPurchase = () => {
                 stockDetails: updatedDetails
             }));
         } else {
-            // Modify fields not within the stockDetails array
             setSelectedPurchase(prevPurchase => ({
                 ...prevPurchase,
                 [field]: value
@@ -176,12 +175,6 @@ const ViewPurchase = () => {
         }
     };
 
-    //date format
-    // const formatDateToISO = (dateString) => {
-    //     if (!dateString) return '';
-    //     const localDate = new Date(dateString);
-    //     return localDate.toISOString();
-    // };
 
     const formatDateToISO = (dateString) => {
         if (!dateString) return '';
@@ -408,12 +401,33 @@ const ViewPurchase = () => {
     };
 
 
-    // //pagination
-    // const itemsPerPage = 10;
-    // const [currentPage, setCurrentPage] = useState(1);
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(purchases.length / perPage);
 
-    // const totalPages = Math.ceil(purchases.length / itemsPerPage);
-    // const handlePageClick = (page) => setCurrentPage(page);
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = purchases.slice(indexOfNumber, indexOfLastBookType);
+
+
 
     return (
         <div className="main-content">
@@ -425,7 +439,7 @@ const ViewPurchase = () => {
                                 Add purchase
                             </Button>
                         </div>
-                        <div className="table-responsive">
+                        <div className="table-responsive table-height">
                             <Table striped bordered hover className='mt-4'>
                                 <thead>
                                     <tr>
@@ -438,9 +452,9 @@ const ViewPurchase = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {purchases.map((purchase, index) => (
+                                    {currentData.map((purchase, index) => (
                                         <tr key={index}>
-                                            <td>{index + 1}</td>
+                                            <td>{indexOfNumber + index + 1}</td>
                                             <td>{purchase.ledgerIDF.ledgerName}</td>
                                             <td>{purchase.invoiceNo}</td>
                                             <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
@@ -455,10 +469,17 @@ const ViewPurchase = () => {
                                 </tbody>
                             </Table>
                         </div>
+                        <div className="pagination-container">
+                            <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                            <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                            <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                            <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                            <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
+                        </div>
                     </div>
                 )}
                 {showAddPurchase && (
-                    <PurchaseDetails onSubmit={handlePurchaseSubmit} onBackButtonClick={handleBackButtonClick} />
+                    <PurchaseDetails handlePurchaseSubmit={handlePurchaseSubmit} onBackButtonClick={handleBackButtonClick} />
                 )}
             </Container>
 
@@ -487,9 +508,9 @@ const ViewPurchase = () => {
                                         <Form.Control
                                             type="date"
                                             value={selectedPurchase.invoiceDate || ''}
-                                        // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
-                                        onChange={(e) => handleInputChange(e, 'invoiceDate')}
-                                        className="custom-date-picker small-input"
+                                            // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
+                                            onChange={(e) => handleInputChange(e, 'invoiceDate')}
+                                            className="custom-date-picker small-input"
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col} sm={5}>

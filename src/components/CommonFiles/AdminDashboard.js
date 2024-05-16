@@ -32,7 +32,7 @@ import GeneralMember from '../Auth/GeneralMember';
 
 import Issue from '../Inventory/Book/Issue';
 import IssueReturn from '../Inventory/Book/IssueReturn';
-import PurchaseReturn from '../Inventory/Purchase/PurchhaseReturn';
+import PurchaseReturn from '../Inventory/Book/PurchaseReturn';
 
 
 
@@ -56,8 +56,6 @@ const AdminDashboard = () => {
     const [bookIssueReturn, setBookIssueReturn] = useState(false);
     const [bookPurchaseReturn, setBookPurchaseReturn] = useState(false);
 
-
-
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [credentials, setCredentials] = useState({
@@ -65,16 +63,36 @@ const AdminDashboard = () => {
         confirmPassword: ''
     });
 
-    const { username, accessToken ,logout} = useAuth();
+    const { username, accessToken, logout } = useAuth();
 
     //get username and access token
     useEffect(() => {
 
     }, [username, accessToken]);
 
+    //sunitem
+    const [showInventorySubItems, setShowInventorySubItems] = useState(false);
+    const toggleInventorySubItems = () => {
+        setShowInventorySubItems(!showInventorySubItems);
+    };
 
+    const [showMasterSubItems, setShowMasterSubItems] = useState(false);
+    const toggleMasterSubItems = () => {
+        setShowMasterSubItems(!showMasterSubItems);
+    };
+
+    const [showAccountSubItems, setShowAccountSubItems] = useState(false);
+    const toggleAccountSubItems = () => {
+        setShowAccountSubItems(!showAccountSubItems);
+    };
+
+    //show name in navbar
+    const [selectedItemName, setSelectedItemName] = useState('');
+   
+    //true and false
     const handleHomeClick = () => {
         setViewDashboard(true);
+        setSelectedItemName('Home');
         setFillBookDetails(false);
         setViewPurchase(false);
         setBookLanguages(false);
@@ -91,8 +109,33 @@ const AdminDashboard = () => {
         setBookPurchaseReturn(false);
     };
 
+    const handleShowPurchase = () => {
+        setViewPurchase(true);
+        setSelectedItemName('Purchase');
+        setBookType(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBooks(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookPublication(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookPurchaseReturn(false);
+
+        // setSelectedAccountItem('');
+        // setSelectedMasterItem('');
+        // setShowSidebar(false);
+    };
+
     const handleBookDetailsClick = () => {
         setFillBookDetails(true);
+        setSelectedItemName('Book Details');
+
         setViewDashboard(false);
         setViewPurchase(false);
         setBookLanguages(false);
@@ -112,6 +155,8 @@ const AdminDashboard = () => {
 
     const handleBookLanguages = () => {
         setBookLanguages(true);
+        setSelectedItemName('Book Languages');
+
         setViewPurchase(false);
         setFillBookDetails(false);
         setViewDashboard(false);
@@ -131,6 +176,8 @@ const AdminDashboard = () => {
 
     const handleBookName = () => {
         setBooks(true);
+        setSelectedItemName('Book');
+
         setViewPurchase(false);
         setFillBookDetails(false);
         setViewDashboard(false);
@@ -149,6 +196,8 @@ const AdminDashboard = () => {
 
     const handleBookType = () => {
         setBookType(true);
+        setSelectedItemName('Book Type');
+
         setViewPurchase(false);
         setFillBookDetails(false);
         setViewDashboard(false);
@@ -165,27 +214,29 @@ const AdminDashboard = () => {
         setBookPurchaseReturn(false);
     };
 
-    const handleShowPurchase = () => {
-        setViewPurchase(true);
-        setBookType(false);
-        setFillBookDetails(false);
-        setViewDashboard(false);
-        setBookLanguages(false);
-        setBooks(false);
-        setPermanentMember(false);
-        setGeneralMember(false);
-        setPurchaser(false);
-        setCreateUser(false);
-        setBookAuthor(false);
-        setBookPublication(false);
-        setBookIssue(false);
-        setBookIssueReturn(false);
-        setBookPurchaseReturn(false);
-    };
+    // const handleShowPurchase = () => {
+    //     setViewPurchase(true);
+    //     setBookType(false);
+    //     setFillBookDetails(false);
+    //     setViewDashboard(false);
+    //     setBookLanguages(false);
+    //     setBooks(false);
+    //     setPermanentMember(false);
+    //     setGeneralMember(false);
+    //     setPurchaser(false);
+    //     setCreateUser(false);
+    //     setBookAuthor(false);
+    //     setBookPublication(false);
+    //     setBookIssue(false);
+    //     setBookIssueReturn(false);
+    //     setBookPurchaseReturn(false);
+    // };
 
 
     const handlePermanentMember = () => {
         setPermanentMember(true);
+        setSelectedItemName('Permanent Member');
+
         setBookType(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -206,6 +257,8 @@ const AdminDashboard = () => {
 
     const handleGeneralMember = () => {
         setGeneralMember(true);
+        setSelectedItemName('General Member');
+
         setBookType(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -224,6 +277,8 @@ const AdminDashboard = () => {
 
     const handlePurchaser = () => {
         setPurchaser(true);
+        setSelectedItemName('Purchaser');
+
         setGeneralMember(false);
         setBookType(false);
         setViewPurchase(false);
@@ -242,6 +297,8 @@ const AdminDashboard = () => {
 
     const handleCreateUser = () => {
         setCreateUser(true);
+        setSelectedItemName('User');
+
         setPurchaser(false);
         setGeneralMember(false);
         setBookType(false);
@@ -260,6 +317,8 @@ const AdminDashboard = () => {
 
     const handleBookAuthor = () => {
         setBookAuthor(true);
+        setSelectedItemName('Book Author');
+
         setBooks(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -278,6 +337,8 @@ const AdminDashboard = () => {
 
     const handleBookPublication = () => {
         setBookPublication(true);
+        setSelectedItemName('Book Publication');
+
         setBooks(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -296,6 +357,8 @@ const AdminDashboard = () => {
 
     const handleIssueClick = () => {
         setBookIssue(true);
+        setSelectedItemName('Issue');
+
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -314,6 +377,8 @@ const AdminDashboard = () => {
 
     const handleIssueReturnClick = () => {
         setBookIssueReturn(true);
+        setSelectedItemName('Issue Return');
+
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -333,6 +398,8 @@ const AdminDashboard = () => {
 
     const handlePurchaseReturnClick = () => {
         setBookPurchaseReturn(true);
+        setSelectedItemName('Purchase Return');
+
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -379,20 +446,6 @@ const AdminDashboard = () => {
     };
 
 
-    const [showInventorySubItems, setShowInventorySubItems] = useState(false);
-    const toggleInventorySubItems = () => {
-        setShowInventorySubItems(!showInventorySubItems);
-    };
-
-    const [showMasterSubItems, setShowMasterSubItems] = useState(false);
-    const toggleMasterSubItems = () => {
-        setShowMasterSubItems(!showMasterSubItems);
-    };
-
-    const [showAccountSubItems, setShowAccountSubItems] = useState(false);
-    const toggleAccountSubItems = () => {
-        setShowAccountSubItems(!showAccountSubItems);
-    };
 
 
     //sidebar mobile view
@@ -518,16 +571,23 @@ const AdminDashboard = () => {
                     <div className="sidebar-toggle d-md-none color-black mt-1" onClick={toggleSidebar}>
                         ☰
                     </div>
-                    <Navbar.Brand href="#Dashboard" className='ms-4  mt-2 welcome-username'>Welcome Member !.. {username}</Navbar.Brand>
+                    {/* <Navbar.Brand href="#Dashboard" className='ms-4  mt-2 welcome-username'>Welcome Member !.. {username}</Navbar.Brand> */}
                     {/* <Navbar.Brand href="#Dashboard" className='ms-4 welcome-message'>
                         Welcome Member{username && <span className="d-none d-sm-inline"> !.. {username}</span>}
                     </Navbar.Brand> */}
+                    <Nav className="ms-4 ">
+                        <div className="selected-item">{selectedItemName}</div>
+                    </Nav>
                     <Navbar.Toggle aria-controls="basic-navbar-nav " />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="ms-auto ">
                         </Nav>
                         <NavDropdown title={<div className="logo-container"><PersonCircle size={30} /></div>} id="navbarScrollingDropdown" className='ms-0 logo-size' align="end">
-
+                            <div className="username-container">
+                                <PersonFill className="icon me-2 ms-3" />
+                                {username}
+                                <hr className="horizontal-line" />
+                            </div>
                             {/* <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-0 logo-size' align="end"> */}
                             <NavDropdown.Item onClick={() => setShowChangePasswordModal(true)}>
                                 <LockFill className="icon" /> Change Password

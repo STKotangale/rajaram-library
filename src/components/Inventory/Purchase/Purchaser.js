@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -139,6 +139,33 @@ const Purchaser = () => {
     };
 
 
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(ledger.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = ledger.slice(indexOfNumber, indexOfLastBookType);
+
+
     return (
         <div className="main-content">
 
@@ -149,36 +176,45 @@ const Purchaser = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
+                    <div className="table-responsive table-height">
 
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Purchaser</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {ledger.map((ledger, index) => (
-                                <tr key={ledger.ledgerID}>
-                                    <td>{index + 1}</td>
-                                    <td>{ledger.ledgerName}</td>
-                                    <td>
-                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                            setSelectedLedgerId(ledger.ledgerID);
-                                            setNewLedgerName(ledger.ledgerName);
-                                            setShowEditLedgerModal(true);
-                                        }} />
-                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                            setSelectedLedgerId(ledger.ledgerID);
-                                            setShowDeleteConfirmation(true);
-                                        }} />
-                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(ledger)} />
-                                    </td>
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Purchaser</th>
+                                    <th>Action</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                            </thead>
+                            <tbody>
+                                {currentData.map((ledger, index) => (
+                                    <tr key={ledger.ledgerID}>
+                                        <td>{indexOfNumber + index + 1}</td>
+                                        <td>{ledger.ledgerName}</td>
+                                        <td>
+                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                                setSelectedLedgerId(ledger.ledgerID);
+                                                setNewLedgerName(ledger.ledgerName);
+                                                setShowEditLedgerModal(true);
+                                            }} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                                setSelectedLedgerId(ledger.ledgerID);
+                                                setShowDeleteConfirmation(true);
+                                            }} />
+                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(ledger)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
+                    </div>
                 </div>
 
 

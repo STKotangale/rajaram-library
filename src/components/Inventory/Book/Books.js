@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -244,6 +244,35 @@ const Books = () => {
         }
     };
 
+
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(books.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = books.slice(indexOfNumber, indexOfLastBookType);
+
+
+
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -253,47 +282,58 @@ const Books = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Sr.No</th>
-                                <th>Book</th>
-                                {/* <th>Author</th>
+                    <div className="table-responsive table-height">
+
+                        <Table striped bordered hover>
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>Book</th>
+                                    {/* <th>Author</th>
                                 <th>Publication</th>
                                 <th>Book Type</th>
                                 <th>Lang</th> */}
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {books.map((book, index) => (
-                                <tr key={book.bookId}>
-                                    <td>{index + 1}</td>
-                                    <td>{book.bookName}</td>
-                                    {/* <td>{book.authorIdF.authorName}</td>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {currentData.map((book, index) => (
+                                    <tr key={book.bookId}>
+                                        <td>{indexOfNumber + index + 1}</td>
+                                        <td>{book.bookName}</td>
+                                        {/* <td>{book.authorIdF.authorName}</td>
                                     <td>{book.publicationIdF.publicationName}</td>
                                     <td>{book.bookTypeIdF.bookTypeName}</td>
                                     <td>{book.bookLangIdF.bookLangName}</td> */}
-                                    <td>
-                                        <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
-                                            setSelectedBookId(book.bookId);
-                                            setNewBookName(book.bookName);
-                                            setNewBookAuthor(book.authorIdF.authorId);
-                                            setNewBookPublication(book.publicationIdF.publicationId);
-                                            setNewBookTypeName(book.bookTypeIdF.bookTypeId);
-                                            setAddBookLangName(book.bookLangIdF.bookLangId);
-                                            setShowEditBookModal(true);
-                                        }} />
-                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => {
-                                            setSelectedBookId(book.bookId);
-                                            setShowDeleteConfirmation(true);
-                                        }} />
-                                        <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(book)} />
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
+                                        <td>
+                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => {
+                                                setSelectedBookId(book.bookId);
+                                                setNewBookName(book.bookName);
+                                                setNewBookAuthor(book.authorIdF.authorId);
+                                                setNewBookPublication(book.publicationIdF.publicationId);
+                                                setNewBookTypeName(book.bookTypeIdF.bookTypeId);
+                                                setAddBookLangName(book.bookLangIdF.bookLangId);
+                                                setShowEditBookModal(true);
+                                            }} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => {
+                                                setSelectedBookId(book.bookId);
+                                                setShowDeleteConfirmation(true);
+                                            }} />
+                                            <Eye className="ms-3 action-icon delete-icon" onClick={() => handleShowViewModal(book)} />
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </Table>
+                    </div>
+
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
+                    </div>
                 </div>
 
                 {/* Add Book Modal */}

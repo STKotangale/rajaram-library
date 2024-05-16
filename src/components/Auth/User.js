@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AuthCSS/User.css';
@@ -156,6 +156,33 @@ const User = () => {
     };
 
 
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(users.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = users.slice(indexOfNumber, indexOfLastBookType);
+
+
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -165,7 +192,7 @@ const User = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
-                    <div className="table-responsive">
+                <div className="table-responsive table-height">
                         <Table striped bordered hover>
                             <thead>
                                 <tr>
@@ -176,9 +203,9 @@ const User = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.map((user, index) => (
+                                {currentData.map((user, index) => (
                                     <tr key={user.userId}>
-                                        <td>{index + 1}</td>
+                                        <td>{indexOfNumber + index + 1}</td>
                                         <td>{user.username}</td>
                                         <td>{user.useremail}</td>
                                         <td>
@@ -199,6 +226,13 @@ const User = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
 

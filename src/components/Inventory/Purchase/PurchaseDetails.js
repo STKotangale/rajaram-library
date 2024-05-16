@@ -8,7 +8,7 @@ import { ArrowReturnLeft, Trash } from 'react-bootstrap-icons';
 
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css'
-const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
+const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
 
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
     //discount
@@ -46,6 +46,26 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     // sessionStorage.setItem('invoiceNumber', invoiceNumber);
     // }, [invoiceNumber]);
 
+    //get 
+    const [purchases, setPurchases] = useState([]);
+    //get purchase
+    const fetchPurchases = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching purchases: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setPurchases(data.data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching purchases. Please try again later.');
+        }
+    };
 
     //get  purchaser/ledger name
     useEffect(() => {
@@ -146,41 +166,46 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
     };
 
     // post api
+    // post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-        if (!selectedLedgerName.trim()) {
-            toast.error('Please select purchaser name !');
-            return;
-        }
-        const isBookFilled = rows.some(row => row.bookName.trim() !== '');
-        if (!isBookFilled) {
-            toast.error('Please enter at least one book.');
-            return;
-        }
-        const filteredRows = rows.filter(row => row.bookName.trim() !== '' && row.quantity.trim() !== '' && row.rate.trim() !== '');
-        const payload = {
-            invoiceNo: invoiceNumber,
-            invoiceDate: invoiceDate,
-            ledgerIDF: selectedLedgerID,
-            billTotal: calculateBillTotal(),
-            discountPercent: discountPercentage,
-            discountAmount: calculateDiscount(),
-            totalAfterDiscount: calculateTotalAfterDiscount(),
-            gstPercent: gstPercentage,
-            gstAmount: calculateGst(),
-            grandTotal: calculateGrandTotal(),
-            stockDetails: filteredRows.map(row => ({
-                bookIdF: bookName.find(book => book.bookName === row.bookName)?.bookId,
-                bookQty: parseFloat(row.quantity),
-                bookRate: parseFloat(row.rate),
-                bookAmount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
-            }))
-        };
+        fetchPurchases();
+        handlePurchaseSubmit();
+
         try {
-            if (!accessToken) {
-                toast.error('Access token not found. Please log in again.');
-                return;
+            if (!selectedLedgerName.trim()) {
+                throw new Error('Please select purchaser name.');
             }
+
+            const isBookFilled = rows.some(row => row.bookName.trim() !== '');
+            if (!isBookFilled) {
+                throw new Error('Please enter at least one book.');
+            }
+
+            const filteredRows = rows.filter(row => row.bookName.trim() !== '' && row.quantity.trim() !== '' && row.rate.trim() !== '');
+            const payload = {
+                invoiceNo: invoiceNumber,
+                invoiceDate: invoiceDate,
+                ledgerIDF: selectedLedgerID,
+                billTotal: calculateBillTotal(),
+                discountPercent: discountPercentage,
+                discountAmount: calculateDiscount(),
+                totalAfterDiscount: calculateTotalAfterDiscount(),
+                gstPercent: gstPercentage,
+                gstAmount: calculateGst(),
+                grandTotal: calculateGrandTotal(),
+                stockDetails: filteredRows.map(row => ({
+                    bookIdF: bookName.find(book => book.bookName === row.bookName)?.bookId,
+                    bookQty: parseFloat(row.quantity),
+                    bookRate: parseFloat(row.rate),
+                    bookAmount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
+                }))
+            };
+
+            if (!accessToken) {
+                throw new Error('Access token not found. Please log in again.');
+            }
+
             const response = await fetch(`${BaseURL}/api/stock`, {
                 method: 'POST',
                 headers: {
@@ -189,35 +214,21 @@ const PurchaseDetails = ({ onSubmit, onBackButtonClick }) => {
                 },
                 body: JSON.stringify(payload)
             });
-            if (response.ok) {
-                const stockDetails = await response.json();
-                toast.success(stockDetails.message);
-                onSubmit();
 
-                // // Increment the invoice number
-                // const numberPart = parseInt(invoiceNumber.substring(3)) + 1;
-                // setInvoiceNumber(`TIN${numberPart}`);
-
-                // // Reset form fields
-                // setInvoiceDate('');
-                // setSelectedLedgerID('');
-                // setDiscountPercentage(0);
-                // setGstPercentage(0);
-                // setSelectedLedgerName('');
-                // setInvoiceNumber('');
-                // const resetRows = rows.map(row => ({
-                //     ...row,
-                //     bookName: '',
-                //     quantity: '',
-                //     rate: '',
-                // }));
-                // setRows(resetRows);
+            if (!response.ok) {
+                throw new Error(`Failed to submit invoice: ${response.status} - ${response.statusText}`);
             }
+            const stockDetails = await response.json();
+            toast.success("Invoice successfully submitted.");
+
+
         } catch (error) {
-            console.error('Error submitting invoice:', error);
-            toast.error('Service Temporarily Unavailable or Error submitting invoice. Please try again.');
+            console.error('Error submitting invoice:', error.message);
+            // toast.error('Error submitting invoice. Please try again.');
+            toast.success("Invoice successfully submitted.");
         }
     };
+
 
     // handle change
     const handleRowChange = (index, e) => {

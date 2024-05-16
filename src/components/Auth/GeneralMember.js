@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AuthCSS/PermanentGeneralMember.css';
@@ -250,6 +250,34 @@ const GeneralMember = () => {
     };
 
 
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(generalMember.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = generalMember.slice(indexOfNumber, indexOfLastBookType);
+
+
+
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -259,8 +287,7 @@ const GeneralMember = () => {
                     </Button>
                 </div>
                 <div className='mt-3 table-container-general-member-1'>
-                    <div className="table-responsive">
-
+                    <div className="table-responsive table-height">
                         <Table striped bordered hover >
                             <thead>
                                 <tr>
@@ -274,9 +301,9 @@ const GeneralMember = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {generalMember.map((member, index) => (
+                                {currentData.map((member, index) => (
                                     <tr key={member.memberId}>
-                                        <td>{index + 1}</td>
+                                        <td>{indexOfNumber + index + 1}</td>
                                         <td>{member.firstName}</td>
                                         <td>{member.middleName}</td>
                                         <td>{member.lastName}</td>
@@ -303,6 +330,13 @@ const GeneralMember = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
             </Container>
