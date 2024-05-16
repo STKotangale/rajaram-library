@@ -5,7 +5,6 @@ import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap
 import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import '../InventoryCSS/BookType.css'
 const BookTypes = () => {
     //get
     const [bookTypes, setBookTypes] = useState([]);
