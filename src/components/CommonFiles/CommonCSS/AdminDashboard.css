@@ -226,3 +226,10 @@ html {
   max-width: 100%;
   overflow-x: hidden;
 }
+
+/* sidebar name add also navabar */
+.selected-item {
+  font-size: 17px; 
+  text-transform: uppercase; 
+  font-weight: bold; 
+}

@@ -1,27 +1,21 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PencilSquare, Trash, Eye } from 'react-bootstrap-icons';
+import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
 const BookIssue = () => {
-    //get issue
     const [issue, setIssue] = useState([]);
-    //get general member
     const [generalMember, setGeneralMember] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState("");
-
     const [showAddModal, setShowAddModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editData, setEditData] = useState(null);
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', bookDetails: '' })));
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
-    const [selectedLedgerID, setSelectedLedgerID] = useState('');
     const [bookDetails, setBookDetails] = useState([]);
+
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -31,9 +25,6 @@ const BookIssue = () => {
         fetchBookDetails();
     }, [username, accessToken]);
 
-
-
-    //get api
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -51,27 +42,24 @@ const BookIssue = () => {
             toast.error('Failed to load general members. Please try again later.');
         }
     };
-    
-        //get book details
-        const fetchBookDetails = async () => {
-            try {
-                const response = await fetch(`${BaseURL}/api/bookdetails/all`);
-                if (!response.ok) {
-                    throw new Error(`Error fetching book details: ${response.statusText}`);
-                }
-                const data = await response.json();
-                setBookDetails(data);
-            } catch (error) {
-                console.error('Error fetching book details:', error.message);
-                toast.error('Error fetching book details. Please try again later.');
+
+    const fetchBookDetails = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/bookdetails/copyno`);
+            if (!response.ok) {
+                throw new Error(`Error fetching book details: ${response.statusText}`);
             }
-        };
+            const data = await response.json();
+            setBookDetails(data);
+        } catch (error) {
+            console.error('Error fetching book details:', error.message);
+            toast.error('Error fetching book details. Please try again later.');
+        }
+    };
 
-
-    //Get Issue
     const fetchIssue = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/purchase`, {
+            const response = await fetch(`${BaseURL}/api/stock`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -80,54 +68,53 @@ const BookIssue = () => {
                 throw new Error(`Error fetching issue: ${response.statusText}`);
             }
             const data = await response.json();
-            setIssue(data);
+            setIssue(data.data)
         } catch (error) {
             console.error(error);
             toast.error('Error fetching issue. Please try again later.');
         }
     };
 
-
-
-    // post / add function
     const handleBookChangeForRow = (index, event) => {
-        const value = event.target.value;
         const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], bookName: value };
+        const selectedBookId = event.target.value;
+        const selectedBook = bookDetails.find(book => book.bookId === Number(selectedBookId));
+        updatedRows[index] = {
+            ...updatedRows[index],
+            bookId: selectedBookId,
+            bookName: selectedBook ? selectedBook.bookName : '',
+            purchaseCopyNo: ''
+        };
         setRows(updatedRows);
     };
 
-    //also use in edit modal
     const handleBookDetailsChangeForRow = (index, event) => {
-        const value = event.target.value;
         const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], bookDetails: value };
+        updatedRows[index] = { ...updatedRows[index], purchaseCopyNo: event.target.value };
         setRows(updatedRows);
     };
 
     const addRowAdd = () => {
-        setRows([...rows, { bookName: '', bookDetails: '' }]);
+        setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '' }]);
     };
 
     const deleteRowAdd = (index) => {
-        const updatedRows = rows.filter((row, i) => i !== index);
+        const updatedRows = rows.filter((_, i) => i !== index);
         setRows(updatedRows);
     };
 
-    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         const payload = {
             invoiceNo: invoiceNumber,
             invoiceDate: invoiceDate,
-            ledgerId: selectedLedgerID,
-            purchaseDetails: rows.map(row => ({
-                // bookId: bookName.find(book => book.bookName === row.bookName)?.bookId,
-                bookDetails: row.bookDetails
-            }))
+            generalMemberId: selectedMemberId,
+            bookId: rows[0].bookId,
+            bookdetailId: rows[0].purchaseCopyNo
         };
+
         try {
-            const response = await fetch(`${BaseURL}/api/purchase`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-issue`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -135,6 +122,7 @@ const BookIssue = () => {
                 },
                 body: JSON.stringify(payload)
             });
+
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
@@ -150,52 +138,42 @@ const BookIssue = () => {
         }
     };
 
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editData, setEditData] = useState({
+        invoiceNo: '',
+        invoiceDate: '',
+        generalMemberId: '',
+        books: [{ bookId: '', bookName: '', purchaseCopyNo: '' }]
+    });
 
-    //edit function
-    const handleEditClick = (issue) => {
-        const bookName = issue.purchaseDetails.map(detail => detail.bookName);
+    const handleEditClick = (issueData) => {
+        if (!issueData) {
+            console.error("No issue data provided");
+            return;
+        }
+
+        const books = issueData.books || [];
+
         setEditData({
-            ...issue,
-            bookName: bookName,
+            invoiceNo: issueData.invoiceNo,
+            invoiceDate: issueData.invoiceDate.substring(0, 10),
+            generalMemberId: issueData.generalMemberId,
+            // bookName: issueData.bookName,
+
+            books: books.map(book => ({
+                bookId: book.bookId.toString(),
+                bookName: book.bookName,
+                purchaseCopyNo: book.purchaseCopyNo
+            }))
         });
         setShowEditModal(true);
     };
 
-    const handleBookChangeEdit = (index, event) => {
-        const { name, value } = event.target;
-        const updatedRows = [...editData.purchaseDetails];
-        updatedRows[index][name] = value;
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: updatedRows
-        }));
-    };
 
-    const addRowEdit = () => {
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: [...prevState.purchaseDetails, { bookName: '', bookDetails: '' }]
-        }));
-    };
-
-    const deleteRowEdit = (index) => {
-        const updatedRows = [...editData.purchaseDetails];
-        updatedRows.splice(index, 1);
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: updatedRows
-        }));
-    };
-
-    // edit api
-    const handleSubmitEdit = async (event) => {
+    const handleUpdate = async (event) => {
         event.preventDefault();
-        if (!editData) {
-            toast.error('No data to submit.');
-            return;
-        }
         try {
-            const response = await fetch(`${BaseURL}/api/purchase/${editData.id}`, {
+            const response = await fetch(`${BaseURL}/api/issues/${editData.invoiceNo}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -203,11 +181,11 @@ const BookIssue = () => {
                 },
                 body: JSON.stringify(editData)
             });
+
             if (response.ok) {
-                const updatedIssue = await response.json();
-                toast.success(updatedIssue.message);
-                setShowEditModal(false);
+                toast.success('Issue updated successfully.');
                 fetchIssue();
+                setShowEditModal(false);
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -218,74 +196,29 @@ const BookIssue = () => {
         }
     };
 
-    const handleCloseEditModal = () => {
-        setShowEditModal(false);
-        setEditData(null);
+    const addBookRow = () => {
+        const newBooks = [...editData.books, { bookId: '', bookName: '', purchaseCopyNo: '' }];
+        setEditData({ ...editData, books: newBooks });
     };
 
-
-    // Function to format the date as "yyyy-mm-dd" for input type 'date'
-    const formatDateForInput = (dateString) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
+    const deleteBookRow = (index) => {
+        const newBooks = editData.books.filter((_, idx) => idx !== index);
+        setEditData({ ...editData, books: newBooks });
     };
 
-
-
-
-    //view
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewData, setViewData] = useState(null);
-    // Function to open view modal
-    const handleViewClick = (issue) => {
-        setViewData(issue);
-        setShowViewModal(true);
-    };
-    // Function to close view modal
-    const handleCloseViewModal = () => {
-        setShowViewModal(false);
+    const handleBookDetailChange = (index, key, value) => {
+        const updatedBooks = [...editData.books];
+        updatedBooks[index] = { ...updatedBooks[index], [key]: value };
+        setEditData({ ...editData, books: updatedBooks });
     };
 
-    //delete
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [issueToDelete, setIssueToDelete] = useState(null);
-    const handleConfirmDelete = async () => {
-        if (!issueToDelete) return;
-        try {
-            const response = await fetch(`${BaseURL}/api/purchase/${issueToDelete.id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
+    const handleDeleteClick = () => {
 
-            if (response.ok) {
-                const data = await response.json();
-                toast.success(data.message);
-                fetchIssue();
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.message);
-            }
-        } catch (error) {
-            console.error('Error deleting issue:', error);
-            toast.error('Error deleting issue. Please try again.');
-        }
-        setShowDeleteModal(false);
-        setIssueToDelete(null);
-    };
-    const handleDeleteClick = (issue) => {
-        setIssueToDelete(issue);
-        setShowDeleteModal(true);
-    };
-    const handleCancelDelete = () => {
-        setShowDeleteModal(false);
-        setIssueToDelete(null);
-    };
+    }
 
+    const handleViewClick = () => {
+
+    }
 
     return (
         <div className="main-content">
@@ -327,7 +260,6 @@ const BookIssue = () => {
                 </div>
             </Container>
 
-            {/* add  Modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -374,14 +306,13 @@ const BookIssue = () => {
                                     </Form.Control>
                                 </Form.Group>
                             </Row>
-                            {/* Book details table */}
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
                                             <th className='sr-size'>Sr. No. </th>
                                             <th>Book Name</th>
-                                            <th>Book Details</th>
+                                            <th>Purchase Copy No</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -393,39 +324,30 @@ const BookIssue = () => {
                                                     <Form.Group as={Col}>
                                                         <Form.Control
                                                             as="select"
-                                                            value={row.bookName}
+                                                            value={row.bookId}
                                                             onChange={(e) => handleBookChangeForRow(index, e)}
                                                         >
                                                             <option value="">Select a book</option>
-                                                            {bookDetails
-                                                                .map((bookDetail) => (
-                                                                    <option key={bookDetail.bookDetailId} value={bookDetail.bookName}>
-                                                                        {bookDetail.bookName}
-                                                                    </option>
-                                                                ))}
+                                                            {bookDetails.map((book) => (
+                                                                <option key={book.bookId} value={book.bookId}>
+                                                                    {book.bookName}
+                                                                </option>
+                                                            ))}
                                                         </Form.Control>
                                                     </Form.Group>
                                                 </td>
                                                 <td>
                                                     <Form.Control
                                                         as="select"
-                                                        value={row.bookDetails}
+                                                        value={row.purchaseCopyNo}
                                                         onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                     >
                                                         <option value="">Select Book Details</option>
-                                                        {/* {bookDetails
-                                                            .map((bookDetail) => (
-                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
-                                                                    {bookDetail.purchaseCopyNo}
-                                                                </option>
-                                                            ))} */}
-                                                        {bookDetails
-                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
-                                                            .map((book) => (
-                                                                <option key={book.bookDetailId} value={book.bookDetailId}>
-                                                                    {book.purchaseCopyNo}
-                                                                </option>
-                                                            ))}
+                                                        {bookDetails.find(book => book.bookId === Number(row.bookId))?.copyDetails.map((detail) => (
+                                                            <option key={detail.bookDetailId} value={detail.bookDetailId}>
+                                                                {detail.purchaseCopyNo}
+                                                            </option>
+                                                        ))}
                                                     </Form.Control>
                                                 </td>
                                                 <td>
@@ -453,210 +375,117 @@ const BookIssue = () => {
             </Modal>
 
 
-            {/* Edit Modal */}
-            <Modal centered show={showEditModal} onHide={handleCloseEditModal} size='xl'>
+
+            {/* Edit Issue Modal */}
+            <Modal centered show={showEditModal} onHide={() => setShowEditModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form onSubmit={handleSubmitEdit}>
+                        <Form onSubmit={handleUpdate}>
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} md={6}>
                                     <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
-                                        placeholder="Issue number"
                                         type="text"
-                                        className="small-input"
-                                        value={editData?.invoiceNo || ''}
+                                        placeholder="Enter invoice number"
+                                        value={editData.invoiceNo}
                                         onChange={(e) => setEditData({ ...editData, invoiceNo: e.target.value })}
                                     />
                                 </Form.Group>
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} md={6}>
                                     <Form.Label>Issue Date</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={formatDateForInput(editData?.invoiceDate) || ''}
+                                        value={editData.invoiceDate}
                                         onChange={(e) => setEditData({ ...editData, invoiceDate: e.target.value })}
-                                        className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
+                                <Form.Group as={Col} md={12}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
-                                        as="input"
-                                        className="small-input"
-                                        list="ledgerNames"
-                                        value={editData?.ledgerName || ''}
-                                        onChange={(e) => setEditData({ ...editData, ledgerName: e.target.value })}
-                                        placeholder="Search or select member name"
-                                    />
-                                    {/* <datalist id="ledgerNames">
-                                        {filteredLedgerName.map((ledger) => (
-                                            <option key={ledger.ledgerId} value={ledger.ledgerName} />
+                                        as="select"
+                                        value={editData.generalMemberId}
+                                        onChange={(e) => setEditData({ ...editData, generalMemberId: e.target.value })}
+                                    >
+                                        <option value="">Select member</option>
+                                        {generalMember.map((member) => (
+                                            <option key={member.memberId} value={member.memberId}>
+                                                {member.username}
+                                            </option>
                                         ))}
-                                    </datalist> */}
+                                    </Form.Control>
                                 </Form.Group>
                             </Row>
-                            {/* Book details table */}
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
+                                            <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
-                                            <th>Book Details</th>
+                                            <th>Purchase Copy No</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {editData?.purchaseDetails.map((row, index) => (
+                                        {editData.books.map((book, index) => (
                                             <tr key={index}>
+                                                <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Control
-                                                        as="select"
-                                                        name="bookName"
-                                                        value={row.bookName}
-                                                        onChange={(e) => handleBookChangeEdit(index, e)}
-                                                    >
-                                                        <option value="">Select a book</option>
-                                                        {/* {bookName.map((book, index) => (
-                                                            <option key={index} value={book.bookName}>{book.bookName}</option>
-                                                        ))} */}
-                                                    </Form.Control>
-
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        as="select"
-                                                        value={row.bookDetails}
-                                                        onChange={(e) => handleBookDetailsChangeForRow(index, e)}
-                                                    >
-                                                        <option value="">Select Book Details</option>
-                                                        {/* {bookDetails
-                                                            .filter((book) => book.book_name === row.bookName)
-                                                            .map((book) => (
-                                                                <option key={book.id} value={book.purchase_copy_no}>
-                                                                    {book.purchase_copy_no}
-                                                                </option>
-                                                            ))} */}
-                                                        {bookDetails
-                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
-                                                            .map((bookDetail) => (
-                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
-                                                                    {bookDetail.purchaseCopyNo}
+                                                    <Form.Group as={Col}>
+                                                        <Form.Control
+                                                            as="select"
+                                                            value={book.bookId}
+                                                            onChange={(e) => handleBookDetailChange(index, 'bookId', e.target.value)}
+                                                        >
+                                                            <option value="">Select a book</option>
+                                                            {bookDetails.map((detail) => (
+                                                                <option key={detail.bookId} value={detail.bookId}>
+                                                                    {detail.bookName}
                                                                 </option>
                                                             ))}
-                                                    </Form.Control>
-
+                                                        </Form.Control>
+                                                    </Form.Group>
                                                 </td>
                                                 <td>
-                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowEdit(index)} />
+                                                    <Form.Control
+                                                        as="select"
+                                                        value={book.purchaseCopyNo}
+                                                        onChange={(e) => handleBookDetailChange(index, 'purchaseCopyNo', e.target.value)}
+                                                    >
+                                                        <option value="">Select Book Details</option>
+                                                        {bookDetails.find(detail => detail.bookId === book.bookId)?.copyDetails.map((detail) => (
+                                                            <option key={detail.bookDetailId} value={detail.bookDetailId}>
+                                                                {detail.purchaseCopyNo}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Control>
+                                                </td>
+                                                <td>
+                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteBookRow(index)} />
                                                 </td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </Table>
                             </div>
-                            <Button onClick={addRowEdit} className="button-color">
+                            <Button onClick={addBookRow} className="button-color">
                                 Add Book
                             </Button>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseEditModal}>
+                        <Button variant="secondary" onClick={() => setShowEditModal(false)}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={handleSubmitEdit}>
-                            Update
+                        <Button variant="primary" onClick={handleUpdate}>
+                            Save Changes
                         </Button>
                     </Modal.Footer>
                 </div>
-            </Modal>
-
-            {/* view modal */}
-            <Modal centered show={showViewModal} onHide={handleCloseViewModal} size='xl'>
-                <div className="bg-light">
-                    <Modal.Header closeButton>
-                        <Modal.Title>View Issue</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Issue No</Form.Label>
-                                    <Form.Control
-                                        placeholder="Issue number"
-                                        type="text"
-                                        value={viewData?.invoiceNo || ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>Issue Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={viewData?.invoiceDate || ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewData?.ledgerName || ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
-                        </Form>
-                        <div className="table-responsive">
-                            <Table striped bordered hover className="table-bordered-dark">
-                                <thead>
-                                    <tr>
-                                        <th>Book Name</th>
-                                        <th>Book Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {viewData?.purchaseDetails.map((detail, index) => (
-                                        <tr key={index}>
-                                            <td>{detail.bookName}</td>
-                                            <td>{detail.purchaseCopyNo}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseViewModal}>
-                            Close
-                        </Button>
-                    </Modal.Footer>
-                </div>
-            </Modal>
-
-
-            {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCancelDelete}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to delete this issue?
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCancelDelete}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleConfirmDelete}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
         </div>

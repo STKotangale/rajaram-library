@@ -169,9 +169,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
     // post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-        fetchPurchases();
-        handlePurchaseSubmit();
-
+    
         try {
             if (!selectedLedgerName.trim()) {
                 throw new Error('Please select purchaser name.');
@@ -220,7 +218,8 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             }
             const stockDetails = await response.json();
             toast.success("Invoice successfully submitted.");
-
+            handlePurchaseSubmit();
+            fetchPurchases();
 
         } catch (error) {
             console.error('Error submitting invoice:', error.message);

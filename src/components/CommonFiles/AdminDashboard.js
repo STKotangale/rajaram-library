@@ -592,7 +592,7 @@ const AdminDashboard = () => {
                             <NavDropdown.Item onClick={() => setShowChangePasswordModal(true)}>
                                 <LockFill className="icon" /> Change Password
                             </NavDropdown.Item>
-                            <NavDropdown.Item href="#logout" onClick={handleLogout}>
+                            <NavDropdown.Item onClick={handleLogout}>
                                 <BoxArrowRight className="icon" /> Logout
                             </NavDropdown.Item>
                         </NavDropdown>
