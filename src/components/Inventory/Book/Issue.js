@@ -8,29 +8,67 @@ import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
 const BookIssue = () => {
-    const [searchQuery] = useState('');
+    //get issue
     const [issue, setIssue] = useState([]);
+    //get general member
+    const [generalMember, setGeneralMember] = useState([]);
+    const [selectedMemberId, setSelectedMemberId] = useState("");
+
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editData, setEditData] = useState(null);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', bookDetails: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
-    const [ledgerName, setLedgerName] = useState([]);
-    const [selectedLedgerName, setSelectedLedgerName] = useState('');
     const [selectedLedgerID, setSelectedLedgerID] = useState('');
-    const [bookName, setBookName] = useState([]);
     const [bookDetails, setBookDetails] = useState([]);
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         fetchIssue();
-        fetchBooks();
-        fetchLedgerNames();
+        fetchGeneralMembers();
         fetchBookDetails();
     }, [username, accessToken]);
 
+
+
+    //get api
+    const fetchGeneralMembers = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/general-members`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            const data = await response.json();
+            setGeneralMember(data.data);
+        } catch (error) {
+            console.error("Failed to fetch general members:", error);
+            toast.error('Failed to load general members. Please try again later.');
+        }
+    };
+    
+        //get book details
+        const fetchBookDetails = async () => {
+            try {
+                const response = await fetch(`${BaseURL}/api/bookdetails/all`);
+                if (!response.ok) {
+                    throw new Error(`Error fetching book details: ${response.statusText}`);
+                }
+                const data = await response.json();
+                setBookDetails(data);
+            } catch (error) {
+                console.error('Error fetching book details:', error.message);
+                toast.error('Error fetching book details. Please try again later.');
+            }
+        };
+
+
+    //Get Issue
     const fetchIssue = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/purchase`, {
@@ -49,42 +87,34 @@ const BookIssue = () => {
         }
     };
 
-    const fetchBooks = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching books: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookName(data.data);
-        } catch (error) {
-            console.error(error);
-            toast.error('Error fetching books. Please try again later.');
-        }
+
+
+    // post / add function
+    const handleBookChangeForRow = (index, event) => {
+        const value = event.target.value;
+        const updatedRows = [...rows];
+        updatedRows[index] = { ...updatedRows[index], bookName: value };
+        setRows(updatedRows);
     };
 
-    const fetchLedgerNames = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/ledger`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error(`Failed to fetch ledger names - ${response.status}`);
-            }
-            const data = await response.json();
-            setLedgerName(data.data);
-        } catch (error) {
-            console.error('Error fetching ledger names:', error.message);
-            toast.error('Error fetching ledger names. Please try again later.');
-        }
+    //also use in edit modal
+    const handleBookDetailsChangeForRow = (index, event) => {
+        const value = event.target.value;
+        const updatedRows = [...rows];
+        updatedRows[index] = { ...updatedRows[index], bookDetails: value };
+        setRows(updatedRows);
     };
 
+    const addRowAdd = () => {
+        setRows([...rows, { bookName: '', bookDetails: '' }]);
+    };
+
+    const deleteRowAdd = (index) => {
+        const updatedRows = rows.filter((row, i) => i !== index);
+        setRows(updatedRows);
+    };
+
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         const payload = {
@@ -92,7 +122,7 @@ const BookIssue = () => {
             invoiceDate: invoiceDate,
             ledgerId: selectedLedgerID,
             purchaseDetails: rows.map(row => ({
-                bookId: bookName.find(book => book.bookName === row.bookName)?.bookId,
+                // bookId: bookName.find(book => book.bookName === row.bookName)?.bookId,
                 bookDetails: row.bookDetails
             }))
         };
@@ -122,12 +152,6 @@ const BookIssue = () => {
 
 
     //edit function
-    // const handleEditClick = (issue) => {
-    //     setEditData(issue);
-    //     setShowEditModal(true);
-    // };
-
-
     const handleEditClick = (issue) => {
         const bookName = issue.purchaseDetails.map(detail => detail.bookName);
         setEditData({
@@ -137,8 +161,33 @@ const BookIssue = () => {
         setShowEditModal(true);
     };
 
+    const handleBookChangeEdit = (index, event) => {
+        const { name, value } = event.target;
+        const updatedRows = [...editData.purchaseDetails];
+        updatedRows[index][name] = value;
+        setEditData(prevState => ({
+            ...prevState,
+            purchaseDetails: updatedRows
+        }));
+    };
 
+    const addRowEdit = () => {
+        setEditData(prevState => ({
+            ...prevState,
+            purchaseDetails: [...prevState.purchaseDetails, { bookName: '', bookDetails: '' }]
+        }));
+    };
 
+    const deleteRowEdit = (index) => {
+        const updatedRows = [...editData.purchaseDetails];
+        updatedRows.splice(index, 1);
+        setEditData(prevState => ({
+            ...prevState,
+            purchaseDetails: updatedRows
+        }));
+    };
+
+    // edit api
     const handleSubmitEdit = async (event) => {
         event.preventDefault();
         if (!editData) {
@@ -174,67 +223,6 @@ const BookIssue = () => {
         setEditData(null);
     };
 
-    const handleBookChangeForRow = (index, event) => {
-        const value = event.target.value;
-        const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], bookName: value };
-        setRows(updatedRows);
-    };
-
-    // const handleBookChangeForRow = (index, event) => {
-    //     const { name, value } = event.target;
-    //     const updatedRows = [...rows];
-    //     updatedRows[index] = { ...updatedRows[index], [name]: value };
-    //     setRows(updatedRows);
-    // };
-
-    const handleBookChangeEdit = (index, event) => {
-        const { name, value } = event.target;
-        const updatedRows = [...editData.purchaseDetails];
-        updatedRows[index][name] = value;
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: updatedRows
-        }));
-    };
-
-    const handleBookDetailsChangeForRow = (index, event) => {
-        const value = event.target.value;
-        const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], bookDetails: value };
-        setRows(updatedRows);
-    };
-
-    const addRowAdd = () => {
-        setRows([...rows, { bookName: '', bookDetails: '' }]);
-    };
-
-    const deleteRowAdd = (index) => {
-        const updatedRows = rows.filter((row, i) => i !== index);
-        setRows(updatedRows);
-    };
-
-    const addRowEdit = () => {
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: [...prevState.purchaseDetails, { bookName: '', bookDetails: '' }]
-        }));
-    };
-
-    const deleteRowEdit = (index) => {
-        const updatedRows = [...editData.purchaseDetails];
-        updatedRows.splice(index, 1);
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: updatedRows
-        }));
-    };
-
-
-    const filteredLedgerName = ledgerName.filter(ledger =>
-        ledger.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
 
     // Function to format the date as "yyyy-mm-dd" for input type 'date'
     const formatDateForInput = (dateString) => {
@@ -243,22 +231,6 @@ const BookIssue = () => {
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const day = date.getDate().toString().padStart(2, '0');
         return `${year}-${month}-${day}`;
-    };
-
-
-    //get book details
-    const fetchBookDetails = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/api/bookdetails');
-            if (!response.ok) {
-                throw new Error(`Error fetching book details: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookDetails(data);
-        } catch (error) {
-            console.error('Error fetching book details:', error.message);
-            toast.error('Error fetching book details. Please try again later.');
-        }
     };
 
 
@@ -276,8 +248,6 @@ const BookIssue = () => {
     const handleCloseViewModal = () => {
         setShowViewModal(false);
     };
-
-
 
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -317,16 +287,13 @@ const BookIssue = () => {
     };
 
 
-
-
-
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
-                            Add issue
+                            Add Book Issue
                         </Button>
                     </div>
                     <div className="table-responsive">
@@ -359,8 +326,6 @@ const BookIssue = () => {
                     </div>
                 </div>
             </Container>
-
-
 
             {/* add  Modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
@@ -395,18 +360,18 @@ const BookIssue = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
-                                        as="input"
+                                        as="select"
                                         className="small-input"
-                                        list="ledgerNames"
-                                        value={selectedLedgerName}
-                                        onChange={(e) => setSelectedLedgerName(e.target.value)}
-                                        placeholder="Search or select member name"
-                                    />
-                                    <datalist id="ledgerNames">
-                                        {filteredLedgerName.map((ledger) => (
-                                            <option key={ledger.ledgerId} value={ledger.ledgerName} />
+                                        value={selectedMemberId}
+                                        onChange={(e) => setSelectedMemberId(e.target.value)}
+                                    >
+                                        <option value="">Select member name</option>
+                                        {generalMember.map((member) => (
+                                            <option key={member.memberId} value={member.memberId}>
+                                                {member.username}
+                                            </option>
                                         ))}
-                                    </datalist>
+                                    </Form.Control>
                                 </Form.Group>
                             </Row>
                             {/* Book details table */}
@@ -414,7 +379,7 @@ const BookIssue = () => {
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
-                                            <th>Sr. No. </th>
+                                            <th className='sr-size'>Sr. No. </th>
                                             <th>Book Name</th>
                                             <th>Book Details</th>
                                             <th>Action</th>
@@ -432,9 +397,12 @@ const BookIssue = () => {
                                                             onChange={(e) => handleBookChangeForRow(index, e)}
                                                         >
                                                             <option value="">Select a book</option>
-                                                            {bookName.map((book, index) => (
-                                                                <option key={index} value={book.bookName}>{book.bookName}</option>
-                                                            ))}
+                                                            {bookDetails
+                                                                .map((bookDetail) => (
+                                                                    <option key={bookDetail.bookDetailId} value={bookDetail.bookName}>
+                                                                        {bookDetail.bookName}
+                                                                    </option>
+                                                                ))}
                                                         </Form.Control>
                                                     </Form.Group>
                                                 </td>
@@ -446,26 +414,22 @@ const BookIssue = () => {
                                                     >
                                                         <option value="">Select Book Details</option>
                                                         {/* {bookDetails
-                                                            .filter((book) => book.book_name === row.bookName)
-                                                            .map((book) => (
-                                                                <option key={book.id} value={book.purchaseCopyNo}>
-                                                                    {book.purchaseCopyNo}
-                                                                </option>
-                                                            ))} */}
-                                                        {bookDetails
-                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
                                                             .map((bookDetail) => (
                                                                 <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
                                                                     {bookDetail.purchaseCopyNo}
                                                                 </option>
+                                                            ))} */}
+                                                        {bookDetails
+                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
+                                                            .map((book) => (
+                                                                <option key={book.bookDetailId} value={book.bookDetailId}>
+                                                                    {book.purchaseCopyNo}
+                                                                </option>
                                                             ))}
                                                     </Form.Control>
-
                                                 </td>
                                                 <td>
-
                                                     <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
-
                                                 </td>
                                             </tr>
                                         ))}
@@ -529,11 +493,11 @@ const BookIssue = () => {
                                         onChange={(e) => setEditData({ ...editData, ledgerName: e.target.value })}
                                         placeholder="Search or select member name"
                                     />
-                                    <datalist id="ledgerNames">
+                                    {/* <datalist id="ledgerNames">
                                         {filteredLedgerName.map((ledger) => (
                                             <option key={ledger.ledgerId} value={ledger.ledgerName} />
                                         ))}
-                                    </datalist>
+                                    </datalist> */}
                                 </Form.Group>
                             </Row>
                             {/* Book details table */}
@@ -557,9 +521,9 @@ const BookIssue = () => {
                                                         onChange={(e) => handleBookChangeEdit(index, e)}
                                                     >
                                                         <option value="">Select a book</option>
-                                                        {bookName.map((book, index) => (
+                                                        {/* {bookName.map((book, index) => (
                                                             <option key={index} value={book.bookName}>{book.bookName}</option>
-                                                        ))}
+                                                        ))} */}
                                                     </Form.Control>
 
                                                 </td>

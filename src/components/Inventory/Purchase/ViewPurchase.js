@@ -439,8 +439,8 @@ const ViewPurchase = () => {
                                 Add purchase
                             </Button>
                         </div>
-                        <div className="table-responsive table-height">
-                            <Table striped bordered hover className='mt-4'>
+                        <div className="table-responsive table-height mt-4">
+                            <Table striped bordered hover>
                                 <thead>
                                     <tr>
                                         <th>Sr. No.</th>
@@ -455,7 +455,7 @@ const ViewPurchase = () => {
                                     {currentData.map((purchase, index) => (
                                         <tr key={index}>
                                             <td>{indexOfNumber + index + 1}</td>
-                                            <td>{purchase.ledgerIDF.ledgerName}</td>
+                                            <td>{purchase.ledgerIDF?.ledgerName}</td>
                                             <td>{purchase.invoiceNo}</td>
                                             <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
                                             <td>{purchase.grandTotal}</td>

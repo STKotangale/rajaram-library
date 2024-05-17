@@ -167,7 +167,7 @@ const BookDetailsTable = () => {
             <Container className='small-screen-table'>
 
                 <div className='mt-3 table-container-general-member-1'>
-                    <div className="table-responsive table-height-book-details">
+                    <div className="table-responsive table-height-book-details mt-4">
                         <Table striped bordered hover>
                             <thead>
                                 <tr>
