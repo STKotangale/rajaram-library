@@ -70,12 +70,13 @@ const BookDetailsTable = () => {
                 shelvingLocation: selectedBook.shelvingLocation,
                 volumeNo: selectedBook.volumeNo,
                 fullCallNumber: selectedBook.fullCallNumber,
-                copyNo: selectedBook.purchaseCopyNo,
+                purchaseCopyNo: selectedBook.purchaseCopyNo,
                 typeofbook: selectedBookType,
                 accessionNo: selectedBook.accessionNo,
-                bookIssue: selectedBook.bookIssue,
-                bookWorkingStart: selectedBook.bookWorkingStart,
-                bookLostScrap: selectedBook.bookLostScrap,
+                copyNo: selectedBook.copyNo,
+                // bookIssue: selectedBook.bookIssue,
+                // bookWorkingStart: selectedBook.bookWorkingStart,
+                // bookLostScrap: selectedBook.bookLostScrap,
             };
             // const response = await fetch(`${BaseURL}/api/purchase/update/book-details/${selectedBook.bookDetailId}`, {
             const response = await fetch(`${BaseURL}/api/bookdetails/update/book-details/${selectedBook.bookDetailId}`, {
@@ -383,7 +384,7 @@ const BookDetailsTable = () => {
                                     </Form.Group>
                                 </Row>
 
-                                <Row className="mb-3">
+                                {/* <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
                                         <Form.Label>Book Issue</Form.Label>
                                         <Form.Control
@@ -420,7 +421,7 @@ const BookDetailsTable = () => {
                                             }}
                                         />
                                     </Form.Group>
-                                </Row>
+                                </Row> */}
 
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="fullCallNumber">
@@ -450,6 +451,14 @@ const BookDetailsTable = () => {
                                 </Row>
 
                                 <Row className="mb-3">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
+                                        <Form.Label>Copy No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedBook?.copyNo || ''}
+                                            onChange={(e) => setSelectedBook({ ...selectedBook, copyNo: e.target.value })}
+                                        />
+                                    </Form.Group>
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
                                         <Form.Label>Item Type</Form.Label>
                                         <Form.Control

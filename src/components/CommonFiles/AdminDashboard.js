@@ -575,7 +575,7 @@ const AdminDashboard = () => {
                     {/* <Navbar.Brand href="#Dashboard" className='ms-4 welcome-message'>
                         Welcome Member{username && <span className="d-none d-sm-inline"> !.. {username}</span>}
                     </Navbar.Brand> */}
-                    <Nav className="ms-4 ">
+                    <Nav className="ms-4 mt-2">
                         <div className="selected-item">{selectedItemName}</div>
                     </Nav>
                     <Navbar.Toggle aria-controls="basic-navbar-nav " />
