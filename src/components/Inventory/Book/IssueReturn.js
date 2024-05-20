@@ -2,102 +2,172 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PencilSquare, Trash, Eye } from 'react-bootstrap-icons';
+import { Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
-const BookIssue = () => {
-    const [searchQuery] = useState('');
-    const [issue, setIssue] = useState([]);
+const IssueReturn = () => {
+    const [issueReturn, setIssueReturn] = useState([]);
+    const [generalMember, setGeneralMember] = useState([]);
+    const [selectedMemberId, setSelectedMemberId] = useState("");
+    const [selectedMemberUsername, setSelectedMemberUsername] = useState("");
+    const [userData, setUserData] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editData, setEditData] = useState(null);
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', bookDetails: '' })));
-    const [invoiceNumber, setInvoiceNumber] = useState('');
-    const [invoiceDate, setInvoiceDate] = useState('');
-    const [ledgerName, setLedgerName] = useState([]);
-    const [selectedLedgerName, setSelectedLedgerName] = useState('');
-    const [selectedLedgerID, setSelectedLedgerID] = useState('');
-    const [bookName, setBookName] = useState([]);
-    const [bookDetails, setBookDetails] = useState([]);
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookDetailId: '', bookName: '', purchaseCopyNo: '' })));
+    const [issueReturnNumber, setIssueReturnNumber] = useState('');
+    const [issueReturnDate, setIssueReturnDate] = useState('');
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedIssueReturn, setSelectedIssueReturn] = useState(null);
+    const [issueReturnToDelete, setIssueReturnToDelete] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
-        fetchIssue();
-        fetchBooks();
-        fetchLedgerNames();
-        fetchBookDetails();
+        fetchIssueReturn();
+        fetchGeneralMembers();
     }, [username, accessToken]);
 
-    const fetchIssue = async () => {
+
+    const fetchIssueReturn = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/purchase`, {
+            const response = await fetch(`${BaseURL}/api/issue/issueReturns`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching issue: ${response.statusText}`);
+                throw new Error(`Error fetching issue return: ${response.statusText}`);
             }
             const data = await response.json();
-            setIssue(data);
+            setIssueReturn(data);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching issue. Please try again later.');
+            toast.error('Error fetching issue return. Please try again later.');
         }
     };
 
-    const fetchBooks = async () => {
+    const fetchGeneralMembers = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/general-members`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching books: ${response.statusText}`);
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            setBookName(data.data);
+            setGeneralMember(data.data);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching books. Please try again later.');
+            console.error("Failed to fetch general members:", error);
+            toast.error('Failed to load general members. Please try again later.');
         }
     };
 
-    const fetchLedgerNames = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/ledger`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error(`Failed to fetch ledger names - ${response.status}`);
+    const handleMemberNameSelect = async (e) => {
+        const memberId = e.target.value;
+        setSelectedMemberId(memberId);
+    
+        const selectedMember = generalMember.find(member => member.memberId === Number(memberId));
+        if (selectedMember) {
+            setSelectedMemberUsername(selectedMember.username);
+    
+            try {
+                const response = await fetch(`${BaseURL}/api/issue/detail/${selectedMember.username}`, {
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`Error fetching issue details: ${response.statusText}`);
+                }
+                const data = await response.json();
+                setUserData(data);
+            } catch (error) {
+                console.error('Error fetching issue details:', error.message);
             }
-            const data = await response.json();
-            setLedgerName(data.data);
-        } catch (error) {
-            console.error('Error fetching ledger names:', error.message);
-            toast.error('Error fetching ledger names. Please try again later.');
+        } else {
+        }
+    };
+    
+
+    const handleBookChangeForRow = (index, event) => {
+        const { value } = event.target;
+        const updatedRows = [...rows];
+
+        if (!value) {
+            updatedRows[index] = { bookId: '', bookDetailId: '', bookName: '', purchaseCopyNo: '' };
+            setRows(updatedRows);
+            return;
+        }
+
+        const [bookId, bookDetailId] = value.split('|').map(Number);
+
+        const selectedBook = userData.find(book => book.bookId === bookId && book.bookDetailId === bookDetailId);
+
+        if (selectedBook) {
+            updatedRows[index] = {
+                bookId: selectedBook.bookId,
+                bookDetailId: selectedBook.bookDetailId,
+                bookName: selectedBook.bookName,
+                purchaseCopyNo: selectedBook.purchaseCopyNo
+            };
+            setRows(updatedRows);
+        } else {
+            toast.error('Selected book not found. Please try again.');
         }
     };
 
+    const addRowAdd = () => {
+        const newRow = { bookId: '', bookDetailId: '', bookName: '', purchaseCopyNo: '' };
+        setRows([...rows, newRow]);
+    };
+
+    const deleteRowAdd = (index) => {
+        const updatedRows = rows.filter((_, i) => i !== index);
+        setRows(updatedRows);
+    };
+
+    const formatDateForAPI = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+
+      //reset fields
+      const resetFormFields = () => {
+        setIssueReturnNumber('');
+        setIssueReturnDate('');
+        setSelectedMemberId('');
+        setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookDetailId: '', bookName: '', purchaseCopyNo: '' })));
+    };
+
+
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
+    
+        const bookDetailsPayload = rows
+            .filter(row => row.bookId && row.bookDetailId)
+            .map(row => ({
+                bookId: Number(row.bookId),
+                bookDetailIds: Number(row.bookDetailId)
+            }));
+    
         const payload = {
-            invoiceNo: invoiceNumber,
-            invoiceDate: invoiceDate,
-            ledgerId: selectedLedgerID,
-            purchaseDetails: rows.map(row => ({
-                bookId: bookName.find(book => book.bookName === row.bookName)?.bookId,
-                bookDetails: row.bookDetails
-            }))
+            issueNo: issueReturnNumber,  
+            issueReturnDate: formatDateForAPI(issueReturnDate), 
+            memberId: Number(selectedMemberId), 
+            bookDetailsList: bookDetailsPayload 
         };
+    
         try {
-            const response = await fetch(`${BaseURL}/api/purchase`, {
+            const response = await fetch(`${BaseURL}/api/issue/return/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -105,11 +175,13 @@ const BookIssue = () => {
                 },
                 body: JSON.stringify(payload)
             });
+    
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
-                fetchIssue();
+                resetFormFields();
+                fetchIssueReturn();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -119,173 +191,17 @@ const BookIssue = () => {
             toast.error('Error submitting invoice. Please try again.');
         }
     };
-
-
-    //edit function
-    // const handleEditClick = (issue) => {
-    //     setEditData(issue);
-    //     setShowEditModal(true);
-    // };
-
-
-    const handleEditClick = (issue) => {
-        const bookName = issue.purchaseDetails.map(detail => detail.bookName);
-        setEditData({
-            ...issue,
-            bookName: bookName,
-        });
-        setShowEditModal(true);
+    
+    const handleDeleteClick = (issueReturn) => {
+        setIssueReturnToDelete(issueReturn);
+        setShowDeleteModal(true);
     };
 
+    const handleDeleteConfirm = async () => {
+        if (!issueReturnToDelete) return;
 
-
-    const handleSubmitEdit = async (event) => {
-        event.preventDefault();
-        if (!editData) {
-            toast.error('No data to submit.');
-            return;
-        }
         try {
-            const response = await fetch(`${BaseURL}/api/purchase/${editData.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(editData)
-            });
-            if (response.ok) {
-                const updatedIssue = await response.json();
-                toast.success(updatedIssue.message);
-                setShowEditModal(false);
-                fetchIssue();
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.message);
-            }
-        } catch (error) {
-            console.error('Error updating issue:', error);
-            toast.error('Error updating issue. Please try again.');
-        }
-    };
-
-    const handleCloseEditModal = () => {
-        setShowEditModal(false);
-        setEditData(null);
-    };
-
-    const handleBookChangeForRow = (index, event) => {
-        const value = event.target.value;
-        const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], bookName: value };
-        setRows(updatedRows);
-    };
-
-    // const handleBookChangeForRow = (index, event) => {
-    //     const { name, value } = event.target;
-    //     const updatedRows = [...rows];
-    //     updatedRows[index] = { ...updatedRows[index], [name]: value };
-    //     setRows(updatedRows);
-    // };
-
-    const handleBookChangeEdit = (index, event) => {
-        const { name, value } = event.target;
-        const updatedRows = [...editData.purchaseDetails];
-        updatedRows[index][name] = value;
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: updatedRows
-        }));
-    };
-
-    const handleBookDetailsChangeForRow = (index, event) => {
-        const value = event.target.value;
-        const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], bookDetails: value };
-        setRows(updatedRows);
-    };
-
-    const addRowAdd = () => {
-        setRows([...rows, { bookName: '', bookDetails: '' }]);
-    };
-
-    const deleteRowAdd = (index) => {
-        const updatedRows = rows.filter((row, i) => i !== index);
-        setRows(updatedRows);
-    };
-
-    const addRowEdit = () => {
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: [...prevState.purchaseDetails, { bookName: '', bookDetails: '' }]
-        }));
-    };
-
-    const deleteRowEdit = (index) => {
-        const updatedRows = [...editData.purchaseDetails];
-        updatedRows.splice(index, 1);
-        setEditData(prevState => ({
-            ...prevState,
-            purchaseDetails: updatedRows
-        }));
-    };
-
-
-    const filteredLedgerName = ledgerName.filter(ledger =>
-        ledger.ledgerName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-
-    // Function to format the date as "yyyy-mm-dd" for input type 'date'
-    const formatDateForInput = (dateString) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
-
-    //get book details
-    const fetchBookDetails = async () => {
-        try {
-            const response = await fetch('http://localhost:8080/api/bookdetails');
-            if (!response.ok) {
-                throw new Error(`Error fetching book details: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookDetails(data);
-        } catch (error) {
-            console.error('Error fetching book details:', error.message);
-            toast.error('Error fetching book details. Please try again later.');
-        }
-    };
-
-
-
-
-    //view
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [viewData, setViewData] = useState(null);
-    // Function to open view modal
-    const handleViewClick = (issue) => {
-        setViewData(issue);
-        setShowViewModal(true);
-    };
-    // Function to close view modal
-    const handleCloseViewModal = () => {
-        setShowViewModal(false);
-    };
-
-
-
-    //delete
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [issueToDelete, setIssueToDelete] = useState(null);
-    const handleConfirmDelete = async () => {
-        if (!issueToDelete) return;
-        try {
-            const response = await fetch(`${BaseURL}/api/purchase/${issueToDelete.id}`, {
+            const response = await fetch(`${BaseURL}/api/issue/${issueReturnToDelete.stock_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -293,9 +209,9 @@ const BookIssue = () => {
             });
 
             if (response.ok) {
-                const data = await response.json();
-                toast.success(data.message);
-                fetchIssue();
+                toast.success('Issue Return deleted successfully.');
+                setShowDeleteModal(false);
+                fetchIssueReturn();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -304,21 +220,15 @@ const BookIssue = () => {
             console.error('Error deleting issue:', error);
             toast.error('Error deleting issue. Please try again.');
         }
-        setShowDeleteModal(false);
-        setIssueToDelete(null);
     };
-    const handleDeleteClick = (issue) => {
-        setIssueToDelete(issue);
-        setShowDeleteModal(true);
-    };
-    const handleCancelDelete = () => {
-        setShowDeleteModal(false);
-        setIssueToDelete(null);
+
+    const handleViewClick = (issueReturn) => {
+        setSelectedIssueReturn(issueReturn);
+        setShowViewModal(true);
     };
 
 
-
-
+    
 
     return (
         <div className="main-content">
@@ -326,7 +236,7 @@ const BookIssue = () => {
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
-                            Add issue
+                            Add Book Issue Return
                         </Button>
                     </div>
                     <div className="table-responsive">
@@ -335,22 +245,21 @@ const BookIssue = () => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Member Name</th>
-                                    <th>Issue No</th>
-                                    <th>Issue Date</th>
+                                    <th>Issue Return No</th>
+                                    <th>Issue Return Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {issue.map((issue, index) => (
-                                    <tr key={index}>
+                                {issueReturn.map((issueReturnItem, index) => (
+                                    <tr key={issueReturnItem.stock_id}>
                                         <td>{index + 1}</td>
-                                        <td>{issue.ledgerName}</td>
-                                        <td>{issue.invoiceNo}</td>
-                                        <td>{new Date(issue.invoiceDate).toLocaleDateString()}</td>
+                                        <td>{issueReturnItem.username}</td>
+                                        <td>{issueReturnItem.invoiceNo}</td>
+                                        <td>{issueReturnItem.invoiceDate}</td>
                                         <td>
-                                            <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(issue)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issue)} />
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(issue)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(issueReturnItem)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueReturnItem)} />
                                         </td>
                                     </tr>
                                 ))}
@@ -360,33 +269,31 @@ const BookIssue = () => {
                 </div>
             </Container>
 
-
-
-            {/* add  Modal */}
+            {/* add modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Issue</Modal.Title>
+                        <Modal.Title>Add Issue Return</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No</Form.Label>
+                                    <Form.Label>Issue Return No</Form.Label>
                                     <Form.Control
-                                        placeholder="Issue number"
+                                        placeholder="Issue Return number"
                                         type="text"
                                         className="small-input"
-                                        value={invoiceNumber}
-                                        onChange={(e) => setInvoiceNumber(e.target.value)}
+                                        value={issueReturnNumber}
+                                        onChange={(e) => setIssueReturnNumber(e.target.value)}
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue Date</Form.Label>
+                                    <Form.Label>Issue Return Date</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={invoiceDate}
-                                        onChange={(e) => setInvoiceDate(e.target.value)}
+                                        value={issueReturnDate}
+                                        onChange={(e) => setIssueReturnDate(e.target.value)}
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
@@ -395,29 +302,28 @@ const BookIssue = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
-                                        as="input"
+                                        as="select"
                                         className="small-input"
-                                        list="ledgerNames"
-                                        value={selectedLedgerName}
-                                        onChange={(e) => setSelectedLedgerName(e.target.value)}
-                                        placeholder="Search or select member name"
-                                    />
-                                    <datalist id="ledgerNames">
-                                        {filteredLedgerName.map((ledger) => (
-                                            <option key={ledger.ledgerId} value={ledger.ledgerName} />
+                                        value={selectedMemberId}
+                                        onChange={handleMemberNameSelect}
+                                    >
+                                        <option value="">Select a member</option>
+                                        {generalMember.map(member => (
+                                            <option key={member.memberId} value={member.memberId}>
+                                                {member.username}
+                                            </option>
                                         ))}
-                                    </datalist>
+                                    </Form.Control>
                                 </Form.Group>
                             </Row>
-                            {/* Book details table */}
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
-                                            <th>Sr. No. </th>
+                                            <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
-                                            <th>Book Details</th>
-                                            <th>Action</th>
+                                            <th>Purchase Copy No</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -428,37 +334,37 @@ const BookIssue = () => {
                                                     <Form.Group as={Col}>
                                                         <Form.Control
                                                             as="select"
-                                                            value={row.bookName}
+                                                            value={`${row.bookId}|${row.bookDetailId}`}
                                                             onChange={(e) => handleBookChangeForRow(index, e)}
                                                         >
                                                             <option value="">Select a book</option>
-                                                            {bookName.map((book, index) => (
-                                                                <option key={index} value={book.bookName}>{book.bookName}</option>
+                                                            {userData && userData.map((book) => (
+                                                                <option key={`${book.bookId}|${book.bookDetailId}`} value={`${book.bookId}|${book.bookDetailId}`}>
+                                                                    {book.bookName}
+                                                                </option>
                                                             ))}
                                                         </Form.Control>
                                                     </Form.Group>
                                                 </td>
                                                 <td>
-                                                    <Form.Control
-                                                        as="select"
-                                                        value={row.bookDetails}
-                                                        onChange={(e) => handleBookDetailsChangeForRow(index, e)}
-                                                    >
-                                                        <option value="">Select Book Details</option>
-                                                        {bookDetails
-                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
-                                                            .map((bookDetail) => (
-                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
-                                                                    {bookDetail.purchaseCopyNo}
+                                                    <Form.Group as={Col}>
+                                                        <Form.Control
+                                                            as="select"
+                                                            value={`${row.bookId}|${row.bookDetailId}`}
+                                                            onChange={(e) => handleBookChangeForRow(index, e)}
+                                                            disabled
+                                                        >
+                                                            <option value="">0</option>
+                                                            {userData && userData.map((book) => (
+                                                                <option key={`${book.bookId}|${book.bookDetailId}`} value={`${book.bookId}|${book.bookDetailId}`}>
+                                                                    {book.purchaseCopyNo}
                                                                 </option>
                                                             ))}
-                                                    </Form.Control>
-
+                                                        </Form.Control>
+                                                    </Form.Group>
                                                 </td>
                                                 <td>
-
                                                     <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
-
                                                 </td>
                                             </tr>
                                         ))}
@@ -481,208 +387,110 @@ const BookIssue = () => {
                 </div>
             </Modal>
 
-
-            {/* Edit Modal */}
-            <Modal centered show={showEditModal} onHide={handleCloseEditModal} size='xl'>
+            {/* view modal */}
+            <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Edit Issue</Modal.Title>
+                        <Modal.Title>View Issue Return</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form onSubmit={handleSubmitEdit}>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Invoice No</Form.Label>
-                                    <Form.Control
-                                        placeholder="Issue number"
-                                        type="text"
-                                        className="small-input"
-                                        value={editData?.invoiceNo || ''}
-                                        onChange={(e) => setEditData({ ...editData, invoiceNo: e.target.value })}
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>Issue Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={formatDateForInput(editData?.invoiceDate) || ''}
-                                        onChange={(e) => setEditData({ ...editData, invoiceDate: e.target.value })}
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
-                                        as="input"
-                                        className="small-input"
-                                        list="ledgerNames"
-                                        value={editData?.ledgerName || ''}
-                                        onChange={(e) => setEditData({ ...editData, ledgerName: e.target.value })}
-                                        placeholder="Search or select member name"
-                                    />
-                                    <datalist id="ledgerNames">
-                                        {filteredLedgerName.map((ledger) => (
-                                            <option key={ledger.ledgerId} value={ledger.ledgerName} />
-                                        ))}
-                                    </datalist>
-                                </Form.Group>
-                            </Row>
-                            {/* Book details table */}
-                            <div className="table-responsive">
-                                <Table striped bordered hover className="table-bordered-dark">
-                                    <thead>
-                                        <tr>
-                                            <th>Book Name</th>
-                                            <th>Book Details</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {editData?.purchaseDetails.map((row, index) => (
-                                            <tr key={index}>
+                        {selectedIssueReturn && (
+                            <Form>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Invoice No</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            className="small-input"
+                                            value={selectedIssueReturn.invoiceNo}
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Issue Return Date</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedIssueReturn.invoiceDate}
+                                            className="custom-date-picker small-input"
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Member Name</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            className="small-input"
+                                            value={selectedIssueReturn.username}
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <div className="table-responsive">
+                                    <Table striped bordered hover className="table-bordered-dark">
+                                        <thead>
+                                            <tr>
+                                                <th className='sr-size'>Sr. No.</th>
+                                                <th>Book Name</th>
+                                                <th>Purchase Copy No</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td className='sr-size'>1</td>
                                                 <td>
-                                                    <Form.Control
-                                                        as="select"
-                                                        name="bookName"
-                                                        value={row.bookName}
-                                                        onChange={(e) => handleBookChangeEdit(index, e)}
-                                                    >
-                                                        <option value="">Select a book</option>
-                                                        {bookName.map((book, index) => (
-                                                            <option key={index} value={book.bookName}>{book.bookName}</option>
-                                                        ))}
-                                                    </Form.Control>
-
+                                                    <Form.Group as={Col}>
+                                                        <Form.Control
+                                                            type="text"
+                                                            value={selectedIssueReturn.bookName}
+                                                            disabled
+                                                        />
+                                                    </Form.Group>
                                                 </td>
                                                 <td>
                                                     <Form.Control
-                                                        as="select"
-                                                        value={row.bookDetails}
-                                                        onChange={(e) => handleBookDetailsChangeForRow(index, e)}
-                                                    >
-                                                        <option value="">Select Book Details</option>
-                                                        {bookDetails
-                                                            .filter((bookDetail) => bookDetail.bookName === row.bookName)
-                                                            .map((bookDetail) => (
-                                                                <option key={bookDetail.bookDetailId} value={bookDetail.purchaseCopyNo}>
-                                                                    {bookDetail.purchaseCopyNo}
-                                                                </option>
-                                                            ))}
-                                                    </Form.Control>
-
-                                                </td>
-                                                <td>
-                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowEdit(index)} />
+                                                        type="text"
+                                                        value={selectedIssueReturn.purchaseCopyNo}
+                                                        disabled
+                                                    />
                                                 </td>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
-                            <Button onClick={addRowEdit} className="button-color">
-                                Add Book
-                            </Button>
-                        </Form>
+                                        </tbody>
+                                    </Table>
+                                </div>
+                            </Form>
+                        )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseEditModal}>
+                        <Button variant="secondary" onClick={() => setShowViewModal(false)}>
                             Close
-                        </Button>
-                        <Button variant="primary" onClick={handleSubmitEdit}>
-                            Update
                         </Button>
                     </Modal.Footer>
                 </div>
             </Modal>
 
-            {/* view modal */}
-            <Modal centered show={showViewModal} onHide={handleCloseViewModal} size='xl'>
+            {/* delete modal */}
+            <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>View Issue</Modal.Title>
+                        <Modal.Title>Confirm Delete</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Issue No</Form.Label>
-                                    <Form.Control
-                                        placeholder="Issue number"
-                                        type="text"
-                                        value={viewData?.invoiceNo || ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>Issue Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={viewData?.invoiceDate || ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        value={viewData?.ledgerName || ''}
-                                        readOnly
-                                    />
-                                </Form.Group>
-                            </Row>
-                        </Form>
-                        <div className="table-responsive">
-                            <Table striped bordered hover className="table-bordered-dark">
-                                <thead>
-                                    <tr>
-                                        <th>Book Name</th>
-                                        <th>Book Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {viewData?.purchaseDetails.map((detail, index) => (
-                                        <tr key={index}>
-                                            <td>{detail.bookName}</td>
-                                            <td>{detail.purchaseCopyNo}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </Table>
-                        </div>
+                        <p>Are you sure you want to delete this issue return?</p>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={handleCloseViewModal}>
-                            Close
+                        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                            No
+                        </Button>
+                        <Button variant="danger" onClick={handleDeleteConfirm}>
+                            Yes
                         </Button>
                     </Modal.Footer>
                 </div>
             </Modal>
-
-
-            {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={handleCancelDelete}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Deletion</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to delete this issue?
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCancelDelete}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={handleConfirmDelete}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
         </div>
     );
 };
 
-export default BookIssue;
+export default IssueReturn;

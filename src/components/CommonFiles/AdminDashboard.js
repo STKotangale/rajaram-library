@@ -33,7 +33,7 @@ import GeneralMember from '../Auth/GeneralMember';
 import Issue from '../Inventory/Book/Issue';
 import IssueReturn from '../Inventory/Book/IssueReturn';
 import PurchaseReturn from '../Inventory/Book/PurchaseReturn';
-
+import MembershipFees from '../Fees/MembershipFees';
 
 
 const AdminDashboard = () => {
@@ -55,6 +55,9 @@ const AdminDashboard = () => {
     const [bookIssue, setBookIssue] = useState(false);
     const [bookIssueReturn, setBookIssueReturn] = useState(false);
     const [bookPurchaseReturn, setBookPurchaseReturn] = useState(false);
+
+    const [memberFees, setMemberFees] = useState(false);
+
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -107,6 +110,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handleShowPurchase = () => {
@@ -126,6 +131,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
 
         // setSelectedAccountItem('');
         // setSelectedMasterItem('');
@@ -150,6 +157,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
 
     };
 
@@ -171,6 +180,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
 
@@ -192,6 +203,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handleBookType = () => {
@@ -212,6 +225,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     // const handleShowPurchase = () => {
@@ -251,6 +266,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
 
@@ -273,6 +290,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handlePurchaser = () => {
@@ -293,6 +312,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handleCreateUser = () => {
@@ -313,6 +334,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handleBookAuthor = () => {
@@ -333,6 +356,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handleBookPublication = () => {
@@ -353,6 +378,8 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     };
 
     const handleIssueClick = () => {
@@ -373,6 +400,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     }
 
     const handleIssueReturnClick = () => {
@@ -393,6 +422,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssue(false);
         setBookPurchaseReturn(false);
+        setMemberFees(false);
+
     }
 
 
@@ -414,7 +445,32 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssue(false);
         setBookIssueReturn(false);
+        setMemberFees(false);
+
     }
+
+
+    const hendleMemberFees = () => {
+        setMemberFees(true);
+        setBookPurchaseReturn(false);
+        setSelectedItemName('Member Fees');
+
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+    }
+
 
     //change password
     const handleChange = (event) => {
@@ -536,6 +592,9 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handlePurchaser(); setShowSidebar(false); }}>
                                                 <PersonFill className="me-2" /> Purchaser
                                             </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMemberFees(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> Membership Fees
+                                            </ListGroup.Item>
                                         </div>
                                     )}
 
@@ -616,6 +675,9 @@ const AdminDashboard = () => {
                     {bookIssue && <Issue />}
                     {bookIssueReturn && <IssueReturn />}
                     {bookPurchaseReturn && <PurchaseReturn />}
+
+                    {memberFees && <MembershipFees />}
+
 
                 </Container>
                 {/* <Footer /> */}

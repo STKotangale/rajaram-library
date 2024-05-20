@@ -1,20 +1,32 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
 const BookIssue = () => {
+    //get book issue
     const [issue, setIssue] = useState([]);
+    //get general member
     const [generalMember, setGeneralMember] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState("");
+    //get book details all
+    const [bookDetails, setBookDetails] = useState([]);
+    //add
     const [showAddModal, setShowAddModal] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '' })));
-    const [invoiceNumber, setInvoiceNumber] = useState('');
-    const [invoiceDate, setInvoiceDate] = useState('');
-    const [bookDetails, setBookDetails] = useState([]);
+    const [issueNumber, setIssueNumber] = useState('');
+    const [issueDate, setIssueDate] = useState('');
+    //view
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedIssue, setSelectedIssue] = useState(null);
+    //delete
+    const [issueToDelete, setIssueToDelete] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -24,6 +36,7 @@ const BookIssue = () => {
         fetchBookDetails();
     }, [username, accessToken]);
 
+    //get general - member
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -114,9 +127,9 @@ const BookIssue = () => {
             }));
 
         const payload = {
-            invoiceNo: invoiceNumber,
-            invoiceDate: invoiceDate,
-            generalMemberId: Number(selectedMemberId),
+            invoiceNo: issueNumber,
+            invoiceDate: issueDate,
+            generalMemberId: selectedMemberId,
             bookDetails: bookDetailsPayload
         };
 
@@ -145,101 +158,45 @@ const BookIssue = () => {
         }
     };
 
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editData, setEditData] = useState({
-        invoiceNo: '',
-        invoiceDate: '',
-        generalMemberId: '',
-        books: [{ bookId: '', bookName: '', purchaseCopyNo: '' }]
-    });
 
-    const handleEditClick = (issueData) => {
-        if (!issueData) {
-            console.error("No issue data provided");
-            return;
-        }
 
-        const books = issueData.bookDetails || [];
 
-        setEditData({
-            invoiceNo: issueData.invoiceNo,
-            invoiceDate: issueData.invoiceDate.substring(0, 10),
-            generalMemberId: issueData.memberIdF.toString(),
-            memberName: issueData.memberName,
-            books: books.map(book => ({
-                bookId: book.bookId.toString(),
-                bookName: book.bookName,
-                purchaseCopyNo: book.purchaseCopyNo.toString()
-            }))
-        });
-        setShowEditModal(true);
+    //delete
+    const handleDeleteClick = (issue) => {
+        setIssueToDelete(issue);
+        setShowDeleteModal(true);
     };
 
+    const handleDeleteConfirm = async () => {
+        if (!issueToDelete) return;
 
-    const handleUpdate = async (event) => {
-        event.preventDefault();
-        const payload = {
-            invoiceNo: editData.invoiceNo,
-            invoiceDate: editData.invoiceDate,
-            generalMemberId: Number(editData.generalMemberId),
-            bookDetails: editData.books.map(book => ({
-                bookId: Number(book.bookId),
-                bookdetailId: Number(book.purchaseCopyNo)
-            }))
-        };
         try {
-            const response = await fetch(`${BaseURL}/api/issues/${editData.invoiceNo}`, {
-                method: 'PUT',
+            const response = await fetch(`${BaseURL}/api/issue/${issueToDelete.stock_id}`, {
+                method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(payload)
+                }
             });
 
             if (response.ok) {
-                toast.success('Issue updated successfully.');
+                toast.success('Issue deleted successfully.');
+                setShowDeleteModal(false);
                 fetchIssue();
-                setShowEditModal(false);
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error updating issue:', error);
-            toast.error('Error updating issue. Please try again.');
+            console.error('Error deleting issue:', error);
+            toast.error('Error deleting issue. Please try again.');
         }
     };
 
-    const addBookRowEdit = () => {
-        const newBooks = [...editData.books, { bookId: '', bookName: '', purchaseCopyNo: '' }];
-        setEditData({ ...editData, books: newBooks });
-    };
 
-    const deleteBookRowEdit = (index) => {
-        const newBooks = editData.books.filter((_, idx) => idx !== index);
-        setEditData({ ...editData, books: newBooks });
-    };
-
-    const handleBookDetailChangeEdit = (index, key, value) => {
-        const updatedBooks = [...editData.books];
-        updatedBooks[index] = { ...updatedBooks[index], [key]: value };
-        setEditData({ ...editData, books: updatedBooks });
-    };
-
-    const handleDeleteClick = () => {
-
-    }
-
-    const [showViewModal, setShowViewModal] = useState(false);
-
-
-    const [viewData, setViewData] = useState(null);
-
-    // Function to handle the click event of the eye icon
-    const handleViewClick = (issueData) => {
-        setViewData(issueData);
-        setShowViewModal(true); // Show the view modal
+    //view
+    const handleViewClick = (issue) => {
+        setSelectedIssue(issue);
+        setShowViewModal(true);
     };
 
     return (
@@ -256,41 +213,45 @@ const BookIssue = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
+                                    {/* <th>Stock Id</th> */}
                                     <th>Member Name</th>
                                     <th>Issue No</th>
                                     <th>Issue Date</th>
-                                    {/* <th>Book</th>
-                                    <th>Purchase Copy No</th> */}
+                                    {/* <th>Book - Purchase Copy No.</th> */}
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {(() => {
-                                    let serialNumber = 1;
-                                    return issue.flatMap((issue, issueIndex) => (
-                                        issue.bookDetails.map((bookDetail, bookIndex) => (
-                                            <tr key={`${issue.invoiceNo}-${bookIndex}`}>
-                                                <td>{serialNumber++}</td>
-                                                <td>{issue.memberName}</td>
-                                                <td>{issue.invoiceNo}</td>
-                                                <td>{new Date(issue.invoiceDate).toLocaleDateString()}</td>
-                                                {/* <td>{bookDetail.bookName}</td>
-                                                <td>{bookDetail.purchaseCopyNo}</td> */}
-                                                <td>
-                                                    {/* <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(issue)} /> */}
-                                                    {/* <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issue)} /> */}
-                                                    {/* <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(viewData)} /> */}
-                                                </td>
-                                            </tr>
-                                        ))
-                                    ));
-                                })()}
+                                {issue.map((issueItem, index) => (
+                                    <tr key={issueItem.stock_id}>
+                                        <td>{index + 1}</td>
+                                        {/* <td>{issueItem.stock_id}</td> */}
+                                        <td>{issueItem.memberName}</td>
+                                        <td>{issueItem.invoiceNo}</td>
+                                        <td>{new Date(issueItem.invoiceDate).toLocaleDateString()}</td>
+                                        {/* <td>{issueItem.bookDetails?.map(book => book.bookName).join(', ')}</td> */}
+                                        {/* <td>
+                                            {issueItem.bookDetails?.map(book => (
+                                                <div key={book.bookId}>
+                                                    <span>{book.bookName} - {book.purchaseCopyNo}</span>
+                                                    <br />
+                                                </div>
+                                            ))}
+                                        </td> */}
+                                        <td>
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(issueItem)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem)} />
+                                        </td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </Table>
                     </div>
                 </div>
             </Container>
 
+
+            {/* add modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -300,21 +261,21 @@ const BookIssue = () => {
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No</Form.Label>
+                                    <Form.Label>Issue No</Form.Label>
                                     <Form.Control
                                         placeholder="Issue number"
                                         type="text"
                                         className="small-input"
-                                        value={invoiceNumber}
-                                        onChange={(e) => setInvoiceNumber(e.target.value)}
+                                        value={issueNumber}
+                                        onChange={(e) => setIssueNumber(e.target.value)}
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
                                     <Form.Label>Issue Date</Form.Label>
                                     <Form.Control
                                         type="date"
-                                        value={invoiceDate}
-                                        onChange={(e) => setInvoiceDate(e.target.value)}
+                                        value={issueDate}
+                                        onChange={(e) => setIssueDate(e.target.value)}
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
@@ -328,8 +289,8 @@ const BookIssue = () => {
                                         value={selectedMemberId}
                                         onChange={(e) => setSelectedMemberId(e.target.value)}
                                     >
-                                        <option value="">Select member name</option>
-                                        {generalMember.map((member) => (
+                                        <option value="">Select a member</option>
+                                        {generalMember.map(member => (
                                             <option key={member.memberId} value={member.memberId}>
                                                 {member.username}
                                             </option>
@@ -341,10 +302,10 @@ const BookIssue = () => {
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
-                                            <th className='sr-size'>Sr. No. </th>
+                                            <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
                                             <th>Purchase Copy No</th>
-                                            <th>Action</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -405,183 +366,113 @@ const BookIssue = () => {
                 </div>
             </Modal>
 
-            {/* Edit Issue Modal */}
-            <Modal centered show={showEditModal} onHide={() => setShowEditModal(false)} size='xl'>
+            {/* view modal */}
+            <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Edit Issue</Modal.Title>
+                        <Modal.Title>View Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form onSubmit={handleUpdate}>
-                            <Row className="mb-3">
-                                <Form.Group as={Col} md={6}>
-                                    <Form.Label>Invoice No</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Enter invoice number"
-                                        value={editData.invoiceNo}
-                                        onChange={(e) => setEditData({ ...editData, invoiceNo: e.target.value })}
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col} md={6}>
-                                    <Form.Label>Issue Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={editData.invoiceDate}
-                                        onChange={(e) => setEditData({ ...editData, invoiceDate: e.target.value })}
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col} md={12}>
-                                    <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        value={editData.generalMemberId}
-                                        onChange={(e) => setEditData({ ...editData, generalMemberId: e.target.value })}
-                                    >
-                                        <option value="">Select member</option>
-                                        {generalMember.map((member) => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Row>
-                            <div className="table-responsive">
-                                <Table striped bordered hover className="table-bordered-dark">
-                                    <thead>
-                                        <tr>
-                                            <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
-                                            <th>Purchase Copy No</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {editData.books.map((book, index) => (
-                                            <tr key={index}>
-                                                <td className='sr-size'>{index + 1}</td>
-                                                <td>
-                                                    <Form.Group as={Col}>
-                                                        <Form.Control
-                                                            as="select"
-                                                            value={book.bookId}
-                                                            onChange={(e) => handleBookDetailChangeEdit(index, 'bookId', e.target.value)}
-                                                        >
-                                                            <option value="">Select a book</option>
-                                                            {bookDetails.map((detail) => (
-                                                                <option key={detail.bookId} value={detail.bookId}>
-                                                                    {detail.bookName}
-                                                                </option>
-                                                            ))}
-                                                        </Form.Control>
-                                                    </Form.Group>
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        as="select"
-                                                        value={book.copyDetails?.purchaseCopyNo}
-                                                        onChange={(e) => handleBookDetailChangeEdit(index, 'purchaseCopyNo', e.target.value)}
-                                                    >
-                                                        <option value="">Select purchase copy no </option>
-                                                        {bookDetails.find(b => b.bookId === Number(book.bookId))?.copyDetails.map((detail) => (
-                                                            <option key={detail.bookDetailId} value={detail.bookDetailId}>
-                                                                {detail.purchaseCopyNo}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
-                                                </td>
-                                                <td>
-                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteBookRowEdit(index)} />
-                                                </td>
+                        {selectedIssue && (
+                            <Form>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Invoice No</Form.Label>
+                                        <Form.Control
+                                            placeholder="Issue number"
+                                            type="text"
+                                            className="small-input"
+                                            value={selectedIssue.invoiceNo}
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Issue Date</Form.Label>
+                                        <Form.Control
+                                            type="date"
+                                            value={new Date(selectedIssue.invoiceDate).toISOString().substr(0, 10)}
+                                            className="custom-date-picker small-input"
+                                            disabled
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Member Name</Form.Label>
+                                        <Form.Control
+                                            as="select"
+                                            className="small-input"
+                                            value={selectedIssue.memberIdF}
+                                            disabled
+                                        >
+                                            <option value={selectedIssue.memberIdF}>{selectedIssue.memberName}</option>
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Row>
+                                <div className="table-responsive">
+                                    <Table striped bordered hover className="table-bordered-dark">
+                                        <thead>
+                                            <tr>
+                                                <th className='sr-size'>Sr. No. </th>
+                                                <th>Book Name</th>
+                                                <th>Purchase Copy No</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
-                            <Button onClick={addBookRowEdit} className="button-color">
-                                Add Book
-                            </Button>
-                        </Form>
+                                        </thead>
+                                        <tbody>
+                                            {selectedIssue.bookDetails.map((detail, index) => (
+                                                <tr key={index}>
+                                                    <td className='sr-size'>{index + 1}</td>
+                                                    <td>
+                                                        <Form.Group as={Col}>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={detail.bookName}
+                                                                disabled
+                                                            />
+                                                        </Form.Group>
+                                                    </td>
+                                                    <td>
+                                                        <Form.Control
+                                                            type="text"
+                                                            value={detail.purchaseCopyNo}
+                                                            disabled
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                </div>
+                            </Form>
+                        )}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+                        <Button variant="secondary" onClick={() => setShowViewModal(false)}>
                             Close
-                        </Button>
-                        <Button variant="primary" onClick={handleUpdate}>
-                            Update
                         </Button>
                     </Modal.Footer>
                 </div>
             </Modal>
 
-
-            {/* // View Issue Modal */}
-            <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='xl'>
-    <div className="bg-light">
-        <Modal.Header closeButton>
-            <Modal.Title>View Issue</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            {viewData && issue[viewData] && ( // Add conditional check
-                <Form>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} md={6}>
-                            <Form.Label>Invoice No</Form.Label>
-                            <Form.Control type="text" value={issue[viewData].invoiceNo} readOnly />
-                        </Form.Group>
-                        <Form.Group as={Col} md={6}>
-                            <Form.Label>Issue Date</Form.Label>
-                            <Form.Control type="date" value={issue[viewData].invoiceDate} readOnly />
-                        </Form.Group>
-                    </Row>
-                    <Row className="mb-3">
-                        <Form.Group as={Col} md={12}>
-                            <Form.Label>Member Name</Form.Label>
-                            <Form.Control as="select" value={issue[viewData].generalMemberId} disabled>
-                                <option value="">Select member</option>
-                                {generalMember.map((member) => (
-                                    <option key={member.memberId} value={member.memberId}>
-                                        {member.username}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                    </Row>
-                    <div className="table-responsive">
-                        <Table striped bordered hover className="table-bordered-dark">
-                            <thead>
-                                <tr>
-                                    <th className='sr-size'>Sr. No.</th>
-                                    <th>Book Name</th>
-                                    <th>Purchase Copy No</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {issue[viewData].bookDetails.map((book, index) => (
-                                    <tr key={index}>
-                                        <td className='sr-size'>{index + 1}</td>
-                                        <td>{book.bookName}</td>
-                                        <td>{book.purchaseCopyNo}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    </div>
-                </Form>
-            )}
-        </Modal.Body>
-        <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowViewModal(false)}>
-                Close
-            </Button>
-        </Modal.Footer>
-    </div>
-</Modal>
-
-
+            {/* delete modal */}
+            <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <div className="bg-light">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Delete</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>Are you sure you want to delete this issue?</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                            No
+                        </Button>
+                        <Button variant="danger" onClick={handleDeleteConfirm}>
+                            Yes
+                        </Button>
+                    </Modal.Footer>
+                </div>
+            </Modal>
 
         </div>
     );
