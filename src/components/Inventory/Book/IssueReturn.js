@@ -365,7 +365,7 @@ const IssueReturn = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* Detail Modal */}
+            {/* view Modal */}
             <Modal centered show={showDetailModal} onHide={() => setShowDetailModal(false)} size='lg'>
                 <Modal.Header closeButton>
                     <Modal.Title>Issue Return Details</Modal.Title>

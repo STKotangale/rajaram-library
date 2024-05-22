@@ -6,9 +6,9 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
-const PurchaseReturn = () => {
-    //get purchase return
-    const [purchaseReturn, setPurchaseReturn] = useState([]);
+const BookLost = () => {
+    //get  book lost
+    const [bookLost, setBookLost] = useState([]);
     //get purchaser name
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
@@ -21,10 +21,7 @@ const PurchaseReturn = () => {
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
     const [discountPercent, setDiscountPercent] = useState('');
-    // const [discountAmount, setDiscountAmount] = useState('');
     const [gstPercent, setGstPercent] = useState('');
-    // const [gstAmount, setGstAmount] = useState('');
-
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
@@ -36,28 +33,28 @@ const PurchaseReturn = () => {
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
-        fetchPurchaseReturn();
+        fetchBookLost();
         fetchPurchaserName();
         fetchAllBooks();
     }, [username, accessToken]);
 
-    //get purchase return
-    const fetchPurchaseReturn = async () => {
+    //get book lost
+    const fetchBookLost = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/purchase-return-all`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-lost-all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching purchase return: ${response.statusText}`);
+                throw new Error(`Error fetching book lost : ${response.statusText}`);
             }
             const data = await response.json();
             const groupedData = groupBy(data, 'stock_id');
-            setPurchaseReturn(groupedData);
+            setBookLost(groupedData);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching purchase return. Please try again later.');
+            toast.error('Error fetching book lost . Please try again later.');
         }
     };
 
@@ -75,8 +72,8 @@ const PurchaseReturn = () => {
             const data = await response.json();
             setPurchaserName(data.data);
         } catch (error) {
-            console.error("Failed to fetch purchaser:", error);
-            toast.error('Failed to load purchaser. Please try again later.');
+            console.error("Failed to fetch purchaser name:", error);
+            toast.error('Failed to load purchaser name. Please try again later.');
         }
     };
 
@@ -207,7 +204,7 @@ const PurchaseReturn = () => {
         };
 
         try {
-            const response = await fetch(`${BaseURL}/api/issue/purchase-return`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-lost`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -221,7 +218,7 @@ const PurchaseReturn = () => {
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchPurchaseReturn();
+                fetchBookLost();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -277,16 +274,16 @@ const PurchaseReturn = () => {
                 }
             });
             if (response.ok) {
-                toast.success('Purchase return deleted successfully.');
+                toast.success('Book lost  deleted successfully.');
                 setShowDeleteModal(false);
-                fetchPurchaseReturn();
+                fetchBookLost();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error deleting purchase return:', error);
-            toast.error('Error deleting purchase return. Please try again.');
+            console.error('Error deleting book lost:', error);
+            toast.error('Error deleting book lost . Please try again.');
         }
     };
 
@@ -302,7 +299,7 @@ const PurchaseReturn = () => {
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
-                            Add Purchase Return
+                            Add Book Lost
                         </Button>
                     </div>
                     <div className="table-responsive">
@@ -317,7 +314,7 @@ const PurchaseReturn = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(purchaseReturn).map(([stock_id, items], index) => (
+                                {Object.entries(bookLost).map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{items[0].ledgerName}</td>
@@ -340,7 +337,7 @@ const PurchaseReturn = () => {
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Purchase Return</Modal.Title>
+                        <Modal.Title>Add Book Lost</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmit}>
@@ -526,7 +523,7 @@ const PurchaseReturn = () => {
             <Modal centered show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Purchase Return Details</Modal.Title>
+                        <Modal.Title>Book Lost Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {selectedRowDetails.length > 0 && (
@@ -670,7 +667,7 @@ const PurchaseReturn = () => {
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this purchase return?</Modal.Body>
+                <Modal.Body>Are you sure you want to delete this book lost?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>No</Button>
                     <Button variant="danger" onClick={confirmDelete}>Yes</Button>
@@ -681,4 +678,4 @@ const PurchaseReturn = () => {
     );
 };
 
-export default PurchaseReturn;
+export default BookLost;

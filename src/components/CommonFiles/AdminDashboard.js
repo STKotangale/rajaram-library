@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -34,6 +34,8 @@ import Issue from '../Inventory/Book/Issue';
 import IssueReturn from '../Inventory/Book/IssueReturn';
 import PurchaseReturn from '../Inventory/Book/PurchaseReturn';
 import MembershipFees from '../Fees/MembershipFees';
+import BookLost from '../Inventory/Book/BookLost';
+import BookScrap from '../Inventory/Book/BookScrap';
 
 
 const AdminDashboard = () => {
@@ -55,6 +57,10 @@ const AdminDashboard = () => {
     const [bookIssue, setBookIssue] = useState(false);
     const [bookIssueReturn, setBookIssueReturn] = useState(false);
     const [bookPurchaseReturn, setBookPurchaseReturn] = useState(false);
+
+    const [bookLost, setBookLost] = useState(false);
+    const [bookScrap, setBookScrap] = useState(false);
+
 
     const [memberFees, setMemberFees] = useState(false);
 
@@ -91,7 +97,7 @@ const AdminDashboard = () => {
 
     //show name in navbar
     const [selectedItemName, setSelectedItemName] = useState('');
-   
+
     //true and false
     const handleHomeClick = () => {
         setViewDashboard(true);
@@ -110,8 +116,9 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handleShowPurchase = () => {
@@ -131,18 +138,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
-
-        // setSelectedAccountItem('');
-        // setSelectedMasterItem('');
-        // setShowSidebar(false);
     };
 
     const handleBookDetailsClick = () => {
         setFillBookDetails(true);
         setSelectedItemName('Book Details');
-
         setViewDashboard(false);
         setViewPurchase(false);
         setBookLanguages(false);
@@ -157,15 +160,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
-
     };
 
     const handleBookLanguages = () => {
         setBookLanguages(true);
         setSelectedItemName('Book Languages');
-
         setViewPurchase(false);
         setFillBookDetails(false);
         setViewDashboard(false);
@@ -180,15 +182,15 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
 
     const handleBookName = () => {
         setBooks(true);
         setSelectedItemName('Book');
-
         setViewPurchase(false);
         setFillBookDetails(false);
         setViewDashboard(false);
@@ -203,14 +205,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handleBookType = () => {
         setBookType(true);
         setSelectedItemName('Book Type');
-
         setViewPurchase(false);
         setFillBookDetails(false);
         setViewDashboard(false);
@@ -225,33 +227,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
-
-    // const handleShowPurchase = () => {
-    //     setViewPurchase(true);
-    //     setBookType(false);
-    //     setFillBookDetails(false);
-    //     setViewDashboard(false);
-    //     setBookLanguages(false);
-    //     setBooks(false);
-    //     setPermanentMember(false);
-    //     setGeneralMember(false);
-    //     setPurchaser(false);
-    //     setCreateUser(false);
-    //     setBookAuthor(false);
-    //     setBookPublication(false);
-    //     setBookIssue(false);
-    //     setBookIssueReturn(false);
-    //     setBookPurchaseReturn(false);
-    // };
-
 
     const handlePermanentMember = () => {
         setPermanentMember(true);
         setSelectedItemName('Permanent Member');
-
         setBookType(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -266,8 +249,9 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
 
@@ -275,7 +259,6 @@ const AdminDashboard = () => {
     const handleGeneralMember = () => {
         setGeneralMember(true);
         setSelectedItemName('General Member');
-
         setBookType(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -290,14 +273,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handlePurchaser = () => {
         setPurchaser(true);
         setSelectedItemName('Purchaser');
-
         setGeneralMember(false);
         setBookType(false);
         setViewPurchase(false);
@@ -312,14 +295,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handleCreateUser = () => {
         setCreateUser(true);
         setSelectedItemName('User');
-
         setPurchaser(false);
         setGeneralMember(false);
         setBookType(false);
@@ -334,14 +317,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handleBookAuthor = () => {
         setBookAuthor(true);
         setSelectedItemName('Book Author');
-
         setBooks(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -356,14 +339,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handleBookPublication = () => {
         setBookPublication(true);
         setSelectedItemName('Book Publication');
-
         setBooks(false);
         setViewPurchase(false);
         setFillBookDetails(false);
@@ -378,14 +361,14 @@ const AdminDashboard = () => {
         setBookIssue(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     };
 
     const handleIssueClick = () => {
         setBookIssue(true);
         setSelectedItemName('Issue');
-
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -400,14 +383,14 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssueReturn(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     }
 
     const handleIssueReturnClick = () => {
         setBookIssueReturn(true);
         setSelectedItemName('Issue Return');
-
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -422,15 +405,15 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssue(false);
         setBookPurchaseReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
-
     }
 
 
     const handlePurchaseReturnClick = () => {
         setBookPurchaseReturn(true);
         setSelectedItemName('Purchase Return');
-
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -445,16 +428,60 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssue(false);
         setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
         setMemberFees(false);
+    }
 
+    const hendleBookLost = () => {
+        setBookLost(true);
+        setSelectedItemName('Book Lost');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookScrap(false);
+        setMemberFees(false);
+    }
+
+    const hendleBookScrap = () => {
+        setBookScrap(true);
+        setSelectedItemName('Book Scrap');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setMemberFees(false);
     }
 
 
     const hendleMemberFees = () => {
         setMemberFees(true);
-        setBookPurchaseReturn(false);
         setSelectedItemName('Member Fees');
-
+        setBookPurchaseReturn(false);
         setBookPublication(false);
         setBooks(false);
         setViewPurchase(false);
@@ -469,6 +496,8 @@ const AdminDashboard = () => {
         setBookAuthor(false);
         setBookIssue(false);
         setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
     }
 
 
@@ -500,9 +529,6 @@ const AdminDashboard = () => {
         toast.success('You have been logged out.');
         navigate('/');
     };
-
-
-
 
     //sidebar mobile view
     const sidebarRef = useRef(null);
@@ -570,13 +596,19 @@ const AdminDashboard = () => {
                                                 <BookHalf className="me-2" /> Book Publication
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueClick}>
-                                                <ExclamationTriangleFill className="icon" /> Issue
+                                                <ExclamationTriangleFill className="me-2" /> Issue
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueReturnClick}>
-                                                <ArrowReturnLeft className="icon" /> Issue Return
+                                                <ArrowReturnLeft className="me-2 icon" /> Issue Return
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handlePurchaseReturnClick}>
-                                                <CartDashFill className="icon" /> Purchase Return
+                                                <CartDashFill className="me-2 icon" /> Purchase Return
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={hendleBookLost}>
+                                                <BookHalf className="me-2 icon" /> Book Lost
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={hendleBookScrap}>
+                                                <FileEarmarkX className="me-2 icon" /> Book Scrap
                                             </ListGroup.Item>
                                             {/* <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
                                             <CartPlusFill className="icon" /> Purchase
@@ -675,6 +707,9 @@ const AdminDashboard = () => {
                     {bookIssue && <Issue />}
                     {bookIssueReturn && <IssueReturn />}
                     {bookPurchaseReturn && <PurchaseReturn />}
+
+                    {bookLost && <BookLost />}
+                    {bookScrap && <BookScrap />}
 
                     {memberFees && <MembershipFees />}
 
