@@ -250,6 +250,7 @@ const ViewPurchase = () => {
         }
         recalculateValues();
     };
+    
     const handleGstChange = (e) => {
         const value = e.target.value;
         if (value === "") {
@@ -455,9 +456,11 @@ const ViewPurchase = () => {
                                     {currentData.map((purchase, index) => (
                                         <tr key={index}>
                                             <td>{indexOfNumber + index + 1}</td>
-                                            <td>{purchase.ledgerIDF?.ledgerName}</td>
+                                            {/* <td>{purchase.ledgerIDF?.ledgerName}</td> */}
+                                            <td>{purchase.ledgerIDF ? purchase.ledgerIDF.ledgerName : 'N/A'}</td>
                                             <td>{purchase.invoiceNo}</td>
-                                            <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td>
+                                            <td>{purchase.invoiceDate}</td>
+                                            {/* <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td> */}
                                             <td>{purchase.grandTotal}</td>
                                             <td>
                                                 {/* <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} /> */}
@@ -517,7 +520,8 @@ const ViewPurchase = () => {
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            value={selectedPurchase.ledgerIDF.ledgerName || ''}
+                                            // value={selectedPurchase.ledgerIDF.ledgerName || ''}
+                                            value={selectedPurchase.ledgerIDF ? selectedPurchase.ledgerIDF.ledgerName : 'N/A'}
                                         >
                                         </Form.Control>
                                     </Form.Group>
@@ -731,7 +735,8 @@ const ViewPurchase = () => {
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            value={selectedPurchase.ledgerIDF.ledgerName || ''}
+                                            // value={selectedPurchase.ledgerIDF.ledgerName || ''}
+                                            value={selectedPurchase.ledgerIDF ? selectedPurchase.ledgerIDF.ledgerName : 'N/A'}
                                         />
                                     </Form.Group>
                                 </Row>

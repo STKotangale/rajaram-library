@@ -8,9 +8,9 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const LibraryFees = () => {
+const Config = () => {
     //get
-    const [library, setLibrary] = useState([]);
+    const [config, setConfig] = useState([]);
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -20,26 +20,26 @@ const LibraryFees = () => {
     const [selectedFee, setSelectedFee] = useState(null);
 
     //get api
-    const fetchLibraryFees = async () => {
+    const fetchConfig = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/fees`, {
+            const response = await fetch(`${BaseURL}/api/config`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching library fees: ${response.statusText}`);
+                throw new Error(`Error fetching Ccnfig: ${response.statusText}`);
             }
             const data = await response.json();
-            setLibrary(data);
+            setConfig(data);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching library fees. Please try again later.');
+            toast.error('Error fetching Config. Please try again later.');
         }
     };
 
     useEffect(() => {
-        fetchLibraryFees();
+        fetchConfig();
     }, []);
 
 
@@ -63,14 +63,14 @@ const LibraryFees = () => {
                 body: JSON.stringify(selectedFee)
             });
             if (!response.ok) {
-                throw new Error(`Error updating library fee: ${response.statusText}`);
+                throw new Error(`Error updating config: ${response.statusText}`);
             }
-            toast.success('Library fee updated successfully!');
-            fetchLibraryFees(); 
+            toast.success('Config updated successfully!');
+            fetchConfig(); 
             setShowModal(false);
         } catch (error) {
             console.error(error);
-            toast.error('Error updating library fee. Please try again later.');
+            toast.error('Error updating Config. Please try again later.');
         }
     };
 
@@ -92,18 +92,18 @@ const LibraryFees = () => {
                                         <th>Sr.No</th>
                                         <th>Fees Type</th>
                                         <th>Amount</th>
-                                        <th>Actions</th>
+                                        {/* <th>Actions</th> */}
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {library.map((fee, index) => (
+                                    {config.map((fee, index) => (
                                         <tr key={fee.feesId}>
                                             <td>{index + 1}</td>
-                                            <td>{fee.feesName}</td>
-                                            <td>{fee.feesAmount}</td>
-                                            <td>
+                                            <td>{fee.bookDays}</td>
+                                            <td>{fee.finePerDays}</td>
+                                            {/* <td>
                                                 <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleUpdateClick(fee)} />
-                                            </td>
+                                            </td> */}
                                         </tr>
                                     ))}
                                 </tbody>
@@ -154,4 +154,4 @@ const LibraryFees = () => {
     );
 };
 
-export default LibraryFees;
+export default Config;

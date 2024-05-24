@@ -36,6 +36,9 @@ import PurchaseReturn from '../Inventory/Book/PurchaseReturn';
 import MembershipFees from '../Fees/MembershipFees';
 import BookLost from '../Inventory/Book/BookLost';
 import BookScrap from '../Inventory/Book/BookScrap';
+import LibararyFees from '../Fees/LibararyFees';
+import Config from '../Fees/Config';
+import MonthlyMembershipFee from '../Fees/MonthlyMembershipFee';
 
 
 const AdminDashboard = () => {
@@ -61,9 +64,11 @@ const AdminDashboard = () => {
     const [bookLost, setBookLost] = useState(false);
     const [bookScrap, setBookScrap] = useState(false);
 
-
+    const [libraryFees, setLibraryFees] = useState(false);
     const [memberFees, setMemberFees] = useState(false);
+    const [monthlyMemberFees, setMonthlyMemberFees] = useState(false);
 
+    const [config, setConfig] = useState(false);
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -118,7 +123,10 @@ const AdminDashboard = () => {
         setBookPurchaseReturn(false);
         setBookLost(false);
         setBookScrap(false);
+        setLibraryFees(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setConfig(false);
     };
 
     const handleShowPurchase = () => {
@@ -141,6 +149,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleBookDetailsClick = () => {
@@ -163,6 +174,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleBookLanguages = () => {
@@ -185,6 +199,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
 
@@ -208,6 +225,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleBookType = () => {
@@ -230,6 +250,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handlePermanentMember = () => {
@@ -252,6 +275,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
 
@@ -276,6 +302,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handlePurchaser = () => {
@@ -298,6 +327,8 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleCreateUser = () => {
@@ -320,6 +351,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleBookAuthor = () => {
@@ -342,6 +376,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleBookPublication = () => {
@@ -364,6 +401,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     };
 
     const handleIssueClick = () => {
@@ -386,6 +426,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     }
 
     const handleIssueReturnClick = () => {
@@ -408,6 +451,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     }
 
 
@@ -431,6 +477,9 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     }
 
     const hendleBookLost = () => {
@@ -453,6 +502,9 @@ const AdminDashboard = () => {
         setBookIssueReturn(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     }
 
     const hendleBookScrap = () => {
@@ -475,6 +527,9 @@ const AdminDashboard = () => {
         setBookIssueReturn(false);
         setBookLost(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     }
 
 
@@ -498,8 +553,88 @@ const AdminDashboard = () => {
         setBookIssueReturn(false);
         setBookLost(false);
         setBookScrap(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
     }
 
+
+    const hendleMonthlyMemberFees = () => {
+        setMonthlyMemberFees(true);
+        setSelectedItemName('Monthly Member Fees');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+    }
+
+
+    const hendleLibararyFees = () => {
+        setLibraryFees(true);
+        setSelectedItemName('Libarary Fees');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setConfig(false);
+    }
+
+
+    const hendleConfig = () => {
+        setConfig(true);
+        setSelectedItemName('Config');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+    }
 
     //change password
     const handleChange = (event) => {
@@ -627,6 +762,15 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMemberFees(); setShowSidebar(false); }}>
                                                 <PersonFill className="me-2" /> Membership Fees
                                             </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMonthlyMemberFees(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" />Monthly Fees
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleLibararyFees(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> Libarary Fees
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleConfig(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> Config
+                                            </ListGroup.Item>
                                         </div>
                                     )}
 
@@ -711,7 +855,11 @@ const AdminDashboard = () => {
                     {bookLost && <BookLost />}
                     {bookScrap && <BookScrap />}
 
+                    {libraryFees && <LibararyFees />}
+                    {config && <Config />}
+
                     {memberFees && <MembershipFees />}
+                    {monthlyMemberFees && <MonthlyMembershipFee />}
 
 
                 </Container>
