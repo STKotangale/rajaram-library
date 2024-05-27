@@ -23,7 +23,7 @@ const PermanentMember = () => {
         memberEducation: '',
         memberOccupation: '',
         mobileNo: '',
-        memberEmailId: '',
+        emailId: '',
         confirmDate: '',
     });
     //edit function
@@ -51,6 +51,7 @@ const PermanentMember = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
+            console.log("emailId",data)
             setPermanentMember(data.data);
         } catch (error) {
             console.error("Failed to fetch permanent members:", error);
@@ -76,7 +77,7 @@ const PermanentMember = () => {
             memberEducation: '',
             memberOccupation: '',
             mobileNo: '',
-            memberEmailId: '',
+            emailId: '',
             confirmDate: '',
         });
     };
@@ -99,6 +100,7 @@ const PermanentMember = () => {
                 throw new Error(`Error adding permanent member: ${response.statusText}`);
             }
             const data = await response.json();
+            console.log("data",data)
             setPermanentMember([...permanentMember, data.data]);
             toast.success('Permanent member added successfully.');
             setShowAddPermanentMemberModal(false);
@@ -112,11 +114,12 @@ const PermanentMember = () => {
 
     //edit function
     const handleEditOpenPermanentMember = (memberId) => {
-        const memberToEdit = permanentMember.find(member => member.memberId === memberId);
-        if (memberToEdit) {
-            setEditPermanentMemberData(memberToEdit);
+        console.log("member==",memberId)
+        // const memberToEdit = permanentMember.find(member => member.memberId === memberId);
+        // if (memberToEdit) {
+            setEditPermanentMemberData(memberId);
             setShowEditPermanentMemberModal(true);
-        }
+        // }
     };
 
     //edit api
@@ -142,6 +145,7 @@ const PermanentMember = () => {
                 throw new Error(`Error editing permanent member: ${response.statusText}`);
             }
             const updatedPermanentMemberData = await response.json();
+            console.log('hiii',updatedPermanentMemberData)
             const updatedPermanentMembers = permanentMember.map(member => {
                 if (member.memberId === updatedPermanentMemberData.data.memberId) {
                     return updatedPermanentMemberData.data;
@@ -149,6 +153,7 @@ const PermanentMember = () => {
                 return member;
             });
             setPermanentMember(updatedPermanentMembers);
+            console.log("dta",updatedPermanentMemberData)
             toast.success('Permanent member edited successfully.');
             setShowEditPermanentMemberModal(false);
         } catch (error) {
@@ -184,6 +189,7 @@ const PermanentMember = () => {
 
     //view
     const handleViewOpenPermanentMember = (member) => {
+        console.log("data==",member)
         setViewPermanentMemberData(member);
         setShowViewPermanentMemberModal(true);
     };
@@ -250,7 +256,7 @@ const PermanentMember = () => {
                                         <td>
                                             <PencilSquare
                                                 className="ms-3 action-icon edit-icon"
-                                                onClick={() => handleEditOpenPermanentMember(member.memberId)}
+                                                onClick={() => handleEditOpenPermanentMember(member)}
                                             />
                                             <Trash
                                                 className="ms-3 action-icon delete-icon"
@@ -357,9 +363,9 @@ const PermanentMember = () => {
                                     <Form.Label>Email Id</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Email"
-                                        value={newPermanentMember.memberEmailId}
-                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, memberEmailId: e.target.value })}
+                                        placeholder="emailId"
+                                        value={newPermanentMember.emailId}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, emailId:e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -514,9 +520,9 @@ const PermanentMember = () => {
                                     <Form.Label>Email Id</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Email"
-                                        value={editPermanentMemberData ? editPermanentMemberData.memberEmailId : ''}
-                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEmailId: e.target.value })}
+                                        placeholder="emailId"
+                                        value={editPermanentMemberData.emailId}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, emailId:e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -532,6 +538,7 @@ const PermanentMember = () => {
                                         onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEducation: e.target.value })}
                                         required
                                     />
+                                
                                 </Form.Group>
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberOccupation">
                                     <Form.Label>Occupation</Form.Label>
@@ -646,7 +653,7 @@ const PermanentMember = () => {
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Email</Form.Label>
-                                        <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.memberEmailId} />
+                                    <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.emailId} />
                                     </Form.Group>
                                 </Row>
 

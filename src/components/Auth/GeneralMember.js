@@ -760,22 +760,7 @@ const GeneralMember = () => {
                                 </Row>
 
                                 <Row className="mb-3">
-                                    <Form.Group as={Col} lg={4} className="mb-3">
-                                        <Form.Label>Date of Birth</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.dateOfBirth} />
-                                    </Form.Group>
-                                    <Form.Group as={Col} lg={4} className="mb-3">
-                                        <Form.Label>Register Date</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.registerDate} />
-                                    </Form.Group>
-                                    <Form.Group as={Col} lg={4} className="mb-3">
-                                        <Form.Label>Confirm Date</Form.Label>
-                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirmDate} />
-                                    </Form.Group>
-                                </Row>
-
-                                <Row className="mb-3">
-                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Education</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberEducation} />
                                     </Form.Group>
@@ -786,6 +771,21 @@ const GeneralMember = () => {
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Address</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberAddress} />
+                                    </Form.Group>
+                                </Row>
+
+                                <Row className="mb-3">
+                                <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Date of Birth</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.dateOfBirth} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Register Date</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.registerDate} />
+                                    </Form.Group>
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Confirm Date</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.confirmDate} />
                                     </Form.Group>
                                 </Row>
 
