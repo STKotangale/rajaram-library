@@ -7,26 +7,20 @@ import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
 const BookIssue = () => {
-    //get book issue
     const [issue, setIssue] = useState([]);
-    //get general member
     const [generalMember, setGeneralMember] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState("");
-    //get book details all
     const [bookDetails, setBookDetails] = useState([]);
-    //add
     const [showAddModal, setShowAddModal] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '' })));
     const [issueNumber, setIssueNumber] = useState('');
     const [issueDate, setIssueDate] = useState('');
-    //view
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState(null);
-    //delete
     const [issueToDelete, setIssueToDelete] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [isMembershipValid, setIsMembershipValid] = useState(false);
 
-    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -36,7 +30,6 @@ const BookIssue = () => {
         fetchBookDetails();
     }, [username, accessToken]);
 
-    //get general - member
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -80,7 +73,7 @@ const BookIssue = () => {
                 throw new Error(`Error fetching issue: ${response.statusText}`);
             }
             const data = await response.json();
-            setIssue(data)
+            setIssue(data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching issue. Please try again later.');
@@ -116,8 +109,63 @@ const BookIssue = () => {
         setRows(updatedRows);
     };
 
+    const checkMembershipFees = async (memberId, date) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/membership-fees/check-member-fees`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ memberId, date })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error ... ${response.statusText}`);
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            // toast.error('Error. Please try again.');
+            return null;
+        }
+    };
+
+    const handleDateChange = async (e) => {
+        const newDate = e.target.value;
+        setIssueDate(newDate);
+        if (selectedMemberId && newDate) {
+            const membershipCheck = await checkMembershipFees(selectedMemberId, newDate);
+            if (membershipCheck && membershipCheck.success) {
+                setIsMembershipValid(true);
+            } else {
+                setIsMembershipValid(false);
+                toast.error('Please select a proper date.');
+            }
+        }
+    };
+
+    const handleMemberChange = async (e) => {
+        const newMemberId = e.target.value;
+        setSelectedMemberId(newMemberId);
+        if (issueDate && newMemberId) {
+            const membershipCheck = await checkMembershipFees(newMemberId, issueDate);
+            if (membershipCheck && membershipCheck.success) {
+                setIsMembershipValid(true);
+            } else {
+                setIsMembershipValid(false);
+                toast.error('Please select a proper date.');
+            }
+        }
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        if (!isMembershipValid) {
+            toast.error('Please select a proper date.');
+            return;
+        }
 
         const bookDetailsPayload = rows
             .filter(row => row.bookId && row.purchaseCopyNo)
@@ -158,10 +206,6 @@ const BookIssue = () => {
         }
     };
 
-
-
-
-    //delete
     const handleDeleteClick = (issue) => {
         setIssueToDelete(issue);
         setShowDeleteModal(true);
@@ -192,8 +236,6 @@ const BookIssue = () => {
         }
     };
 
-
-    //view
     const handleViewClick = (issue) => {
         setSelectedIssue(issue);
         setShowViewModal(true);
@@ -213,11 +255,9 @@ const BookIssue = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
-                                    {/* <th>Stock Id</th> */}
                                     <th>Member Name</th>
                                     <th>Issue No</th>
                                     <th>Issue Date</th>
-                                    {/* <th>Book - Purchase Copy No.</th> */}
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -225,21 +265,11 @@ const BookIssue = () => {
                                 {issue.map((issueItem, index) => (
                                     <tr key={issueItem.stock_id}>
                                         <td>{index + 1}</td>
-                                        {/* <td>{issueItem.stock_id}</td> */}
                                         <td>{issueItem.memberName}</td>
                                         <td>{issueItem.invoiceNo}</td>
                                         <td>{new Date(issueItem.invoiceDate).toLocaleDateString()}</td>
-                                        {/* <td>{issueItem.bookDetails?.map(book => book.bookName).join(', ')}</td> */}
-                                        {/* <td>
-                                            {issueItem.bookDetails?.map(book => (
-                                                <div key={book.bookId}>
-                                                    <span>{book.bookName} - {book.purchaseCopyNo}</span>
-                                                    <br />
-                                                </div>
-                                            ))}
-                                        </td> */}
                                         <td>
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(issueItem)} />
+                                            <Eye className="action-icon view-icon" onClick={() => handleViewClick(issueItem)} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem)} />
                                         </td>
                                     </tr>
@@ -250,15 +280,13 @@ const BookIssue = () => {
                 </div>
             </Container>
 
-
-            {/* add modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Issue</Modal.Title>
+                        <Modal.Title>Add Book Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form onSubmit={handleSubmit}>
+                        <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Issue No</Form.Label>
@@ -275,7 +303,7 @@ const BookIssue = () => {
                                     <Form.Control
                                         type="date"
                                         value={issueDate}
-                                        onChange={(e) => setIssueDate(e.target.value)}
+                                        onChange={handleDateChange}
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
@@ -287,7 +315,7 @@ const BookIssue = () => {
                                         as="select"
                                         className="small-input"
                                         value={selectedMemberId}
-                                        onChange={(e) => setSelectedMemberId(e.target.value)}
+                                        onChange={handleMemberChange}
                                     >
                                         <option value="">Select a member</option>
                                         {generalMember.map(member => (
@@ -366,7 +394,6 @@ const BookIssue = () => {
                 </div>
             </Modal>
 
-            {/* view modal */}
             <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -454,7 +481,6 @@ const BookIssue = () => {
                 </div>
             </Modal>
 
-            {/* delete modal */}
             <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <div className="bg-light">
                     <Modal.Header closeButton>

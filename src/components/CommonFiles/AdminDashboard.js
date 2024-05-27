@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX, CurrencyDollar, Calendar, Gear } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -760,16 +760,16 @@ const AdminDashboard = () => {
                                                 <PersonFill className="me-2" /> Purchaser
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMemberFees(); setShowSidebar(false); }}>
-                                                <PersonFill className="me-2" /> Membership Fees
+                                                <CurrencyDollar  className="me-2" /> Membership Fees
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMonthlyMemberFees(); setShowSidebar(false); }}>
-                                                <PersonFill className="me-2" />Monthly Fees
+                                                <Calendar  className="me-2" />Monthly Fees
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleLibararyFees(); setShowSidebar(false); }}>
-                                                <PersonFill className="me-2" /> Libarary Fees
+                                                <Book  className="me-2" /> Libarary Fees
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleConfig(); setShowSidebar(false); }}>
-                                                <PersonFill className="me-2" /> Config
+                                                <Gear className="me-2" /> Config
                                             </ListGroup.Item>
                                         </div>
                                     )}
