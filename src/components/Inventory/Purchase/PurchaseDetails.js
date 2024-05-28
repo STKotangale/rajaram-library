@@ -165,8 +165,12 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
         setRows([...rows, { bookName: '', quantity: '', rate: '', amount: '' }]);
     };
 
-    // post api
-    // post api
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
     
@@ -174,16 +178,16 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             if (!selectedLedgerName.trim()) {
                 throw new Error('Please select purchaser name.');
             }
-
+    
             const isBookFilled = rows.some(row => row.bookName.trim() !== '');
             if (!isBookFilled) {
                 throw new Error('Please enter at least one book.');
             }
-
+    
             const filteredRows = rows.filter(row => row.bookName.trim() !== '' && row.quantity.trim() !== '' && row.rate.trim() !== '');
             const payload = {
                 invoiceNo: invoiceNumber,
-                invoiceDate: invoiceDate,
+                invoiceDate: formatDate(invoiceDate), // Format the date here
                 ledgerIDF: selectedLedgerID,
                 billTotal: calculateBillTotal(),
                 discountPercent: discountPercentage,
@@ -199,11 +203,11 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                     bookAmount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
                 }))
             };
-
+    
             if (!accessToken) {
                 throw new Error('Access token not found. Please log in again.');
             }
-
+    
             const response = await fetch(`${BaseURL}/api/stock`, {
                 method: 'POST',
                 headers: {
@@ -212,7 +216,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                 },
                 body: JSON.stringify(payload)
             });
-
+    
             if (!response.ok) {
                 throw new Error(`Failed to submit invoice: ${response.status} - ${response.statusText}`);
             }
@@ -220,14 +224,13 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             toast.success("Invoice successfully submitted.");
             handlePurchaseSubmit();
             fetchPurchases();
-
+    
         } catch (error) {
             console.error('Error submitting invoice:', error.message);
-            // toast.error('Error submitting invoice. Please try again.');
-            toast.success("Invoice successfully submitted.");
+            toast.error('Error submitting invoice. Please try again.');
         }
     };
-
+    
 
     // handle change
     const handleRowChange = (index, e) => {

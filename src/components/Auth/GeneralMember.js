@@ -84,11 +84,32 @@ const GeneralMember = () => {
         });
     };
 
+    
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
+
+    const parseDate = (date) => {
+        const [day, month, year] = date.split('-');
+        return `${year}-${month}-${day}`;
+    };
+
+
     //add post api
     const addGeneralMember = async (e) => {
         e.preventDefault();
         try {
             const mobileNo = parseInt(newGeneralMember.mobileNo);
+
+            const payload = {
+                ...newGeneralMember,
+                mobileNo,
+                registerDate: parseDate(newGeneralMember.registerDate),
+                dateOfBirth: parseDate(newGeneralMember.dateOfBirth),
+                confirmDate: parseDate(newGeneralMember.confirmDate)
+            };
 
             const response = await fetch(`${BaseURL}/api/general-members`, {
                 method: 'POST',
@@ -96,7 +117,7 @@ const GeneralMember = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...newGeneralMember, mobileNo }),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
@@ -119,48 +140,17 @@ const GeneralMember = () => {
     const handleEditOpenGeneralMember = (memberId) => {
         const memberToEdit = generalMember.find(member => member.memberId === memberId);
         if (memberToEdit) {
-            setEditGeneralMemberData(memberToEdit);
+            const formattedData = {
+                ...memberToEdit,
+                registerDate: formatDate(memberToEdit.registerDate),
+                dateOfBirth: formatDate(memberToEdit.dateOfBirth),
+                confirmDate: formatDate(memberToEdit.confirmDate)
+            };
+            setEditGeneralMemberData(formattedData);
             setShowEditGeneralMemberModal(true);
         }
     };
 
-    // //edit api
-    // const editGeneralMember = async (e) => {
-    //     e.preventDefault();
-    //     try {
-    //         if (!editGeneralMemberData || !editGeneralMemberData.memberId) {
-    //             throw new Error('No memberId provided for editing.');
-    //         }
-    //         const { isBlock, ...requestData } = editGeneralMemberData;
-
-    //         const response = await fetch(`${BaseURL}/api/general-members/${editGeneralMemberData.memberId}`, {
-    //             method: 'PUT',
-    //             headers: {
-    //                 'Authorization': `Bearer ${accessToken}`,
-    //                 'Content-Type': 'application/json',
-    //             },
-    //             body: JSON.stringify(requestData),
-    //         });
-
-    //         if (!response.ok) {
-    //             throw new Error(`Error editing general member: ${response.statusText}`);
-    //         }
-    //         const updatedGeneralMemberData = await response.json();
-    //         const updatedGeneralMembers = generalMember.map(member => {
-    //             if (member.memberId === updatedGeneralMemberData.data.memberId) {
-    //                 return updatedGeneralMemberData.data;
-    //             }
-    //             return member;
-    //         });
-    //         setGeneralMember(updatedGeneralMembers);
-    //         setShowEditGeneralMemberModal(false);
-    //         toast.success('General member edited successfully.');
-    //         fetchGeneralMembers();
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast.error('Error editing general member. Please try again later.');
-    //     }
-    // };
 
 
     //edit api
@@ -176,18 +166,20 @@ const GeneralMember = () => {
                 firstName: requestData.firstName,
                 middleName: requestData.middleName,
                 lastName: requestData.lastName,
-                registerDate: requestData.registerDate,
                 adharCard: requestData.adharCard,
                 memberAddress: requestData.memberAddress,
-                dateOfBirth: requestData.dateOfBirth,
                 memberEducation: requestData.memberEducation,
                 memberOccupation: requestData.memberOccupation,
                 mobileNo: requestData.mobileNo,
                 memberEmailId: requestData.useremail,
-                confirmDate: requestData.confirmDate,
-                // isBlock: requestData.isBlock,
+                // dateOfBirth: requestData.dateOfBirth,
+                // registerDate: requestData.registerDate,
+                // confirmDate: requestData.confirmDate,
                 username: requestData.username,
-                password: requestData.password
+                password: requestData.password,
+                registerDate: parseDate(requestData.registerDate),
+                dateOfBirth: parseDate(requestData.dateOfBirth),
+                confirmDate: parseDate(requestData.confirmDate)
             };
             const response = await fetch(`${BaseURL}/api/general-members/${memberId}`, {
                 method: 'PUT',
@@ -276,7 +268,7 @@ const GeneralMember = () => {
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = generalMember.slice(indexOfNumber, indexOfLastBookType);
 
-
+    
 
     return (
         <div className="main-content">

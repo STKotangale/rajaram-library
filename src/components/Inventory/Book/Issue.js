@@ -20,6 +20,10 @@ const BookIssue = () => {
     const [issueToDelete, setIssueToDelete] = useState(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isMembershipValid, setIsMembershipValid] = useState(false);
+    const [membershipChecked, setMembershipChecked] = useState(false);
+
+    const [errorMessage, setErrorMessage] = useState('');
+
 
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -111,13 +115,21 @@ const BookIssue = () => {
 
     const checkMembershipFees = async (memberId, date) => {
         try {
+            const formatDateForPayload = (date) => {
+                if (!date) return '';
+                const [year, month, day] = date.split('-');
+                return `${day}-${month}-${year}`;
+            };
+
+            const formattedDate = formatDateForPayload(date);
+
             const response = await fetch(`${BaseURL}/api/membership-fees/check-member-fees`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify({ memberId, date })
+                body: JSON.stringify({ memberId, date: formattedDate })
             });
 
             if (!response.ok) {
@@ -126,7 +138,7 @@ const BookIssue = () => {
             const data = await response.json();
             return data;
         } catch (error) {
-            // toast.error('Error. Please try again.');
+            console.error('Error:', error);
             return null;
         }
     };
@@ -138,9 +150,11 @@ const BookIssue = () => {
             const membershipCheck = await checkMembershipFees(selectedMemberId, newDate);
             if (membershipCheck && membershipCheck.success) {
                 setIsMembershipValid(true);
+                setMembershipChecked(true);
             } else {
                 setIsMembershipValid(false);
-                toast.error('Please select a proper date.');
+                setMembershipChecked(false);
+                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
             }
         }
     };
@@ -152,18 +166,30 @@ const BookIssue = () => {
             const membershipCheck = await checkMembershipFees(newMemberId, issueDate);
             if (membershipCheck && membershipCheck.success) {
                 setIsMembershipValid(true);
+                setMembershipChecked(true);
             } else {
                 setIsMembershipValid(false);
-                toast.error('Please select a proper date.');
+                setMembershipChecked(false);
+                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
             }
         }
+    };
+
+    // Reset form fields
+    const resetFormFields = () => {
+        setIssueNumber('');
+        setIssueDate('');
+        setSelectedMemberId('');
+        setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '' })));
+        setIsMembershipValid(false);
+        setMembershipChecked(false);
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (!isMembershipValid) {
-            toast.error('Please select a proper date.');
+            // toast.error("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow  books.");
             return;
         }
 
@@ -180,7 +206,6 @@ const BookIssue = () => {
             generalMemberId: selectedMemberId,
             bookDetails: bookDetailsPayload
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-issue`, {
                 method: 'POST',
@@ -195,6 +220,7 @@ const BookIssue = () => {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
+                resetFormFields();
                 fetchIssue();
             } else {
                 const errorData = await response.json();
@@ -326,61 +352,69 @@ const BookIssue = () => {
                                     </Form.Control>
                                 </Form.Group>
                             </Row>
-                            <div className="table-responsive">
-                                <Table striped bordered hover className="table-bordered-dark">
-                                    <thead>
-                                        <tr>
-                                            <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
-                                            <th>Purchase Copy No</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row, index) => (
-                                            <tr key={index}>
-                                                <td className='sr-size'>{index + 1}</td>
-                                                <td>
-                                                    <Form.Group as={Col}>
+                            <div className='error-message'>
+                                {!membershipChecked && errorMessage && (
+                                    <div className="error-message text-danger mt-3">{errorMessage}</div>
+                                )}
+                            </div>
+                            {membershipChecked && (
+                                <div className="table-responsive">
+                                    <Table striped bordered hover className="table-bordered-dark">
+                                        <thead>
+                                            <tr>
+                                                <th className='sr-size'>Sr. No.</th>
+                                                <th>Book Name</th>
+                                                <th>Purchase Copy No</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rows.map((row, index) => (
+                                                <tr key={index}>
+                                                    <td className='sr-size'>{index + 1}</td>
+                                                    <td>
+                                                        <Form.Group as={Col}>
+                                                            <Form.Control
+                                                                as="select"
+                                                                value={row.bookId}
+                                                                onChange={(e) => handleBookChangeForRow(index, e)}
+                                                            >
+                                                                <option value="">Select a book</option>
+                                                                {bookDetails.map((book) => (
+                                                                    <option key={book.bookId} value={book.bookId}>
+                                                                        {book.bookName}
+                                                                    </option>
+                                                                ))}
+                                                            </Form.Control>
+                                                        </Form.Group>
+                                                    </td>
+                                                    <td>
                                                         <Form.Control
                                                             as="select"
-                                                            value={row.bookId}
-                                                            onChange={(e) => handleBookChangeForRow(index, e)}
+                                                            value={row.purchaseCopyNo}
+                                                            onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                         >
-                                                            <option value="">Select a book</option>
-                                                            {bookDetails.map((book) => (
-                                                                <option key={book.bookId} value={book.bookId}>
-                                                                    {book.bookName}
+                                                            <option value="">Select Book Details</option>
+                                                            {bookDetails.find(book => book.bookId === Number(row.bookId))?.copyDetails.map((detail) => (
+                                                                <option key={detail.bookDetailId} value={detail.bookDetailId}>
+                                                                    {detail.purchaseCopyNo}
                                                                 </option>
                                                             ))}
                                                         </Form.Control>
-                                                    </Form.Group>
-                                                </td>
-                                                <td>
-                                                    <Form.Control
-                                                        as="select"
-                                                        value={row.purchaseCopyNo}
-                                                        onChange={(e) => handleBookDetailsChangeForRow(index, e)}
-                                                    >
-                                                        <option value="">Select Book Details</option>
-                                                        {bookDetails.find(book => book.bookId === Number(row.bookId))?.copyDetails.map((detail) => (
-                                                            <option key={detail.bookDetailId} value={detail.bookDetailId}>
-                                                                {detail.purchaseCopyNo}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
-                                                </td>
-                                                <td>
-                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
-                            <Button onClick={addRowAdd} className="button-color">
-                                Add Book
-                            </Button>
+                                                    </td>
+                                                    <td>
+                                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+
+                                    <Button onClick={addRowAdd} className="button-color">
+                                        Add Book
+                                    </Button>
+                                </div>
+                            )}
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -388,7 +422,7 @@ const BookIssue = () => {
                             Close
                         </Button>
                         <Button variant="primary" onClick={handleSubmit}>
-                            Add
+                            Submit
                         </Button>
                     </Modal.Footer>
                 </div>

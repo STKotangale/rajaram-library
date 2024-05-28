@@ -82,11 +82,30 @@ const PermanentMember = () => {
         });
     };
 
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
+
+    const parseDate = (date) => {
+        const [day, month, year] = date.split('-');
+        return `${year}-${month}-${day}`;
+    };
+
     //add api
     const addPermanentMember = async (e) => {
         e.preventDefault();
         try {
             const mobileNo = parseInt(newPermanentMember.mobileNo);
+
+            const payload = {
+                ...newPermanentMember,
+                mobileNo,
+                registerDate: parseDate(newPermanentMember.registerDate),
+                dateOfBirth: parseDate(newPermanentMember.dateOfBirth),
+                confirmDate: parseDate(newPermanentMember.confirmDate)
+            };
 
             const response = await fetch(`${BaseURL}/api/permanent-members`, {
                 method: 'POST',
@@ -94,13 +113,12 @@ const PermanentMember = () => {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ ...newPermanentMember, mobileNo }),
+                body: JSON.stringify(payload),
             });
             if (!response.ok) {
                 throw new Error(`Error adding permanent member: ${response.statusText}`);
             }
             const data = await response.json();
-            console.log("data",data)
             setPermanentMember([...permanentMember, data.data]);
             toast.success('Permanent member added successfully.');
             setShowAddPermanentMemberModal(false);
@@ -112,40 +130,45 @@ const PermanentMember = () => {
     };
 
 
-    //edit function
-    const handleEditOpenPermanentMember = (memberId) => {
-        console.log("member==",memberId)
-        // const memberToEdit = permanentMember.find(member => member.memberId === memberId);
-        // if (memberToEdit) {
-            setEditPermanentMemberData(memberId);
-            setShowEditPermanentMemberModal(true);
-        // }
+    const handleEditOpenPermanentMember = (member) => {
+        const formattedData = {
+            ...member,
+            registerDate: formatDate(member.registerDate),
+            dateOfBirth: formatDate(member.dateOfBirth),
+            confirmDate: formatDate(member.confirmDate)
+        };
+        setEditPermanentMemberData(formattedData);
+        setShowEditPermanentMemberModal(true);
     };
 
-    //edit api
     const editPermanentMember = async (e) => {
         e.preventDefault();
         try {
             if (!editPermanentMemberData || !editPermanentMemberData.memberId) {
                 throw new Error('No memberId provided for editing.');
             }
-            // Filter out the 'isBlock' property if it's present
-            const { isBlock, ...requestData } = editPermanentMemberData;
+            const { memberId, ...requestData } = editPermanentMemberData;
 
-            const response = await fetch(`${BaseURL}/api/permanent-members/${editPermanentMemberData.memberId}`, {
+            const payload = {
+                ...requestData,
+                registerDate: parseDate(requestData.registerDate),
+                dateOfBirth: parseDate(requestData.dateOfBirth),
+                confirmDate: parseDate(requestData.confirmDate)
+            };
+
+            const response = await fetch(`${BaseURL}/api/permanent-members/${memberId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestData),
+                body: JSON.stringify(payload),
             });
 
             if (!response.ok) {
                 throw new Error(`Error editing permanent member: ${response.statusText}`);
             }
             const updatedPermanentMemberData = await response.json();
-            console.log('hiii',updatedPermanentMemberData)
             const updatedPermanentMembers = permanentMember.map(member => {
                 if (member.memberId === updatedPermanentMemberData.data.memberId) {
                     return updatedPermanentMemberData.data;
@@ -153,7 +176,6 @@ const PermanentMember = () => {
                 return member;
             });
             setPermanentMember(updatedPermanentMembers);
-            console.log("dta",updatedPermanentMemberData)
             toast.success('Permanent member edited successfully.');
             setShowEditPermanentMemberModal(false);
         } catch (error) {

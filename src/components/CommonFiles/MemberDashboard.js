@@ -14,13 +14,18 @@ import Footer from './Footer';
 
 import BookTypes from '../Inventory/Book/BookTypes';
 import { useRef } from 'react';
+import Dashboard from '../Member/Dashboard';
 
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
     const sidebarRef = useRef(null);
 
-    const [viewBook, setViewBook] = useState(true);
+
+    const [selectedItemName, setSelectedItemName] = useState('');
+    const [viewDashboard, setViewDashboard] = useState(true);
+
+    const [memberDateWise, setMemberDateWise] = useState(false);
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -49,8 +54,10 @@ const MemberDashboard = () => {
     }, [username, accessToken]);
 
 
-    const handleBookClick = () => {
-        setViewBook(true);
+    const handleHomeClick = () => {
+        setViewDashboard(true);
+        setSelectedItemName('Home');
+        setMemberDateWise(false);
     };
 
 
@@ -101,12 +108,12 @@ const MemberDashboard = () => {
                         <span className="h4 ms-2 mt-5">Rajaram Library</span>
                         <ListGroup variant="flush" className="mt-5 ms-3 custom-list-group">
                             <Col lg={11} className="">
-                                <ListGroup.Item className="home-icon" >
-                                    <HouseDoorFill className="icon-member" /> Home
+                                <ListGroup.Item className="sub-icon" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
+                                    <HouseDoorFill className="icon" /> Home
                                 </ListGroup.Item>
-                                <ListGroup.Item className="home-icon" action >
+                                {/* <ListGroup.Item className="home-icon" action >
                                     <ExclamationTriangleFill className="icon-member" action onClick={() => setViewBook(true)} /> Book Issue
-                                </ListGroup.Item>
+                                </ListGroup.Item> */}
                             </Col>
                         </ListGroup>
                     </div>
@@ -114,13 +121,16 @@ const MemberDashboard = () => {
             </div>
 
             {/* Main content */}
-            <div className='dashboard-member-page-details bg-light'>
+            <div className='dashboard-member-page-details'>
                 {/* Sidebar toggle button for mobile view */}
-                <Navbar bg="light" expand="lg" className="mb-4 border-bottom navabar-color dashboard-member-navabar">
+                <Navbar expand="lg" className="mb-4 border-bottom navabar-color dashboard-member-navabar">
                     <div className="sidebar-toggle d-md-none color-black" onClick={toggleSidebar}>
                         ☰
                     </div>
-                    <Navbar.Brand href="#Dashboard" className='ms-4'>Welcome Member !.. {username}</Navbar.Brand>
+                    {/* <Navbar.Brand href="#Dashboard" className='ms-4'>Welcome Member !.. {username}</Navbar.Brand> */}
+                    <Nav className="ms-4 mt-2">
+                        <div className="selected-item">{selectedItemName}</div>
+                    </Nav>
                     <Navbar.Toggle aria-controls="basic-navbar-nav " />
                     <Navbar.Collapse id="basic-navbar-nav">
                         <Nav className="ms-auto ">
@@ -136,9 +146,10 @@ const MemberDashboard = () => {
                     </Navbar.Collapse>
                 </Navbar>
                 <Container fluid className=" d-flex flex-column justify-content-between main-member-content">
-                    {viewBook && <BookTypes />}
+                    {viewDashboard && <Dashboard />}
+                    {/* {memberDateWise && <BookTypes />} */}
                 </Container>
-                <Footer />
+                {/* <Footer /> */}
             </div>
 
             {/* Change Password Modal */}

@@ -8,6 +8,7 @@ import { useAuth } from '../../Auth/AuthProvider';
 import PurchaseDetails from './PurchaseDetails';
 
 import '../InventoryCSS/PurchaseBookDashboardData.css'
+import { date } from 'yup';
 
 const ViewPurchase = () => {
     //get 
@@ -250,7 +251,7 @@ const ViewPurchase = () => {
         }
         recalculateValues();
     };
-    
+
     const handleGstChange = (e) => {
         const value = e.target.value;
         if (value === "") {
@@ -428,6 +429,11 @@ const ViewPurchase = () => {
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = purchases.slice(indexOfNumber, indexOfLastBookType);
 
+    // Update the formatDate function to format dates to dd-mm-yyyy format
+    function formatDate(dateString) {
+        const [day, month, year] = dateString.split('-');
+        return `${day}-${month}-${year}`;
+    }
 
 
     return (
@@ -723,11 +729,9 @@ const ViewPurchase = () => {
                                     <Form.Group as={Col} sm={3}>
                                         <Form.Label>Invoice Date</Form.Label>
                                         <Form.Control
-                                            type="date"
-                                            value={selectedPurchase.invoiceDate || ''}
-                                            // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
+                                            type="text"
+                                            value={formatDate(selectedPurchase.invoiceDate)}
                                             readOnly
-                                            className="custom-date-picker"
                                         />
                                     </Form.Group>
 
