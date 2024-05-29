@@ -28,6 +28,7 @@ const GeneralMember = () => {
         memberEmailId: '',
         confirmDate: '',
         password: '',
+        libGenMembNo: '',
     });
     //edit 
     const [showEditGeneralMemberModal, setShowEditGeneralMemberModal] = useState(false);
@@ -81,6 +82,7 @@ const GeneralMember = () => {
             memberEmailId: '',
             confirmDate: '',
             password: '',
+            libGenMembNo: '',
         });
     };
 
@@ -171,7 +173,7 @@ const GeneralMember = () => {
                 memberEducation: requestData.memberEducation,
                 memberOccupation: requestData.memberOccupation,
                 mobileNo: requestData.mobileNo,
-                memberEmailId: requestData.useremail,
+                memberEmailId: requestData.email,
                 // dateOfBirth: requestData.dateOfBirth,
                 // registerDate: requestData.registerDate,
                 // confirmDate: requestData.confirmDate,
@@ -179,7 +181,8 @@ const GeneralMember = () => {
                 password: requestData.password,
                 registerDate: parseDate(requestData.registerDate),
                 dateOfBirth: parseDate(requestData.dateOfBirth),
-                confirmDate: parseDate(requestData.confirmDate)
+                confirmDate: parseDate(requestData.confirmDate),
+                libGenMembNo: requestData.libGenMembNo,
             };
             const response = await fetch(`${BaseURL}/api/general-members/${memberId}`, {
                 method: 'PUT',
@@ -484,6 +487,16 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberlibParMembNo">
+                                    <Form.Label>Libaray Member No </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Member No"
+                                        value={newGeneralMember.libGenMembNo}
+                                        onChange={(e) => setNewGeneralMember({ ...newGeneralMember, libGenMembNo: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
                                 <Form.Group className="mb-3" as={Col} lg={4} controlId="newGeneralMemberUsename">
                                     <Form.Label>Username</Form.Label>
                                     <Form.Control
@@ -593,8 +606,8 @@ const GeneralMember = () => {
                                     <Form.Control
                                         type="text"
                                         placeholder="Email"
-                                        value={editGeneralMemberData ? editGeneralMemberData.useremail : ''}
-                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, useremail: e.target.value })}
+                                        value={editGeneralMemberData ? editGeneralMemberData.email : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, email: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -664,6 +677,16 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
+                            <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberlibParMembNo">
+                                    <Form.Label>Libaray Member No </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Member No"
+                                        value={editGeneralMemberData ? editGeneralMemberData.libGenMembNo : ''}
+                                        onChange={(e) => setEditGeneralMemberData({ ...editGeneralMemberData, libGenMembNo: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
                                 <Form.Group className="mb-3" as={Col} lg={4} controlId="editedGeneralMemberUsername">
                                     <Form.Label>Username</Form.Label>
                                     <Form.Control
@@ -782,6 +805,10 @@ const GeneralMember = () => {
                                 </Row>
 
                                 <Row className="mb-3">
+                                <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Libaray Member No </Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.libGenMembNo} />
+                                    </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Username</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.username} />
