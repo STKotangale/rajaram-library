@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, ExclamationTriangleFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, ExclamationTriangleFill, BookFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -10,9 +10,7 @@ import '../CommonFiles/CommonCSS/MemberDashboard.css';
 import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
 
 import logoImage from '../../assets/rajalib.png';
-import Footer from './Footer';
 
-import BookTypes from '../Inventory/Book/BookTypes';
 import { useRef } from 'react';
 import Dashboard from '../Member/Dashboard';
 
@@ -59,6 +57,14 @@ const MemberDashboard = () => {
         setSelectedItemName('Home');
         setMemberDateWise(false);
     };
+
+    const handleBookListClick = () => {
+        setMemberDateWise(true);
+        setSelectedItemName('Book List');
+        setViewDashboard(false);
+    };
+
+
 
 
     //change password
@@ -111,9 +117,9 @@ const MemberDashboard = () => {
                                 <ListGroup.Item className="sub-icon" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
                                     <HouseDoorFill className="icon" /> Home
                                 </ListGroup.Item>
-                                {/* <ListGroup.Item className="home-icon" action >
-                                    <ExclamationTriangleFill className="icon-member" action onClick={() => setViewBook(true)} /> Book Issue
-                                </ListGroup.Item> */}
+                                <ListGroup.Item className="home-icon" action >
+                                    <BookFill className="icon-member" action onClick={() => { handleBookListClick(); setShowSidebar(false);}} /> Book List
+                                </ListGroup.Item>
                             </Col>
                         </ListGroup>
                     </div>
@@ -147,7 +153,7 @@ const MemberDashboard = () => {
                 </Navbar>
                 <Container fluid className=" d-flex flex-column justify-content-between main-member-content">
                     {viewDashboard && <Dashboard />}
-                    {/* {memberDateWise && <BookTypes />} */}
+                    {/* {memberDateWise && < />} */}
                 </Container>
                 {/* <Footer /> */}
             </div>

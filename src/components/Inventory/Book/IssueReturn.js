@@ -114,10 +114,8 @@ const IssueReturn = () => {
     const formatDate = (date) => {
         if (!date) return '';
         const [year, month, day] = date.split('-');
-        // Format the date as yyyy-mm-dd
-        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        return `${day}-${month}-${year}`;
     };
-    
 
     const resetFormFields = () => {
         setIssueReturnNumber('');

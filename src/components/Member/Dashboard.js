@@ -29,7 +29,7 @@ const Dashboard = () => {
             setBookIssue(data);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching book issue . Please try again later.');
+            toast.error('Error fetching book issue. Please try again later.');
         }
     };
 
@@ -42,7 +42,7 @@ const Dashboard = () => {
         const fetchMemberBookInfo = async () => {
             try {
                 if (selectedMemberId) {
-                    const response = await fetch(`${BaseURL}api/issue/issueReturns?username=${selectedMemberId}`, {
+                    const response = await fetch(`${BaseURL}/api/general-members/memberBookInfo/${selectedMemberId}`, {
                         headers: {
                             'Authorization': `Bearer ${accessToken}`
                         }
@@ -69,11 +69,12 @@ const Dashboard = () => {
 
     return (
         <div className="main-content">
+
             <Form.Group as={Col}>
-                <Form.Label>Member Name</Form.Label>
+            <Form.Label className="fw-bold">Member Name</Form.Label>
                 <Form.Control
                     as="select"
-                    className="small-input"
+                    className="small-input border"
                     value={selectedMemberId}
                     onChange={handleUsernameChange}
                 >
@@ -95,7 +96,7 @@ const Dashboard = () => {
                                     <th>Sr.No</th>
                                     <th>Book Name</th>
                                     <th>Copy No.</th>
-                                    <th>Book Issue</th>
+                                    <th>Issue Date</th>
                                     <th>Return Date</th>
                                 </tr>
                             </thead>
@@ -104,16 +105,16 @@ const Dashboard = () => {
                                     <tr key={index}>
                                         <td>{index + 1}</td>
                                         <td>{book.bookName}</td>
-                                        <td>{book.copyNo}</td>
-                                        <td>{book.bookIssue}</td>
-                                        <td>{book.book_return ? book.book_return : "Not returned"}</td>
+                                        <td>{book.purchaseCopyNo}</td>
+                                        <td>{book.issueDate}</td>
+                                        {/* <td>{book.returnDate ? book.book_return : "Not returned"}</td> */}
+                                        <td>{book.returnDate}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </Table>
                     </div>
                     <div className="pagination-container">
-                        {/* Pagination buttons */}
                     </div>
                 </div>
             </Container>
