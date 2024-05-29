@@ -113,14 +113,14 @@ const BookIssue = () => {
         setRows(updatedRows);
     };
 
+    const formatDateForPayload = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
+
     const checkMembershipFees = async (memberId, date) => {
         try {
-            const formatDateForPayload = (date) => {
-                if (!date) return '';
-                const [year, month, day] = date.split('-');
-                return `${day}-${month}-${year}`;
-            };
-
             const formattedDate = formatDateForPayload(date);
 
             const response = await fetch(`${BaseURL}/api/membership-fees/check-member-fees`, {
@@ -189,7 +189,7 @@ const BookIssue = () => {
         event.preventDefault();
 
         if (!isMembershipValid) {
-            // toast.error("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow  books.");
+            // toast.error("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
             return;
         }
 
@@ -200,9 +200,11 @@ const BookIssue = () => {
                 bookdetailId: Number(row.purchaseCopyNo)
             }));
 
+        const formattedDate = formatDateForPayload(issueDate);
+
         const payload = {
             invoiceNo: issueNumber,
-            invoiceDate: issueDate,
+            invoiceDate: formattedDate,
             generalMemberId: selectedMemberId,
             bookDetails: bookDetailsPayload
         };
@@ -231,6 +233,7 @@ const BookIssue = () => {
             toast.error('Error submitting invoice. Please try again.');
         }
     };
+
 
     const handleDeleteClick = (issue) => {
         setIssueToDelete(issue);
@@ -266,6 +269,8 @@ const BookIssue = () => {
         setSelectedIssue(issue);
         setShowViewModal(true);
     };
+   
+
 
     return (
         <div className="main-content">
@@ -293,7 +298,8 @@ const BookIssue = () => {
                                         <td>{index + 1}</td>
                                         <td>{issueItem.memberName}</td>
                                         <td>{issueItem.invoiceNo}</td>
-                                        <td>{new Date(issueItem.invoiceDate).toLocaleDateString()}</td>
+                                        {/* <td>{new Date(issueItem.invoiceDate).toLocaleDateString()}</td> */}
+                                        <td>{issueItem.invoiceDate}</td>
                                         <td>
                                             <Eye className="action-icon view-icon" onClick={() => handleViewClick(issueItem)} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem)} />
@@ -428,6 +434,7 @@ const BookIssue = () => {
                 </div>
             </Modal>
 
+            {/* view modal */}
             <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -450,13 +457,13 @@ const BookIssue = () => {
                                     <Form.Group as={Col}>
                                         <Form.Label>Issue Date</Form.Label>
                                         <Form.Control
-                                            type="date"
-                                            value={new Date(selectedIssue.invoiceDate).toISOString().substr(0, 10)}
+                                            value={selectedIssue.invoiceDate}
                                             className="custom-date-picker small-input"
                                             disabled
                                         />
                                     </Form.Group>
                                 </Row>
+                                
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
                                         <Form.Label>Member Name</Form.Label>

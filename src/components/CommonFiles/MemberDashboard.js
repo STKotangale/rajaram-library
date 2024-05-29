@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, ExclamationTriangleFill, BookFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, ExclamationTriangleFill, BookFill, PersonFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -142,6 +142,11 @@ const MemberDashboard = () => {
                         <Nav className="ms-auto ">
                         </Nav>
                         <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
+                        <div className="username-container">
+                                <PersonFill className="icon me-2 ms-3" />
+                                {username}
+                                <hr className="horizontal-line" />
+                            </div>
                             <NavDropdown.Item onClick={() => setShowChangePasswordModal(true)}>
                                 <LockFill className="icon" /> Change Password
                             </NavDropdown.Item>

@@ -5,27 +5,33 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 
+// Utility function to format date to dd-mm-yyyy
+const formatDateToDDMMYYYY = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
+// Utility function to parse date from dd-mm-yyyy to yyyy-mm-dd
+const parseDateFromDDMMYYYY = (dateStr) => {
+    const [day, month, year] = dateStr.split('-');
+    return `${year}-${month}-${day}`;
+};
+
 const MonthlyMembershipFee = () => {
-    //get all data
     const [monthlyMembershipData, setMonthlyMembershipData] = useState([]);
-    //get general member
     const [generalMember, setGeneralMember] = useState([]);
-    //get monthly fee
     const [monthlyFee, setMonthlyFee] = useState(0);
-    //add
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [totalDays, setTotalDays] = useState(0);
     const [totalFee, setTotalFee] = useState(0);
-    //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    //view
     const [showViewModal, setShowViewModal] = useState(false);
-    //edit /delete
     const [selectedIssueId, setSelectedIssueId] = useState(null);
 
-
-    // Single state object to manage form data
     const [formData, setFormData] = useState({
         invoiceNo: "",
         invoiceDate: "",
@@ -39,7 +45,6 @@ const MonthlyMembershipFee = () => {
         monthlyDescription: ""
     });
 
-    // Auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -49,8 +54,6 @@ const MonthlyMembershipFee = () => {
         fetchMonthlyFee();
     }, [username, accessToken]);
 
-
-    // Fetch monthly membership data
     const fetchMonthlyData = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/monthly-member-fees`, {
@@ -69,7 +72,6 @@ const MonthlyMembershipFee = () => {
         }
     };
 
-    // Fetch general members
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -88,7 +90,6 @@ const MonthlyMembershipFee = () => {
         }
     };
 
-    // Fetch monthly fee
     const fetchMonthlyFee = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/fees`, {
@@ -108,15 +109,16 @@ const MonthlyMembershipFee = () => {
         }
     };
 
-
-    // add function
-
-    // Handle form input change
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+
         if (name === "fromDate" || name === "toDate") {
             calculateTotalDaysAndFee(name === "fromDate" ? value : formData.fromDate, name === "toDate" ? value : formData.toDate);
+        }
+
+        if (name === "totalFee") {
+            setTotalFee(parseFloat(value));
         }
     };
 
@@ -125,7 +127,7 @@ const MonthlyMembershipFee = () => {
         const to = new Date(toDate);
         if (!isNaN(from) && !isNaN(to) && from <= to) {
             const timeDiff = Math.abs(to - from);
-            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
             setTotalDays(daysDiff);
             setTotalFee(daysDiff * (monthlyFee / 30));
         } else {
@@ -151,25 +153,22 @@ const MonthlyMembershipFee = () => {
         setTotalFee(0);
     };
 
-    // post api 
     const handleAddSubmit = async (e) => {
         e.preventDefault();
-
         const feeTypePayload = formData.feeType === "Cash" ? "a" : "b";
-
         const payload = {
             memMonInvoiceNo: formData.invoiceNo,
-            memMonInvoiceDate: formData.invoiceDate,
+            memMonInvoiceDate: formatDateToDDMMYYYY(formData.invoiceDate),
             memberIdF: parseInt(formData.selectedMemberId),
-            fromDate: formData.fromDate,
-            toDate: formData.toDate,
+            fromDate: formatDateToDDMMYYYY(formData.fromDate),
+            toDate: formatDateToDDMMYYYY(formData.toDate),
             totalDays: totalDays,
             totalMonths: totalDays / 30,
             feesAmount: totalFee,
             feesType: feeTypePayload,
             bankName: formData.bankName || "",
             chequeNo: formData.chequeNo || "",
-            chequeDate: formData.chequeDate || "",
+            chequeDate: formatDateToDDMMYYYY(formData.chequeDate) || "",
             monthlyDescription: formData.monthlyDescription
         };
 
@@ -195,25 +194,22 @@ const MonthlyMembershipFee = () => {
         }
     };
 
-    //edit api
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-
         const feeTypePayload = formData.feeType === "Cash" ? "a" : "b";
-
         const payload = {
             memMonInvoiceNo: formData.invoiceNo,
-            memMonInvoiceDate: formData.invoiceDate,
+            memMonInvoiceDate: formatDateToDDMMYYYY(formData.invoiceDate),
             memberIdF: parseInt(formData.selectedMemberId),
-            fromDate: formData.fromDate,
-            toDate: formData.toDate,
+            fromDate: formatDateToDDMMYYYY(formData.fromDate),
+            toDate: formatDateToDDMMYYYY(formData.toDate),
             totalDays: totalDays,
             totalMonths: totalDays / 30,
             feesAmount: totalFee,
             feesType: feeTypePayload,
             bankName: formData.bankName || "",
             chequeNo: formData.chequeNo || "",
-            chequeDate: formData.chequeDate || "",
+            chequeDate: formatDateToDDMMYYYY(formData.chequeDate) || "",
             monthlyDescription: formData.monthlyDescription
         };
 
@@ -239,35 +235,35 @@ const MonthlyMembershipFee = () => {
         }
     };
 
-    // Handle edit icon click
     const handleEditClick = (issueItem) => {
-        setSelectedIssueId(issueItem.memberMonthlyId); // Set selected ID
+        setSelectedIssueId(issueItem.memberMonthlyId);
         setShowEditModal(true);
-        // Set formData with selected issueItem data for editing
+        const fromDate = parseDateFromDDMMYYYY(issueItem.fromDate);
+        const toDate = parseDateFromDDMMYYYY(issueItem.toDate);
+        const daysDiff = calculateTotalDaysAndFee(fromDate, toDate);
+
         setFormData({
             invoiceNo: issueItem.memMonInvoiceNo,
-            invoiceDate: issueItem.memMonInvoiceDate,
-            fromDate: issueItem.fromDate,
-            toDate: issueItem.toDate,
+            invoiceDate: parseDateFromDDMMYYYY(issueItem.memMonInvoiceDate),
+            fromDate: parseDateFromDDMMYYYY(issueItem.fromDate),
+            toDate: parseDateFromDDMMYYYY(issueItem.toDate),
             selectedMemberId: issueItem.memberIdF.toString(),
             feeType: issueItem.feesType === "a" ? "Cash" : "Cheque",
             bankName: issueItem.bankName,
             chequeNo: issueItem.chequeNo,
-            chequeDate: issueItem.chequeDate,
+            chequeDate: parseDateFromDDMMYYYY(issueItem.chequeDate),
             monthlyDescription: issueItem.monthlyDescription
         });
-        calculateTotalDaysAndFee(issueItem.fromDate, issueItem.toDate);
+        setTotalDays(daysDiff);
+        setTotalFee(daysDiff * (monthlyFee / 30));
+        calculateTotalDaysAndFee(parseDateFromDDMMYYYY(issueItem.fromDate), parseDateFromDDMMYYYY(issueItem.toDate));
     };
 
-
-
-    // Handle delete icon click
     const handleDeleteClick = (memberMonthlyId) => {
         setSelectedIssueId(memberMonthlyId);
         setShowDeleteModal(true);
     };
 
-    // Function to confirm deletion and call API
     const confirmDelete = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/monthly-member-fees/${selectedIssueId}`, {
@@ -288,28 +284,20 @@ const MonthlyMembershipFee = () => {
         }
     };
 
-
-
-
-
-    // Handle view icon click
     const handleViewClick = (issueItem) => {
         setFormData({
             invoiceNo: issueItem.memMonInvoiceNo,
-            invoiceDate: issueItem.memMonInvoiceDate,
-            fromDate: issueItem.fromDate,
-            toDate: issueItem.toDate,
+            invoiceDate: parseDateFromDDMMYYYY(issueItem.memMonInvoiceDate),
+            fromDate: parseDateFromDDMMYYYY(issueItem.fromDate),
+            toDate: parseDateFromDDMMYYYY(issueItem.toDate),
             selectedMemberId: issueItem.memberIdF.toString(),
             feeType: issueItem.feesType === "a" ? "Cash" : "Cheque",
             bankName: issueItem.bankName,
             chequeNo: issueItem.chequeNo,
-            chequeDate: issueItem.chequeDate,
+            chequeDate: parseDateFromDDMMYYYY(issueItem.chequeDate),
             monthlyDescription: issueItem.monthlyDescription
         });
-
-        // Calculate totalDays and totalFee based on fromDate and toDate
-        calculateTotalDaysAndFee(issueItem.fromDate, issueItem.toDate);
-
+        calculateTotalDaysAndFee(parseDateFromDDMMYYYY(issueItem.fromDate), parseDateFromDDMMYYYY(issueItem.toDate));
         setShowViewModal(true);
     };
 
@@ -327,8 +315,8 @@ const MonthlyMembershipFee = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
-                                    <th>Issue No</th>
-                                    <th>Issue Date</th>
+                                    <th>Invoice No</th>
+                                    <th>Invoice Date</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -337,11 +325,11 @@ const MonthlyMembershipFee = () => {
                                     <tr key={issueItem.memberMonthlyId}>
                                         <td>{index + 1}</td>
                                         <td>{issueItem.memMonInvoiceNo}</td>
-                                        <td>{issueItem.memMonInvoiceDate}</td>
+                                        <td>{(issueItem.memMonInvoiceDate)}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(issueItem)}>Edit</PencilSquare>
-                                            <Trash className="ms-3 action-icon edit-icon" onClick={() => handleDeleteClick(issueItem.memberMonthlyId)} />
-                                            <Eye className="ms-3 action-icon edit-icon" onClick={() => handleViewClick(issueItem)}>View</Eye>
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem.memberMonthlyId)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(issueItem)}>View</Eye>
                                         </td>
                                     </tr>
                                 ))}
@@ -447,12 +435,24 @@ const MonthlyMembershipFee = () => {
                                             <td>{monthlyFee}</td>
                                         </tr>
                                         <tr>
-                                            <td>Day/Month</td>
+                                            <td>Total Days</td>
                                             <td>{totalDays}</td>
                                         </tr>
-                                        <tr>
-                                            <td>Total</td>
+                                        {/* <tr>
+                                            <td>Total Fee</td>
                                             <td>{totalFee.toFixed(2)}</td>
+                                        </tr> */}
+                                         <tr>
+                                            <td>Total Fee</td>
+                                            <td>
+                                                <Form.Control
+                                                    name="totalFee"
+                                                    type="number"
+                                                    value={totalFee}
+                                                    onChange={handleInputChange}
+                                                    className="small-input"
+                                                />
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -545,7 +545,6 @@ const MonthlyMembershipFee = () => {
                 </div>
             </Modal>
 
-
             {/* Edit modal */}
             <Modal centered show={showEditModal} onHide={() => { setShowEditModal(false); resetField() }} size='lg'>
                 <div className="bg-light">
@@ -572,7 +571,7 @@ const MonthlyMembershipFee = () => {
                                     <Form.Control
                                         name="invoiceDate"
                                         type="date"
-                                        value={formData.invoiceDate}
+                                        value={(formData.invoiceDate)}
                                         onChange={handleInputChange}
                                         required
                                         className="custom-date-picker small-input"
@@ -585,7 +584,7 @@ const MonthlyMembershipFee = () => {
                                     <Form.Control
                                         name="fromDate"
                                         type="date"
-                                        value={formData.fromDate}
+                                        value={(formData.fromDate)}
                                         onChange={handleInputChange}
                                         required
                                         className="custom-date-picker small-input"
@@ -596,7 +595,7 @@ const MonthlyMembershipFee = () => {
                                     <Form.Control
                                         name="toDate"
                                         type="date"
-                                        value={formData.toDate}
+                                        value={(formData.toDate)}
                                         onChange={handleInputChange}
                                         required
                                         className="custom-date-picker small-input"
@@ -642,12 +641,25 @@ const MonthlyMembershipFee = () => {
                                             <td>{monthlyFee}</td>
                                         </tr>
                                         <tr>
-                                            <td>Day/Month</td>
+                                            <td>Total Days</td>
                                             <td>{totalDays}</td>
                                         </tr>
-                                        <tr>
-                                            <td>Total</td>
+                                        {/* <tr>
+                                            <td>Total Fee</td>
                                             <td>{totalFee.toFixed(2)}</td>
+                                        </tr> */
+                                        }
+                                         <tr>
+                                            <td>Total Fee</td>
+                                            <td>
+                                                <Form.Control
+                                                    name="totalFee"
+                                                    type="number"
+                                                    value={totalFee}
+                                                    onChange={handleInputChange}
+                                                    className="small-input"
+                                                />
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -703,7 +715,7 @@ const MonthlyMembershipFee = () => {
                                             <Form.Control
                                                 name="chequeDate"
                                                 type="date"
-                                                value={formData.chequeDate}
+                                                value={(formData.chequeDate)}
                                                 onChange={handleInputChange}
                                                 required
                                                 className="custom-date-picker small-input"
@@ -739,7 +751,6 @@ const MonthlyMembershipFee = () => {
                     </Modal.Body>
                 </div>
             </Modal>
-
 
             {/* delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
@@ -784,7 +795,7 @@ const MonthlyMembershipFee = () => {
                                     <Form.Control
                                         name="invoiceDate"
                                         type="date"
-                                        value={formData.invoiceDate}
+                                        value={(formData.invoiceDate)}
                                         readOnly
                                         className="custom-date-picker small-input"
                                     />
@@ -796,7 +807,7 @@ const MonthlyMembershipFee = () => {
                                     <Form.Control
                                         name="fromDate"
                                         type="date"
-                                        value={formData.fromDate}
+                                        value={(formData.fromDate)}
                                         readOnly
                                         className="custom-date-picker small-input"
                                     />
@@ -806,7 +817,7 @@ const MonthlyMembershipFee = () => {
                                     <Form.Control
                                         name="toDate"
                                         type="date"
-                                        value={formData.toDate}
+                                        value={(formData.toDate)}
                                         readOnly
                                         className="custom-date-picker small-input"
                                     />
@@ -850,11 +861,11 @@ const MonthlyMembershipFee = () => {
                                             <td>{monthlyFee}</td>
                                         </tr>
                                         <tr>
-                                            <td>Day/Month</td>
+                                            <td>Total Days</td>
                                             <td>{totalDays}</td>
                                         </tr>
                                         <tr>
-                                            <td>Total</td>
+                                            <td>Total Fee</td>
                                             <td>{totalFee.toFixed(2)}</td>
                                         </tr>
                                     </tbody>
@@ -908,7 +919,7 @@ const MonthlyMembershipFee = () => {
                                             <Form.Control
                                                 name="chequeDate"
                                                 type="date"
-                                                value={formData.chequeDate}
+                                                value={(formData.chequeDate)}
                                                 readOnly
                                                 className="custom-date-picker small-input"
                                             />
@@ -933,9 +944,6 @@ const MonthlyMembershipFee = () => {
                     </Modal.Body>
                 </div>
             </Modal>
-
-
-
         </div>
     );
 };

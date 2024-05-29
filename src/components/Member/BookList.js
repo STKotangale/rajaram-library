@@ -2,104 +2,58 @@
 // import React, { useEffect, useState } from 'react';
 // import { toast } from 'react-toastify';
 // import { useAuth } from '../../components/Auth/AuthProvider';
-// import { Col, Container, Form, Row, Table } from 'react-bootstrap';
+// import { Button, Col, Container, Form, Row, Table } from 'react-bootstrap';
 
 // const BookList = () => {
 //     // auth
-//     const { accessToken } = useAuth();
+//     const { accessToken, username } = useAuth();
 //     const BaseURL = process.env.REACT_APP_BASE_URL;
 
 //     // state
-//     const [bookIssue, setBookIssue] = useState([]);
-//     const [selectedMemberId, setSelectedMemberId] = useState('');
-//     const [memberBookInfo, setMemberBookInfo] = useState([]);
+//     const [fromDate, setFromDate] = useState('');
+//     const [toDate, setToDate] = useState('');
 
-//     // fetch book issue
-//     const fetchIssue = async () => {
+//     // handle submit
+//     const handleSubmit = async (e) => {
+//         e.preventDefault();
 //         try {
-//             const response = await fetch(`${BaseURL}/api/issue/issueReturns`, {
+//             const response = await fetch(`${BaseURL}/api/general-members/bookIssueDetails`, {
+//                 method: 'POST',
 //                 headers: {
+//                     'Content-Type': 'application/json',
 //                     'Authorization': `Bearer ${accessToken}`
-//                 }
+//                 },
+//                 body: JSON.stringify({
+//                     username,
+//                     startDate: fromDate,
+//                     endDate: toDate
+//                 })
 //             });
 //             if (!response.ok) {
-//                 throw new Error(`Error fetching book issue: ${response.statusText}`);
+//                 throw new Error(`Error submitting data: ${response.statusText}`);
 //             }
-//             const data = await response.json();
-//             setBookIssue(data);
+//             const result = await response.json();
+//             toast.success('Data submitted successfully');
+//             // Handle response data if needed
 //         } catch (error) {
 //             console.error(error);
-//             toast.error('Error fetching book issue. Please try again later.');
+//             toast.error('Error submitting data. Please try again later.');
 //         }
-//     };
-
-//     useEffect(() => {
-//         fetchIssue();
-//     }, []);
-
-//     // fetch member book info
-//     useEffect(() => {
-//         const fetchMemberBookInfo = async () => {
-//             try {
-//                 if (selectedMemberId) {
-//                     const response = await fetch(`${BaseURL}/api/general-members/memberBookInfo/${selectedMemberId}`, {
-//                         headers: {
-//                             'Authorization': `Bearer ${accessToken}`
-//                         }
-//                     });
-//                     if (!response.ok) {
-//                         throw new Error(`Error fetching member book info: ${response.statusText}`);
-//                     }
-//                     const data = await response.json();
-//                     setMemberBookInfo(data);
-//                 }
-//             } catch (error) {
-//                 console.error(error);
-//                 toast.error('Error fetching member book info. Please try again later.');
-//             }
-//         };
-
-//         fetchMemberBookInfo();
-//     }, [selectedMemberId, accessToken, BaseURL]);
-
-//     // handle username change
-//     const handleUsernameChange = (e) => {
-//         setSelectedMemberId(e.target.value);
 //     };
 
 //     return (
 //         <div className="main-content">
-
 //             <Form onSubmit={handleSubmit}>
 //                 <Row className="mb-3">
 //                     <Form.Group as={Col}>
-//                         <Form.Label className="fw-bold">Member Name</Form.Label>
-//                         <Form.Control
-//                             as="select"
-//                             className="small-input border"
-//                             value={selectedMemberId}
-//                             onChange={handleUsernameChange}
-//                         >
-//                             <option value="">Select a username</option>
-//                             {bookIssue.map(username => (
-//                                 <option key={username.username} value={username.username}>
-//                                     {username.username}
-//                                 </option>
-//                             ))}
-//                         </Form.Control>
-//                     </Form.Group>
-
-//                     <Form.Group as={Col}>
 //                         <Form.Label>From Date</Form.Label>
 //                         <Form.Control
-//                             placeholder="Issue Return number"
-//                             type="text"
+//                             type="date"
 //                             className="small-input"
 //                             value={fromDate}
 //                             onChange={(e) => setFromDate(e.target.value)}
 //                         />
 //                     </Form.Group>
-
 //                     <Form.Group as={Col}>
 //                         <Form.Label>To Date</Form.Label>
 //                         <Form.Control
@@ -110,6 +64,7 @@
 //                         />
 //                     </Form.Group>
 //                 </Row>
+//                 <Button type="submit" className="mb-3">Submit</Button>
 //             </Form>
 
 //             <Container className='small-screen-table'>
@@ -126,7 +81,7 @@
 //                                 </tr>
 //                             </thead>
 //                             <tbody>
-//                                 {memberBookInfo.map((book, index) => (
+//                                 {.map((book, index) => (
 //                                     <tr key={index}>
 //                                         <td>{index + 1}</td>
 //                                         <td>{book.bookName}</td>

@@ -25,6 +25,7 @@ const PermanentMember = () => {
         mobileNo: '',
         emailId: '',
         confirmDate: '',
+        libParMembNo: '',
     });
     //edit function
     const [showEditPermanentMemberModal, setShowEditPermanentMemberModal] = useState(false);
@@ -51,7 +52,7 @@ const PermanentMember = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            console.log("emailId",data)
+            console.log("emailId", data)
             setPermanentMember(data.data);
         } catch (error) {
             console.error("Failed to fetch permanent members:", error);
@@ -79,6 +80,7 @@ const PermanentMember = () => {
             mobileNo: '',
             emailId: '',
             confirmDate: '',
+            libParMembNo: '',
         });
     };
 
@@ -211,7 +213,7 @@ const PermanentMember = () => {
 
     //view
     const handleViewOpenPermanentMember = (member) => {
-        console.log("data==",member)
+        console.log("data==", member)
         setViewPermanentMemberData(member);
         setShowViewPermanentMemberModal(true);
     };
@@ -387,7 +389,7 @@ const PermanentMember = () => {
                                         type="text"
                                         placeholder="emailId"
                                         value={newPermanentMember.emailId}
-                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, emailId:e.target.value })}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, emailId: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -455,6 +457,19 @@ const PermanentMember = () => {
                                     />
                                 </Form.Group>
                             </Row>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberlibParMembNo">
+                                    <Form.Label>Libaray Member No </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Member No"
+                                        value={newPermanentMember.libParMembNo}
+                                        onChange={(e) => setNewPermanentMember({ ...newPermanentMember, libParMembNo: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
+
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Submit
@@ -544,7 +559,7 @@ const PermanentMember = () => {
                                         type="text"
                                         placeholder="emailId"
                                         value={editPermanentMemberData.emailId}
-                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, emailId:e.target.value })}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, emailId: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -560,7 +575,7 @@ const PermanentMember = () => {
                                         onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, memberEducation: e.target.value })}
                                         required
                                     />
-                                
+
                                 </Form.Group>
                                 <Form.Group className="mb-3" lg={4} as={Col} controlId="editedPermanentMemberOccupation">
                                     <Form.Label>Occupation</Form.Label>
@@ -609,6 +624,18 @@ const PermanentMember = () => {
                                         type="date"
                                         value={editPermanentMemberData ? editPermanentMemberData.confirmDate : ''}
                                         onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, confirmDate: e.target.value })}
+                                        required
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newPermanentMemberlibParMembNo">
+                                    <Form.Label>Libaray Member No </Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Member No"
+                                        value={editPermanentMemberData ? editPermanentMemberData.libParMembNo : ''}
+                                        onChange={(e) => setEditPermanentMemberData({ ...editPermanentMemberData, libParMembNo: e.target.value })}
                                         required
                                     />
                                 </Form.Group>
@@ -675,7 +702,7 @@ const PermanentMember = () => {
                                     </Form.Group>
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Email</Form.Label>
-                                    <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.emailId} />
+                                        <Form.Control type="email" readOnly defaultValue={viewPermanentMemberData.emailId} />
                                     </Form.Group>
                                 </Row>
 
@@ -706,6 +733,12 @@ const PermanentMember = () => {
                                     <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Confirm Date</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.confirmDate} />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
+                                        <Form.Label>Member No</Form.Label>
+                                        <Form.Control type="text" readOnly defaultValue={viewPermanentMemberData.libParMembNo} />
                                     </Form.Group>
                                 </Row>
                             </Form>
