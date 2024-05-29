@@ -104,9 +104,9 @@ const PermanentMember = () => {
             const payload = {
                 ...newPermanentMember,
                 mobileNo,
-                registerDate: parseDate(newPermanentMember.registerDate),
-                dateOfBirth: parseDate(newPermanentMember.dateOfBirth),
-                confirmDate: parseDate(newPermanentMember.confirmDate)
+                registerDate: formatDate(newPermanentMember.registerDate),
+                dateOfBirth: formatDate(newPermanentMember.dateOfBirth),
+                confirmDate: formatDate(newPermanentMember.confirmDate)
             };
 
             const response = await fetch(`${BaseURL}/api/permanent-members`, {
@@ -130,7 +130,6 @@ const PermanentMember = () => {
             toast.error('Error adding permanent member. Please try again later.');
         }
     };
-
 
     const handleEditOpenPermanentMember = (member) => {
         const formattedData = {
@@ -186,7 +185,6 @@ const PermanentMember = () => {
         }
     };
 
-
     //delete api
     const deletePermanentMember = async () => {
         try {
@@ -210,14 +208,12 @@ const PermanentMember = () => {
         }
     };
 
-
     //view
     const handleViewOpenPermanentMember = (member) => {
         console.log("data==", member)
         setViewPermanentMemberData(member);
         setShowViewPermanentMemberModal(true);
     };
-
 
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
@@ -244,8 +240,6 @@ const PermanentMember = () => {
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = permanentMember.slice(indexOfNumber, indexOfLastBookType);
-
-
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
