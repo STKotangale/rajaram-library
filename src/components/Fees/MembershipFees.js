@@ -6,22 +6,14 @@ import { useAuth } from '../../components/Auth/AuthProvider';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 
 const MembershipFees = () => {
-    // get membership fee
     const [memberData, setMemberData] = useState([]);
-    // get general member
     const [generalMember, setGeneralMember] = useState([]);
-    // add
     const [showAddModal, setShowAddModal] = useState(false);
-    // edit
     const [showEditModal, setShowEditModal] = useState(false);
-    //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
-    //view
     const [showViewModal, setShowViewModal] = useState(false);
     const [viewData, setViewData] = useState({});
-
-
     const [formData, setFormData] = useState({
         invoiceNo: "",
         invoiceDate: "",
@@ -30,12 +22,8 @@ const MembershipFees = () => {
         bankName: "",
         chequeNo: "",
         chequeDate: "",
-        monthlyDescription: "",
-        bookDepositFees: "",
-        entryFees: "",
-        securityDepositFees: ""
+        monthlyDescription: ""
     });
-
     const [editData, setEditData] = useState({
         membershipId: "",
         invoiceNo: "",
@@ -45,22 +33,20 @@ const MembershipFees = () => {
         bankName: "",
         chequeNo: "",
         chequeDate: "",
-        monthlyDescription: "",
-        bookDepositFees: "",
-        entryFees: "",
-        securityDepositFees: ""
+        monthlyDescription: ""
     });
 
-    // auth
+    const [feesData, setFeesData] = useState([]);
+
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         fetchMemberData();
         fetchGeneralMembers();
+        fetchFeesData();
     }, [username, accessToken]);
 
-    // get member data
     const fetchMemberData = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/membership-fees`, {
@@ -79,7 +65,6 @@ const MembershipFees = () => {
         }
     };
 
-    // get general - member name
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -98,7 +83,24 @@ const MembershipFees = () => {
         }
     };
 
-    //add function
+    const fetchFeesData = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/fees`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching fees data: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setFeesData(data.filter(fee => fee.feesName === "Book Deposite" || fee.feesName === "Entry Fees" || fee.feesName === "Monthly Fees"));
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching fees data. Please try again later.');
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prevState => ({
@@ -107,20 +109,21 @@ const MembershipFees = () => {
         }));
     };
 
-    //add /post api
     const handleAddSubmit = async () => {
+        const totalFees = feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0);
         const payload = {
             memInvoiceNo: formData.invoiceNo,
             memInvoiceDate: formData.invoiceDate,
             memberIdF: formData.selectedMemberId,
-            bookDepositFees: parseFloat(formData.bookDepositFees),
-            entryFees: parseFloat(formData.entryFees),
-            securityDepositFees: parseFloat(formData.securityDepositFees),
+            bookDepositFees: parseFloat(feesData.find(fee => fee.feesName === "Book Deposite")?.feesAmount || 0),
+            entryFees: parseFloat(feesData.find(fee => fee.feesName === "Entry Fees")?.feesAmount || 0),
+            monthlyFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
             feesType: formData.feeType === "Cash" ? "A" : "B",
             bankName: formData.bankName,
             chequeNo: formData.chequeNo,
             chequeDate: formData.chequeDate,
-            membershipDescription: formData.monthlyDescription
+            membershipDescription: formData.monthlyDescription,
+            totalFees
         };
 
         try {
@@ -146,8 +149,6 @@ const MembershipFees = () => {
         }
     };
 
-
-    //edit function
     const handleEditInputChange = (e) => {
         const { name, value } = e.target;
         setEditData(prevState => ({
@@ -166,28 +167,27 @@ const MembershipFees = () => {
             bankName: item.bankName,
             chequeNo: item.chequeNo,
             chequeDate: item.chequeDate,
-            monthlyDescription: item.membershipDescription,
-            bookDepositFees: item.bookDepositFees,
-            entryFees: item.entryFees,
-            securityDepositFees: item.securityDepositFees
+            monthlyDescription: item.membershipDescription
         });
         setShowEditModal(true);
     };
 
-    //edit api
     const handleEditSubmit = async () => {
+        const totalFees = feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0);
         const payload = {
             memInvoiceNo: editData.invoiceNo,
             memInvoiceDate: editData.invoiceDate,
             memberIdF: editData.selectedMemberId,
-            bookDepositFees: parseFloat(editData.bookDepositFees),
-            entryFees: parseFloat(editData.entryFees),
-            securityDepositFees: parseFloat(editData.securityDepositFees),
+            bookDepositFees: parseFloat(feesData.find(fee => fee.feesName === "Book Deposite")?.feesAmount || 0),
+            entryFees: parseFloat(feesData.find(fee => fee.feesName === "Entry Fees")?.feesAmount || 0),
+            monthlyFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
+            reserveBookDeposit: parseFloat(feesData.find(fee => fee.feesName === "Reserve Book Deposite")?.feesAmount || 0),
             feesType: editData.feeType === "Cash" ? "A" : "B",
             bankName: editData.bankName,
             chequeNo: editData.chequeNo,
             chequeDate: editData.chequeDate,
-            membershipDescription: editData.monthlyDescription
+            membershipDescription: editData.monthlyDescription,
+            totalFees
         };
 
         try {
@@ -213,26 +213,14 @@ const MembershipFees = () => {
         }
     };
 
-
-    //add total calculate
-    const totalFees = parseFloat(formData.bookDepositFees || 0) + parseFloat(formData.entryFees || 0) + parseFloat(formData.securityDepositFees || 0);
-    //edit total calculate
-    const totalEditFees = parseFloat(editData.bookDepositFees || 0) + parseFloat(editData.entryFees || 0) + parseFloat(editData.securityDepositFees || 0);
-
-
-
-
-
-    // delete function
     const handleDeleteClick = (membershipId) => {
         setDeleteId(membershipId);
         setShowDeleteModal(true);
     };
 
-    //delete api
     const handleDelete = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/membership-fees/${deleteId.membershipId}`, {
+            const response = await fetch(`${BaseURL}/api/membership-fees/${deleteId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -252,8 +240,6 @@ const MembershipFees = () => {
         }
     };
 
-
-    //view
     const handleViewClick = (item) => {
         setViewData(item);
         setShowViewModal(true);
@@ -286,7 +272,7 @@ const MembershipFees = () => {
                                         <td>{item.memInvoiceDate}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(item)} />
-                                            <Trash className="ms-3 action-icon view-icon" onClick={() => handleDeleteClick(item)} />
+                                            <Trash className="ms-3 action-icon view-icon" onClick={() => handleDeleteClick(item.membershipId)} />
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(item)} />
                                         </td>
                                     </tr>
@@ -297,7 +283,6 @@ const MembershipFees = () => {
                 </div>
             </Container>
 
-            {/* add modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} >
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -353,53 +338,21 @@ const MembershipFees = () => {
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Fees Type</th>
-                                            <th>Amount</th>
+                                            <th>Fees Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td className='sr-size'>1</td>
-                                            <td>Book Deposit Fees</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="bookDepositFees"
-                                                    value={formData.bookDepositFees}
-                                                    onChange={handleInputChange}
-                                                    className="small-input"
-                                                />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className='sr-size'>2</td>
-                                            <td>Entry Fees</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="entryFees"
-                                                    value={formData.entryFees}
-                                                    onChange={handleInputChange}
-                                                    className="small-input"
-                                                />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className='sr-size'>3</td>
-                                            <td>Security Deposit</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="securityDepositFees"
-                                                    value={formData.securityDepositFees}
-                                                    onChange={handleInputChange}
-                                                    className="small-input"
-                                                />
-                                            </td>
-                                        </tr>
+                                        {feesData.map((fee, index) => (
+                                            <tr key={fee.feesId}>
+                                                <td className='sr-size'>{index + 1}</td>
+                                                <td>{fee.feesName}</td>
+                                                <td>{fee.feesAmount}</td>
+                                            </tr>
+                                        ))}
                                         <tr>
                                             <td></td>
                                             <td>Total</td>
-                                            <td>{totalFees}</td>
+                                            <td>{feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0)}</td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -492,7 +445,6 @@ const MembershipFees = () => {
                 </div>
             </Modal>
 
-            {/* edit modal */}
             <Modal centered show={showEditModal} onHide={() => setShowEditModal(false)} >
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -548,53 +500,21 @@ const MembershipFees = () => {
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Fees Type</th>
-                                            <th>Amount</th>
+                                            <th>Fees Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td className='sr-size'>1</td>
-                                            <td>Book Deposit Fees</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="bookDepositFees"
-                                                    value={editData.bookDepositFees}
-                                                    onChange={handleEditInputChange}
-                                                    className="small-input"
-                                                />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className='sr-size'>2</td>
-                                            <td>Entry Fees</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="entryFees"
-                                                    value={editData.entryFees}
-                                                    onChange={handleEditInputChange}
-                                                    className="small-input"
-                                                />
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td className='sr-size'>3</td>
-                                            <td>Security Deposit</td>
-                                            <td>
-                                                <Form.Control
-                                                    type="number"
-                                                    name="securityDepositFees"
-                                                    value={editData.securityDepositFees}
-                                                    onChange={handleEditInputChange}
-                                                    className="small-input"
-                                                />
-                                            </td>
-                                        </tr>
+                                        {feesData.map((fee, index) => (
+                                            <tr key={fee.feesId}>
+                                                <td className='sr-size'>{index + 1}</td>
+                                                <td>{fee.feesName}</td>
+                                                <td>{fee.feesAmount}</td>
+                                            </tr>
+                                        ))}
                                         <tr>
                                             <td></td>
                                             <td>Total</td>
-                                            <td>{totalEditFees}</td>
+                                            <td>{feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0)}</td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -687,8 +607,6 @@ const MembershipFees = () => {
                 </div>
             </Modal>
 
-
-            {/* delete modal */}
             <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)} >
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -707,7 +625,6 @@ const MembershipFees = () => {
                     </Modal.Footer>
                 </div>
             </Modal>
-
 
             {/* view modal */}
             <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} >
@@ -771,13 +688,14 @@ const MembershipFees = () => {
                                         </tr>
                                         <tr>
                                             <td className='sr-size'>3</td>
-                                            <td>Security Deposit</td>
-                                            <td>{viewData.securityDepositFees}</td>
+                                            <td>Monthly Fees</td>
+                                            <td>{viewData.monthlyFees}</td>
                                         </tr>
+                                       
                                         <tr>
                                             <td></td>
                                             <td>Total</td>
-                                            <td>{parseFloat(viewData.bookDepositFees || 0) + parseFloat(viewData.entryFees || 0) + parseFloat(viewData.securityDepositFees || 0)}</td>
+                                            <td>{parseFloat(viewData.bookDepositFees || 0) + parseFloat(viewData.entryFees || 0) + parseFloat(viewData.monthlyFees || 0) }</td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -852,9 +770,6 @@ const MembershipFees = () => {
                     </Modal.Footer>
                 </div>
             </Modal>
-
-
-
         </div>
     );
 };
