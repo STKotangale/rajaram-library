@@ -5,7 +5,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [authState, setAuthState] = useState(() => {
         const storedAuthState = JSON.parse(sessionStorage.getItem('authState'));
-        return storedAuthState || { username: null, accessToken: null };
+        return storedAuthState || { username: null, accessToken: null, userId: null };
     });
 
     useEffect(() => {
@@ -15,12 +15,12 @@ export const AuthProvider = ({ children }) => {
 
     // const [authState, setAuthState] = useState({ username: null, accessToken: null });
 
-    const login = (username, accessToken) => {
-        setAuthState({ username, accessToken });
+    const login = (username, accessToken, userId) => {
+        setAuthState({ username, accessToken, userId });
     };
 
     const logout = () => {
-        setAuthState({ username: null, accessToken: null });
+        setAuthState({ username: null, accessToken: null, userId: null });
     };
 
     return (

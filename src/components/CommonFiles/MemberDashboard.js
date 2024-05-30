@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, ExclamationTriangleFill, BookFill, PersonFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, BookFill, PersonFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -14,25 +14,29 @@ import logoImage from '../../assets/rajalib.png';
 import { useRef } from 'react';
 import Dashboard from '../Member/Dashboard';
 
-
 const MemberDashboard = () => {
     const navigate = useNavigate();
     const sidebarRef = useRef(null);
-
+    const BaseURL = process.env.REACT_APP_BASE_URL;
 
     const [selectedItemName, setSelectedItemName] = useState('');
     const [viewDashboard, setViewDashboard] = useState(true);
-
     const [memberDateWise, setMemberDateWise] = useState(false);
 
-    //change password
+    // change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [credentials, setCredentials] = useState({
         password: '',
         confirmPassword: ''
     });
 
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, userId, logout } = useAuth();
+    
+    // get username and access token
+    useEffect(() => {
+
+    }, [username, accessToken]);
+
     useEffect(() => {
         function handleClickOutside(event) {
             if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
@@ -45,11 +49,6 @@ const MemberDashboard = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-
-    //get username and access token
-    useEffect(() => {
-
-    }, [username, accessToken]);
 
 
     const handleHomeClick = () => {
@@ -64,10 +63,7 @@ const MemberDashboard = () => {
         setViewDashboard(false);
     };
 
-
-
-
-    //change password
+    // change password
     const handleChange = (event) => {
         const { name, value } = event.target;
         setCredentials(prevCredentials => ({
@@ -76,40 +72,56 @@ const MemberDashboard = () => {
         }));
     };
 
-    const handleChangePassword = (event) => {
+    const handleChangePassword = async (event) => {
         event.preventDefault();
         const { password, confirmPassword } = credentials;
-        if (password === confirmPassword) {
-            console.log('Password changed successfully!');
-            setShowChangePasswordModal(false);
-            setCredentials({ password: '', confirmPassword: '' });
-        } else {
-            console.log('Passwords do not match.');
+        if (password !== confirmPassword) {
+            toast.error("New password and confirm password do not match");
+            return;
+        }
+        try {
+            const response = await fetch(`${BaseURL}/api/general-members/update-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ userId, password, confirmPassword }),
+            });
+
+            if (response.ok) {
+                toast.success('Password changed successfully.');
+                setShowChangePasswordModal(false);
+                setCredentials({ password: '', confirmPassword: '' });
+            } else {
+                const data = await response.json();
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('An error occurred. Please try again.');
         }
     };
 
-    //handle logout
+    // handle logout
     const handleLogout = () => {
         sessionStorage.clear();
         toast.success('You have been logged out.');
         navigate('/');
     };
+
     const [showSidebar, setShowSidebar] = useState(false);
     const toggleSidebar = () => {
         setShowSidebar(!showSidebar);
     };
-
 
     return (
         <div className='main-dashboard-member'>
 
             {/* Sidebar */}
             <div ref={sidebarRef} className={`sidebar ${showSidebar ? 'active' : ''}`}>
-
-                {/* <div className={`sidebar ${showSidebar ? 'active' : ''}`}> */}
                 <div className="d-flex sidebar-member" id="wrapper">
                     <div className="member-sidebar">
-                        {/* Sidebar content */}
                         <Image src={logoImage} className="rajalib-logo ms-2 mt-2" height="50" />
                         <span className="h4 ms-2 mt-5">Rajaram Library</span>
                         <ListGroup variant="flush" className="mt-5 ms-3 custom-list-group">
@@ -133,7 +145,6 @@ const MemberDashboard = () => {
                     <div className="sidebar-toggle d-md-none color-black" onClick={toggleSidebar}>
                         ☰
                     </div>
-                    {/* <Navbar.Brand href="#Dashboard" className='ms-4'>Welcome Member !.. {username}</Navbar.Brand> */}
                     <Nav className="ms-4 mt-2">
                         <div className="selected-item">{selectedItemName}</div>
                     </Nav>
@@ -142,7 +153,7 @@ const MemberDashboard = () => {
                         <Nav className="ms-auto ">
                         </Nav>
                         <NavDropdown title={<PersonCircle size={30} />} id="navbarScrollingDropdown" className='ms-4' align="end">
-                        <div className="username-container">
+                            <div className="username-container">
                                 <PersonFill className="icon me-2 ms-3" />
                                 {username}
                                 <hr className="horizontal-line" />
@@ -205,4 +216,3 @@ const MemberDashboard = () => {
 };
 
 export default MemberDashboard;
-

@@ -7,6 +7,16 @@ import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'rea
 import { toast } from 'react-toastify';
 
 const BookLanguages = () => {
+
+    const [filtered, setFiltered] = useState([]);
+    const [dataQuery, setDataQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(bookLanguages.filter(member =>
+            member.bookLangName.toLowerCase().includes(dataQuery.toLowerCase())
+        ));
+    }, [dataQuery]);
+
     //get all book lang
     const [bookLanguages, setBookLanguages] = useState([]);
     //add new book lang
@@ -39,6 +49,7 @@ const BookLanguages = () => {
             }
             const data = await response.json();
             setBookLanguages(data.data);
+            setFiltered(data.data);
         } catch (error) {
             console.error('Error fetching book languages:', error);
         }
@@ -175,7 +186,7 @@ const BookLanguages = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(bookLanguages.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -196,18 +207,28 @@ const BookLanguages = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = bookLanguages.slice(indexOfNumber, indexOfLastBookType);
+    const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
 
 
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
-                <div className='mt-3'>
+            <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddLanguage(true)} className="button-color">
                         Add Book language
                     </Button>
+                    <div className="d-flex">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Book Language"
+                            value={dataQuery}
+                            onChange={(e) => setDataQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                    </div>
                 </div>
+
                 <div className='mt-3'>
                     <div className="table-responsive table-height">
 

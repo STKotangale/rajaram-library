@@ -6,6 +6,16 @@ import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-boots
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const BookTypes = () => {
+
+    const [filtered, setFiltered] = useState([]);
+    const [dataQuery, setDataQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(bookTypes.filter(member =>
+            member.bookTypeName.toLowerCase().includes(dataQuery.toLowerCase())
+        ));
+    }, [dataQuery]);
+
     //get
     const [bookTypes, setBookTypes] = useState([]);
     //add
@@ -37,6 +47,7 @@ const BookTypes = () => {
             }
             const data = await response.json();
             setBookTypes(data.data);
+            setFiltered(data.data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching book types. Please try again later.');
@@ -164,7 +175,7 @@ const BookTypes = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(bookTypes.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -185,7 +196,7 @@ const BookTypes = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfFirstBookType = indexOfLastBookType - perPage;
-    const currentBookTypes = bookTypes.slice(indexOfFirstBookType, indexOfLastBookType);
+    const currentBookTypes = filtered.slice(indexOfFirstBookType, indexOfLastBookType);
 
 
     return (
@@ -193,13 +204,22 @@ const BookTypes = () => {
             <div className="main-content">
                 <Container className='small-screen-table'>
                     <div>
-                        <div className='mt-3'>
+                        <div className='mt-3 d-flex justify-content-between'>
                             <Button onClick={() => setShowAddBookTypeModal(true)} className="button-color">
                                 Add Book Type
                             </Button>
+                            <div className="d-flex">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Search by Book Type"
+                                    value={dataQuery}
+                                    onChange={(e) => setDataQuery(e.target.value)}
+                                    className="me-2 border border-success"
+                                />
+                            </div>
                         </div>
-                        <div className='table-responsive mt-3 table-height'>
 
+                        <div className='table-responsive mt-3 table-height'>
                             <Table striped bordered hover>
                                 <thead>
                                     <tr>

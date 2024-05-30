@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { Eye, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
@@ -296,6 +296,34 @@ const PurchaseReturn = () => {
         setShowDetailsModal(true);
     };
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+
+    // Convert object to array for pagination
+    const purchaseReturnArray = Object.entries(purchaseReturn).map(([key, value]) => ({ key, value }));
+    const totalPages = Math.ceil(purchaseReturnArray.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastItem = currentPage * perPage;
+    const indexOfFirstItem = indexOfLastItem - perPage;
+    const currentData = purchaseReturnArray.slice(indexOfFirstItem, indexOfLastItem);
+
+
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -305,7 +333,7 @@ const PurchaseReturn = () => {
                             Add Purchase Return
                         </Button>
                     </div>
-                    <div className="table-responsive">
+                    <div className="table-responsive table-height">
                         <Table striped bordered hover className='mt-4'>
                             <thead>
                                 <tr>
@@ -317,7 +345,7 @@ const PurchaseReturn = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(purchaseReturn).map(([stock_id, items], index) => (
+                                {currentData.map(({items,stock_id }, index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{items[0].ledgerName}</td>
@@ -331,6 +359,13 @@ const PurchaseReturn = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
             </Container>

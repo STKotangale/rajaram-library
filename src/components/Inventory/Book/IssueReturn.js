@@ -1,11 +1,10 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
-import { Trash, Eye } from 'react-bootstrap-icons';
+import { Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 
 const IssueReturn = () => {
     const [issueReturn, setIssueReturn] = useState([]);
@@ -20,7 +19,6 @@ const IssueReturn = () => {
     const [selectedRows, setSelectedRows] = useState([]);
     const [issueReturnToDelete, setIssueReturnToDelete] = useState(null);
     const [selectedDetail, setSelectedDetail] = useState(null);
-
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -29,7 +27,6 @@ const IssueReturn = () => {
         fetchGeneralMembers();
     }, [username, accessToken]);
 
-    // Fetch issue returns and group by stock_id
     const fetchIssueReturn = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/issueReturns`, {
@@ -49,7 +46,6 @@ const IssueReturn = () => {
         }
     };
 
-    // Group data by stock_id
     const groupByStockId = (data) => {
         return data.reduce((acc, item) => {
             if (!acc[item.stock_id]) {
@@ -60,7 +56,6 @@ const IssueReturn = () => {
         }, {});
     };
 
-    // Fetch all general members
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -79,7 +74,6 @@ const IssueReturn = () => {
         }
     };
 
-    // Handle member name select
     const handleMemberNameSelect = async (e) => {
         const username = e.target.value;
         setSelectedUsername(username);
@@ -111,7 +105,7 @@ const IssueReturn = () => {
         }
     };
 
-   const formatDate = (date) => {
+    const formatDate = (date) => {
         if (!date) return '';
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
@@ -138,7 +132,6 @@ const IssueReturn = () => {
         setShowDeleteModal(true);
     };
 
-    // Post API
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -187,7 +180,6 @@ const IssueReturn = () => {
         }
     };
 
-    // Delete confirmation
     const confirmDelete = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/${issueReturnToDelete}`, {
@@ -212,11 +204,37 @@ const IssueReturn = () => {
         }
     };
 
-    // Handle viewing detailed information
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);
         setShowDetailModal(true);
     };
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+
+    // Convert object to array for pagination
+    const issueReturnArray = Object.entries(issueReturn).map(([key, value]) => ({ key, value }));
+    const totalPages = Math.ceil(issueReturnArray.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastItem = currentPage * perPage;
+    const indexOfFirstItem = indexOfLastItem - perPage;
+    const currentData = issueReturnArray.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="main-content">
@@ -227,7 +245,7 @@ const IssueReturn = () => {
                             Add Book Issue Return
                         </Button>
                     </div>
-                    <div className="table-responsive">
+                    <div className="table-responsive table-height">
                         <Table striped bordered hover className='mt-4'>
                             <thead>
                                 <tr>
@@ -239,25 +257,31 @@ const IssueReturn = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(issueReturn).map(([stockId, items], index) => (
-                                    <tr key={stockId}>
-                                        <td>{index + 1}</td>
-                                        <td>{items[0].username}</td>
-                                        <td>{items[0].invoiceNo}</td>
-                                        <td>{items[0].invoiceDate}</td>
+                                {currentData.map(({ key, value }, index) => (
+                                    <tr key={key}>
+                                        <td>{indexOfFirstItem + index + 1}</td>
+                                        <td>{value[0].username}</td>
+                                        <td>{value[0].invoiceNo}</td>
+                                        <td>{value[0].invoiceDate}</td>
                                         <td>
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetail(items)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stockId)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetail(value)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(key)} />
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </Table>
                     </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
+                    </div>
                 </div>
             </Container>
 
-            {/* Add Modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -345,7 +369,6 @@ const IssueReturn = () => {
                 </div>
             </Modal>
 
-            {/* Delete Confirmation Modal */}
             <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Delete</Modal.Title>
@@ -363,7 +386,6 @@ const IssueReturn = () => {
                 </Modal.Footer>
             </Modal>
 
-            {/* view Modal */}
             <Modal centered show={showDetailModal} onHide={() => setShowDetailModal(false)} size='lg'>
                 <Modal.Header closeButton>
                     <Modal.Title>Issue Return Details</Modal.Title>
@@ -401,7 +423,6 @@ const IssueReturn = () => {
                                     />
                                 </Form.Group>
                             </Row>
-
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>

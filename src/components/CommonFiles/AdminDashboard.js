@@ -43,6 +43,7 @@ import MonthlyMembershipFee from '../Fees/MonthlyMembershipFee';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    const BaseURL = process.env.REACT_APP_BASE_URL;
 
     const [viewDashboard, setViewDashboard] = useState(true);
     const [fillBookDetails, setFillBookDetails] = useState(false);
@@ -77,7 +78,7 @@ const AdminDashboard = () => {
         confirmPassword: ''
     });
 
-    const { username, accessToken, logout } = useAuth();
+    const { username, accessToken, logout, userId } = useAuth();
 
     //get username and access token
     useEffect(() => {
@@ -645,17 +646,37 @@ const AdminDashboard = () => {
         }));
     };
 
-    const handleChangePassword = (event) => {
+    const handleChangePassword = async (event) => {
         event.preventDefault();
         const { password, confirmPassword } = credentials;
-        if (password === confirmPassword) {
-            console.log('Password changed successfully!');
-            setShowChangePasswordModal(false);
-            setCredentials({ password: '', confirmPassword: '' });
-        } else {
-            console.log('Passwords do not match.');
+        if (password !== confirmPassword) {
+            toast.error("New password and confirm password do not match");
+            return;
+        }
+        try {
+            const response = await fetch(`${BaseURL}/api/general-members/update-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ userId, password, confirmPassword }),
+            });
+
+            if (response.ok) {
+                toast.success('Password changed successfully.');
+                setShowChangePasswordModal(false);
+                setCredentials({ password: '', confirmPassword: '' });
+            } else {
+                const data = await response.json();
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('An error occurred. Please try again.');
         }
     };
+    
 
     //handle logout
     const handleLogout = () => {
@@ -897,13 +918,14 @@ const AdminDashboard = () => {
                             />
                         </Form.Group>
                         <div className="d-flex justify-content-end mt-4">
-                            <Button className="button-color" type="submit">
+                            <Button type="submit">
                                 Change Password
                             </Button>
                         </div>
                     </Form>
                 </Modal.Body>
             </Modal>
+
         </div >
     );
 };

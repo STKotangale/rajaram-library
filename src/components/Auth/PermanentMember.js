@@ -15,8 +15,6 @@ const PermanentMember = () => {
     const [middleNameQuery, setMiddleNameQuery] = useState("");
     const [lastNameQuery, setLastNameQuery] = useState("");
 
-
-
     const [showAddPermanentMemberModal, setShowAddPermanentMemberModal] = useState(false);
     const [newPermanentMember, setNewPermanentMember] = useState({
         firstName: '',

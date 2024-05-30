@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { Eye, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
@@ -269,7 +269,33 @@ const BookIssue = () => {
         setSelectedIssue(issue);
         setShowViewModal(true);
     };
-   
+
+
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(issue.length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = issue.slice(indexOfNumber, indexOfLastBookType);
 
 
     return (
@@ -281,7 +307,7 @@ const BookIssue = () => {
                             Add Book Issue
                         </Button>
                     </div>
-                    <div className="table-responsive">
+                    <div className="table-responsive table-height">
                         <Table striped bordered hover className='mt-4'>
                             <thead>
                                 <tr>
@@ -293,7 +319,7 @@ const BookIssue = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {issue.map((issueItem, index) => (
+                                {currentData.map((issueItem, index) => (
                                     <tr key={issueItem.stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{issueItem.memberName}</td>
@@ -308,6 +334,13 @@ const BookIssue = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
             </Container>
@@ -463,7 +496,7 @@ const BookIssue = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-                                
+
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
                                         <Form.Label>Member Name</Form.Label>

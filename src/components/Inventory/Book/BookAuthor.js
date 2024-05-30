@@ -7,6 +7,15 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const BookAuthor = () => {
+    const [filtered, setFiltered] = useState([]);
+    const [dataQuery, setDataQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(bookAuthors.filter(member =>
+            member.authorName.toLowerCase().includes(dataQuery.toLowerCase())
+        ));
+    }, [dataQuery]);
+
     //get
     const [bookAuthors, setBookAuthors] = useState([]);
     //add
@@ -44,6 +53,7 @@ const BookAuthor = () => {
             }
             const data = await response.json();
             setBookAuthors(data.data);
+            setFiltered(data.data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching book authors. Please try again later.');
@@ -164,7 +174,7 @@ const BookAuthor = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(bookAuthors.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -185,21 +195,30 @@ const BookAuthor = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = bookAuthors.slice(indexOfNumber, indexOfLastBookType);
+    const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
 
 
     return (
         <div className="main-content">
 
             <Container className='small-screen-table'>
-                <div className='mt-3'>
+            <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddBookAuthorModal(true)} className="button-color">
                         Add Book Author
                     </Button>
+                    <div className="d-flex">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Author Name"
+                            value={dataQuery}
+                            onChange={(e) => setDataQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                    </div>
                 </div>
+
                 <div className='mt-3'>
                     <div className="table-responsive table-height">
-
                         <Table striped bordered hover>
                             <thead>
                                 <tr>

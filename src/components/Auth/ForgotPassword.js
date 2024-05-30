@@ -4,75 +4,49 @@ import logoImage from '../../assets/rajalib.png';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import './AuthCSS/LoginPage.css'
+import './AuthCSS/LoginPage.css';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
+  const [mobile, setMobile] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [otpValid, setOtpValid] = useState(false);
-  const [otpSent, setOtpSent] = useState(false); // New state to track whether OTP has been sent
+  const [userVerified, setUserVerified] = useState(false);
+  const [userId, setUserId] = useState(null); // New state to store userId
 
   const navigate = useNavigate();
-
   const BaseURL = process.env.REACT_APP_BASE_URL;
 
-
-  // mail verify and send otp
-  const handleSubmitEmail = async (e) => {
+  // Mail and mobile verify
+  const handleSubmitContactInfo = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch(`${BaseURL}/verifyAndSendOTP`, {
+      const response = await fetch(`${BaseURL}/api/auth/forgot-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, mobile }),
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      if (data.message === "OTP sent successfully") {
-        setOtpVerified(true);
-        setOtpSent(true);
-        toast.success('OTP sent successfully for owner.');
-      }
-      else {
-        toast.warning('User not found?');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
-
-  const handleSubmitOTP = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${BaseURL}/validateOTP`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, otp }),
-      });
-      if (response.ok) {
-        // Handle response OK
+      if (data.message === "User found") {
+        toast.success('User found.');
+        setUserVerified(true); // Set user verified to true to show password reset fields
+        setUserId(data.userId); // Store userId for the next API call
       } else {
-        // Handle response not OK
+        toast.warning('User not found.');
       }
-      setOtpValid(true);
     } catch (error) {
       console.error('Error:', error);
-      toast.error('An error occurred while validating OTPs. Please try again.');
-      setOtpValid(false);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
-  // reset password
+  // Reset password
   const handleSubmitPasswordReset = async (e) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -81,21 +55,24 @@ const ForgotPassword = () => {
       return;
     }
     try {
-      const response = await fetch(`${BaseURL}/change-password`, {
+      const response = await fetch(`${BaseURL}/api/general-members/update-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ newPassword, confirmPassword }),
+        body: JSON.stringify({ userId, password: newPassword, confirmPassword }),
       });
+
       if (response.ok) {
-        // Handle response1 OK
+        toast.success('Password changed successfully.');
+        navigate('/');
       } else {
-        // Handle response1 not OK
+        const data = await response.json();
+        toast.error(data.message);
       }
-      // navigate('/login');
     } catch (error) {
       console.error('Error:', error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
@@ -126,8 +103,8 @@ const ForgotPassword = () => {
             <Col xs={12} md={6} lg={5}>
               <div className="forgot-container p-5 shadow rounded">
                 <h2>Forgot Password</h2>
-                {!otpVerified ? (
-                  <Form onSubmit={handleSubmitEmail}>
+                {!userVerified ? (
+                  <Form onSubmit={handleSubmitContactInfo}>
                     <FormGroup className='mt-4'>
                       <Form.Label>Email</Form.Label>
                       <Form.Control
@@ -137,81 +114,59 @@ const ForgotPassword = () => {
                         id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        required
+                      />
+                    </FormGroup>
+                    <FormGroup className='mt-4'>
+                      <Form.Label>Mobile</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="mobile"
+                        placeholder="Mobile number"
+                        id="mobile"
+                        value={mobile}
+                        onChange={(e) => setMobile(e.target.value)}
                       />
                     </FormGroup>
                     <div className="d-flex justify-content-end mt-3">
                       <Button type="button" variant="secondary" className="me-2" onClick={handleCancel}>Cancel</Button>
-                      <Button className='button-color' variant="primary">Submit</Button>
+                      <Button type="submit" className='button-color' variant="primary">Submit</Button>
                     </div>
                   </Form>
                 ) : (
-                  <Form onSubmit={!otpValid ? handleSubmitOTP : handleSubmitPasswordReset}>
-                    {!otpValid && (
-                      <FormGroup>
-                        <Form.Label>Enter OTP</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="otp"
-                          id="otp"
-                          placeholder="######"
-                          maxLength="6"
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value)}
-                          required
-                        />
-                        {!otpValid && otpSent && (
-                          <Button color="link" className="resend-btn" onClick={handleSubmitEmail}>
-                            Resend OTP
-                          </Button>
-                        )}
-                      </FormGroup>
-                    )}
+                  <Form onSubmit={handleSubmitPasswordReset}>
+                    <FormGroup className='mt-4'>
+                      <Form.Label>Reset Password for {email || mobile}</Form.Label>
+                    </FormGroup>
 
-                    {otpValid &&
-                      <>
-                        <FormGroup>
-                          <Form.Label>Reset Password Email</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="resetPasswordMessage"
-                            id="resetPasswordMessage"
-                            value={`${email}`}
-                          // plaintext
-                          // readOnly
-                          />
-                        </FormGroup>
+                    <FormGroup className='mt-4'>
+                      <Form.Label>New Password</Form.Label>
+                      <Form.Control
+                        type="password"
+                        name="newPassword"
+                        placeholder="Password"
+                        id="newPassword"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                      />
+                    </FormGroup>
 
-                        <FormGroup>
-                          <Form.Label>New Password</Form.Label>
-                          <Form.Control
-                            type="password"
-                            name="newPassword"
-                            placeholder="Password"
-                            id="newPassword"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            required
-                          />
-                        </FormGroup>
+                    <FormGroup className='mt-4'>
+                      <Form.Label>Confirm Password</Form.Label>
+                      <Form.Control
+                        type="password"
+                        name="confirmPassword"
+                        placeholder="Confirm password"
+                        id="confirmPassword"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                      />
+                    </FormGroup>
 
-                        <FormGroup>
-                          <Form.Label>Confirm Password</Form.Label>
-                          <Form.Control
-                            type="password"
-                            name="confirmPassword"
-                            placeholder="Confirm password"
-                            id="confirmPassword"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                          />
-                        </FormGroup>
-                      </>
-                    }
                     <div className="d-flex justify-content-end mt-3">
                       <Button type="button" variant="secondary" className="me-2" onClick={handleCancel}>Cancel</Button>
-                      <Button type="submit" className='button-color'>{!otpValid ? "Validate OTP" : "Submit"}</Button>
+                      <Button type="submit" className='button-color'>Submit</Button>
                     </div>
                   </Form>
                 )}
@@ -219,12 +174,9 @@ const ForgotPassword = () => {
             </Col>
           </Row>
         </div>
-        {/* <div className='footer-forgot-page'>
-          <Footer />
-        </div> */}
       </Container>
-    </div >
-  )
-}
+    </div>
+  );
+};
 
 export default ForgotPassword;

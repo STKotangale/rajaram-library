@@ -39,11 +39,11 @@ const LoginPage = () => {
       const data = await response.json();
       const userRole = data.roles[0];
       if (userRole === 'ADMIN') {
-        login(data.username, data.accessToken);
+        login(data.username, data.accessToken, data.id);
         toast.success("Login successful!");
         navigate('/admindashboard');
       } else if (userRole === 'MEMBER') {
-        login(data.username, data.accessToken);
+        login(data.username, data.accessToken, data.id);
         toast.success("Login successful!");
         navigate('/memberdashboard');
       } else {
