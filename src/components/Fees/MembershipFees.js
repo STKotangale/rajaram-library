@@ -109,19 +109,48 @@ const MembershipFees = () => {
         }));
     };
 
+    const resetField = () => {
+        setFormData({
+            invoiceNo: "",
+            invoiceDate: "",
+            selectedMemberId: "",
+            feeType: "",
+            bankName: "",
+            chequeNo: "",
+            chequeDate: "",
+            monthlyDescription: ""
+        });
+    };
+
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
+
+
+
+
     const handleAddSubmit = async () => {
         const totalFees = feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0);
+
+        const formattedInvoiceDate = formatDate(formData.invoiceDate);
+        const formattedChequeDate = formData.chequeDate ? formatDate(formData.chequeDate) : null;
+
+
         const payload = {
             memInvoiceNo: formData.invoiceNo,
-            memInvoiceDate: formData.invoiceDate,
+            memInvoiceDate: formattedInvoiceDate,
             memberIdF: formData.selectedMemberId,
             bookDepositFees: parseFloat(feesData.find(fee => fee.feesName === "Book Deposite")?.feesAmount || 0),
             entryFees: parseFloat(feesData.find(fee => fee.feesName === "Entry Fees")?.feesAmount || 0),
-            monthlyFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
+            // monthlyFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
+            securityDepositFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
             feesType: formData.feeType === "Cash" ? "A" : "B",
             bankName: formData.bankName,
             chequeNo: formData.chequeNo,
-            chequeDate: formData.chequeDate,
+            chequeDate: formattedChequeDate,
             membershipDescription: formData.monthlyDescription,
             totalFees
         };
@@ -142,6 +171,7 @@ const MembershipFees = () => {
 
             toast.success('Member fees added successfully!');
             setShowAddModal(false);
+            resetField();
             fetchMemberData();
         } catch (error) {
             console.error(error);
@@ -157,16 +187,24 @@ const MembershipFees = () => {
         }));
     };
 
+
+    const parseDate = (date) => {
+        if (!date) return '';
+        const [day, month, year] = date.split('-');
+        return `${year}-${month}-${day}`;
+    };
+
+
     const handleEditClick = (item) => {
         setEditData({
             membershipId: item.membershipId,
             invoiceNo: item.memInvoiceNo,
-            invoiceDate: item.memInvoiceDate,
+            invoiceDate: parseDate(item.memInvoiceDate),
             selectedMemberId: item.memberIdF,
             feeType: item.feesType === "A" ? "Cash" : "Cheque",
             bankName: item.bankName,
             chequeNo: item.chequeNo,
-            chequeDate: item.chequeDate,
+            chequeDate: item.chequeDate ? parseDate(item.chequeDate) : '',
             monthlyDescription: item.membershipDescription
         });
         setShowEditModal(true);
@@ -174,18 +212,23 @@ const MembershipFees = () => {
 
     const handleEditSubmit = async () => {
         const totalFees = feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0);
+
+        const formattedInvoiceDate = formatDate(editData.invoiceDate);
+        const formattedChequeDate = editData.chequeDate ? formatDate(editData.chequeDate) : null;
+
         const payload = {
             memInvoiceNo: editData.invoiceNo,
-            memInvoiceDate: editData.invoiceDate,
+            memInvoiceDate: formattedInvoiceDate,
             memberIdF: editData.selectedMemberId,
             bookDepositFees: parseFloat(feesData.find(fee => fee.feesName === "Book Deposite")?.feesAmount || 0),
             entryFees: parseFloat(feesData.find(fee => fee.feesName === "Entry Fees")?.feesAmount || 0),
-            monthlyFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
+            // monthlyFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
+            securityDepositFees: parseFloat(feesData.find(fee => fee.feesName === "Monthly Fees")?.feesAmount || 0),
             reserveBookDeposit: parseFloat(feesData.find(fee => fee.feesName === "Reserve Book Deposite")?.feesAmount || 0),
             feesType: editData.feeType === "Cash" ? "A" : "B",
             bankName: editData.bankName,
             chequeNo: editData.chequeNo,
-            chequeDate: editData.chequeDate,
+            chequeDate: formattedChequeDate,
             membershipDescription: editData.monthlyDescription,
             totalFees
         };
@@ -206,6 +249,7 @@ const MembershipFees = () => {
 
             toast.success('Member fees updated successfully!');
             setShowEditModal(false);
+            resetField();
             fetchMemberData();
         } catch (error) {
             console.error(error);
@@ -445,7 +489,7 @@ const MembershipFees = () => {
                 </div>
             </Modal>
 
-            <Modal centered show={showEditModal} onHide={() => setShowEditModal(false)} >
+            <Modal centered show={showEditModal} onHide={() => {setShowEditModal(false); resetField()}} size='lg'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Membership Fees</Modal.Title>
@@ -627,7 +671,7 @@ const MembershipFees = () => {
             </Modal>
 
             {/* view modal */}
-            <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} >
+            <Modal centered show={showViewModal} onHide={() => {setShowViewModal(false); resetField()}} size='lg' >
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>View Membership Fees</Modal.Title>
@@ -648,7 +692,6 @@ const MembershipFees = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Invoice Date</Form.Label>
                                     <Form.Control
-                                        type="date"
                                         value={viewData.memInvoiceDate}
                                         readOnly
                                         className="custom-date-picker small-input"
@@ -689,13 +732,14 @@ const MembershipFees = () => {
                                         <tr>
                                             <td className='sr-size'>3</td>
                                             <td>Monthly Fees</td>
-                                            <td>{viewData.monthlyFees}</td>
+                                            {/* <td>{viewData.monthlyFees}</td> */}
+                                            <td>{viewData.securityDepositFees}</td>
                                         </tr>
-                                       
+
                                         <tr>
                                             <td></td>
                                             <td>Total</td>
-                                            <td>{parseFloat(viewData.bookDepositFees || 0) + parseFloat(viewData.entryFees || 0) + parseFloat(viewData.monthlyFees || 0) }</td>
+                                            <td>{parseFloat(viewData.bookDepositFees || 0) + parseFloat(viewData.entryFees || 0) + parseFloat(viewData.securityDepositFees || 0)}</td>
                                         </tr>
                                     </tbody>
                                 </Table>
@@ -739,7 +783,6 @@ const MembershipFees = () => {
                                         <Form.Group as={Col} lg={6}>
                                             <Form.Label>Cheque Date</Form.Label>
                                             <Form.Control
-                                                type="date"
                                                 value={viewData.chequeDate}
                                                 readOnly
                                                 className="custom-date-picker small-input"

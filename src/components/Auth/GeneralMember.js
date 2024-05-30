@@ -9,6 +9,12 @@ import './AuthCSS/PermanentGeneralMember.css';
 
 
 const GeneralMember = () => {
+
+    const [filteredMember, setFilteredMember] = useState([]);
+    const [firstNameQuery, setFirstNameQuery] = useState("");
+    const [middleNameQuery, setMiddleNameQuery] = useState("");
+    const [lastNameQuery, setLastNameQuery] = useState("");
+
     //get
     const [generalMember, setGeneralMember] = useState([]);
     //add
@@ -56,6 +62,7 @@ const GeneralMember = () => {
             }
             const data = await response.json();
             setGeneralMember(data.data);
+            setFilteredMember(data.data);
         } catch (error) {
             console.error("Failed to fetch general members:", error);
             toast.error('Failed to load general members. Please try again later.');
@@ -64,6 +71,17 @@ const GeneralMember = () => {
     useEffect(() => {
         fetchGeneralMembers();
     }, []);
+
+
+    useEffect(() => {
+        setFilteredMember(generalMember.filter(member =>
+            member.firstName.toLowerCase().includes(firstNameQuery.toLowerCase()) &&
+            member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
+            member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
+        ));
+    }, [firstNameQuery, middleNameQuery, lastNameQuery, generalMember]);
+
+
 
     // Reset form fields
     const resetFormFields = () => {
@@ -86,7 +104,7 @@ const GeneralMember = () => {
         });
     };
 
-    
+
     const formatDate = (date) => {
         if (!date) return '';
         const [year, month, day] = date.split('-');
@@ -248,7 +266,7 @@ const GeneralMember = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(generalMember.length / perPage);
+    const totalPages = Math.ceil(filteredMember.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -269,17 +287,42 @@ const GeneralMember = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = generalMember.slice(indexOfNumber, indexOfLastBookType);
+    const currentData = filteredMember.slice(indexOfNumber, indexOfLastBookType);
 
-    
+
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
-                <div className='mt-3'>
+            <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddGeneralMemberModal(true)} className="button-color">
                         Add General Member
                     </Button>
+
+                    <div className="d-flex">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by First Name"
+                            value={firstNameQuery}
+                            onChange={(e) => setFirstNameQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Middle Name"
+                            value={middleNameQuery}
+                            onChange={(e) => setMiddleNameQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Last Name"
+                            value={lastNameQuery}
+                            onChange={(e) => setLastNameQuery(e.target.value)}
+                            className="border border-success"
+                        />
+                    </div>
+
                 </div>
                 <div className='mt-3 table-container-general-member-1'>
                     <div className="table-responsive table-height">
@@ -677,7 +720,7 @@ const GeneralMember = () => {
                             </Row>
 
                             <Row className="mb-3">
-                            <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberlibParMembNo">
+                                <Form.Group className="mb-3" lg={4} as={Col} controlId="newGeneralMemberlibParMembNo">
                                     <Form.Label>Libaray Member No </Form.Label>
                                     <Form.Control
                                         type="text"
@@ -775,7 +818,7 @@ const GeneralMember = () => {
                                 </Row>
 
                                 <Row className="mb-3">
-                                <Form.Group as={Col} lg={4} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Education</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.memberEducation} />
                                     </Form.Group>
@@ -790,7 +833,7 @@ const GeneralMember = () => {
                                 </Row>
 
                                 <Row className="mb-3">
-                                <Form.Group as={Col} lg={4} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Date of Birth</Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.dateOfBirth} />
                                     </Form.Group>
@@ -805,7 +848,7 @@ const GeneralMember = () => {
                                 </Row>
 
                                 <Row className="mb-3">
-                                <Form.Group as={Col} lg={4} className="mb-3">
+                                    <Form.Group as={Col} lg={4} className="mb-3">
                                         <Form.Label>Libaray Member No </Form.Label>
                                         <Form.Control type="text" readOnly defaultValue={viewGeneralMemberData.libGenMembNo} />
                                     </Form.Group>
