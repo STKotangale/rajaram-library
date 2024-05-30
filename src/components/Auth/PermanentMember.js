@@ -96,11 +96,11 @@ const PermanentMember = () => {
         });
     };
 
-    const formatDate = (date) => {
-        if (!date) return '';
-        const [year, month, day] = date.split('-');
-        return `${day}-${month}-${year}`;
-    };
+    // const formatDate = (date) => {
+    //     if (!date) return '';
+    //     const [year, month, day] = date.split('-');
+    //     return `${day}-${month}-${year}`;
+    // };
 
     const parseDate = (date) => {
         if (!date) return '';
@@ -302,7 +302,7 @@ const PermanentMember = () => {
                                         <td>{member.firstName}</td>
                                         <td>{member.middleName}</td>
                                         <td>{member.lastName}</td>
-                                        <td>{formatDate(member.registerDate)}</td>
+                                        <td>{(member.registerDate)}</td>
                                         <td>{member.mobileNo}</td>
                                         <td>
                                             <PencilSquare
