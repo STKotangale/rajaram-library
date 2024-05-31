@@ -86,19 +86,35 @@ const AdminDashboard = () => {
     }, [username, accessToken]);
 
     //sunitem
-    const [showInventorySubItems, setShowInventorySubItems] = useState(false);
-    const toggleInventorySubItems = () => {
-        setShowInventorySubItems(!showInventorySubItems);
+
+    //transaction
+    const [showInventoryTransactionSubItems, setShowInventoryTransactionSubItems] = useState(false);
+    const toggleInventoryTransactionSubItems = () => {
+        setShowInventoryTransactionSubItems(!showInventoryTransactionSubItems);
     };
 
-    const [showMasterSubItems, setShowMasterSubItems] = useState(false);
-    const toggleMasterSubItems = () => {
-        setShowMasterSubItems(!showMasterSubItems);
+    //master
+    const [showInventoryMasterSubItems, setShowInventoryMasterSubItems] = useState(false);
+    const toggleInventoryMasterSubItems = () => {
+        setShowInventoryMasterSubItems(!showInventoryMasterSubItems);
     };
 
-    const [showAccountSubItems, setShowAccountSubItems] = useState(false);
-    const toggleAccountSubItems = () => {
-        setShowAccountSubItems(!showAccountSubItems);
+    //report
+    const [showInventoryReportSubItems, setShowInventoryReportSubItems] = useState(false);
+    const toggleInventoryReportSubItems = () => {
+        setShowInventoryReportSubItems(!showInventoryReportSubItems);
+    };
+
+   //Account
+   const [showAccountSubItems, setShowAccountSubItems] = useState(false);
+   const toggleAccountSubItems = () => {
+       setShowAccountSubItems(!showAccountSubItems);
+   };
+
+   //Admin
+    const [showAdminSubItems, setShowAdminSubItems] = useState(false);
+    const toggleAdminSubItems = () => {
+        setShowAdminSubItems(!showAdminSubItems);
     };
 
     //show name in navbar
@@ -676,7 +692,7 @@ const AdminDashboard = () => {
             toast.error('An error occurred. Please try again.');
         }
     };
-    
+
 
     //handle logout
     const handleLogout = () => {
@@ -725,37 +741,20 @@ const AdminDashboard = () => {
                                         <HouseDoorFill className="icon" /> Home
                                     </ListGroup.Item>
 
-                                    <ListGroup.Item className="admin-general-icon mt-2" action onClick={toggleInventorySubItems}>
-                                        <Archive className="icon me-2" /> Inventory
+                                    {/* Transaction */}
+                                    <ListGroup.Item className="admin-general-icon mt-2" action onClick={toggleInventoryTransactionSubItems}>
+                                        <Archive className="icon me-2" /> Inventory Transaction
                                     </ListGroup.Item>
-                                    {showInventorySubItems && (
+                                    {showInventoryTransactionSubItems && (
                                         <div className='ms-2'>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleShowPurchase(); setShowSidebar(false); }}>
-                                                <CartPlus className="icon me-2" /> Purchase
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
-                                                <BookFill className="icon me-2" /> Book Details
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookLanguages(); setShowSidebar(false); }}>
-                                                <Globe className="me-2" /> Book Languages
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookName(); setShowSidebar(false); }}>
-                                                <Book className="me-2" /> Book
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookType(); setShowSidebar(false); }}>
-                                                <Bookshelf className="me-2" /> Book Types
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookAuthor(); setShowSidebar(false); }}>
-                                                <PersonFill className="me-2" /> Book Author
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookPublication(); setShowSidebar(false); }}>
-                                                <BookHalf className="me-2" /> Book Publication
-                                            </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueClick}>
                                                 <ExclamationTriangleFill className="me-2" /> Issue
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handleIssueReturnClick}>
                                                 <ArrowReturnLeft className="me-2 icon" /> Issue Return
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleShowPurchase(); setShowSidebar(false); }}>
+                                                <CartPlus className="icon me-2" /> Purchase
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={handlePurchaseReturnClick}>
                                                 <CartDashFill className="me-2 icon" /> Purchase Return
@@ -772,6 +771,45 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
 
+                                    {/* Master */}
+                                    <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryMasterSubItems}>
+                                        <Archive className="icon me-2" /> Inventory Master
+                                    </ListGroup.Item>
+                                    {showInventoryMasterSubItems && (
+                                        <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookName(); setShowSidebar(false); }}>
+                                                <Book className="me-2" /> Book
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookType(); setShowSidebar(false); }}>
+                                                <Bookshelf className="me-2" /> Book Types
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookLanguages(); setShowSidebar(false); }}>
+                                                <Globe className="me-2" /> Book Languages
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookAuthor(); setShowSidebar(false); }}>
+                                                <PersonFill className="me-2" /> Book Author
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookPublication(); setShowSidebar(false); }}>
+                                                <BookHalf className="me-2" /> Book Publication
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
+                                                <BookFill className="icon me-2" /> Book Details
+                                            </ListGroup.Item>
+                                        </div>
+                                    )}
+                                    {/* report */}
+                                    <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryReportSubItems}>
+                                        <Archive className="icon me-2" /> Inventory Report
+                                    </ListGroup.Item>
+                                    {showInventoryReportSubItems && (
+                                        <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
+                                                <BookFill className="icon me-2" /> Book Details/List
+                                            </ListGroup.Item>
+                                        </div>
+                                    )}
+
+                                    {/* Account */}
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleAccountSubItems}>
                                         <Archive className="icon me-2" /> Account
                                     </ListGroup.Item>
@@ -781,13 +819,13 @@ const AdminDashboard = () => {
                                                 <PersonFill className="me-2" /> Purchaser
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMemberFees(); setShowSidebar(false); }}>
-                                                <CurrencyDollar  className="me-2" /> Membership Fees
+                                                <CurrencyDollar className="me-2" /> Membership Fees
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleMonthlyMemberFees(); setShowSidebar(false); }}>
-                                                <Calendar  className="me-2" />Monthly Fees
+                                                <Calendar className="me-2" />Monthly Fees
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleLibararyFees(); setShowSidebar(false); }}>
-                                                <Book  className="me-2" /> Libarary Fees
+                                                <Book className="me-2" /> Libarary Fees
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { hendleConfig(); setShowSidebar(false); }}>
                                                 <Gear className="me-2" /> Config
@@ -795,14 +833,14 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
 
-                                    <ListGroup.Item className="admin-general-icon mt-3 mb-2" action onClick={toggleMasterSubItems}>
-                                        <Archive className="icon me-2" /> Master
+                                    <ListGroup.Item className="admin-general-icon mt-3 mb-2" action onClick={toggleAdminSubItems}>
+                                        <Archive className="icon me-2" /> Admin
                                     </ListGroup.Item>
-                                    {showMasterSubItems && (
+                                    {showAdminSubItems && (
                                         <div className='ms-2'>
-                                            <ListGroup.Item className="sub-icon mt-2" action>
+                                            {/* <ListGroup.Item className="sub-icon mt-2" action>
                                                 <PersonCircle className="icon me-2" />Admin
-                                            </ListGroup.Item>
+                                            </ListGroup.Item> */}
                                             <ListGroup.Item className="sub-icon mt-2" action onClick={() => { handleCreateUser(); setShowSidebar(false); }}>
                                                 <PersonFill className="icon me-2" />  User
                                             </ListGroup.Item>

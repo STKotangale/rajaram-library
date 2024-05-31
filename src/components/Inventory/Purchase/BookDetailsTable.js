@@ -176,6 +176,7 @@ const BookDetailsTable = () => {
                                     <th>Book Name</th>
                                     <th>Purchase Copy No.</th>
                                     <th>Rate</th>
+                                    <th>Status</th>
                                     <th>Update</th>
                                 </tr>
                             </thead>
@@ -186,6 +187,7 @@ const BookDetailsTable = () => {
                                         <td>{book.bookName}</td>
                                         <td>{book.purchaseCopyNo}</td>
                                         <td>{book.book_rate}</td>
+                                        <td>{book.status === 1 ? 'Updated' : 'Not Updated'}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleUpdate(book)} />
                                         </td>
