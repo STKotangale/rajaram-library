@@ -150,8 +150,9 @@ const Books = () => {
                 return book;
             });
             setBooks(updatedBooks);
-            setShowEditBookModal(false);
             toast.success('Book edited successfully.');
+            setShowEditBookModal(false);
+            resetFormFields();
             fetchBooks();
         } catch (error) {
             console.error(error);
