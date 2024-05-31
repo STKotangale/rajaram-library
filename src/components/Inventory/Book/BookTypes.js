@@ -122,8 +122,9 @@ const BookTypes = () => {
             });
 
             setBookTypes(updatedBookTypes);
-            setShowEditBookTypeModal(false);
             toast.success('Book type edited successfully.');
+            setShowEditBookTypeModal(false);
+            resetFormFields();
             fetchBookTypes();
         } catch (error) {
             console.error(error);
@@ -165,15 +166,11 @@ const BookTypes = () => {
         }
     };
 
-
-
     //view function
     const handleShowViewModal = (bookType) => {
         setViewBookType(bookType);
         setShowViewModal(true);
     };
-
-
 
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
@@ -272,7 +269,7 @@ const BookTypes = () => {
 
 
                     {/* Add Book Type Modal */}
-                    <Modal show={showAddBookTypeModal} onHide={() => setShowAddBookTypeModal(false)} size="md">
+                    <Modal show={showAddBookTypeModal} onHide={() =>{ setShowAddBookTypeModal(false)}} size="md">
                         <Modal.Header closeButton>
                             <Modal.Title>Add New Book Type</Modal.Title>
                         </Modal.Header>

@@ -130,6 +130,7 @@ const BookPublication = () => {
             setBookPublication(updatedPublication);
             setShowEditBookPublicationModal(false);
             toast.success('Book publication edited successfully.');
+            resetFormFields();
             fetchBookPublication();
         } catch (error) {
             console.error(error);
