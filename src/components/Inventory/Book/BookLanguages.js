@@ -87,6 +87,7 @@ const BookLanguages = () => {
             toast.success('Book language added successfully.');
             setShowAddLanguage(false);
             resetFormFields();
+            fetchBookLanguages();
         } catch (error) {
             console.error('Error adding book language:', error.message);
             toast.error('Error adding book language. Please try again later.');
@@ -130,6 +131,7 @@ const BookLanguages = () => {
             setBookLanguages(updatedLanguages);
             toast.success('Book language edited successfully.');
             setShowEditModal(false);
+            fetchBookLanguages();
         } catch (error) {
             console.error('Error updating book language:', error);
             toast.error('Error editing book language. Please try again later.');
@@ -158,6 +160,7 @@ const BookLanguages = () => {
             setBookLanguages(bookLanguages.filter(language => language.bookLangId !== languageId));
             toast.success('Book language delete successfully.');
             setShowDeleteConfirmation(false);
+            fetchBookLanguages();
         } catch (error) {
             console.error('Error deleting book language:', error);
             toast.error('Error delete book language. Please try again later.');

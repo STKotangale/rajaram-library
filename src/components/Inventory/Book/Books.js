@@ -76,8 +76,6 @@ const Books = () => {
         fetchBookLanguages();
     }, []);
 
-
-
     // Reset form fields
     const resetFormFields = () => {
         setNewBookName('');
@@ -115,6 +113,7 @@ const Books = () => {
             toast.success('Book added successfully.');
             resetFormFields();
             setShowAddBookModal(false);
+            fetchBooks();
         } catch (error) {
             console.error("Error during book addition:", error);
             toast.error('Error adding book. Please try again later.');
@@ -153,6 +152,7 @@ const Books = () => {
             setBooks(updatedBooks);
             setShowEditBookModal(false);
             toast.success('Book edited successfully.');
+            fetchBooks();
         } catch (error) {
             console.error(error);
             toast.error('Error editing book. Please try again later.');
@@ -174,6 +174,7 @@ const Books = () => {
             setBooks(books.filter(book => book.bookId !== selectedBookId));
             setShowDeleteConfirmation(false);
             toast.success('Book deleted successfully.');
+            fetchBooks();
         } catch (error) {
             console.error(error);
             toast.error('Error deleting book. Please try again later.');
@@ -287,7 +288,7 @@ const Books = () => {
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
-            <div className='mt-3 d-flex justify-content-between'>
+                <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddBookModal(true)} className="button-color">
                         Add Book
                     </Button>

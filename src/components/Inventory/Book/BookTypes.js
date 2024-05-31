@@ -83,6 +83,7 @@ const BookTypes = () => {
             toast.success('Book type added successfully.');
             setShowAddBookTypeModal(false);
             resetFormFields();
+            fetchBookTypes();
         } catch (error) {
             console.error(error);
             toast.error('Error adding book type. Please try again later.');
@@ -123,6 +124,7 @@ const BookTypes = () => {
             setBookTypes(updatedBookTypes);
             setShowEditBookTypeModal(false);
             toast.success('Book type edited successfully.');
+            fetchBookTypes();
         } catch (error) {
             console.error(error);
             toast.error('Error editing book type. Please try again later.');
@@ -156,6 +158,7 @@ const BookTypes = () => {
             setBookTypes(bookTypes.filter(bookType => bookType.bookTypeId !== selectedBookTypeId));
             setShowDeleteConfirmation(false);
             toast.success('Book type deleted successfully.');
+            fetchBookTypes();
         } catch (error) {
             console.error(error);
             toast.error('Error deleting book type. Please try again later.');

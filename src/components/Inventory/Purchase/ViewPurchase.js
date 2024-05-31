@@ -8,9 +8,18 @@ import { useAuth } from '../../Auth/AuthProvider';
 import PurchaseDetails from './PurchaseDetails';
 
 import '../InventoryCSS/PurchaseBookDashboardData.css'
-import { date } from 'yup';
 
 const ViewPurchase = () => {
+
+    const [filtered, setFiltered] = useState([]);
+    const [dataQuery, setDataQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(purchases.filter(purchases =>
+            purchases.ledgerIDF && purchases.ledgerIDF.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
+        ));
+    }, [dataQuery]);
+
     //get 
     const [purchases, setPurchases] = useState([]);
     //add purchase in another page go
@@ -24,19 +33,18 @@ const ViewPurchase = () => {
     //view
     const [viewPurchaseModal, setViewPurchaseModal] = useState(false);
 
-    //discount  and gst
-    const [discountPercentage, setDiscountPercentage] = useState("");
-    const [gstPercentage, setGstPercentage] = useState("");
+    // //discount  and gst
+    // const [discountPercentage, setDiscountPercentage] = useState("");
+    // const [gstPercentage, setGstPercentage] = useState("");
 
-    //get books
-    const [bookName, setBookName] = useState([]);
-    const [selectedBooks, setSelectedBooks] = useState([]);
-    const [rowBooks, setRowBooks] = useState("");
+    // //get books in edit modal
+    // const [bookName, setBookName] = useState([]);
+    // const [selectedBooks, setSelectedBooks] = useState([]);
+    // const [rowBooks, setRowBooks] = useState("");
 
     //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const { username, accessToken } = useAuth();
-
 
     // back and submit another page 
     const handlePurchaseSubmit = () => {
@@ -61,6 +69,7 @@ const ViewPurchase = () => {
             }
             const data = await response.json();
             setPurchases(data.data);
+            setFiltered(data.data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching purchases. Please try again later.');
@@ -71,219 +80,10 @@ const ViewPurchase = () => {
         fetchPurchases();
     }, [username, accessToken]);
 
-    //edit purchase
-    // const handleEditClick = (purchase) => {
-    //     const updatedPurchase = {
-    //         ...purchase,
-    //         purchaseDetails: purchase.purchaseDetails.filter(detail => !detail.deleted)
-    //     };
-    //     setSelectedPurchase(updatedPurchase);
-    //     setShowModal(true);
-    //     setDiscountPercentage(purchase.discountPercent || "");
-    //     setGstPercentage(purchase.gstPercent || "");
-    // };
-    const handleEditClick = (purchase) => {
-        setSelectedPurchase(purchase);
-        setShowModal(true);
-        setDiscountPercentage(purchase.discountPercent || "");
-        setGstPercentage(purchase.gstPercent || "");
-    };
-
     const handleCloseModal = () => {
         setShowModal(false);
         setViewPurchaseModal(false);
     }
-
-    //edit api
-    const handleEditPurchase = async (e) => {
-        const payload = {
-            invoiceNo: selectedPurchase.invoiceNo,
-            invoiceDate: selectedPurchase.invoiceDate,
-            billTotal: Number(selectedPurchase.billTotal),
-            discountPercent: discountPercentage,
-            discountAmount: parseFloat(selectedPurchase.discountAmount),
-            totalAfterDiscount: parseFloat(selectedPurchase.totalAfterDiscount),
-            gstPercent: gstPercentage,
-            gstAmount: parseFloat(selectedPurchase.gstAmount),
-            grandTotal: parseFloat(selectedPurchase.grandTotal),
-            ledgerId: selectedPurchase.ledgerId,
-            stockDetails: selectedPurchase.stockDetails.map(detail => ({
-                bookIdF: detail.bookId,
-                bookQty: parseInt(detail.bookQty),
-                bookRate: parseFloat(detail.bookRate),
-                bookAmount: parseFloat(detail.bookAmount)
-            }))
-        };
-        try {
-            const response = await fetch(`${BaseURL}/api/stock/${selectedPurchase.stockId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const responseJson = await response.json();
-            console.log('Success:', responseJson);
-            toast.success('Purchase saved successfully.');
-            fetchPurchases();
-            setShowModal(false);
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('Error saving purchase. Please try again later.');
-        }
-    };
-
-    // Handle input changes in the edit modal, including book names and other fields
-    const handleInputChange = (e, field, index) => {
-        let value = e.target.value;
-
-        if (field === 'invoiceDate') {
-            value = formatDateToISO(value);
-        }
-
-        if (index !== undefined) {
-            const updatedDetails = [...selectedPurchase.stockDetails];
-            if (field === 'bookQty' || field === 'bookRate') {
-                updatedDetails[index][field] = parseInt(value);
-                updatedDetails[index].bookAmount = updatedDetails[index].bookRate * updatedDetails[index].bookQty;
-            } else if (field === 'bookName') {
-                const selectedBook = bookName.find(book => book.bookName === value);
-                if (updatedDetails[index].bookIdF) {
-                    updatedDetails[index].bookIdF.bookId = selectedBook ? selectedBook.bookId : null;
-                    updatedDetails[index].bookIdF.bookName = value;
-                } else {
-                    updatedDetails[index].bookIdF = {
-                        bookId: selectedBook ? selectedBook.bookId : null,
-                        bookName: value
-                    };
-                }
-            } else {
-                updatedDetails[index][field] = value;
-            }
-            setSelectedPurchase(prevPurchase => ({
-                ...prevPurchase,
-                stockDetails: updatedDetails
-            }));
-        } else {
-            setSelectedPurchase(prevPurchase => ({
-                ...prevPurchase,
-                [field]: value
-            }));
-        }
-    };
-
-
-    const formatDateToISO = (dateString) => {
-        if (!dateString) return '';
-        const localDate = new Date(dateString);
-        const year = localDate.getFullYear();
-        const month = String(localDate.getMonth() + 1).padStart(2, '0');
-        const day = String(localDate.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
-    // // claculation in float datatype
-    // const formatNumber = (number) => {
-    //     return parseFloat(number.toFixed(2)).toString();
-    // };
-
-    // Calculate the total bill amount
-    const calculateBillTotal = (details) => {
-        let allTotal = 0;
-        details.forEach(detail => {
-            if (detail.bookQty && detail.bookRate) {
-                allTotal += parseFloat(detail.bookQty) * parseFloat(detail.bookRate);
-            }
-        });
-        return Math.floor(allTotal);
-        // return formatNumber(allTotal);
-    };
-
-    // Calculate the discount amount
-    const calculateDiscount = (details) => {
-        if (discountPercentage === "") return "0.00";
-        const billTotal = parseFloat(calculateBillTotal(details));
-        const discountAmount = billTotal * (parseFloat(discountPercentage / 100));
-        return Math.floor(discountAmount);
-        // return formatNumber(discountAmount);
-    };
-
-    // Calculate the total after discount
-    const calculateTotalAfterDiscount = (details) => {
-        const billTotal = parseFloat(calculateBillTotal(details));
-        const totalAfterDiscount = billTotal - parseFloat(calculateDiscount(details));
-        return Math.floor(totalAfterDiscount);
-        // return formatNumber(totalAfterDiscount);
-    };
-
-    // Calculate GST amount
-    const calculateGst = (details) => {
-        if (gstPercentage === "") return "0.00";
-        const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(details));
-        const gstAmount = totalAfterDiscount * (parseFloat(gstPercentage) / 100);
-        return Math.floor(gstAmount);
-        // return formatNumber(gstAmount);
-    };
-
-    // Calculate the grand total
-    const calculateGrandTotal = (details) => {
-        const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(details));
-        const grandTotal = totalAfterDiscount + parseFloat(calculateGst(details));
-        return Math.floor(grandTotal);
-        // return formatNumber(grandTotal);
-    };
-
-
-    //change discount and gst
-    const handleDiscountChange = (e) => {
-        const value = e.target.value;
-        if (value === "") {
-            setDiscountPercentage("");
-        } else {
-            const numericValue = parseFloat(value);
-            if (!isNaN(numericValue)) {
-                setDiscountPercentage(numericValue);
-            }
-        }
-        recalculateValues();
-    };
-
-    const handleGstChange = (e) => {
-        const value = e.target.value;
-        if (value === "") {
-            setGstPercentage("");
-        } else {
-            const numericValue = parseFloat(value);
-            if (!isNaN(numericValue)) {
-                setGstPercentage(numericValue);
-            }
-        }
-        recalculateValues();
-    };
-
-    //recalculate value
-    const recalculateValues = () => {
-        if (selectedPurchase) {
-            setSelectedPurchase(prevPurchase => ({
-                ...prevPurchase,
-                discountAmount: calculateDiscount(prevPurchase.stockDetails),
-                gstAmount: calculateGst(prevPurchase.stockDetails),
-                totalAfterDiscount: calculateTotalAfterDiscount(prevPurchase.stockDetails),
-                grandTotal: calculateGrandTotal(prevPurchase.stockDetails),
-                billTotal: calculateBillTotal(prevPurchase.stockDetails)
-            }));
-        }
-    };
-
-    useEffect(() => {
-        recalculateValues();
-    }, [discountPercentage, gstPercentage, selectedPurchase]);
-    //end edit purchase
-
 
     //delete function
     const handleDeleteClick = (purchase) => {
@@ -317,96 +117,315 @@ const ViewPurchase = () => {
     };
 
 
-    // book edit under edit book name  change input dropdown
-    const handleBookChangeForRow = (index, event) => {
-        const name = event.target.value;
-        const selectedBook = bookName.find(book => book.bookName === name);
-        const updatedRowBooks = [...rowBooks];
-
-        if (selectedBook) {
-            updatedRowBooks[index] = { ...updatedRowBooks[index], bookId: selectedBook.bookId };
-            updatedRowBooks[index].bookName = name;
-        } else {
-            updatedRowBooks[index] = { ...updatedRowBooks[index], bookId: null };
-            updatedRowBooks[index].bookName = name;
-        }
-        setRowBooks(updatedRowBooks);
-    };
-
-    // Filtered book names based on selectedBooks
-    const filteredBookNamesForRow = (rowIndex) => {
-        return bookName.filter(book =>
-            !selectedBooks.includes(book.bookId) ||
-            selectedBooks[rowIndex] === book.bookId
-        );
-    };
-
-    //get book
-    const fetchBooks = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching books: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookName(data.data);
-        } catch (error) {
-            console.error(error);
-            toast.error('Error fetching books. Please try again later.');
-        }
-    };
-
-    useEffect(() => {
-        fetchBooks();
-    }, []);
-
-
-    //add row under edit
-    const addRow = () => {
-        const newRow = {
-            bookIdF: {
-                bookId: null,
-                bookName: '',
-            },
-            bookQty: '',
-            bookRate: '',
-            bookAmount: ''
-        };
-        setSelectedPurchase(prevPurchase => ({
-            ...prevPurchase,
-            stockDetails: [...prevPurchase.stockDetails, newRow]
-        }));
-    };
-
-
-    //delete row under edit
-    const deleteRow = (index) => {
-        const updatedDetails = selectedPurchase.stockDetails.filter((_, i) => i !== index);
-        setSelectedPurchase(prevPurchase => ({
-            ...prevPurchase,
-            stockDetails: updatedDetails,
-            purchase: updatedDetails
-
-        }));
-    };
+    // view modal Update the formatDate function to format dates to dd-mm-yyyy format
+    // function formatDate(dateString) {
+    //     const [day, month, year] = dateString.split('-');
+    //     return `${day}-${month}-${year}`;
+    // }
 
     //view purchase
     const handleViewClick = (purchase) => {
         setSelectedPurchase(purchase);
         setViewPurchaseModal(true);
-        setDiscountPercentage(purchase.discountPercent);
-        setGstPercentage(purchase.gstPercent);
+        // setDiscountPercentage(purchase.discountPercent);
+        // setGstPercentage(purchase.gstPercent);
     };
+
+
+
+    
+    //edit functinality
+
+    //edit purchase
+    // const handleEditClick = (purchase) => {
+    //     const updatedPurchase = {
+    //         ...purchase,
+    //         purchaseDetails: purchase.purchaseDetails.filter(detail => !detail.deleted)
+    //     };
+    //     setSelectedPurchase(updatedPurchase);
+    //     setShowModal(true);
+    //     setDiscountPercentage(purchase.discountPercent || "");
+    //     setGstPercentage(purchase.gstPercent || "");
+    // };
+
+    // const handleEditClick = (purchase) => {
+    //     setSelectedPurchase(purchase);
+    //     setShowModal(true);
+    //     setDiscountPercentage(purchase.discountPercent || "");
+    //     setGstPercentage(purchase.gstPercent || "");
+    // };
+
+    // //edit api
+    // const handleEditPurchase = async (e) => {
+    //     const payload = {
+    //         invoiceNo: selectedPurchase.invoiceNo,
+    //         invoiceDate: selectedPurchase.invoiceDate,
+    //         billTotal: Number(selectedPurchase.billTotal),
+    //         discountPercent: discountPercentage,
+    //         discountAmount: parseFloat(selectedPurchase.discountAmount),
+    //         totalAfterDiscount: parseFloat(selectedPurchase.totalAfterDiscount),
+    //         gstPercent: gstPercentage,
+    //         gstAmount: parseFloat(selectedPurchase.gstAmount),
+    //         grandTotal: parseFloat(selectedPurchase.grandTotal),
+    //         ledgerId: selectedPurchase.ledgerId,
+    //         stockDetails: selectedPurchase.stockDetails.map(detail => ({
+    //             bookIdF: detail.bookId,
+    //             bookQty: parseInt(detail.bookQty),
+    //             bookRate: parseFloat(detail.bookRate),
+    //             bookAmount: parseFloat(detail.bookAmount)
+    //         }))
+    //     };
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/stock/${selectedPurchase.stockId}`, {
+    //             method: 'PUT',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             },
+    //             body: JSON.stringify(payload)
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`HTTP error! status: ${response.status}`);
+    //         }
+    //         const responseJson = await response.json();
+    //         console.log('Success:', responseJson);
+    //         toast.success('Purchase saved successfully.');
+    //         fetchPurchases();
+    //         setShowModal(false);
+    //     } catch (error) {
+    //         console.error('Error:', error);
+    //         toast.error('Error saving purchase. Please try again later.');
+    //     }
+    // };
+
+    // // Handle input changes in the edit modal, including book names and other fields
+    // const handleInputChange = (e, field, index) => {
+    //     let value = e.target.value;
+
+    //     if (field === 'invoiceDate') {
+    //         value = formatDateToISO(value);
+    //     }
+
+    //     if (index !== undefined) {
+    //         const updatedDetails = [...selectedPurchase.stockDetails];
+    //         if (field === 'bookQty' || field === 'bookRate') {
+    //             updatedDetails[index][field] = parseInt(value);
+    //             updatedDetails[index].bookAmount = updatedDetails[index].bookRate * updatedDetails[index].bookQty;
+    //         } else if (field === 'bookName') {
+    //             const selectedBook = bookName.find(book => book.bookName === value);
+    //             if (updatedDetails[index].bookIdF) {
+    //                 updatedDetails[index].bookIdF.bookId = selectedBook ? selectedBook.bookId : null;
+    //                 updatedDetails[index].bookIdF.bookName = value;
+    //             } else {
+    //                 updatedDetails[index].bookIdF = {
+    //                     bookId: selectedBook ? selectedBook.bookId : null,
+    //                     bookName: value
+    //                 };
+    //             }
+    //         } else {
+    //             updatedDetails[index][field] = value;
+    //         }
+    //         setSelectedPurchase(prevPurchase => ({
+    //             ...prevPurchase,
+    //             stockDetails: updatedDetails
+    //         }));
+    //     } else {
+    //         setSelectedPurchase(prevPurchase => ({
+    //             ...prevPurchase,
+    //             [field]: value
+    //         }));
+    //     }
+    // };
+
+    // const formatDateToISO = (dateString) => {
+    //     if (!dateString) return '';
+    //     const localDate = new Date(dateString);
+    //     const year = localDate.getFullYear();
+    //     const month = String(localDate.getMonth() + 1).padStart(2, '0');
+    //     const day = String(localDate.getDate()).padStart(2, '0');
+    //     return `${year}-${month}-${day}`;
+    // };
+
+    // // // claculation in float datatype
+    // // const formatNumber = (number) => {
+    // //     return parseFloat(number.toFixed(2)).toString();
+    // // };
+
+    // // Calculate the total bill amount
+    // const calculateBillTotal = (details) => {
+    //     let allTotal = 0;
+    //     details.forEach(detail => {
+    //         if (detail.bookQty && detail.bookRate) {
+    //             allTotal += parseFloat(detail.bookQty) * parseFloat(detail.bookRate);
+    //         }
+    //     });
+    //     return Math.floor(allTotal);
+    //     // return formatNumber(allTotal);
+    // };
+
+    // // Calculate the discount amount
+    // const calculateDiscount = (details) => {
+    //     if (discountPercentage === "") return "0.00";
+    //     const billTotal = parseFloat(calculateBillTotal(details));
+    //     const discountAmount = billTotal * (parseFloat(discountPercentage / 100));
+    //     return Math.floor(discountAmount);
+    //     // return formatNumber(discountAmount);
+    // };
+
+    // // Calculate the total after discount
+    // const calculateTotalAfterDiscount = (details) => {
+    //     const billTotal = parseFloat(calculateBillTotal(details));
+    //     const totalAfterDiscount = billTotal - parseFloat(calculateDiscount(details));
+    //     return Math.floor(totalAfterDiscount);
+    //     // return formatNumber(totalAfterDiscount);
+    // };
+
+    // // Calculate GST amount
+    // const calculateGst = (details) => {
+    //     if (gstPercentage === "") return "0.00";
+    //     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(details));
+    //     const gstAmount = totalAfterDiscount * (parseFloat(gstPercentage) / 100);
+    //     return Math.floor(gstAmount);
+    //     // return formatNumber(gstAmount);
+    // };
+
+    // // Calculate the grand total
+    // const calculateGrandTotal = (details) => {
+    //     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(details));
+    //     const grandTotal = totalAfterDiscount + parseFloat(calculateGst(details));
+    //     return Math.floor(grandTotal);
+    //     // return formatNumber(grandTotal);
+    // };
+
+    // //change discount and gst
+    // const handleDiscountChange = (e) => {
+    //     const value = e.target.value;
+    //     if (value === "") {
+    //         setDiscountPercentage("");
+    //     } else {
+    //         const numericValue = parseFloat(value);
+    //         if (!isNaN(numericValue)) {
+    //             setDiscountPercentage(numericValue);
+    //         }
+    //     }
+    //     recalculateValues();
+    // };
+
+    // const handleGstChange = (e) => {
+    //     const value = e.target.value;
+    //     if (value === "") {
+    //         setGstPercentage("");
+    //     } else {
+    //         const numericValue = parseFloat(value);
+    //         if (!isNaN(numericValue)) {
+    //             setGstPercentage(numericValue);
+    //         }
+    //     }
+    //     recalculateValues();
+    // };
+
+    // //recalculate value
+    // const recalculateValues = () => {
+    //     if (selectedPurchase) {
+    //         setSelectedPurchase(prevPurchase => ({
+    //             ...prevPurchase,
+    //             discountAmount: calculateDiscount(prevPurchase.stockDetails),
+    //             gstAmount: calculateGst(prevPurchase.stockDetails),
+    //             totalAfterDiscount: calculateTotalAfterDiscount(prevPurchase.stockDetails),
+    //             grandTotal: calculateGrandTotal(prevPurchase.stockDetails),
+    //             billTotal: calculateBillTotal(prevPurchase.stockDetails)
+    //         }));
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     recalculateValues();
+    // }, [discountPercentage, gstPercentage, selectedPurchase]);
+    // //end edit purchase
+
+
+
+    // // book edit under edit book name  change input dropdown
+    // const handleBookChangeForRow = (index, event) => {
+    //     const name = event.target.value;
+    //     const selectedBook = bookName.find(book => book.bookName === name);
+    //     const updatedRowBooks = [...rowBooks];
+
+    //     if (selectedBook) {
+    //         updatedRowBooks[index] = { ...updatedRowBooks[index], bookId: selectedBook.bookId };
+    //         updatedRowBooks[index].bookName = name;
+    //     } else {
+    //         updatedRowBooks[index] = { ...updatedRowBooks[index], bookId: null };
+    //         updatedRowBooks[index].bookName = name;
+    //     }
+    //     setRowBooks(updatedRowBooks);
+    // };
+
+    // // Filtered book names based on selectedBooks
+    // const filteredBookNamesForRow = (rowIndex) => {
+    //     return bookName.filter(book =>
+    //         !selectedBooks.includes(book.bookId) ||
+    //         selectedBooks[rowIndex] === book.bookId
+    //     );
+    // };
+
+
+    // //add row under edit
+    // const addRow = () => {
+    //     const newRow = {
+    //         bookIdF: {
+    //             bookId: null,
+    //             bookName: '',
+    //         },
+    //         bookQty: '',
+    //         bookRate: '',
+    //         bookAmount: ''
+    //     };
+    //     setSelectedPurchase(prevPurchase => ({
+    //         ...prevPurchase,
+    //         stockDetails: [...prevPurchase.stockDetails, newRow]
+    //     }));
+    // };
+
+    // //delete row under edit
+    // const deleteRow = (index) => {
+    //     const updatedDetails = selectedPurchase.stockDetails.filter((_, i) => i !== index);
+    //     setSelectedPurchase(prevPurchase => ({
+    //         ...prevPurchase,
+    //         stockDetails: updatedDetails,
+    //         purchase: updatedDetails
+
+    //     }));
+    // };
+
+    // useEffect(() => {
+    //     fetchBooks();
+    // }, []);
+
+    // //get book
+    // const fetchBooks = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/auth/book`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching books: ${response.statusText}`);
+    //         }
+    //         const data = await response.json();
+    //         setBookName(data.data);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Error fetching books. Please try again later.');
+    //     }
+    // };
 
 
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(purchases.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -427,24 +446,26 @@ const ViewPurchase = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = purchases.slice(indexOfNumber, indexOfLastBookType);
-
-    // Update the formatDate function to format dates to dd-mm-yyyy format
-    function formatDate(dateString) {
-        const [day, month, year] = dateString.split('-');
-        return `${day}-${month}-${year}`;
-    }
-
+    const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
                 {!showAddPurchase && (
                     <div className='mt-2'>
-                        <div className='mt-1'>
+                        <div className='mt-1 d-flex justify-content-between'>
                             <Button onClick={() => setShowAddPurchase(true)} className="button-color">
                                 Add purchase
                             </Button>
+                            <div className="d-flex">
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Search Purchaser Name"
+                                    value={dataQuery}
+                                    onChange={(e) => setDataQuery(e.target.value)}
+                                    className="me-2 border border-success"
+                                />
+                            </div>
                         </div>
                         <div className="table-responsive table-height mt-4">
                             <Table striped bordered hover>
@@ -493,7 +514,7 @@ const ViewPurchase = () => {
             </Container>
 
             {/* Edit Purchase Modal */}
-            {selectedPurchase && (
+            {/* {selectedPurchase && (
                 <Modal show={showModal} onHide={handleCloseModal} centered size='xl'>
                     <div className="bg-light">
                         <Modal.Header closeButton>
@@ -517,7 +538,6 @@ const ViewPurchase = () => {
                                         <Form.Control
                                             type="date"
                                             value={selectedPurchase.invoiceDate || ''}
-                                            // value={selectedPurchase.invoiceDate ? selectedPurchase.invoiceDate.substring(0, 10) : ''}
                                             onChange={(e) => handleInputChange(e, 'invoiceDate')}
                                             className="custom-date-picker small-input"
                                         />
@@ -526,7 +546,6 @@ const ViewPurchase = () => {
                                         <Form.Label>Purchaser Name</Form.Label>
                                         <Form.Control
                                             readOnly
-                                            // value={selectedPurchase.ledgerIDF.ledgerName || ''}
                                             value={selectedPurchase.ledgerIDF ? selectedPurchase.ledgerIDF.ledgerName : 'N/A'}
                                         >
                                         </Form.Control>
@@ -546,15 +565,9 @@ const ViewPurchase = () => {
                                         </thead>
                                         <tbody>
                                             {selectedPurchase.stockDetails.map((detail, index) => (
-
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
-                                                        {/* <Form.Control
-                                                        type="text"
-                                                        value={detail.bookName}
-                                                        onChange={(e) => handleInputChange(e, 'bookName', index)}
-                                                    /> */}
                                                         <Form.Group >
                                                             <Form.Control
                                                                 as="input"
@@ -584,7 +597,6 @@ const ViewPurchase = () => {
                                                             onChange={(e) => handleInputChange(e, 'bookRate', index)}
                                                         />
                                                     </td>
-                                                    {/* <td className="amount-align">{!isNaN(detail.amount) ? detail.amount : ''}</td> */}
                                                     <td className="amount-align">
                                                         {!isNaN(detail.bookAmount) ? Number(detail.bookAmount).toFixed(2) : ''}
                                                     </td>
@@ -687,7 +699,7 @@ const ViewPurchase = () => {
                         </Modal.Footer>
                     </div>
                 </Modal>
-            )}
+            )} */}
 
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteConfirmation} onHide={handleDeleteCancel} centered>
@@ -730,7 +742,7 @@ const ViewPurchase = () => {
                                         <Form.Label>Invoice Date</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={formatDate(selectedPurchase.invoiceDate)}
+                                            value={(selectedPurchase.invoiceDate)}
                                             readOnly
                                         />
                                     </Form.Group>

@@ -206,7 +206,7 @@ const BookPublication = () => {
                     <div className="d-flex">
                         <Form.Control
                             type="text"
-                            placeholder="Search by Publication Name"
+                            placeholder="Search Publication Name"
                             value={dataQuery}
                             onChange={(e) => setDataQuery(e.target.value)}
                             className="me-2 border border-success"
