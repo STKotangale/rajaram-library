@@ -232,21 +232,13 @@ const BookDetailsTable = () => {
                                         // onChange={(e) => handleBookTypeChange(e)}
                                         />
                                     </Form.Group>
-                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="bookTYPE">
-                                        <Form.Label>Book Type</Form.Label>
-                                        <Form.Select
-                                            as="select"
-                                            name="bookTypeOption"
-                                            value={selectedBookType}
-                                            onChange={(e) => handleBookTypeChange(e)}
-                                        >
-                                            <option value="">Select Book Type</option>
-                                            {bookTypes.map((bookType, index) => (
-                                                <option key={index} value={bookType.bookTypeName}>
-                                                    {bookType.bookTypeName}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
+                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
+                                        <Form.Label>Item Type</Form.Label>
+                                        <Form.Control
+                                            type="text"
+                                            value={selectedBook?.itemType || ''}
+                                            onChange={(e) => setSelectedBook({ ...selectedBook, itemType: e.target.value })}
+                                        />
                                     </Form.Group>
                                 </Row>
 
@@ -461,14 +453,7 @@ const BookDetailsTable = () => {
                                             onChange={(e) => setSelectedBook({ ...selectedBook, copyNo: e.target.value })}
                                         />
                                     </Form.Group>
-                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
-                                        <Form.Label>Item Type</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={selectedBook?.itemType || ''}
-                                            onChange={(e) => setSelectedBook({ ...selectedBook, itemType: e.target.value })}
-                                        />
-                                    </Form.Group>
+                                    
                                 </Row>
 
 

@@ -79,10 +79,14 @@ const Dashboard = () => {
                     onChange={handleUsernameChange}
                 >
                     <option value="">Select a username</option>
+                    {
+                        console.log("userName:",bookIssue)
+                    }
                     {bookIssue.map(username => (
                         <option key={username.username} value={username.username}>
                             {username.username}
                         </option>
+            
                     ))}
                 </Form.Control>
             </Form.Group>
