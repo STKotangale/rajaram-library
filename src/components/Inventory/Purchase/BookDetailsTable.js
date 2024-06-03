@@ -174,7 +174,7 @@ const BookDetailsTable = () => {
                                 <tr>
                                     <th>Sr.No.</th>
                                     <th>Book Name</th>
-                                    <th>Purchase Copy No.</th>
+                                    <th>Accession No</th>
                                     <th>Rate</th>
                                     <th>Status</th>
                                     <th>Update</th>
@@ -185,7 +185,7 @@ const BookDetailsTable = () => {
                                     <tr key={book.bookDetailId}>
                                         <td>{indexOfNumber + index + 1}</td>
                                         <td>{book.bookName}</td>
-                                        <td>{book.purchaseCopyNo}</td>
+                                        <td>{book.accessionNo}</td>
                                         <td>{book.book_rate}</td>
                                         <td>{book.status === 1 ? 'Updated' : 'Not Updated'}</td>
                                         <td>
