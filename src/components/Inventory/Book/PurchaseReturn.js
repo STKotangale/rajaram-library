@@ -432,7 +432,7 @@ const PurchaseReturn = () => {
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
-                                            <th className="table-header purchase-copy-size">Purchase Copy No.</th>
+                                            <th className="table-header purchase-copy-size">Accession No.</th>
                                             <th className="table-header amount-size amount-align">Amount</th>
                                             <th>Actions</th>
                                         </tr>
@@ -461,10 +461,10 @@ const PurchaseReturn = () => {
                                                         value={row.purchaseCopyNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
-                                                        <option value="">Select a copy no</option>
+                                                        <option value="">Select accession no</option>
                                                         {row.details && row.details.map(detail => (
                                                             <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                {detail.purchaseCopyNo}
+                                                                {detail.accessionNo}
                                                             </option>
                                                         ))}
                                                     </Form.Control>
@@ -611,7 +611,7 @@ const PurchaseReturn = () => {
                                             <tr>
                                                 <th className='sr-size'>Sr. No.</th>
                                                 <th>Book Name</th>
-                                                <th className="table-header purchase-copy-size">Purchase Copy No.</th>
+                                                <th className="table-header purchase-copy-size">Accession No.</th>
                                                 <th className="table-header amount-size amount-align">Amount</th>
                                             </tr>
                                         </thead>
@@ -631,7 +631,7 @@ const PurchaseReturn = () => {
                                                         <Form.Control
                                                             type="text"
                                                             className="small-input"
-                                                            value={row.purchaseCopyNo}
+                                                            value={row.accessionNo}
                                                             readOnly
                                                         />
                                                     </td>

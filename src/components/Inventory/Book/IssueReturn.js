@@ -93,7 +93,7 @@ const IssueReturn = () => {
                     bookId: item.bookId,
                     bookDetailId: item.bookDetailId,
                     bookName: item.bookName,
-                    purchaseCopyNo: item.purchaseCopyNo
+                    accessionNo: item.accessionNo
                 }));
                 setRows(bookRows);
             } catch (error) {
@@ -334,7 +334,7 @@ const IssueReturn = () => {
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
-                                            <th>Purchase Copy No</th>
+                                            <th>Accession No</th>
                                             <th>Select Issue Return</th>
                                         </tr>
                                     </thead>
@@ -343,7 +343,7 @@ const IssueReturn = () => {
                                             <tr key={index} className={selectedRows.includes(row) ? 'selected-row' : ''}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>{row.bookName}</td>
-                                                <td>{row.purchaseCopyNo}</td>
+                                                <td>{row.accessionNo}</td>
                                                 <td>
                                                     <input
                                                         type="checkbox"
@@ -429,7 +429,7 @@ const IssueReturn = () => {
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
-                                            <th>Purchase Copy No</th>
+                                            <th>Accession No</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -437,7 +437,7 @@ const IssueReturn = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>{detail.bookName}</td>
-                                                <td>{detail.purchaseCopyNo}</td>
+                                                <td>{detail.accessionNo}</td>
                                             </tr>
                                         ))}
                                     </tbody>
