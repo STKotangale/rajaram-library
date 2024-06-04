@@ -9,6 +9,18 @@ import { ChevronLeft, ChevronRight, PencilSquare } from 'react-bootstrap-icons';
 import '../InventoryCSS/PurchaseBookDashboardData.css'
 
 const BookDetailsTable = () => {
+
+    const [filtered, setFiltered] = useState([]);
+    const [bookNameQuery, setBookNameQuery] = useState("");
+    const [purchaseCopyNoQuery, setPurchaseCopyNoQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(bookDetails.filter(member =>
+            member.bookName.toLowerCase().includes(bookNameQuery.toLowerCase()) &&
+            member.purchaseCopyNo.toLowerCase().includes(purchaseCopyNoQuery.toLowerCase())
+        ));
+    }, [bookNameQuery, purchaseCopyNoQuery]);
+
     //get book purchase
     const [bookDetails, setBookDetails] = useState([]);
     //update book details
@@ -34,6 +46,7 @@ const BookDetailsTable = () => {
             }
             const data = await response.json();
             setBookDetails(data);
+            setFiltered(data);
         } catch (error) {
             console.error('Error fetching book details:', error);
         }
@@ -138,7 +151,7 @@ const BookDetailsTable = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(bookDetails.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -159,7 +172,7 @@ const BookDetailsTable = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = bookDetails.slice(indexOfNumber, indexOfLastBookType);
+    const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
 
 
     return (
@@ -168,6 +181,23 @@ const BookDetailsTable = () => {
             <Container className='small-screen-table'>
 
                 <div className='mt-3 table-container-general-member-1'>
+
+                    <div className="d-flex">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Book Name"
+                            value={bookNameQuery}
+                            onChange={(e) => setBookNameQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                        <Form.Control
+                            type="text"
+                            placeholder="Search by Purchase Copy No"
+                            value={purchaseCopyNoQuery}
+                            onChange={(e) => setPurchaseCopyNoQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                    </div>
                     <div className="table-responsive table-height-book-details mt-4">
                         <Table striped bordered hover>
                             <thead>
@@ -453,7 +483,7 @@ const BookDetailsTable = () => {
                                 </Row>
 
                                 <Row className="mb-3">
-                                <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
+                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="itemType">
                                         <Form.Label>Copy No</Form.Label>
                                         <Form.Control
                                             type="text"

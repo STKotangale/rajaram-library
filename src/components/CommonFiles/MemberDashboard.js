@@ -13,6 +13,7 @@ import logoImage from '../../assets/rajalib.png';
 
 import { useRef } from 'react';
 import Dashboard from '../Member/Dashboard';
+import BookList from '../Member/BookList';
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
@@ -20,6 +21,7 @@ const MemberDashboard = () => {
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     const [selectedItemName, setSelectedItemName] = useState('');
+
     const [viewDashboard, setViewDashboard] = useState(true);
     const [memberDateWise, setMemberDateWise] = useState(false);
 
@@ -31,7 +33,7 @@ const MemberDashboard = () => {
     });
 
     const { username, accessToken, userId, logout } = useAuth();
-    
+
     // get username and access token
     useEffect(() => {
 
@@ -129,8 +131,8 @@ const MemberDashboard = () => {
                                 <ListGroup.Item className="sub-icon" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
                                     <HouseDoorFill className="icon" /> Home
                                 </ListGroup.Item>
-                                <ListGroup.Item className="home-icon" action >
-                                    <BookFill className="icon-member" action onClick={() => { handleBookListClick(); setShowSidebar(false);}} /> Book List
+                                <ListGroup.Item className="sub-icon" action onClick={() => { handleBookListClick(); setShowSidebar(false); }} >
+                                    <BookFill className="icon-member"/> Book List
                                 </ListGroup.Item>
                             </Col>
                         </ListGroup>
@@ -169,7 +171,7 @@ const MemberDashboard = () => {
                 </Navbar>
                 <Container fluid className=" d-flex flex-column justify-content-between main-member-content">
                     {viewDashboard && <Dashboard />}
-                    {/* {memberDateWise && < />} */}
+                    {memberDateWise && <BookList />}
                 </Container>
                 {/* <Footer /> */}
             </div>

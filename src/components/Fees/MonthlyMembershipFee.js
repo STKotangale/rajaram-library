@@ -122,6 +122,7 @@ const MonthlyMembershipFee = () => {
         }
     };
 
+    
     const calculateTotalDaysAndFee = (fromDate, toDate) => {
         const from = new Date(fromDate);
         const to = new Date(toDate);
@@ -259,6 +260,7 @@ const MonthlyMembershipFee = () => {
         calculateTotalDaysAndFee(parseDateFromDDMMYYYY(issueItem.fromDate), parseDateFromDDMMYYYY(issueItem.toDate));
     };
 
+    
     const handleDeleteClick = (memberMonthlyId) => {
         setSelectedIssueId(memberMonthlyId);
         setShowDeleteModal(true);
@@ -315,8 +317,12 @@ const MonthlyMembershipFee = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
+                                    <th>Member Name</th>
                                     <th>Invoice No</th>
                                     <th>Invoice Date</th>
+                                    <th>From Date</th>
+                                    <th>To Date</th>
+                                    <th>Total</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -324,8 +330,12 @@ const MonthlyMembershipFee = () => {
                                 {monthlyMembershipData.map((issueItem, index) => (
                                     <tr key={issueItem.memberMonthlyId}>
                                         <td>{index + 1}</td>
+                                        <td>{issueItem.memberName}</td>
                                         <td>{issueItem.memMonInvoiceNo}</td>
                                         <td>{(issueItem.memMonInvoiceDate)}</td>
+                                        <td>{(issueItem.fromDate)}</td>
+                                        <td>{(issueItem.toDate)}</td>
+                                        <td>{issueItem.feesAmount.toFixed(2)}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(issueItem)}>Edit</PencilSquare>
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem.memberMonthlyId)} />
