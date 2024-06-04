@@ -6,6 +6,16 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
+
+// Utility function to convert date to dd-mm-yyyy format
+const formatDateToDDMMYYYY = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
 const BookLost = () => {
     //get  book lost
     const [bookLost, setBookLost] = useState([]);
@@ -177,6 +187,8 @@ const BookLost = () => {
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
+        
+        const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -191,7 +203,7 @@ const BookLost = () => {
 
         const payload = {
             invoiceNO: invoiceNumber,
-            invoiceDate: invoiceDate,
+            invoiceDate: formattedFromDate,
             ledgerId: Number(selectedPurchaserId),
             billTotal: billTotal,
             grandTotal: grandTotal,
@@ -386,7 +398,7 @@ const BookLost = () => {
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
-                                            <th className="table-header purchase-copy-size">Purchase Copy No.</th>
+                                            <th className="table-header purchase-copy-size">Accession No.</th>
                                             <th className="table-header amount-size amount-align">Amount</th>
                                             <th>Actions</th>
                                         </tr>
@@ -415,10 +427,10 @@ const BookLost = () => {
                                                         value={row.purchaseCopyNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
-                                                        <option value="">Select a copy no</option>
+                                                        <option value="">Select accession no</option>
                                                         {row.details && row.details.map(detail => (
                                                             <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                {detail.purchaseCopyNo}
+                                                                {detail.accessionNo}
                                                             </option>
                                                         ))}
                                                     </Form.Control>
@@ -565,7 +577,7 @@ const BookLost = () => {
                                             <tr>
                                                 <th className='sr-size'>Sr. No.</th>
                                                 <th>Book Name</th>
-                                                <th className="table-header purchase-copy-size">Purchase Copy No.</th>
+                                                <th className="table-header purchase-copy-size">Accession No.</th>
                                                 <th className="table-header amount-size amount-align">Amount</th>
                                             </tr>
                                         </thead>
@@ -585,7 +597,7 @@ const BookLost = () => {
                                                         <Form.Control
                                                             type="text"
                                                             className="small-input"
-                                                            value={row.purchaseCopyNo}
+                                                            value={row.accessionNo}
                                                             readOnly
                                                         />
                                                     </td>

@@ -14,6 +14,7 @@ import logoImage from '../../assets/rajalib.png';
 import { useRef } from 'react';
 import Dashboard from '../Member/Dashboard';
 import BookList from '../Member/BookList';
+import OnlineBooking from '../Member/OnlineBooking';
 
 const MemberDashboard = () => {
     const navigate = useNavigate();
@@ -24,6 +25,8 @@ const MemberDashboard = () => {
 
     const [viewDashboard, setViewDashboard] = useState(true);
     const [memberDateWise, setMemberDateWise] = useState(false);
+    const [onlineBooking, setOnlineBooking] = useState(false);
+
 
     // change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -57,12 +60,22 @@ const MemberDashboard = () => {
         setViewDashboard(true);
         setSelectedItemName('Home');
         setMemberDateWise(false);
+        setOnlineBooking(false);
     };
 
     const handleBookListClick = () => {
         setMemberDateWise(true);
         setSelectedItemName('Book List');
         setViewDashboard(false);
+        setOnlineBooking(false);
+    };
+
+
+    const handleOnlineBookingClick = () => {
+        setOnlineBooking(true);
+        setSelectedItemName('Online Booking');
+        setViewDashboard(false);
+        setMemberDateWise(false);
     };
 
     // change password
@@ -134,6 +147,9 @@ const MemberDashboard = () => {
                                 <ListGroup.Item className="sub-icon" action onClick={() => { handleBookListClick(); setShowSidebar(false); }} >
                                     <BookFill className="icon-member"/> Book List
                                 </ListGroup.Item>
+                                <ListGroup.Item className="sub-icon" action onClick={() => { handleOnlineBookingClick(); setShowSidebar(false); }} >
+                                    <BookFill className="icon-member"/> Online Booking
+                                </ListGroup.Item>
                             </Col>
                         </ListGroup>
                     </div>
@@ -172,6 +188,8 @@ const MemberDashboard = () => {
                 <Container fluid className=" d-flex flex-column justify-content-between main-member-content">
                     {viewDashboard && <Dashboard />}
                     {memberDateWise && <BookList />}
+                    {onlineBooking && <OnlineBooking />}
+
                 </Container>
                 {/* <Footer /> */}
             </div>

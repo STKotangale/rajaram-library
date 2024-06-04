@@ -6,6 +6,16 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
+
+// Utility function to convert date to dd-mm-yyyy format
+const formatDateToDDMMYYYY = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
 const PurchaseReturn = () => {
     //get purchase return
     const [purchaseReturn, setPurchaseReturn] = useState([]);
@@ -60,8 +70,6 @@ const PurchaseReturn = () => {
             toast.error('Error fetching purchase return. Please try again later.');
         }
     };
-
-
 
     //get purchaser name
     const fetchPurchaserName = async () => {
@@ -183,6 +191,8 @@ const PurchaseReturn = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
+
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
             .map(row => ({
@@ -196,7 +206,7 @@ const PurchaseReturn = () => {
 
         const payload = {
             invoiceNO: invoiceNumber,
-            invoiceDate: invoiceDate,
+            invoiceDate: formattedFromDate,
             ledgerId: Number(selectedPurchaserId),
             billTotal: billTotal,
             grandTotal: grandTotal,
@@ -264,9 +274,6 @@ const PurchaseReturn = () => {
             return result;
         }, {});
     };
-
-
-
 
     //delete
     const handleDelete = (stockId) => {
