@@ -61,6 +61,8 @@ const PurchaseReturn = () => {
         }
     };
 
+
+
     //get purchaser name
     const fetchPurchaserName = async () => {
         try {
@@ -199,9 +201,9 @@ const PurchaseReturn = () => {
             billTotal: billTotal,
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
-            discountAmount:calculateDiscountAmount(),
+            discountAmount: calculateDiscountAmount(),
             gstPercent: parseFloat(gstPercent) || 0,
-            gstAmount:calculateGstAmount(),
+            gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
             bookDetails: bookDetailsPayload
         };
@@ -237,8 +239,8 @@ const PurchaseReturn = () => {
     const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
 
 
-      //show discount price
-      const calculateDiscountAmount = () => {
+    //show discount price
+    const calculateDiscountAmount = () => {
         const billTotal = calculateBillTotal();
         const discountAmount = billTotal * (discountPercent / 100);
         return Math.floor(discountAmount);
@@ -254,10 +256,15 @@ const PurchaseReturn = () => {
     //show table in stock_id
     const groupBy = (array, key) => {
         return array.reduce((result, currentValue) => {
-            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
+            const groupKey = currentValue[key];
+            if (!result[groupKey]) {
+                result[groupKey] = [];
+            }
+            result[groupKey].push(currentValue);
             return result;
         }, {});
     };
+
 
 
 
@@ -345,12 +352,12 @@ const PurchaseReturn = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map(({items,stock_id }, index) => (
-                                    <tr key={stock_id}>
+                                {currentData.map(({ value: items, key: stock_id }, index) => (
+                                    <tr key={stock_id || index}>
                                         <td>{index + 1}</td>
-                                        <td>{items[0].ledgerName}</td>
-                                        <td>{items[0].invoiceNo}</td>
-                                        <td>{items[0].invoiceDate}</td>
+                                        <td>{items[0]?.ledgerName || 'N/A'}</td>
+                                        <td>{items[0]?.invoiceNo || 'N/A'}</td>
+                                        <td>{items[0]?.invoiceDate || 'N/A'}</td>
                                         <td>
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(items)} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
@@ -358,6 +365,7 @@ const PurchaseReturn = () => {
                                     </tr>
                                 ))}
                             </tbody>
+
                         </Table>
                     </div>
                     <div className="pagination-container">

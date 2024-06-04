@@ -4,9 +4,18 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { Button, Col, Container, Form, Row, Table } from 'react-bootstrap';
 
+// Utility function to convert date to dd-mm-yyyy format
+const formatDateToDDMMYYYY = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
 const BookList = () => {
     // auth
-    const { accessToken, username } = useAuth();
+    const { accessToken, userId } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     // state
@@ -17,6 +26,11 @@ const BookList = () => {
     // handle submit
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Convert dates to dd-mm-yyyy format
+        const formattedFromDate = formatDateToDDMMYYYY(fromDate);
+        const formattedToDate = formatDateToDDMMYYYY(toDate);
+
         try {
             const response = await fetch(`${BaseURL}/api/general-members/bookIssueDetails`, {
                 method: 'POST',
@@ -25,16 +39,23 @@ const BookList = () => {
                     'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify({
-                    username,
-                    startDate: fromDate,
-                    endDate: toDate
+                    userId,
+                    startDate: formattedFromDate,
+                    endDate: formattedToDate
                 })
             });
             if (!response.ok) {
                 throw new Error(`Error submitting data: ${response.statusText}`);
             }
             const result = await response.json();
-            setBookData(result);  
+            // Format dates in the response to dd-mm-yyyy
+            const formattedResult = result.map(book => ({
+                ...book,
+                issueDate: formatDateToDDMMYYYY(book.issueDate),
+                returnDate: formatDateToDDMMYYYY(book.returnDate),
+                confirmDate: formatDateToDDMMYYYY(book.confirmDate)
+            }));
+            setBookData(formattedResult);
             toast.success('Data submitted successfully');
         } catch (error) {
             console.error(error);
@@ -79,6 +100,8 @@ const BookList = () => {
                                     <th>Copy No.</th>
                                     <th>Issue Date</th>
                                     <th>Return Date</th>
+                                    <th>Confirm Return Date </th>
+                                    <th>Fine Amount</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -89,6 +112,8 @@ const BookList = () => {
                                         <td>{book.purchaseCopyNo}</td>
                                         <td>{book.issueDate}</td>
                                         <td>{book.returnDate}</td>
+                                        <td>{book.confirmDate}</td>
+                                        <td>{book.fineAmount}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -12,7 +12,7 @@ const BookIssue = () => {
     const [selectedMemberId, setSelectedMemberId] = useState("");
     const [bookDetails, setBookDetails] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '' })));
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
     const [issueNumber, setIssueNumber] = useState('');
     const [issueDate, setIssueDate] = useState('');
     const [showViewModal, setShowViewModal] = useState(false);
@@ -93,19 +93,19 @@ const BookIssue = () => {
             ...updatedRows[index],
             bookId: selectedBookId,
             bookName: selectedBook ? selectedBook.bookName : '',
-            purchaseCopyNo: ''
+            accessionNo: ''
         };
         setRows(updatedRows);
     };
 
     const handleBookDetailsChangeForRow = (index, event) => {
         const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], purchaseCopyNo: event.target.value };
+        updatedRows[index] = { ...updatedRows[index], accessionNo: event.target.value };
         setRows(updatedRows);
     };
 
     const addRowAdd = () => {
-        setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '' }]);
+        setRows([...rows, { bookId: '', bookName: '', accessionNo: '' }]);
     };
 
     const deleteRowAdd = (index) => {
@@ -180,9 +180,14 @@ const BookIssue = () => {
         setIssueNumber('');
         setIssueDate('');
         setSelectedMemberId('');
-        setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '' })));
+        setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
         setMembershipChecked(false);
+    };
+
+       // Function to calculate the quantity
+       const calculateQuantity = () => {
+        return rows.filter(row => row.bookId && row.accessionNo).length;
     };
 
     const handleSubmit = async (event) => {
@@ -194,19 +199,21 @@ const BookIssue = () => {
         }
 
         const bookDetailsPayload = rows
-            .filter(row => row.bookId && row.purchaseCopyNo)
+            .filter(row => row.bookId && row.accessionNo)
             .map(row => ({
                 bookId: Number(row.bookId),
-                bookdetailId: Number(row.purchaseCopyNo)
+                bookdetailId: Number(row.accessionNo)
             }));
 
         const formattedDate = formatDateForPayload(issueDate);
+        const quantity = calculateQuantity();
 
         const payload = {
             invoiceNo: issueNumber,
             invoiceDate: formattedDate,
             generalMemberId: selectedMemberId,
-            bookDetails: bookDetailsPayload
+            bookDetails: bookDetailsPayload,
+            qty: quantity,
         };
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-issue`, {
@@ -403,7 +410,7 @@ const BookIssue = () => {
                                             <tr>
                                                 <th className='sr-size'>Sr. No.</th>
                                                 <th>Book Name</th>
-                                                <th>Purchase Copy No</th>
+                                                <th>Accession No</th>
                                                 <th>Actions</th>
                                             </tr>
                                         </thead>
@@ -430,13 +437,13 @@ const BookIssue = () => {
                                                     <td>
                                                         <Form.Control
                                                             as="select"
-                                                            value={row.purchaseCopyNo}
+                                                            value={row.accessionNo}
                                                             onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                         >
                                                             <option value="">Select Book Details</option>
                                                             {bookDetails.find(book => book.bookId === Number(row.bookId))?.copyDetails.map((detail) => (
                                                                 <option key={detail.bookDetailId} value={detail.bookDetailId}>
-                                                                    {detail.purchaseCopyNo}
+                                                                    {detail.accessionNo}
                                                                 </option>
                                                             ))}
                                                         </Form.Control>
@@ -516,7 +523,7 @@ const BookIssue = () => {
                                             <tr>
                                                 <th className='sr-size'>Sr. No. </th>
                                                 <th>Book Name</th>
-                                                <th>Purchase Copy No</th>
+                                                <th>Accession No</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -535,7 +542,7 @@ const BookIssue = () => {
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={detail.purchaseCopyNo}
+                                                            value={detail.AccessionNo}
                                                             disabled
                                                         />
                                                     </td>

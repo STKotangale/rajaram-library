@@ -24,36 +24,65 @@ const LoginPage = () => {
 
 
 
-  //login api
+  // //login api
+  // const handleLogin = async (e) => {
+  //   e.preventDefault();
+  //   try {
+  //     const response = await fetch(`${BaseURL}/api/auth/signin`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ username, password })
+  //     });
+  //     if (!response.ok) {
+  //       throw new Error('Login failed');
+  //     }
+  //     const data = await response.json();
+  //     const userRole = data.roles[0];
+  //     if (userRole === 'ADMIN') {
+  //       login(data.username, data.accessToken, data.id);
+  //       toast.success("Login successful!");
+  //       navigate('/admindashboard');
+  //     } else if (userRole === 'MEMBER') {
+  //       login(data.username, data.accessToken, data.id);
+  //       toast.success("Login successful!");
+  //       navigate('/memberdashboard');
+  //     } else {
+  //       throw new Error('Invalid role');
+  //     }
+  //   } catch (error) {
+  //     console.error("Login error:", error);
+  //     toast.error(error.message);
+  //   }
+  // };
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(`${BaseURL}/api/auth/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
       });
       if (!response.ok) {
         throw new Error('Login failed');
       }
       const data = await response.json();
       const userRole = data.roles[0];
+      login(data.username, data.accessToken, data.id); 
+      toast.success('Login successful!');
       if (userRole === 'ADMIN') {
-        login(data.username, data.accessToken, data.id);
-        toast.success("Login successful!");
         navigate('/admindashboard');
       } else if (userRole === 'MEMBER') {
-        login(data.username, data.accessToken, data.id);
-        toast.success("Login successful!");
         navigate('/memberdashboard');
       } else {
         throw new Error('Invalid role');
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error('Login error:', error);
       toast.error(error.message);
     }
   };
+  
 
 
   return (
