@@ -4,15 +4,6 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../components/Auth/AuthProvider';
 import { Button, Col, Container, Form, Row, Table } from 'react-bootstrap';
 
-// Utility function to convert date to dd-mm-yyyy format
-const formatDateToDDMMYYYY = (dateStr) => {
-    const date = new Date(dateStr);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-};
-
 const BookList = () => {
     // auth
     const { accessToken, userId } = useAuth();
@@ -27,9 +18,10 @@ const BookList = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Convert dates to dd-mm-yyyy format
-        const formattedFromDate = formatDateToDDMMYYYY(fromDate);
-        const formattedToDate = formatDateToDDMMYYYY(toDate);
+        if (!fromDate || !toDate) {
+            toast.error('Please select both From Date and To Date.');
+            return;
+        }
 
         try {
             const response = await fetch(`${BaseURL}/api/general-members/bookIssueDetails`, {
@@ -40,23 +32,20 @@ const BookList = () => {
                 },
                 body: JSON.stringify({
                     userId,
-                    startDate: formattedFromDate,
-                    endDate: formattedToDate
+                    startDate: fromDate,
+                    endDate: toDate
                 })
             });
             if (!response.ok) {
                 throw new Error(`Error submitting data: ${response.statusText}`);
             }
             const result = await response.json();
-            // Format dates in the response to dd-mm-yyyy
-            const formattedResult = result.map(book => ({
-                ...book,
-                issueDate: formatDateToDDMMYYYY(book.issueDate),
-                returnDate: formatDateToDDMMYYYY(book.returnDate),
-                confirmDate: formatDateToDDMMYYYY(book.confirmDate)
-            }));
-            setBookData(formattedResult);
+            setBookData(result);
             toast.success('Data submitted successfully');
+
+            // // Reset date fields after successful submission
+            // setFromDate('');
+            // setToDate('');
         } catch (error) {
             console.error(error);
             toast.error('Error submitting data. Please try again later.');
@@ -66,8 +55,8 @@ const BookList = () => {
     return (
         <div className="main-content">
             <Form onSubmit={handleSubmit}>
-                <Row className="mb-3">
-                    <Form.Group as={Col}>
+                <Row className="mt-4">
+                    <Form.Group as={Col} lg={3}>
                         <Form.Label>From Date</Form.Label>
                         <Form.Control
                             type="date"
@@ -76,7 +65,7 @@ const BookList = () => {
                             onChange={(e) => setFromDate(e.target.value)}
                         />
                     </Form.Group>
-                    <Form.Group as={Col}>
+                    <Form.Group as={Col} lg={3}>
                         <Form.Label>To Date</Form.Label>
                         <Form.Control
                             type="date"
@@ -86,11 +75,13 @@ const BookList = () => {
                         />
                     </Form.Group>
                 </Row>
-                <Button type="submit" className="mb-3">Submit</Button>
+                <div className=''>
+                    <Button type="submit" className="mt-3 button-color">Submit</Button>
+                </div>
             </Form>
 
             <Container className='small-screen-table'>
-                <div className='mt-3'>
+                <div className='mt-4'>
                     <div className="table-responsive table-height">
                         <Table striped bordered hover>
                             <thead>

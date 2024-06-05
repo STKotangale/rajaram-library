@@ -19,6 +19,7 @@ const IssueReturn = () => {
     const [selectedRows, setSelectedRows] = useState([]);
     const [issueReturnToDelete, setIssueReturnToDelete] = useState(null);
     const [selectedDetail, setSelectedDetail] = useState(null);
+    const [errorMessage, setErrorMessage] = useState('');
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -77,6 +78,7 @@ const IssueReturn = () => {
     const handleMemberNameSelect = async (e) => {
         const username = e.target.value;
         setSelectedUsername(username);
+        setErrorMessage('');
 
         if (username) {
             try {
@@ -89,13 +91,17 @@ const IssueReturn = () => {
                     throw new Error(`Error fetching issue details: ${response.statusText}`);
                 }
                 const data = await response.json();
-                const bookRows = data.map(item => ({
-                    bookId: item.bookId,
-                    bookDetailId: item.bookDetailId,
-                    bookName: item.bookName,
-                    accessionNo: item.accessionNo
-                }));
-                setRows(bookRows);
+                if (data.length === 0) {
+                    setErrorMessage('This username has no issue details or does not exist.');
+                } else {
+                    const bookRows = data.map(item => ({
+                        bookId: item.bookId,
+                        bookDetailId: item.bookDetailId,
+                        bookName: item.bookName,
+                        accessionNo: item.accessionNo
+                    }));
+                    setRows(bookRows);
+                }
             } catch (error) {
                 console.error('Error fetching issue details:', error.message);
                 toast.error('Error fetching issue details. Please try again later.');
@@ -326,6 +332,9 @@ const IssueReturn = () => {
                                             </option>
                                         ))}
                                     </Form.Control>
+                                    {errorMessage && (
+                                        <div className="error-message text-danger mt-3">{errorMessage}</div>
+                                    )}
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">

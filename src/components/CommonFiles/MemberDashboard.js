@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, BookFill, PersonFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, HouseDoorFill, BookFill, PersonFill, CalendarFill } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -148,7 +148,7 @@ const MemberDashboard = () => {
                                     <BookFill className="icon-member"/> Book List
                                 </ListGroup.Item>
                                 <ListGroup.Item className="sub-icon" action onClick={() => { handleOnlineBookingClick(); setShowSidebar(false); }} >
-                                    <BookFill className="icon-member"/> Online Booking
+                                    <CalendarFill className="icon-member"/> Online Booking
                                 </ListGroup.Item>
                             </Col>
                         </ListGroup>

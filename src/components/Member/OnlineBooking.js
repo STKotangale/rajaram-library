@@ -341,7 +341,7 @@ const OnlineBooking = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         name="selectedMemberId"
                                         className="small-input"
@@ -349,13 +349,13 @@ const OnlineBooking = () => {
                                         onChange={handleInputChange}
                                         required
                                     >
-                                        <option value="">Select a member</option>
+                                      <option value="">Select a member</option>
                                         {generalMember.map(member => (
                                             <option key={member.memberId} value={member.memberId}>
                                                 {member.username}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">

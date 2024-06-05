@@ -21,10 +21,8 @@ const BookIssue = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [isMembershipValid, setIsMembershipValid] = useState(false);
     const [membershipChecked, setMembershipChecked] = useState(false);
-
     const [errorMessage, setErrorMessage] = useState('');
-
-
+    
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -182,7 +180,7 @@ const BookIssue = () => {
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
-        setMembershipChecked(false);
+        // setMembershipChecked(false);
     };
 
        // Function to calculate the quantity

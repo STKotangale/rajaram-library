@@ -16,7 +16,7 @@ const ViewPurchase = () => {
 
     useEffect(() => {
         setFiltered(purchases.filter(purchases =>
-            purchases.ledgerIDF && purchases.ledgerIDF.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
+            purchases.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
     }, [dataQuery]);
 
@@ -25,13 +25,16 @@ const ViewPurchase = () => {
     //add purchase in another page go
     const [showAddPurchase, setShowAddPurchase] = useState(false);
     //edit  
-    const [showModal, setShowModal] = useState(false);
+    // const [showModal, setShowModal] = useState(false);
     //delete function
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     //edit and delete
     const [selectedPurchase, setSelectedPurchase] = useState(null);
     //view
     const [viewPurchaseModal, setViewPurchaseModal] = useState(false);
+
+
+    const [purchaseDetails, setPurchaseDetails] = useState({});
 
     // //discount  and gst
     // const [discountPercentage, setDiscountPercentage] = useState("");
@@ -59,7 +62,8 @@ const ViewPurchase = () => {
     //get purchase
     const fetchPurchases = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/stock`, {
+            // const response = await fetch(`${BaseURL}/api/stock`, {
+            const response = await fetch(`${BaseURL}/api/stock/only`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -68,8 +72,8 @@ const ViewPurchase = () => {
                 throw new Error(`Error fetching purchases: ${response.statusText}`);
             }
             const data = await response.json();
-            setPurchases(data.data);
-            setFiltered(data.data);
+            setPurchases(data);
+            setFiltered(data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching purchases. Please try again later.');
@@ -81,7 +85,7 @@ const ViewPurchase = () => {
     }, [username, accessToken]);
 
     const handleCloseModal = () => {
-        setShowModal(false);
+        // setShowModal(false);
         setViewPurchaseModal(false);
     }
 
@@ -94,7 +98,7 @@ const ViewPurchase = () => {
     //delete api
     const handleDeleteConfirm = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/stock/${selectedPurchase.stockId}`, {
+            const response = await fetch(`${BaseURL}/api/stock/${selectedPurchase.stock_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -123,17 +127,34 @@ const ViewPurchase = () => {
     //     return `${day}-${month}-${year}`;
     // }
 
+
+    //view purchase
+    const fetchPurchaseDetails = async (stockId) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/${stockId}`)
+            if (!response.ok) {
+                throw new Error('Failed to fetch purchase details');
+            }
+            const data = await response.json();
+            setPurchaseDetails(data.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     //view purchase
     const handleViewClick = (purchase) => {
         setSelectedPurchase(purchase);
+        fetchPurchaseDetails(purchase.stock_id);
         setViewPurchaseModal(true);
+
         // setDiscountPercentage(purchase.discountPercent);
         // setGstPercentage(purchase.gstPercent);
     };
 
 
 
-    
+
     //edit functinality
 
     //edit purchase
@@ -484,7 +505,7 @@ const ViewPurchase = () => {
                                         <tr key={index}>
                                             <td>{indexOfNumber + index + 1}</td>
                                             {/* <td>{purchase.ledgerIDF?.ledgerName}</td> */}
-                                            <td>{purchase.ledgerIDF ? purchase.ledgerIDF.ledgerName : 'N/A'}</td>
+                                            <td>{purchase.ledgerName ? purchase.ledgerName : 'N/A'}</td>
                                             <td>{purchase.invoiceNo}</td>
                                             <td>{purchase.invoiceDate}</td>
                                             {/* <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td> */}
@@ -720,7 +741,6 @@ const ViewPurchase = () => {
             </Modal>
 
 
-            {/* View Purchase Modal */}
             {selectedPurchase && (
                 <Modal show={viewPurchaseModal} onHide={handleCloseModal} centered size='xl'>
                     <div className="bg-light">
@@ -728,133 +748,134 @@ const ViewPurchase = () => {
                             <Modal.Title>View Purchase</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
-                            <Form>
-                                <Row className="mb-3">
-                                    <Form.Group as={Col} sm={3}>
-                                        <Form.Label>Invoice No</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={selectedPurchase.invoiceNo}
-                                            readOnly
-                                        />
-                                    </Form.Group>
-                                    <Form.Group as={Col} sm={3}>
-                                        <Form.Label>Invoice Date</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={(selectedPurchase.invoiceDate)}
-                                            readOnly
-                                        />
-                                    </Form.Group>
+                            {purchaseDetails && (
+                                <Form>
+                                    <Row className="mb-3">
+                                        <Form.Group as={Col} sm={3}>
+                                            <Form.Label>Invoice No</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={purchaseDetails.invoiceNo}
+                                                readOnly
+                                            />
+                                        </Form.Group>
+                                        <Form.Group as={Col} sm={3}>
+                                            <Form.Label>Invoice Date</Form.Label>
+                                            <Form.Control
+                                                type="text"
+                                                value={purchaseDetails.invoiceDate}
+                                                readOnly
+                                            />
+                                        </Form.Group>
 
-                                    <Form.Group as={Col} sm={5}>
-                                        <Form.Label>Purchaser Name</Form.Label>
-                                        <Form.Control
-                                            readOnly
-                                            // value={selectedPurchase.ledgerIDF.ledgerName || ''}
-                                            value={selectedPurchase.ledgerIDF ? selectedPurchase.ledgerIDF.ledgerName : 'N/A'}
-                                        />
-                                    </Form.Group>
-                                </Row>
-                                <div className="table-responsive">
-                                    <Table striped bordered hover className="table-bordered-dark">
-                                        <thead>
-                                            <tr>
-                                                <th className="table-header sr-size">Sr.No</th>
-                                                <th className="table-header book-name-size">Book Name</th>
-                                                <th className="table-header quantity-size">Quantity</th>
-                                                <th className="table-header rate-size">Rate</th>
-                                                <th className="table-header amount-size amount-align">Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {selectedPurchase.stockDetails.map((detail, index) => (
-                                                <tr key={index}>
-                                                    <td>{index + 1}</td>
-                                                    <td>
-                                                        <Form.Control
-                                                            type="text"
-                                                            value={detail.bookIdF ? detail.bookIdF.bookName : ''}
-                                                            readOnly
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Form.Control className="right-align"
-                                                            type="number"
-                                                            value={detail.bookQty}
-                                                            readOnly
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Form.Control className="right-align"
-                                                            type="number"
-                                                            value={detail.bookRate}
-                                                            readOnly
-                                                        />
-                                                    </td>
-                                                    <td className="amount-align">{!isNaN(detail.bookAmount) ? detail.bookAmount : ''}</td>
+                                        <Form.Group as={Col} sm={5}>
+                                            <Form.Label>Purchaser Name</Form.Label>
+                                            <Form.Control
+                                                readOnly
+                                                value={selectedPurchase.ledgerName || ''}
+                                            />
+                                        </Form.Group>
+                                    </Row>
+                                    <div className="table-responsive">
+                                        <Table striped bordered hover className="table-bordered-dark">
+                                            <thead>
+                                                <tr>
+                                                    <th className="table-header sr-size">Sr.No</th>
+                                                    <th className="table-header book-name-size">Book Name</th>
+                                                    <th className="table-header quantity-size">Quantity</th>
+                                                    <th className="table-header rate-size">Rate</th>
+                                                    <th className="table-header amount-size amount-align">Amount</th>
                                                 </tr>
-                                            ))}
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td></td>
-                                                <td >Bill Total</td>
-                                                <td className="amount-align">{selectedPurchase.billTotal}</td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td className="right-align">Discount</td>
-                                                <td>
-                                                    <div className="discount-container">
-                                                        <Form.Control className="right-align"
-                                                            type="number"
-                                                            value={selectedPurchase.discountPercent}
-                                                            readOnly
-                                                        />
-                                                        <span>%</span>
-                                                    </div>
+                                            </thead>
+                                            <tbody>
 
+                                                {purchaseDetails && purchaseDetails.stockDetails && purchaseDetails.stockDetails.map((detail, index) => (
+                                                    <tr key={index}>
+                                                        <td>{index + 1}</td>
+                                                        <td>
+                                                            <Form.Control
+                                                                type="text"
+                                                                value={detail.bookIdF ? detail.bookIdF.bookName : ''}
+                                                                readOnly
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <Form.Control className="right-align"
+                                                                type="number"
+                                                                value={detail.bookQty}
+                                                                readOnly
+                                                            />
+                                                        </td>
+                                                        <td>
+                                                            <Form.Control className="right-align"
+                                                                type="number"
+                                                                value={detail.bookRate}
+                                                                readOnly
+                                                            />
+                                                        </td>
+                                                        <td className="amount-align">{!isNaN(detail.bookAmount) ? detail.bookAmount : ''}</td>
+                                                    </tr>
+                                                ))}
 
-                                                </td>
-                                                <td className="amount-align">{selectedPurchase.discountAmount}</td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td className="right-align">Total After Discount</td>
-                                                <td></td>
-                                                <td className="amount-align">{selectedPurchase.totalAfterDiscount}</td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td className="right-align">GST</td>
-                                                <td>
-                                                    <div className="gst-container">
-                                                        <Form.Control className="right-align"
-                                                            type="number"
-                                                            value={selectedPurchase.gstPercent}
-                                                            readOnly
-                                                        />
-                                                        <span>%</span>
-                                                    </div>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td >Bill Total</td>
+                                                    <td className="amount-align">{purchaseDetails.billTotal}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td className="right-align">Discount</td>
+                                                    <td>
+                                                        <div className="discount-container">
+                                                            <Form.Control className="right-align"
+                                                                type="number"
+                                                                value={purchaseDetails.discountPercent}
+                                                                readOnly
+                                                            />
+                                                            <span>%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="amount-align">{purchaseDetails.discountAmount}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td className="right-align">Total After Discount</td>
+                                                    <td></td>
+                                                    <td className="amount-align">{purchaseDetails.totalAfterDiscount}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td className="right-align">GST</td>
+                                                    <td>
+                                                        <div className="gst-container">
+                                                            <Form.Control className="right-align"
+                                                                type="number"
+                                                                value={purchaseDetails.gstPercent}
+                                                                readOnly
+                                                            />
+                                                            <span>%</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="amount-align">{purchaseDetails.gstAmount}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td className="right-align">Grand Total</td>
+                                                    <td></td>
+                                                    <td className="amount-align">{purchaseDetails.grandTotal}</td>
+                                                </tr>
+                                            </tbody>
+                                        </Table>
+                                    </div>
+                                </Form>
+                            )}
 
-                                                </td>
-                                                <td className="amount-align">{selectedPurchase.gstAmount}</td>
-                                            </tr>
-                                            <tr>
-                                                <td></td>
-                                                <td></td>
-                                                <td className="right-align">Grand Total</td>
-                                                <td></td>
-                                                <td className="amount-align">{selectedPurchase.grandTotal}</td>
-                                            </tr>
-                                        </tbody>
-                                    </Table>
-                                </div>
-                            </Form>
                         </Modal.Body>
                         <Modal.Footer>
                             <Button variant="secondary" onClick={handleCloseModal}>
@@ -864,6 +885,8 @@ const ViewPurchase = () => {
                     </div>
                 </Modal>
             )}
+
+
         </div>
     );
 };
