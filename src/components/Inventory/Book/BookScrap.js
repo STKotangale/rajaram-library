@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { Eye, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
@@ -30,7 +30,7 @@ const BookScrap = () => {
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
-   
+
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
@@ -171,12 +171,16 @@ const BookScrap = () => {
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
+    const calculateQuantity = () => {
+        return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
+    };
+
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-
+        const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -186,13 +190,13 @@ const BookScrap = () => {
             }));
 
         const billTotal = parseFloat(calculateBillTotal());
-     
 
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
             ledgerId: Number(selectedPurchaserId),
             billTotal: billTotal,
+            bookQty: quantity,
             bookDetails: bookDetailsPayload
         };
 
@@ -225,18 +229,6 @@ const BookScrap = () => {
     const billTotal = parseFloat(calculateBillTotal());
 
 
-     
-
-    //show table in stock_id
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-            return result;
-        }, {});
-    };
-
-
-
     //delete
     const handleDelete = (stockId) => {
         setDeleteStockId(stockId);
@@ -266,11 +258,45 @@ const BookScrap = () => {
         }
     };
 
+
+    //show table in stock_id
+    const groupBy = (array, key) => {
+        return array.reduce((result, currentValue) => {
+            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
+            return result;
+        }, {});
+    };
+
     //view
     const handleViewDetails = (items) => {
         setSelectedRowDetails(items);
         setShowDetailsModal(true);
     };
+
+    //pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(Object.keys(bookScrap).length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastItem = currentPage * perPage;
+    const indexOfFirstItem = indexOfLastItem - perPage;
+    const currentData = Object.entries(bookScrap).slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="main-content">
@@ -281,7 +307,7 @@ const BookScrap = () => {
                             Add Book Scrap
                         </Button>
                     </div>
-                    <div className="table-responsive">
+                    <div className="table-responsive table-height mt-4">
                         <Table striped bordered hover className='mt-4'>
                             <thead>
                                 <tr>
@@ -293,7 +319,8 @@ const BookScrap = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(bookScrap).map(([stock_id, items], index) => (
+                                {/* {Object.entries(bookScrap).map(([stock_id, items], index) => ( */}
+                                {currentData.map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{items[0].ledgerName}</td>
@@ -304,9 +331,17 @@ const BookScrap = () => {
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
                                         </td>
                                     </tr>
-                                ))}
+                                ))
+                                }
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
             </Container>
@@ -432,7 +467,7 @@ const BookScrap = () => {
                                             <td className="amount-align">{billTotal.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-                            
+
                                     </tbody>
                                 </Table>
                             </div>
@@ -534,7 +569,7 @@ const BookScrap = () => {
                                                 <td className="right-align">Bill Total</td>
                                                 <td className="amount-align">{selectedRowDetails[0]?.billTotal}</td>
                                             </tr>
-                                            
+
                                         </tbody>
                                     </Table>
                                 </div>

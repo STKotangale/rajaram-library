@@ -117,14 +117,6 @@ const IssueReturn = () => {
         return `${day}-${month}-${year}`;
     };
 
-    const resetFormFields = () => {
-        setIssueReturnNumber('');
-        setIssueReturnDate('');
-        setSelectedUsername('');
-        setRows([]);
-        setSelectedRows([]);
-    };
-
     const handleRowSelect = (row) => {
         setSelectedRows(prevSelectedRows =>
             prevSelectedRows.includes(row)
@@ -136,6 +128,18 @@ const IssueReturn = () => {
     const handleDelete = (issueReturnId) => {
         setIssueReturnToDelete(issueReturnId);
         setShowDeleteModal(true);
+    };
+
+    const resetFormFields = () => {
+        setIssueReturnNumber('');
+        setIssueReturnDate('');
+        setSelectedUsername('');
+        setRows([]);
+        setSelectedRows([]);
+    };
+
+    const calculateQuantity = () => {
+        return selectedRows.length;
     };
 
     const handleSubmit = async (event) => {
@@ -157,9 +161,9 @@ const IssueReturn = () => {
             issueNo: issueReturnNumber,
             issueReturnDate: formatDate(issueReturnDate),
             memberId,
-            bookDetailsList: bookDetailsPayload
+            bookDetailsList: bookDetailsPayload,
+            qty: calculateQuantity()
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/return/create`, {
                 method: 'POST',
@@ -338,32 +342,34 @@ const IssueReturn = () => {
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">
-                                <Table striped bordered hover className="table-bordered-dark">
-                                    <thead>
-                                        <tr>
-                                            <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
-                                            <th>Accession No</th>
-                                            <th>Select Issue Return</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {rows.map((row, index) => (
-                                            <tr key={index} className={selectedRows.includes(row) ? 'selected-row' : ''}>
-                                                <td className='sr-size'>{index + 1}</td>
-                                                <td>{row.bookName}</td>
-                                                <td>{row.accessionNo}</td>
-                                                <td>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedRows.includes(row)}
-                                                        onChange={() => handleRowSelect(row)}
-                                                    />
-                                                </td>
+                                {errorMessage ? null : (
+                                    <Table striped bordered hover className="table-bordered-dark">
+                                        <thead>
+                                            <tr>
+                                                <th className='sr-size'>Sr. No.</th>
+                                                <th>Book Name</th>
+                                                <th>Accession No</th>
+                                                <th>Select Issue Return</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
+                                        </thead>
+                                        <tbody>
+                                            {rows.map((row, index) => (
+                                                <tr key={index} className={selectedRows.includes(row) ? 'selected-row' : ''}>
+                                                    <td className='sr-size'>{index + 1}</td>
+                                                    <td>{row.bookName}</td>
+                                                    <td>{row.accessionNo}</td>
+                                                    <td>
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={selectedRows.includes(row)}
+                                                            onChange={() => handleRowSelect(row)}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                )}
                             </div>
                         </Form>
                     </Modal.Body>

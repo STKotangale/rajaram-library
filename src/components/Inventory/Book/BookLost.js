@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { Eye, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
@@ -184,11 +184,16 @@ const BookLost = () => {
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
+    const calculateQuantity = () => {
+        return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
+    }
+
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-        
+
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
+        const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -208,10 +213,11 @@ const BookLost = () => {
             billTotal: billTotal,
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
-            discountAmount:calculateDiscountAmount(),
+            discountAmount: calculateDiscountAmount(),
             gstPercent: parseFloat(gstPercent) || 0,
-            gstAmount:calculateGstAmount(),
+            gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
+            qty: quantity,
             bookDetails: bookDetailsPayload
         };
 
@@ -246,8 +252,8 @@ const BookLost = () => {
     const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
 
 
-      //show discount price
-      const calculateDiscountAmount = () => {
+    //show discount price
+    const calculateDiscountAmount = () => {
         const billTotal = calculateBillTotal();
         const discountAmount = billTotal * (discountPercent / 100);
         return Math.floor(discountAmount);
@@ -258,16 +264,6 @@ const BookLost = () => {
         const gstAmount = totalAfterDiscount * (gstPercent / 100);
         return Math.floor(gstAmount);
     };
-
-
-    //show table in stock_id
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-            return result;
-        }, {});
-    };
-
 
 
     //delete
@@ -299,11 +295,45 @@ const BookLost = () => {
         }
     };
 
+    //show table in stock_id
+    const groupBy = (array, key) => {
+        return array.reduce((result, currentValue) => {
+            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
+            return result;
+        }, {});
+    };
+
     //view
     const handleViewDetails = (items) => {
         setSelectedRowDetails(items);
         setShowDetailsModal(true);
     };
+
+    //pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(Object.keys(bookLost).length / perPage);
+
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
+
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
+
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
+
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
+
+    const indexOfLastItem = currentPage * perPage;
+    const indexOfFirstItem = indexOfLastItem - perPage;
+    const currentData = Object.entries(bookLost).slice(indexOfFirstItem, indexOfLastItem);
+
 
     return (
         <div className="main-content">
@@ -314,7 +344,7 @@ const BookLost = () => {
                             Add Book Lost
                         </Button>
                     </div>
-                    <div className="table-responsive">
+                    <div className="table-responsive table-height mt-4">
                         <Table striped bordered hover className='mt-4'>
                             <thead>
                                 <tr>
@@ -326,7 +356,8 @@ const BookLost = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {Object.entries(bookLost).map(([stock_id, items], index) => (
+                                {/* {Object.entries(bookLost).map(([stock_id, items], index) => ( */}
+                                {currentData.map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{items[0].ledgerName}</td>
@@ -340,6 +371,13 @@ const BookLost = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
             </Container>

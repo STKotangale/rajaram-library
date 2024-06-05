@@ -187,11 +187,17 @@ const PurchaseReturn = () => {
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
+    // Function to calculate the quantity
+    const calculateQuantity = () => {
+        return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
+    };
+
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
+        const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -215,6 +221,7 @@ const PurchaseReturn = () => {
             gstPercent: parseFloat(gstPercent) || 0,
             gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
+            qty: quantity,
             bookDetails: bookDetailsPayload
         };
 

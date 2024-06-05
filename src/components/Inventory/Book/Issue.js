@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
@@ -22,7 +23,7 @@ const BookIssue = () => {
     const [isMembershipValid, setIsMembershipValid] = useState(false);
     const [membershipChecked, setMembershipChecked] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
-    
+
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -31,6 +32,24 @@ const BookIssue = () => {
         fetchGeneralMembers();
         fetchBookDetails();
     }, [username, accessToken]);
+
+    const fetchIssue = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/all`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching issue: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setIssue(data);
+        } catch (error) {
+            console.error(error);
+            toast.error('Error fetching issue. Please try again later.');
+        }
+    };
 
     const fetchGeneralMembers = async () => {
         try {
@@ -64,23 +83,7 @@ const BookIssue = () => {
         }
     };
 
-    const fetchIssue = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/issue/all`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching issue: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setIssue(data);
-        } catch (error) {
-            console.error(error);
-            toast.error('Error fetching issue. Please try again later.');
-        }
-    };
+
 
     const handleBookChangeForRow = (index, event) => {
         const updatedRows = [...rows];
@@ -183,8 +186,8 @@ const BookIssue = () => {
         // setMembershipChecked(false);
     };
 
-       // Function to calculate the quantity
-       const calculateQuantity = () => {
+    // Function to calculate the quantity
+    const calculateQuantity = () => {
         return rows.filter(row => row.bookId && row.accessionNo).length;
     };
 
@@ -270,11 +273,36 @@ const BookIssue = () => {
         }
     };
 
+
+    // const [viewDetails, setViewDetails] = useState({});
+
+
+    const [viewDetails, setViewDetails] = useState(null);
+
+    // View purchase
+    const fetchViewDetails = async (stockId) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/book-issue/${stockId}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch issue details');
+            }
+            const data = await response.json();
+            setViewDetails(data[0]); 
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    
     const handleViewClick = (issue) => {
         setSelectedIssue(issue);
+        fetchViewDetails(issue.stock_id);
         setShowViewModal(true);
     };
-
+    
 
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
@@ -318,8 +346,8 @@ const BookIssue = () => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Member Name</th>
-                                    <th>Issue No</th>
-                                    <th>Issue Date</th>
+                                    <th>Invoice No</th>
+                                    <th>Invoice Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -327,7 +355,7 @@ const BookIssue = () => {
                                 {currentData.map((issueItem, index) => (
                                     <tr key={issueItem.stock_id}>
                                         <td>{index + 1}</td>
-                                        <td>{issueItem.memberName}</td>
+                                        <td>{issueItem.username}</td>
                                         <td>{issueItem.invoiceNo}</td>
                                         {/* <td>{new Date(issueItem.invoiceDate).toLocaleDateString()}</td> */}
                                         <td>{issueItem.invoiceDate}</td>
@@ -359,7 +387,7 @@ const BookIssue = () => {
                         <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue No</Form.Label>
+                                    <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
                                         placeholder="Issue number"
                                         type="text"
@@ -369,7 +397,7 @@ const BookIssue = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Issue Date</Form.Label>
+                                    <Form.Label>Invoice Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={issueDate}
@@ -479,7 +507,7 @@ const BookIssue = () => {
                         <Modal.Title>View Issue</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {selectedIssue && (
+                        {viewDetails && (
                             <Form>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
@@ -488,14 +516,14 @@ const BookIssue = () => {
                                             placeholder="Issue number"
                                             type="text"
                                             className="small-input"
-                                            value={selectedIssue.invoiceNo}
+                                            value={viewDetails.invoiceNo}
                                             disabled
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Issue Date</Form.Label>
+                                        <Form.Label>Invoice Date</Form.Label>
                                         <Form.Control
-                                            value={selectedIssue.invoiceDate}
+                                            value={viewDetails.invoiceDate}
                                             className="custom-date-picker small-input"
                                             disabled
                                         />
@@ -506,26 +534,24 @@ const BookIssue = () => {
                                     <Form.Group as={Col}>
                                         <Form.Label>Member Name</Form.Label>
                                         <Form.Control
-                                            as="select"
+                                            type="text"
                                             className="small-input"
-                                            value={selectedIssue.memberIdF}
+                                            value={viewDetails.user}
                                             disabled
-                                        >
-                                            <option value={selectedIssue.memberIdF}>{selectedIssue.memberName}</option>
-                                        </Form.Control>
+                                        />
                                     </Form.Group>
                                 </Row>
                                 <div className="table-responsive">
                                     <Table striped bordered hover className="table-bordered-dark">
                                         <thead>
                                             <tr>
-                                                <th className='sr-size'>Sr. No. </th>
+                                                <th className='sr-size'>Sr. No.</th>
                                                 <th>Book Name</th>
                                                 <th>Accession No</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedIssue.bookDetails.map((detail, index) => (
+                                            {viewDetails.books.map((detail, index) => (
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
@@ -540,7 +566,7 @@ const BookIssue = () => {
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={detail.AccessionNo}
+                                                            value={detail.accessionNo}
                                                             disabled
                                                         />
                                                     </td>
@@ -560,6 +586,7 @@ const BookIssue = () => {
                 </div>
             </Modal>
 
+            {/* delete modal */}
             <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
                 <div className="bg-light">
                     <Modal.Header closeButton>
