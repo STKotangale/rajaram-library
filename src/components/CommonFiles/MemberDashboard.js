@@ -137,21 +137,25 @@ const MemberDashboard = () => {
             <div ref={sidebarRef} className={`sidebar ${showSidebar ? 'active' : ''}`}>
                 <div className="d-flex sidebar-member" id="wrapper">
                     <div className="member-sidebar">
-                        <Image src={logoImage} className="rajalib-logo ms-2 mt-2" height="50" />
-                        <span className="h4 ms-2 mt-5">Rajaram Library</span>
-                        <ListGroup variant="flush" className="mt-5 ms-3 custom-list-group">
-                            <Col lg={11} className="">
-                                <ListGroup.Item className="sub-icon" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
-                                    <HouseDoorFill className="icon" /> Home
-                                </ListGroup.Item>
-                                <ListGroup.Item className="sub-icon" action onClick={() => { handleBookListClick(); setShowSidebar(false); }} >
-                                    <BookFill className="icon-member"/> Book List
-                                </ListGroup.Item>
-                                <ListGroup.Item className="sub-icon" action onClick={() => { handleOnlineBookingClick(); setShowSidebar(false); }} >
-                                    <CalendarFill className="icon-member"/> Online Booking
-                                </ListGroup.Item>
-                            </Col>
-                        </ListGroup>
+                        <div className='mt-3 mb-3 ms-3'>
+                            <Image src={logoImage} className="rajalib-logo" height="50" />
+                            <span className="h4 ms-2 mt-4">Rajaram Library</span>
+                        </div>
+                        <div className='scrollable'>
+                            <ListGroup variant="flush" className="mt-5 ms-3 custom-list-group">
+                                <Col lg={11} className="">
+                                    <ListGroup.Item className="sub-icon list-group-item list-group-item-action" action onClick={() => { handleHomeClick(); setShowSidebar(false); }}>
+                                        <HouseDoorFill className="icon-member" /> Home
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="sub-icon list-group-item list-group-item-action" action onClick={() => { handleBookListClick(); setShowSidebar(false); }}>
+                                        <BookFill className="icon-member" /> Book List
+                                    </ListGroup.Item>
+                                    <ListGroup.Item className="sub-icon list-group-item list-group-item-action" action onClick={() => { handleOnlineBookingClick(); setShowSidebar(false); }}>
+                                        <CalendarFill className="icon-member" /> Online Booking
+                                    </ListGroup.Item>
+                                </Col>
+                            </ListGroup>
+                        </div>
                     </div>
                 </div>
             </div>

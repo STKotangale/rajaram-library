@@ -6,13 +6,13 @@ import { Container, Table } from 'react-bootstrap';
 
 const Dashboard = () => {
   const BaseURL = process.env.REACT_APP_BASE_URL;
-  const { userId, accessToken } = useAuth(); 
+  const { userId, accessToken, memberId } = useAuth(); 
 
   useEffect(() => {
     const fetchMemberBookInfo = async () => {
-      if (!userId || !accessToken) return; 
+      if (!userId || !accessToken || !memberId) return; 
       try {
-        const response = await fetch(`${BaseURL}/api/general-members/memberBookInfo/${userId}`, {
+        const response = await fetch(`${BaseURL}/api/general-members/memberBookInfo/${memberId}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -29,7 +29,7 @@ const Dashboard = () => {
     };
 
     fetchMemberBookInfo();
-  }, [userId, accessToken, BaseURL]);
+  }, [memberId, userId, accessToken, BaseURL]);
 
   const [memberBookInfo, setMemberBookInfo] = useState([]);
 

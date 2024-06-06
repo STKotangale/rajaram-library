@@ -9,50 +9,38 @@ import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 const formatDateToDDMMYYYY = (dateStr) => {
     const date = new Date(dateStr);
     const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); 
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
 };
 
-// Utility function to parse date from dd-mm-yyyy to yyyy-mm-dd
-const parseDateFromDDMMYYYY = (dateStr) => {
-    const [day, month, year] = dateStr.split('-');
-    return `${year}-${month}-${day}`;
-};
-
 const OnlineBooking = () => {
     const [onlineBookingData, setOnlineBookingData] = useState([]);
-    const [generalMember, setGeneralMember] = useState([]);
     const [bookName, setBookName] = useState([]);
-
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
-    const [selectedId, setSelectedId] = useState(null);
+    const [selectedBooking, setSelectedBooking] = useState(null);
 
     const [formData, setFormData] = useState({
         invoiceNo: "",
         invoiceDate: "",
-        // fromDate: "",
-        // toDate: "",
-        selectedMemberId: "",
         bookId: ""
     });
 
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, memberId } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         fetchOnlineData();
-        fetchGeneralMembers();
         fetchBooks();
-    }, [username, accessToken]);
+    }, [memberId, username, accessToken]);
 
     //get all data
     const fetchOnlineData = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/member-bookings`, {
+            const response = await fetch(`${BaseURL}/api/member-bookings/All/${memberId}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -68,28 +56,8 @@ const OnlineBooking = () => {
         }
     };
 
-    //get general member
-    const fetchGeneralMembers = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/general-members`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-            const data = await response.json();
-            setGeneralMember(data.data);
-        } catch (error) {
-            console.error("Failed to fetch general members:", error);
-            toast.error('Failed to load general members. Please try again later.');
-        }
-    };
-
-
-     //get book
-     const fetchBooks = async () => {
+    //get book
+    const fetchBooks = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/auth/book`, {
                 headers: {
@@ -107,15 +75,11 @@ const OnlineBooking = () => {
         }
     };
 
-  
     const resetField = () => {
         setFormData({
             invoiceNo: "",
             invoiceDate: "",
-            selectedMemberId: "",
             bookId: "",
-            // fromDate: "",
-            // toDate: "",
         });
     };
 
@@ -124,10 +88,8 @@ const OnlineBooking = () => {
         const payload = {
             invoiceNo: formData.invoiceNo,
             invoiceDate: formatDateToDDMMYYYY(formData.invoiceDate),
-            memberIdF: parseInt(formData.selectedMemberId),
-            bookIdF:parseInt(formData.bookId),
-            // fromDate: formatDateToDDMMYYYY(formData.fromDate),
-            // toDate: formatDateToDDMMYYYY(formData.toDate),
+            memberIdF: memberId,
+            bookIdF: parseInt(formData.bookId),
         };
         try {
             const response = await fetch(`${BaseURL}/api/member-bookings`, {
@@ -141,7 +103,7 @@ const OnlineBooking = () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
-            toast.success('Online booking  added successfully!');
+            toast.success('Online booking added successfully!');
             setShowAddModal(false);
             resetField();
             fetchOnlineData();
@@ -151,24 +113,41 @@ const OnlineBooking = () => {
         }
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+    // const handleEditClick = (booking) => {
+    //     setSelectedBooking(booking);
+    //     setFormData({
+    //         invoiceNo: booking.invoiceNo,
+    //         invoiceDate: booking.invoiceDate,
+    //         bookId: booking.book_idF
+    //     });
+    //     setShowEditModal(true);
+    // };
 
+
+    const handleEditClick = (booking) => {
+        setSelectedBooking(booking);
+        // Convert from dd-mm-yyyy to yyyy-mm-dd
+        const [day, month, year] = booking.invoiceDate.split('-');
+        const formattedDate = `${year}-${month}-${day}`;
+        setFormData({
+            invoiceNo: booking.invoiceNo,
+            invoiceDate: formattedDate,
+            bookId: booking.book_idF
+        });
+        setShowEditModal(true);
     };
+
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         const payload = {
             invoiceNo: formData.invoiceNo,
             invoiceDate: formatDateToDDMMYYYY(formData.invoiceDate),
-            memberIdF: parseInt(formData.selectedMemberId),
-            bookIdF:parseInt(formData.bookId),
-            // fromDate: formatDateToDDMMYYYY(formData.fromDate),
-            // toDate: formatDateToDDMMYYYY(formData.toDate),
+            memberIdF: memberId,
+            bookIdF: parseInt(formData.bookId),
         };
         try {
-            const response = await fetch(`${BaseURL}/api/member-bookings/${selectedId}`, {
+            const response = await fetch(`${BaseURL}/api/member-bookings/${selectedBooking.membOnlineId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -181,7 +160,7 @@ const OnlineBooking = () => {
             }
             toast.success('Online booking updated successfully!');
             setShowEditModal(false);
-            resetField();
+            setSelectedBooking(null);
             fetchOnlineData();
         } catch (error) {
             console.error('Failed to update online booking:', error);
@@ -189,27 +168,14 @@ const OnlineBooking = () => {
         }
     };
 
-    const handleEditClick = (issueItem) => {
-        setShowEditModal(true);
-        setFormData({
-            invoiceNo: issueItem.invoiceNo,
-            invoiceDate: parseDateFromDDMMYYYY(issueItem.invoiceDate),
-            selectedMemberId: issueItem.memberIdF.toString(),
-            bookIdF:parseInt(formData.bookId),
-            // fromDate: parseDateFromDDMMYYYY(issueItem.fromDate),
-            // toDate: parseDateFromDDMMYYYY(issueItem.toDate),
-        });
-      };
-
-
-    const handleDeleteClick = (memberId) => {
-        setSelectedId(memberId);
+    const handleDeleteClick = (booking) => {
+        setSelectedBooking(booking);
         setShowDeleteModal(true);
     };
 
-    const confirmDelete = async () => {
+    const handleDeleteConfirm = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/member-bookings/${selectedId}`, {
+            const response = await fetch(`${BaseURL}/api/member-bookings/${selectedBooking.membOnlineId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -220,6 +186,7 @@ const OnlineBooking = () => {
             }
             toast.success('Online booking deleted successfully!');
             setShowDeleteModal(false);
+            setSelectedBooking(null);
             fetchOnlineData();
         } catch (error) {
             console.error('Failed to delete online booking:', error);
@@ -227,17 +194,14 @@ const OnlineBooking = () => {
         }
     };
 
-    const handleViewClick = (issueItem) => {
-        setFormData({
-            invoiceNo: issueItem.invoiceNo,
-            invoiceDate: parseDateFromDDMMYYYY(issueItem.invoiceDate),
-            selectedMemberId: issueItem.memberIdF.toString(),
-            bookIdF:parseInt(formData.bookId),
-            // fromDate: parseDateFromDDMMYYYY(issueItem.fromDate),
-            // toDate: parseDateFromDDMMYYYY(issueItem.toDate),
-          
-        });
+    const handleViewClick = (booking) => {
+        setSelectedBooking(booking);
         setShowViewModal(true);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
     };
 
     return (
@@ -254,7 +218,6 @@ const OnlineBooking = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
-                                    <th>Member Name</th>
                                     <th>Invoice No</th>
                                     <th>Invoice Date</th>
                                     <th>Action</th>
@@ -264,12 +227,11 @@ const OnlineBooking = () => {
                                 {onlineBookingData.map((issueItem, index) => (
                                     <tr key={issueItem.memberId}>
                                         <td>{index + 1}</td>
-                                        <td>{issueItem.memberName}</td>
                                         <td>{issueItem.invoiceNo}</td>
-                                        <td>{(issueItem.invoiceDate)}</td>
+                                        <td>{issueItem.invoiceDate}</td>
                                         <td>
                                             <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(issueItem)}>Edit</PencilSquare>
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem.memberId)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDeleteClick(issueItem)}>Delete</Trash>
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewClick(issueItem)}>View</Eye>
                                         </td>
                                     </tr>
@@ -315,53 +277,19 @@ const OnlineBooking = () => {
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>From Date</Form.Label>
-                                    <Form.Control
-                                        name="fromDate"
-                                        type="date"
-                                        value={formData.fromDate}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>To Date</Form.Label>
-                                    <Form.Control
-                                        name="toDate"
-                                        type="date"
-                                        value={formData.toDate}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
-
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Select
-                                        as="select"
-                                        name="selectedMemberId"
+                                    <Form.Control
+                                        type="text"
+                                        value={username}
+                                        readOnly
                                         className="small-input"
-                                        value={formData.selectedMemberId}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                      <option value="">Select a member</option>
-                                        {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
+                                    />
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Book Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         name="bookId"
                                         className="small-input"
@@ -375,7 +303,7 @@ const OnlineBooking = () => {
                                                 {book.bookName}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
 
@@ -393,7 +321,7 @@ const OnlineBooking = () => {
             </Modal>
 
             {/* Edit modal */}
-            <Modal centered show={showEditModal} onHide={() => { setShowEditModal(false); resetField() }} size='lg'>
+            <Modal centered show={showEditModal} onHide={() => setShowEditModal(false)} size='lg'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Edit Online Booking</Modal.Title>
@@ -418,63 +346,28 @@ const OnlineBooking = () => {
                                     <Form.Control
                                         name="invoiceDate"
                                         type="date"
-                                        value={(formData.invoiceDate)}
+                                        value={formData.invoiceDate}
                                         onChange={handleInputChange}
                                         required
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
                             </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>From Date</Form.Label>
-                                    <Form.Control
-                                        name="fromDate"
-                                        type="date"
-                                        value={(formData.fromDate)}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>To Date</Form.Label>
-                                    <Form.Control
-                                        name="toDate"
-                                        type="date"
-                                        value={(formData.toDate)}
-                                        onChange={handleInputChange}
-                                        required
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
-                                        as="select"
-                                        name="selectedMemberId"
+                                        type="text"
+                                        value={username}
+                                        readOnly
                                         className="small-input"
-                                        value={formData.selectedMemberId}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value="">Select a member</option>
-                                        {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
+                                    />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Book Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         name="bookId"
                                         className="small-input"
@@ -484,11 +377,11 @@ const OnlineBooking = () => {
                                     >
                                         <option value="">Select a book</option>
                                         {bookName.map(book => (
-                                            <option key={book.bookId} value={book.bookName}>
+                                            <option key={book.bookId} value={book.bookId}>
                                                 {book.bookName}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
 
@@ -497,7 +390,7 @@ const OnlineBooking = () => {
                                     Close
                                 </Button>
                                 <Button variant="primary" type="submit">
-                                    Save Changes
+                                    Update
                                 </Button>
                             </Modal.Footer>
                         </Form>
@@ -505,102 +398,93 @@ const OnlineBooking = () => {
                 </div>
             </Modal>
 
-            {/* delete modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Delete Online Booking</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    Are you sure you want to delete this online booking?
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={confirmDelete}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
+            {/* Delete modal */}
+            <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)} size='sm'>
+                <div className="bg-light">
+                    <Modal.Header closeButton>
+                        <Modal.Title>Delete Online Booking</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <p>Are you sure you want to delete this booking?</p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                            No
+                        </Button>
+                        <Button variant="danger" onClick={handleDeleteConfirm}>
+                            Yes
+                        </Button>
+                    </Modal.Footer>
+                </div>
             </Modal>
 
-
             {/* View modal */}
-            <Modal centered show={showViewModal} onHide={() => { setShowViewModal(false); resetField() }} size='lg'>
+            <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='lg'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>View Online Booking</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <Form>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Invoice No</Form.Label>
-                                    <Form.Control
-                                        name="invoiceNo"
-                                        type="text"
-                                        value={formData.invoiceNo}
-                                        readOnly
-                                        className="small-input"
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>Invoice Date</Form.Label>
-                                    <Form.Control
-                                        name="invoiceDate"
-                                        type="date"
-                                        value={(formData.invoiceDate)}
-                                        readOnly
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>From Date</Form.Label>
-                                    <Form.Control
-                                        name="fromDate"
-                                        type="date"
-                                        value={(formData.fromDate)}
-                                        readOnly
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                                <Form.Group as={Col}>
-                                    <Form.Label>To Date</Form.Label>
-                                    <Form.Control
-                                        name="toDate"
-                                        type="date"
-                                        value={(formData.toDate)}
-                                        readOnly
-                                        className="custom-date-picker small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
+                        {selectedBooking && (
+                            <div>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Invoice No</Form.Label>
+                                        <Form.Control
+                                            name="invoiceNo"
+                                            value={selectedBooking.invoiceNo}
+                                            className="small-input"
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Control
+                                            name="invoiceDate"
+                                            value={selectedBooking.invoiceDate}
+                                            className="custom-date-picker small-input"
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Member Name</Form.Label>
+                                        <Form.Control
+                                            value={username}
+                                            className="small-input"
+                                            readOnly
+                                        />
+                                    </Form.Group>
+                                </Row>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col}>
+                                        <Form.Label>Book Name</Form.Label>
+                                        <Form.Control
+                                            name="bookId"
+                                            value={bookName.find(book => book.bookId === selectedBooking.book_idF)?.bookName || 'Not found'}
+                                            className="small-input"
+                                            readOnly
+                                        >
+                                        </Form.Control>
+                                    </Form.Group>
+                                </Row>
 
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
-                                        as="select"
-                                        name="selectedMemberId"
-                                        className="small-input"
-                                        value={formData.selectedMemberId}
-                                        readOnly
-                                    >
-                                        <option value="">Select a member</option>
-                                        {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
-                                </Form.Group>
-                            </Row>
-
-                        </Form>
+                                {/* <p><strong>Invoice No:</strong> {selectedBooking.invoiceNo}</p>
+                                <p><strong>Invoice Date:</strong> {selectedBooking.invoiceDate}</p>
+                                <p><strong>Member Name:</strong> {username}</p>
+                                <p><strong>Book Name:</strong> {bookName.find(book => book.bookId === selectedBooking.book_idF)?.bookName || 'Not found'}</p> */}
+                            </div>
+                        )}
                     </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowViewModal(false)}>
+                            Close
+                        </Button>
+                    </Modal.Footer>
                 </div>
             </Modal>
+
         </div>
     );
 };

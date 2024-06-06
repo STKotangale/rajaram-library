@@ -85,9 +85,11 @@
       .dashboard-member-page-details {
           margin-left: 0;
       }
+
       .sidebar.active {
           left: 0;
       }
+
       .sidebar-toggle {
           position: fixed;
           top: 15px;
@@ -106,4 +108,13 @@
       }
   }
 
-  
+  /* remove scroller */
+  .table-height-book-list {
+      height: 350px;
+  }
+
+  /* siderbar remove hower background color */
+  .custom-list-group .list-group-item-action:hover,
+  .custom-list-group .list-group-item-action:focus {
+      background-color: transparent;
+  }

@@ -12,6 +12,7 @@ const BookIssue = () => {
     const [generalMember, setGeneralMember] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState("");
     const [bookDetails, setBookDetails] = useState([]);
+    const [memberBookings, setMemberBookings] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
     const [issueNumber, setIssueNumber] = useState('');
@@ -83,12 +84,28 @@ const BookIssue = () => {
         }
     };
 
-
+    const fetchBookingDetails = async (memberId) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/member-bookings/bookings/${memberId}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching bookings: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setMemberBookings(data);
+        } catch (error) {
+            console.error('Error fetching booking details:', error);
+            toast.error('Failed to load booking details. Please try again later.');
+        }
+    };
 
     const handleBookChangeForRow = (index, event) => {
         const updatedRows = [...rows];
         const selectedBookId = event.target.value;
-        const selectedBook = bookDetails.find(book => book.bookId === Number(selectedBookId));
+        const selectedBook = memberBookings.find(book => book.book_idF === Number(selectedBookId));
 
         updatedRows[index] = {
             ...updatedRows[index],
@@ -163,6 +180,9 @@ const BookIssue = () => {
     const handleMemberChange = async (e) => {
         const newMemberId = e.target.value;
         setSelectedMemberId(newMemberId);
+        if (newMemberId) {
+            fetchBookingDetails(newMemberId);
+        }
         if (issueDate && newMemberId) {
             const membershipCheck = await checkMembershipFees(newMemberId, issueDate);
             if (membershipCheck && membershipCheck.success) {
@@ -183,7 +203,6 @@ const BookIssue = () => {
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
-        // setMembershipChecked(false);
     };
 
     // Function to calculate the quantity
@@ -195,7 +214,6 @@ const BookIssue = () => {
         event.preventDefault();
 
         if (!isMembershipValid) {
-            // toast.error("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
             return;
         }
 
@@ -229,6 +247,18 @@ const BookIssue = () => {
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
+
+                // Prepare the PUT request payload
+                const membOnlineIds = rows
+                    .filter(row => row.bookId && row.accessionNo)
+                    .map(row => {
+                        const matchedBooking = memberBookings.find(booking => booking.book_idF === Number(row.bookId));
+                        return matchedBooking ? matchedBooking.membOnlineId : null;
+                    })
+                    .filter(id => id !== null);
+
+                await updateBlockStatus(membOnlineIds);
+
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssue();
@@ -242,6 +272,28 @@ const BookIssue = () => {
         }
     };
 
+    const updateBlockStatus = async (membOnlineIds) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/member-bookings/update-block-status`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify({ membOnlineIds })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                toast.error(`Error updating block status: ${errorData.message}`);
+            } else {
+                toast.success('Block status updated successfully.');
+            }
+        } catch (error) {
+            console.error('Error updating block status:', error);
+            toast.error('Error updating block status. Please try again.');
+        }
+    };
 
     const handleDeleteClick = (issue) => {
         setIssueToDelete(issue);
@@ -273,10 +325,6 @@ const BookIssue = () => {
         }
     };
 
-
-    // const [viewDetails, setViewDetails] = useState({});
-
-
     const [viewDetails, setViewDetails] = useState(null);
 
     // View purchase
@@ -291,18 +339,17 @@ const BookIssue = () => {
                 throw new Error('Failed to fetch issue details');
             }
             const data = await response.json();
-            setViewDetails(data[0]); 
+            setViewDetails(data[0]);
         } catch (error) {
             console.error(error);
         }
     };
-    
+
     const handleViewClick = (issue) => {
         setSelectedIssue(issue);
         fetchViewDetails(issue.stock_id);
         setShowViewModal(true);
     };
-    
 
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
@@ -330,6 +377,11 @@ const BookIssue = () => {
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = issue.slice(indexOfNumber, indexOfLastBookType);
 
+    // Filter accession numbers based on the selected book name
+    const getFilteredAccessionNumbers = (bookName) => {
+        const book = bookDetails.find(book => book.bookName === bookName);
+        return book ? book.copyDetails : [];
+    };
 
     return (
         <div className="main-content">
@@ -357,7 +409,6 @@ const BookIssue = () => {
                                         <td>{index + 1}</td>
                                         <td>{issueItem.username}</td>
                                         <td>{issueItem.invoiceNo}</td>
-                                        {/* <td>{new Date(issueItem.invoiceDate).toLocaleDateString()}</td> */}
                                         <td>{issueItem.invoiceDate}</td>
                                         <td>
                                             <Eye className="action-icon view-icon" onClick={() => handleViewClick(issueItem)} />
@@ -452,8 +503,8 @@ const BookIssue = () => {
                                                                 onChange={(e) => handleBookChangeForRow(index, e)}
                                                             >
                                                                 <option value="">Select a book</option>
-                                                                {bookDetails.map((book) => (
-                                                                    <option key={book.bookId} value={book.bookId}>
+                                                                {memberBookings.map((book) => (
+                                                                    <option key={book.book_idF} value={book.book_idF}>
                                                                         {book.bookName}
                                                                     </option>
                                                                 ))}
@@ -467,7 +518,7 @@ const BookIssue = () => {
                                                             onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                         >
                                                             <option value="">Select Book Details</option>
-                                                            {bookDetails.find(book => book.bookId === Number(row.bookId))?.copyDetails.map((detail) => (
+                                                            {getFilteredAccessionNumbers(rows[index].bookName).map((detail) => (
                                                                 <option key={detail.bookDetailId} value={detail.bookDetailId}>
                                                                     {detail.accessionNo}
                                                                 </option>
@@ -605,7 +656,6 @@ const BookIssue = () => {
                     </Modal.Footer>
                 </div>
             </Modal>
-
         </div>
     );
 };

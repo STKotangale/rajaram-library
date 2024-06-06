@@ -68,7 +68,7 @@ const LoginPage = () => {
       }
       const data = await response.json();
       const userRole = data.roles[0];
-      login(data.username, data.accessToken, data.id); 
+      login(data.username, data.accessToken, data.id, data.memberId); 
       toast.success('Login successful!');
       if (userRole === 'ADMIN') {
         navigate('/admindashboard');

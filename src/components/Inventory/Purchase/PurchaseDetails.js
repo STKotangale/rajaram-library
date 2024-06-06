@@ -8,6 +8,7 @@ import { ArrowReturnLeft, Trash } from 'react-bootstrap-icons';
 
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css'
+
 const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
 
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));

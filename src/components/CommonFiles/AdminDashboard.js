@@ -39,6 +39,11 @@ import BookScrap from '../Inventory/Book/BookScrap';
 import LibararyFees from '../Fees/LibararyFees';
 import Config from '../Fees/Config';
 import MonthlyMembershipFee from '../Fees/MonthlyMembershipFee';
+import MemberReport from '../InventoryReport/MemberReport';
+import BookReport from '../InventoryReport/BookReport';
+import OnlyDate from '../InventoryReport/OnlyDate';
+import OnlyMemberName from '../InventoryReport/OnlyMemberName';
+import OnlyBookName from '../InventoryReport/OnlyBookName';
 
 
 const AdminDashboard = () => {
@@ -70,6 +75,13 @@ const AdminDashboard = () => {
     const [monthlyMemberFees, setMonthlyMemberFees] = useState(false);
 
     const [config, setConfig] = useState(false);
+
+    const [memberReport, setMemberReport] = useState(false);
+    const [bookNames, setBookNames] = useState(false);
+    const [onlyDate, setOnlyDate] = useState(false);
+    const [onlyMemberName, setOnlyMemberName] = useState(false);
+    const [onlyBookName, setOnlyBookName] = useState(false);
+
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -105,13 +117,13 @@ const AdminDashboard = () => {
         setShowInventoryReportSubItems(!showInventoryReportSubItems);
     };
 
-   //Account
-   const [showAccountSubItems, setShowAccountSubItems] = useState(false);
-   const toggleAccountSubItems = () => {
-       setShowAccountSubItems(!showAccountSubItems);
-   };
+    //Account
+    const [showAccountSubItems, setShowAccountSubItems] = useState(false);
+    const toggleAccountSubItems = () => {
+        setShowAccountSubItems(!showAccountSubItems);
+    };
 
-   //Admin
+    //Admin
     const [showAdminSubItems, setShowAdminSubItems] = useState(false);
     const toggleAdminSubItems = () => {
         setShowAdminSubItems(!showAdminSubItems);
@@ -144,6 +156,11 @@ const AdminDashboard = () => {
         setMemberFees(false);
         setMonthlyMemberFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleShowPurchase = () => {
@@ -169,6 +186,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleBookDetailsClick = () => {
@@ -194,6 +216,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleBookLanguages = () => {
@@ -219,6 +246,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
 
@@ -245,6 +277,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleBookType = () => {
@@ -270,6 +307,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handlePermanentMember = () => {
@@ -295,6 +337,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
 
@@ -322,6 +369,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handlePurchaser = () => {
@@ -346,6 +398,11 @@ const AdminDashboard = () => {
         setMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleCreateUser = () => {
@@ -371,6 +428,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleBookAuthor = () => {
@@ -396,6 +458,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleBookPublication = () => {
@@ -421,6 +488,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     };
 
     const handleIssueClick = () => {
@@ -446,6 +518,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
     const handleIssueReturnClick = () => {
@@ -471,6 +548,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
 
@@ -497,6 +579,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
     const hendleBookLost = () => {
@@ -522,6 +609,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
     const hendleBookScrap = () => {
@@ -547,6 +639,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
 
@@ -573,6 +670,11 @@ const AdminDashboard = () => {
         setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
 
@@ -599,6 +701,11 @@ const AdminDashboard = () => {
         setMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
 
@@ -625,6 +732,11 @@ const AdminDashboard = () => {
         setMemberFees(false);
         setMonthlyMemberFees(false);
         setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
 
 
@@ -651,7 +763,166 @@ const AdminDashboard = () => {
         setMemberFees(false);
         setMonthlyMemberFees(false);
         setLibraryFees(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
     }
+
+    const handleMemberReport = () => {
+        setMemberReport(true);
+        setSelectedItemName('Member Report');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+    }
+
+
+    const handleBookReport = () => {
+        setBookNames(true);
+        setSelectedItemName('Book Report');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+    }
+
+    const handleOnlyDateReport = () => {
+        setOnlyDate(true);
+        setSelectedItemName('Only Date Report');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+    }
+
+    const handleOnlyMemberReport = () => {
+        setOnlyMemberName(true);
+        setSelectedItemName('Only Member Report');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyBookName(false);
+    }
+
+
+
+    const handleOnlyBookReport = () => {
+        setOnlyBookName(true);
+        setSelectedItemName('Only Book Name Report');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+    }
+
 
     //change password
     const handleChange = (event) => {
@@ -765,6 +1036,9 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={hendleBookScrap}>
                                                 <FileEarmarkX className="me-2 icon" /> Book Scrap
                                             </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
+                                                <BookFill className="icon me-2" /> Book Details
+                                            </ListGroup.Item>
                                             {/* <ListGroup.Item className="purchase-icon mt-1" action onClick={handlePurchaseDetailsClick}>
                                             <CartPlusFill className="icon" /> Purchase
                                         </ListGroup.Item> */}
@@ -792,19 +1066,29 @@ const AdminDashboard = () => {
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookPublication(); setShowSidebar(false); }}>
                                                 <BookHalf className="me-2" /> Book Publication
                                             </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
-                                                <BookFill className="icon me-2" /> Book Details
-                                            </ListGroup.Item>
                                         </div>
                                     )}
+                                    
                                     {/* report */}
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryReportSubItems}>
                                         <Archive className="icon me-2" /> Inventory Report
                                     </ListGroup.Item>
                                     {showInventoryReportSubItems && (
                                         <div className='ms-2'>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookDetailsClick(); setShowSidebar(false); }}>
-                                                <BookFill className="icon me-2" /> Book Details/List
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleMemberReport(); setShowSidebar(false); }}>
+                                                <PersonCircle className="icon me-2" /> Member Report
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookReport(); setShowSidebar(false); }}>
+                                                <BookFill className="icon me-2" /> Book Report
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleOnlyDateReport(); setShowSidebar(false); }}>
+                                                <Calendar className="icon me-2" /> Date
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleOnlyMemberReport(); setShowSidebar(false); }}>
+                                                <PersonFill className="icon me-2" /> Member
+                                            </ListGroup.Item>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleOnlyBookReport(); setShowSidebar(false); }}>
+                                                <Book className="icon me-2" /> Book
                                             </ListGroup.Item>
                                         </div>
                                     )}
@@ -920,6 +1204,11 @@ const AdminDashboard = () => {
                     {memberFees && <MembershipFees />}
                     {monthlyMemberFees && <MonthlyMembershipFee />}
 
+                    {memberReport && <MemberReport />}
+                    {bookNames && <BookReport />}
+                    {onlyDate && <OnlyDate />}
+                    {onlyMemberName && <OnlyMemberName />}
+                    {onlyBookName && <OnlyBookName />}
 
                 </Container>
                 {/* <Footer /> */}
