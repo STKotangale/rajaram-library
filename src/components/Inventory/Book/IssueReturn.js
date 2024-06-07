@@ -185,8 +185,8 @@ const IssueReturn = () => {
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting invoice:', error);
-            toast.error('Error submitting invoice. Please try again.');
+            console.error('Error submitting issue return:', error);
+            toast.error('Error submitting issue return. Please try again.');
         }
     };
 
@@ -303,7 +303,7 @@ const IssueReturn = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Issue Return No</Form.Label>
                                     <Form.Control
-                                        placeholder="Issue Return number"
+                                        placeholder="Issue return number"
                                         type="text"
                                         className="small-input"
                                         value={issueReturnNumber}
@@ -323,7 +323,7 @@ const IssueReturn = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         className="small-input"
                                         value={selectedUsername}
@@ -335,7 +335,7 @@ const IssueReturn = () => {
                                                 {member.username}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                     {errorMessage && (
                                         <div className="error-message text-danger mt-3">{errorMessage}</div>
                                     )}

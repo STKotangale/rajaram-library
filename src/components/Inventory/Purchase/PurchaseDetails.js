@@ -219,16 +219,16 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             });
     
             if (!response.ok) {
-                throw new Error(`Failed to submit invoice: ${response.status} - ${response.statusText}`);
+                throw new Error(`Failed to submit purchase: ${response.status} - ${response.statusText}`);
             }
             const stockDetails = await response.json();
-            toast.success("Invoice successfully submitted.");
+            toast.success("Purchase successfully submitted.");
             handlePurchaseSubmit();
             fetchPurchases();
     
         } catch (error) {
-            console.error('Error submitting invoice:', error.message);
-            toast.error('Error submitting invoice. Please try again.');
+            console.error('Error submitting purchase:', error.message);
+            toast.error('Error submitting purchase. Please try again.');
         }
     };
     
@@ -313,9 +313,9 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                                 <Form onSubmit={handleSubmit}>
                                     <Row className="mb-3">
                                         <Form.Group as={Col} lg={3} >
-                                            <Form.Label>Invoice No</Form.Label>
+                                            <Form.Label>Purchase No</Form.Label>
                                             <Form.Control
-                                                placeholder="Invoice number"
+                                                placeholder="Purchase number"
                                                 type="text"
                                                 className="small-input"
 
@@ -324,7 +324,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                                             />
                                         </Form.Group>
                                         <Form.Group as={Col} lg={3} >
-                                            <Form.Label>Invoice Date</Form.Label>
+                                            <Form.Label>Purchase Date</Form.Label>
                                             <Form.Control
                                                 type="date"
                                                 value={invoiceDate}

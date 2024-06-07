@@ -246,8 +246,8 @@ const PurchaseReturn = () => {
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting invoice:', error);
-            toast.error('Error submitting invoice. Please try again.');
+            console.error('Error submitting purchase return:', error);
+            toast.error('Error submitting purchase return. Please try again.');
         }
     };
 
@@ -360,8 +360,8 @@ const PurchaseReturn = () => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Purchaser Name</th>
-                                    <th>Invoice No</th>
-                                    <th>Invoice Date</th>
+                                    <th>Purchase Return No</th>
+                                    <th>Purchase Return Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -403,9 +403,9 @@ const PurchaseReturn = () => {
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No.</Form.Label>
+                                    <Form.Label>Purchase Return No.</Form.Label>
                                     <Form.Control
-                                        placeholder="Invoice number"
+                                        placeholder="Purchase return number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -413,7 +413,7 @@ const PurchaseReturn = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice Date</Form.Label>
+                                    <Form.Label>Purchase Return Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -425,7 +425,7 @@ const PurchaseReturn = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Purchaser Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         className="small-input"
                                         value={selectedPurchaserId || ""}
@@ -437,7 +437,7 @@ const PurchaseReturn = () => {
                                                 {purchaser.ledgerName}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">
@@ -456,7 +456,7 @@ const PurchaseReturn = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Control
+                                                    <Form.Select
                                                         as="select"
                                                         value={row.bookName}
                                                         onChange={(e) => handleBookNameChange(index, e.target.value)}
@@ -467,10 +467,10 @@ const PurchaseReturn = () => {
                                                                 {book.bookName}
                                                             </option>
                                                         ))}
-                                                    </Form.Control>
+                                                    </Form.Select>
                                                 </td>
                                                 <td>
-                                                    <Form.Control
+                                                    <Form.Select
                                                         as="select"
                                                         value={row.purchaseCopyNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
@@ -481,7 +481,7 @@ const PurchaseReturn = () => {
                                                                 {detail.accessionNo}
                                                             </option>
                                                         ))}
-                                                    </Form.Control>
+                                                    </Form.Select>
                                                 </td>
                                                 <td>
                                                     <Form.Control
@@ -590,7 +590,7 @@ const PurchaseReturn = () => {
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice No.</Form.Label>
+                                        <Form.Label>Purchase Return No.</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
@@ -599,7 +599,7 @@ const PurchaseReturn = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Label>Purchase Return Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={selectedRowDetails[0]?.invoiceDate}
@@ -722,7 +722,7 @@ const PurchaseReturn = () => {
                 </div>
             </Modal>
 
-            {/* delete modal */}
+            {/* Delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>

@@ -242,8 +242,8 @@ const BookLost = () => {
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting invoice:', error);
-            toast.error('Error submitting invoice. Please try again.');
+            console.error('Error submitting book lost:', error);
+            toast.error('Error submitting book lost. Please try again.');
         }
     };
 
@@ -345,13 +345,13 @@ const BookLost = () => {
                         </Button>
                     </div>
                     <div className="table-responsive table-height mt-4">
-                        <Table striped bordered hover className='mt-4'>
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Purchaser Name</th>
-                                    <th>Invoice No</th>
-                                    <th>Invoice Date</th>
+                                    <th>Book Lost No</th>
+                                    <th>Book Lost Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -393,9 +393,9 @@ const BookLost = () => {
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No.</Form.Label>
+                                    <Form.Label>Book Lost No.</Form.Label>
                                     <Form.Control
-                                        placeholder="Invoice number"
+                                        placeholder="Book lost number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -403,7 +403,7 @@ const BookLost = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice Date</Form.Label>
+                                    <Form.Label>Book Lost Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -415,7 +415,7 @@ const BookLost = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Purchaser Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         className="small-input"
                                         value={selectedPurchaserId || ""}
@@ -427,7 +427,7 @@ const BookLost = () => {
                                                 {purchaser.ledgerName}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">
@@ -446,7 +446,7 @@ const BookLost = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Control
+                                                    <Form.Select
                                                         as="select"
                                                         value={row.bookName}
                                                         onChange={(e) => handleBookNameChange(index, e.target.value)}
@@ -457,21 +457,24 @@ const BookLost = () => {
                                                                 {book.bookName}
                                                             </option>
                                                         ))}
-                                                    </Form.Control>
+                                                    </Form.Select>
                                                 </td>
                                                 <td>
-                                                    <Form.Control
+                                                    <Form.Select
                                                         as="select"
                                                         value={row.purchaseCopyNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
                                                         <option value="">Select accession no</option>
-                                                        {row.details && row.details.map(detail => (
-                                                            <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                {detail.accessionNo}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                        {row.details && row.details
+                                                            .filter(detail => detail.accessionNo !== null)
+                                                            .map(detail => (
+                                                                <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
+                                                                    {detail.accessionNo}
+                                                                </option>
+                                                            ))
+                                                        }
+                                                    </Form.Select>
                                                 </td>
                                                 <td>
                                                     <Form.Control
@@ -580,7 +583,7 @@ const BookLost = () => {
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice No.</Form.Label>
+                                        <Form.Label>Book Lost No.</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
@@ -589,7 +592,7 @@ const BookLost = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Label>Book Lost Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={selectedRowDetails[0]?.invoiceDate}
@@ -712,7 +715,7 @@ const BookLost = () => {
                 </div>
             </Modal>
 
-            {/* delete modal */}
+            {/*Delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>

@@ -267,8 +267,8 @@ const BookIssue = () => {
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting invoice:', error);
-            toast.error('Error submitting invoice. Please try again.');
+            console.error('Error submitting issue:', error);
+            toast.error('Error submitting issue. Please try again.');
         }
     };
 
@@ -398,8 +398,8 @@ const BookIssue = () => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Member Name</th>
-                                    <th>Invoice No</th>
-                                    <th>Invoice Date</th>
+                                    <th>Issue No</th>
+                                    <th>Issue Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -438,7 +438,7 @@ const BookIssue = () => {
                         <Form>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No</Form.Label>
+                                    <Form.Label>Issue No</Form.Label>
                                     <Form.Control
                                         placeholder="Issue number"
                                         type="text"
@@ -448,7 +448,7 @@ const BookIssue = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice Date</Form.Label>
+                                    <Form.Label>Issue Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={issueDate}
@@ -460,7 +460,7 @@ const BookIssue = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         className="small-input"
                                         value={selectedMemberId}
@@ -472,7 +472,7 @@ const BookIssue = () => {
                                                 {member.username}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
                             <div className='error-message'>
@@ -562,7 +562,7 @@ const BookIssue = () => {
                             <Form>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice No</Form.Label>
+                                        <Form.Label>Issue No</Form.Label>
                                         <Form.Control
                                             placeholder="Issue number"
                                             type="text"
@@ -572,7 +572,7 @@ const BookIssue = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Label>Issue Date</Form.Label>
                                         <Form.Control
                                             value={viewDetails.invoiceDate}
                                             className="custom-date-picker small-input"

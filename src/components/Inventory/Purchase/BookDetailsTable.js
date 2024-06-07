@@ -12,14 +12,14 @@ const BookDetailsTable = () => {
 
     const [filtered, setFiltered] = useState([]);
     const [bookNameQuery, setBookNameQuery] = useState("");
-    const [purchaseCopyNoQuery, setPurchaseCopyNoQuery] = useState("");
+    const [accessionNoQuery, setAccessionNoQuery] = useState("");
 
     useEffect(() => {
         setFiltered(bookDetails.filter(member =>
             member.bookName.toLowerCase().includes(bookNameQuery.toLowerCase()) &&
-            member.purchaseCopyNo.toLowerCase().includes(purchaseCopyNoQuery.toLowerCase())
+            (accessionNoQuery ? (member.accessionNo && member.accessionNo.toLowerCase().includes(accessionNoQuery.toLowerCase())) : true)
         ));
-    }, [bookNameQuery, purchaseCopyNoQuery]);
+    }, [bookNameQuery, accessionNoQuery]);
 
     //get book purchase
     const [bookDetails, setBookDetails] = useState([]);
@@ -192,9 +192,9 @@ const BookDetailsTable = () => {
                         />
                         <Form.Control
                             type="text"
-                            placeholder="Search by Purchase Copy No"
-                            value={purchaseCopyNoQuery}
-                            onChange={(e) => setPurchaseCopyNoQuery(e.target.value)}
+                            placeholder="Search by Accession  No"
+                            value={accessionNoQuery}
+                            onChange={(e) => setAccessionNoQuery(e.target.value)}
                             className="me-2 border border-success"
                         />
                     </div>

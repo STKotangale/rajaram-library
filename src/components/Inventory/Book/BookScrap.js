@@ -221,8 +221,8 @@ const BookScrap = () => {
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting invoice:', error);
-            toast.error('Error submitting invoice. Please try again.');
+            console.error('Error submitting book scrap:', error);
+            toast.error('Error submitting book scrap. Please try again.');
         }
     };
 
@@ -308,13 +308,13 @@ const BookScrap = () => {
                         </Button>
                     </div>
                     <div className="table-responsive table-height mt-4">
-                        <Table striped bordered hover className='mt-4'>
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Purchaser Name</th>
-                                    <th>Invoice No</th>
-                                    <th>Invoice Date</th>
+                                    <th>Book Scrap No</th>
+                                    <th>Book Scrap Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -357,9 +357,9 @@ const BookScrap = () => {
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice No.</Form.Label>
+                                    <Form.Label>Book Scrap No.</Form.Label>
                                     <Form.Control
-                                        placeholder="Invoice number"
+                                        placeholder="Book scrap number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -367,7 +367,7 @@ const BookScrap = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Invoice Date</Form.Label>
+                                    <Form.Label>Book Scrap Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -379,7 +379,7 @@ const BookScrap = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Purchaser Name</Form.Label>
-                                    <Form.Control
+                                    <Form.Select
                                         as="select"
                                         className="small-input"
                                         value={selectedPurchaserId || ""}
@@ -391,7 +391,7 @@ const BookScrap = () => {
                                                 {purchaser.ledgerName}
                                             </option>
                                         ))}
-                                    </Form.Control>
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">
@@ -410,7 +410,7 @@ const BookScrap = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Control
+                                                    <Form.Select
                                                         as="select"
                                                         value={row.bookName}
                                                         onChange={(e) => handleBookNameChange(index, e.target.value)}
@@ -421,21 +421,23 @@ const BookScrap = () => {
                                                                 {book.bookName}
                                                             </option>
                                                         ))}
-                                                    </Form.Control>
+                                                    </Form.Select>
                                                 </td>
                                                 <td>
-                                                    <Form.Control
+                                                    <Form.Select
                                                         as="select"
                                                         value={row.accessionNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
                                                         <option value="">Select accession no</option>
-                                                        {row.details && row.details.map(detail => (
-                                                            <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                {detail.accessionNo}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Control>
+                                                        {row.details && row.details
+                                                            .filter(detail => detail.accessionNo !== null)
+                                                            .map(detail => (
+                                                                <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
+                                                                    {detail.accessionNo}
+                                                                </option>
+                                                            ))}
+                                                    </Form.Select>
                                                 </td>
                                                 <td>
                                                     <Form.Control
@@ -495,7 +497,7 @@ const BookScrap = () => {
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice No.</Form.Label>
+                                        <Form.Label>Book Scrap No.</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
@@ -504,7 +506,7 @@ const BookScrap = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Invoice Date</Form.Label>
+                                        <Form.Label>Book Scrap Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={selectedRowDetails[0]?.invoiceDate}

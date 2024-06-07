@@ -494,8 +494,8 @@ const ViewPurchase = () => {
                                     <tr>
                                         <th>Sr. No.</th>
                                         <th>Purchaser Name</th>
-                                        <th>Invoice No</th>
-                                        <th>Invoice Date</th>
+                                        <th>Purchase No</th>
+                                        <th>Purchase Date</th>
                                         <th>Grand Total</th>
                                         <th>Actions</th>
                                     </tr>
@@ -752,7 +752,7 @@ const ViewPurchase = () => {
                                 <Form>
                                     <Row className="mb-3">
                                         <Form.Group as={Col} sm={3}>
-                                            <Form.Label>Invoice No</Form.Label>
+                                            <Form.Label>Purchase No</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 value={purchaseDetails.invoiceNo}
@@ -760,7 +760,7 @@ const ViewPurchase = () => {
                                             />
                                         </Form.Group>
                                         <Form.Group as={Col} sm={3}>
-                                            <Form.Label>Invoice Date</Form.Label>
+                                            <Form.Label>Purchase Date</Form.Label>
                                             <Form.Control
                                                 type="text"
                                                 value={purchaseDetails.invoiceDate}
