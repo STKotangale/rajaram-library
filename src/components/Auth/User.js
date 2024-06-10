@@ -15,6 +15,7 @@ const User = () => {
     const [showAddUserModal, setShowAddUserModal] = useState(false);
     const [newUserName, setNewUserName] = useState('');
     const [newUserEmail, setNewUserEmail] = useState('');
+    const [newMobileNumber, setNewMobileNumber] = useState('');
     const [newUserPassword, setNewUserPassword] = useState('');
     //edit
     const [showEditUserModal, setShowEditUserModal] = useState(false);
@@ -55,12 +56,12 @@ const User = () => {
 
     // Reset form fields
     const resetFormFields = () => {
-        // Reset form fields
         setNewUserName('');
         setNewUserEmail('');
         setNewUserPassword('');
+        setNewMobileNumber('');
     };
-    
+
     //post api
     const addUser = async (e) => {
         e.preventDefault();
@@ -74,7 +75,9 @@ const User = () => {
                 body: JSON.stringify({
                     username: newUserName,
                     email: newUserEmail,
-                    password: newUserPassword
+                    password: newUserPassword,
+                    mobileNo: parseInt(newMobileNumber)
+
                 }),
             });
             if (!response.ok) {
@@ -92,21 +95,29 @@ const User = () => {
         }
     };
 
-    //edit api
     const editUser = async (e) => {
         e.preventDefault();
         try {
+            const mobileNo = parseInt(newMobileNumber, 10);
+    
             const response = await fetch(`${BaseURL}/api/auth/${selectedUserId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: newUserName, useremail: newUserEmail, userpassword: newUserPassword }),
+                body: JSON.stringify({
+                    username: newUserName,
+                    useremail: newUserEmail,
+                    userpassword: newUserPassword,
+                    mobileNo: mobileNo
+                }),
             });
+    
             if (!response.ok) {
                 throw new Error(`Error editing User: ${response.statusText}`);
             }
+    
             const updatedUserData = await response.json();
             const updatedUsers = users.map(user => {
                 if (user.userId === selectedUserId) {
@@ -114,19 +125,18 @@ const User = () => {
                 }
                 return user;
             });
+    
             setUsers(updatedUsers);
             setShowEditUserModal(false);
             toast.success('User edited successfully.');
-            // Reset form fields
-            setNewUserName('');
-            setNewUserEmail('');
-            setNewUserPassword('');
+            resetFormFields();
             fetchUsers();
         } catch (error) {
             console.error(error);
             toast.error('Error editing User. Please try again later.');
         }
     };
+    
 
     //delete api
     const deleteUser = async () => {
@@ -192,7 +202,7 @@ const User = () => {
                     </Button>
                 </div>
                 <div className='mt-3'>
-                <div className="table-responsive table-height">
+                    <div className="table-responsive table-height">
                         <Table striped bordered hover>
                             <thead>
                                 <tr>
@@ -213,6 +223,7 @@ const User = () => {
                                                 setSelectedUserId(user.userId);
                                                 setNewUserName(user.username);
                                                 setNewUserEmail(user.useremail);
+                                                setNewMobileNumber(user.mobileNo);
                                                 setNewUserPassword('');
                                                 setShowEditUserModal(true);
                                             }} />
@@ -253,10 +264,25 @@ const User = () => {
                                     required
                                 />
                             </Form.Group>
+                            <Form.Group className="mb-3" controlId="newUserMobile">
+                                <Form.Label>Mobile No</Form.Label>
+                                <Form.Control
+                                    type="tel"
+                                    placeholder="Mobile Number"
+                                    value={newMobileNumber}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value) && value.length <= 10) {
+                                            setNewMobileNumber(value);
+                                        }
+                                    }}
+                                    required
+                                />
+                            </Form.Group>
                             <Form.Group className="mb-3" controlId="newUserEmail">
                                 <Form.Label>Email</Form.Label>
                                 <Form.Control
-                                    type="text"
+                                    type="email"
                                     placeholder="Enter email"
                                     value={newUserEmail}
                                     onChange={(e) => setNewUserEmail(e.target.value)}
@@ -304,6 +330,7 @@ const User = () => {
                 </Modal>
 
                 {/* Edit User Modal */}
+                {/* Edit User Modal */}
                 <Modal show={showEditUserModal} onHide={() => { setShowEditUserModal(false); resetFormFields(); }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Edit User</Modal.Title>
@@ -317,6 +344,21 @@ const User = () => {
                                     placeholder="Enter edited User name"
                                     value={newUserName}
                                     onChange={(e) => setNewUserName(e.target.value)}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group className="mb-3" controlId="newUserMobile">
+                                <Form.Label>Mobile No</Form.Label>
+                                <Form.Control
+                                    type="tel"
+                                    placeholder="Mobile Number"
+                                    value={newMobileNumber}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+                                        if (/^\d*$/.test(value) && value.length <= 10) {
+                                            setNewMobileNumber(value);
+                                        }
+                                    }}
                                     required
                                 />
                             </Form.Group>
@@ -384,7 +426,16 @@ const User = () => {
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
-
+                                <Form.Group as={Col}>
+                                    <Form.Label>Mobile No</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        value={viewUser ? viewUser.mobileNo : ''}
+                                        readOnly
+                                    />
+                                </Form.Group>
+                            </Row>
+                            <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Email</Form.Label>
                                     <Form.Control

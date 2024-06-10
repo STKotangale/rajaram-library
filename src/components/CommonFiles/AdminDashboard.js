@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useEffect, useState } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col, Row } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX, CurrencyDollar, Calendar, Gear } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, GearWideConnected, People, PersonFill, PeopleFill, CartPlus, AddUserCircle, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX, CurrencyDollar, Calendar, Gear, PlusCircle, Arrow90degRight, Arrow90degLeft } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
@@ -44,6 +44,7 @@ import BookReport from '../InventoryReport/BookReport';
 import OnlyDate from '../InventoryReport/OnlyDate';
 import OnlyMemberName from '../InventoryReport/OnlyMemberName';
 import OnlyBookName from '../InventoryReport/OnlyBookName';
+import { ArrowBackIosTwoTone } from '@material-ui/icons';
 
 
 const AdminDashboard = () => {
@@ -127,6 +128,13 @@ const AdminDashboard = () => {
     const [showAdminSubItems, setShowAdminSubItems] = useState(false);
     const toggleAdminSubItems = () => {
         setShowAdminSubItems(!showAdminSubItems);
+    };
+
+    //issue report
+    const [showIssues, setShowIssues] = useState(false);
+    const toggleIssues = () => {
+        setShowIssues(!showIssues);
+        setShowSidebar(false);
     };
 
     //show name in navbar
@@ -396,6 +404,7 @@ const AdminDashboard = () => {
         setBookLost(false);
         setBookScrap(false);
         setMemberFees(false);
+        setMonthlyMemberFees(false);
         setLibraryFees(false);
         setConfig(false);
         setMemberReport(false);
@@ -924,6 +933,68 @@ const AdminDashboard = () => {
     }
 
 
+
+    const handleIssue1 = () => {
+        setSelectedItemName('Issue 1');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+
+    }
+
+    const handleIssue2 = () => {
+        setSelectedItemName('Issue 2');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+    }
+
     //change password
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -1068,28 +1139,44 @@ const AdminDashboard = () => {
                                             </ListGroup.Item>
                                         </div>
                                     )}
-                                    
+
                                     {/* report */}
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryReportSubItems}>
                                         <Archive className="icon me-2" /> Inventory Report
                                     </ListGroup.Item>
                                     {showInventoryReportSubItems && (
                                         <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={toggleIssues}>
+                                                <PlusCircle className="icon me-2" /> Issue Report
+                                            </ListGroup.Item>
+
+                                            {showIssues && (
+                                                <>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleIssue1(); setShowSidebar(false); }}>
+                                                        <ExclamationTriangleFill className="icon me-2" /> Issue 1
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleIssue2(); setShowSidebar(false); }}>
+                                                        <ExclamationTriangleFill className="icon me-2" /> Issue 2
+                                                    </ListGroup.Item>
+                                                </>
+                                            )}
+
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleMemberReport(); setShowSidebar(false); }}>
-                                                <PersonCircle className="icon me-2" /> Member Report
+                                                <Arrow90degRight className="icon me-2" /> Pattern 1
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleBookReport(); setShowSidebar(false); }}>
-                                                <BookFill className="icon me-2" /> Book Report
+                                                <Arrow90degRight className="icon me-2" /> Pattern 2
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleOnlyDateReport(); setShowSidebar(false); }}>
-                                                <Calendar className="icon me-2" /> Date
+                                                <Arrow90degRight className="icon me-2" /> Pattern 3
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleOnlyMemberReport(); setShowSidebar(false); }}>
-                                                <PersonFill className="icon me-2" /> Member
+                                                <Arrow90degRight className="icon me-2" /> Pattern 4
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleOnlyBookReport(); setShowSidebar(false); }}>
-                                                <Book className="icon me-2" /> Book
+                                                <Arrow90degRight className="icon me-2" /> Pattern 5
                                             </ListGroup.Item>
+
                                         </div>
                                     )}
 

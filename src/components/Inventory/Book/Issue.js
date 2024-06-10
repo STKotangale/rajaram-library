@@ -34,6 +34,7 @@ const BookIssue = () => {
         fetchBookDetails();
     }, [username, accessToken]);
 
+    //get all isuue
     const fetchIssue = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/all`, {
@@ -52,6 +53,7 @@ const BookIssue = () => {
         }
     };
 
+    //get username
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -70,6 +72,8 @@ const BookIssue = () => {
         }
     };
 
+
+    //get book details is updated with accession number
     const fetchBookDetails = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/bookdetails/copyno`);
@@ -84,6 +88,7 @@ const BookIssue = () => {
         }
     };
 
+    //online booking with accession number or without accession number 
     const fetchBookingDetails = async (memberId) => {
         try {
             const response = await fetch(`${BaseURL}/api/member-bookings/bookings/${memberId}`, {
@@ -102,10 +107,23 @@ const BookIssue = () => {
         }
     };
 
+
+    const [allBookDetails, setAllBookDetails] = useState([]);
+
+    useEffect(() => {
+        const combinedBooks = [...new Map(bookDetails.map(book => [book.bookId, book]).concat(
+            memberBookings.map(booking => [booking.book_idF, {
+                bookId: booking.book_idF,
+                bookName: booking.bookName
+            }])
+        )).values()];
+        setAllBookDetails(combinedBooks);
+    }, [bookDetails, memberBookings]);
+
     const handleBookChangeForRow = (index, event) => {
         const updatedRows = [...rows];
         const selectedBookId = event.target.value;
-        const selectedBook = memberBookings.find(book => book.book_idF === Number(selectedBookId));
+        const selectedBook = allBookDetails.find(book => book.bookId === Number(selectedBookId));
 
         updatedRows[index] = {
             ...updatedRows[index],
@@ -115,6 +133,21 @@ const BookIssue = () => {
         };
         setRows(updatedRows);
     };
+
+
+    // const handleBookChangeForRow = (index, event) => {
+    //     const updatedRows = [...rows];
+    //     const selectedBookId = event.target.value;
+    //     const selectedBook = memberBookings.find(book => book.book_idF === Number(selectedBookId));
+
+    //     updatedRows[index] = {
+    //         ...updatedRows[index],
+    //         bookId: selectedBookId,
+    //         bookName: selectedBook ? selectedBook.bookName : '',
+    //         accessionNo: ''
+    //     };
+    //     setRows(updatedRows);
+    // };
 
     const handleBookDetailsChangeForRow = (index, event) => {
         const updatedRows = [...rows];
@@ -136,6 +169,7 @@ const BookIssue = () => {
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
     };
+
 
     const checkMembershipFees = async (memberId, date) => {
         try {
@@ -177,6 +211,7 @@ const BookIssue = () => {
         }
     };
 
+    //member change 
     const handleMemberChange = async (e) => {
         const newMemberId = e.target.value;
         setSelectedMemberId(newMemberId);
@@ -196,20 +231,26 @@ const BookIssue = () => {
         }
     };
 
-    // Reset form fields
+
+
+    // // Function to calculate the quantity
+    // const calculateQuantity = () => {
+    //     return rows.filter(row => row.bookId && row.accessionNo).length;
+    // };
+
     const resetFormFields = () => {
         setIssueNumber('');
         setIssueDate('');
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
+        setMembershipChecked(false);
+        setErrorMessage('');
+        setMemberBookings([]);  
     };
 
-    // Function to calculate the quantity
-    const calculateQuantity = () => {
-        return rows.filter(row => row.bookId && row.accessionNo).length;
-    };
 
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -225,14 +266,14 @@ const BookIssue = () => {
             }));
 
         const formattedDate = formatDateForPayload(issueDate);
-        const quantity = calculateQuantity();
+        // const quantity = calculateQuantity();
 
         const payload = {
             invoiceNo: issueNumber,
             invoiceDate: formattedDate,
             generalMemberId: selectedMemberId,
             bookDetails: bookDetailsPayload,
-            qty: quantity,
+            // qty: quantity,
         };
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-issue`, {
@@ -272,6 +313,7 @@ const BookIssue = () => {
         }
     };
 
+    // update api block status change
     const updateBlockStatus = async (membOnlineIds) => {
         try {
             const response = await fetch(`${BaseURL}/api/member-bookings/update-block-status`, {
@@ -295,11 +337,14 @@ const BookIssue = () => {
         }
     };
 
+    //delete function
     const handleDeleteClick = (issue) => {
         setIssueToDelete(issue);
         setShowDeleteModal(true);
     };
 
+
+    //delete api
     const handleDeleteConfirm = async () => {
         if (!issueToDelete) return;
 
@@ -392,8 +437,8 @@ const BookIssue = () => {
                             Add Book Issue
                         </Button>
                     </div>
-                    <div className="table-responsive table-height">
-                        <Table striped bordered hover className='mt-4'>
+                    <div className="table-responsive table-height mt-4">
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
@@ -429,6 +474,7 @@ const BookIssue = () => {
                 </div>
             </Container>
 
+            {/* add modal */}
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
@@ -497,22 +543,34 @@ const BookIssue = () => {
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
                                                         <Form.Group as={Col}>
-                                                            <Form.Control
+                                                            {/* <Form.Select
                                                                 as="select"
                                                                 value={row.bookId}
                                                                 onChange={(e) => handleBookChangeForRow(index, e)}
                                                             >
                                                                 <option value="">Select a book</option>
-                                                                {memberBookings.map((book) => (
+                                                                {bookDetails.map((book) => (
                                                                     <option key={book.book_idF} value={book.book_idF}>
                                                                         {book.bookName}
                                                                     </option>
                                                                 ))}
-                                                            </Form.Control>
+                                                            </Form.Select> */}
+                                                            <Form.Select
+                                                                as="select"
+                                                                value={row.bookId}
+                                                                onChange={(e) => handleBookChangeForRow(index, e)}
+                                                            >
+                                                                <option value="">Select a book</option>
+                                                                {allBookDetails.map((book) => (
+                                                                    <option key={book.bookId} value={book.bookId}>
+                                                                        {book.bookName}
+                                                                    </option>
+                                                                ))}
+                                                            </Form.Select>
                                                         </Form.Group>
                                                     </td>
                                                     <td>
-                                                        <Form.Control
+                                                        <Form.Select
                                                             as="select"
                                                             value={row.accessionNo}
                                                             onChange={(e) => handleBookDetailsChangeForRow(index, e)}
@@ -523,7 +581,7 @@ const BookIssue = () => {
                                                                     {detail.accessionNo}
                                                                 </option>
                                                             ))}
-                                                        </Form.Control>
+                                                        </Form.Select>
                                                     </td>
                                                     <td>
                                                         <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />

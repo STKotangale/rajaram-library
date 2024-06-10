@@ -354,8 +354,8 @@ const PurchaseReturn = () => {
                             Add Purchase Return
                         </Button>
                     </div>
-                    <div className="table-responsive table-height">
-                        <Table striped bordered hover className='mt-4'>
+                    <div className="table-responsive table-height mt-4">
+                        <Table striped bordered hover >
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>

@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
@@ -9,19 +10,22 @@ import { Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 const IssueReturn = () => {
     const [issueReturn, setIssueReturn] = useState([]);
     const [generalMember, setGeneralMember] = useState([]);
-    const [selectedUsername, setSelectedUsername] = useState("");
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [rows, setRows] = useState([]);
     const [issueReturnNumber, setIssueReturnNumber] = useState('');
-    const [issueReturnDate, setIssueReturnDate] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
     const [issueReturnToDelete, setIssueReturnToDelete] = useState(null);
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
+
+    const [selectedMemberId, setSelectedMemberId] = useState("");
+    const [issueReturnDate, setIssueReturnDate] = useState('');
+    // const [fineAmounts, setFineAmounts] = useState({});
+
 
     useEffect(() => {
         fetchIssueReturn();
@@ -75,41 +79,174 @@ const IssueReturn = () => {
         }
     };
 
-    const handleMemberNameSelect = async (e) => {
-        const username = e.target.value;
-        setSelectedUsername(username);
+
+    const handleDateSelect = async (e) => {
+        const date = e.target.value;
+        setIssueReturnDate(date);
         setErrorMessage('');
 
-        if (username) {
-            try {
-                const response = await fetch(`${BaseURL}/api/issue/detail/${username}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
-                if (!response.ok) {
-                    throw new Error(`Error fetching issue details: ${response.statusText}`);
-                }
-                const data = await response.json();
-                if (data.length === 0) {
-                    setErrorMessage('This username has no issue details or does not exist.');
-                } else {
-                    const bookRows = data.map(item => ({
-                        bookId: item.bookId,
-                        bookDetailId: item.bookDetailId,
-                        bookName: item.bookName,
-                        accessionNo: item.accessionNo
-                    }));
-                    setRows(bookRows);
-                }
-            } catch (error) {
-                console.error('Error fetching issue details:', error.message);
-                toast.error('Error fetching issue details. Please try again later.');
-            }
-        } else {
-            setRows([]);
+        if (selectedMemberId && date) {
+            fetchIssueReturnDetails(selectedMemberId, date);
         }
     };
+
+    const handleMemberSelect = async (e) => {
+        const memberId = e.target.value;
+        setSelectedMemberId(memberId);
+        setErrorMessage('');
+
+        if (memberId && issueReturnDate) {
+            fetchIssueReturnDetails(memberId, issueReturnDate);
+        }
+    };
+
+    //fine  per day amount change
+    // const handleFinePerDayChange = (bookDetailId, value) => {
+    //     setRows(prevRows =>
+    //         prevRows.map(row =>
+    //             row.bookDetailId === bookDetailId ? { ...row, finePerDays: value } : row
+    //         )
+    //     );
+    // };
+    // const handleFinePerDayChange = (bookDetailId, value) => {
+    //     setRows(prevRows =>
+    //         prevRows.map(row =>
+    //             row.bookDetailId === bookDetailId ? { ...row, finePerDays: value } : row
+    //         )
+    //     );
+    //     const extraDays = calculateExtraDays(bookDetailId);
+    //     const fineAmount = calculateFineAmount(value, extraDays);
+    //     setFineAmounts(prevAmounts => ({
+    //         ...prevAmounts,
+    //         [bookDetailId]: fineAmount
+    //     }));
+    // };
+
+    // const calculateExtraDays = (bookDetailId) => {
+    //     const row = rows.find(r => r.bookDetailId === bookDetailId);
+    //     if (!row) return 0;
+    //     return row.fineDays;
+    // };
+
+    // const calculateFineAmount = (finePerDay, extraDays) => {
+    //     return finePerDay * extraDays;
+    // };
+
+
+    //fine amount change
+    // const handleFineAmountChange = (bookDetailId, value) => {
+    //     setFineAmounts(prevFineAmounts => ({
+    //         ...prevFineAmounts,
+    //         [bookDetailId]: value,
+    //     }));
+    // };
+    // const handleFineAmountChange = (bookDetailId, value) => {
+    //     setFineAmounts(prevFineAmounts => ({
+    //         ...prevFineAmounts,
+    //         [bookDetailId]: value,
+    //     }));
+
+    //     const extraDays = calculateExtraDays(bookDetailId);
+    //     const newFineAmount = calculateFineAmount(value, extraDays);
+    //     console.log(`Updated fine amount for bookDetailId ${bookDetailId}:`, newFineAmount);
+    // };
+
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+
+    const handleFinePerDayChange = (index, value) => {
+        setRows(prevRows =>
+            prevRows.map((row, idx) =>
+                idx === index ? { ...row, finePerDays: Number(value), fineManuallyChanged: false, fineAmount: Number(value) * row.fineDays } : row
+            )
+        );
+    };
+    
+    const handleFineAmountChange = (index, value) => {
+        setRows(prevRows =>
+            prevRows.map((row, idx) =>
+                idx === index ? { ...row, fineAmount: Number(value), fineManuallyChanged: true } : row
+            )
+        );
+    };
+    
+
+
+    //memberid and date api get
+    // const fetchIssueReturnDetails = async (memberId, date) => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching issue details: ${response.statusText}`);
+    //         }
+    //         const data = await response.json();
+    //         if (data.length === 0) {
+    //             setErrorMessage('This username has no issue details or does not exist.');
+    //         } else {
+    //             const bookRows = data.map(item => ({
+    //                 bookId: item.bookId,
+    //                 // bookDetailId: item.bookDetailId,
+    //                 bookdetailId: item.bookdetailId,
+    //                 stockDetailId: item.stockDetailId,
+    //                 bookName: item.bookName,
+    //                 accessionNo: item.accessionNo,
+    //                 invoiceDate: item.invoiceDate,
+    //                 daysKept: item.daysKept,//total day
+    //                 finePerDays: item.finePerDays,//how may fine one day
+    //                 fineDays: item.fineDays,//how may days late
+    //                 fineAmount: item.fineAmount,//how may days late
+    //             }));
+    //             setRows(bookRows);
+    //             const initialFineAmounts = {};
+    //             bookRows.forEach(row => {
+    //                 initialFineAmounts[row.bookDetailId] = row.fineAmount;
+    //             });
+    //             setFineAmounts(initialFineAmounts);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error fetching issue details:', error.message);
+    //         toast.error('Error fetching issue details. Please try again later.');
+    //     }
+    // };
+    const fetchIssueReturnDetails = async (memberId, date) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching issue details: ${response.statusText}`);
+            }
+            const data = await response.json();
+            if (data.length === 0) {
+                setErrorMessage('This username has no issue details or does not exist.');
+            } else {
+                const bookRows = data.map(item => ({
+                    bookId: item.bookId,
+                    bookdetailId: item.bookdetailId,
+                    stockDetailId: item.stockDetailId,
+                    bookName: item.bookName,
+                    accessionNo: item.accessionNo,
+                    invoiceDate: item.invoiceDate,
+                    daysKept: item.daysKept,
+                    finePerDays: item.finePerDays,
+                    fineDays: item.fineDays,
+                    fineAmount: item.fineAmount,
+                    fineManuallyChanged: false, // Add this flag
+                }));
+                setRows(bookRows);
+            }
+        } catch (error) {
+            console.error('Error fetching issue details:', error.message);
+            toast.error('Error fetching issue details. Please try again later.');
+        }
+    };
+    
+
 
     const formatDate = (date) => {
         if (!date) return '';
@@ -133,37 +270,97 @@ const IssueReturn = () => {
     const resetFormFields = () => {
         setIssueReturnNumber('');
         setIssueReturnDate('');
-        setSelectedUsername('');
+        setSelectedMemberId('');
         setRows([]);
         setSelectedRows([]);
+        // setFineAmounts({});
     };
 
-    const calculateQuantity = () => {
-        return selectedRows.length;
-    };
+    // const calculateQuantity = () => {
+    //     return selectedRows.length;
+    // };
+
+    // post api
+    // const handleSubmit = async (event) => {
+    //     event.preventDefault();
+
+    //     if (selectedRows.length === 0) {
+    //         toast.error('Please select at least one row to submit.');
+    //         return;
+    //     }
+
+    //     const bookDetailsPayload = selectedRows.map(row => ({
+    //         bookId: Number(row.bookId),
+    //         bookDetailIds: Number(row.bookDetailId)
+    //     }));
+
+    //     const memberId = generalMember.find(member => member.username === selectedMemberId)?.memberId;
+
+    //     const payload = {
+    //         issueNo: issueReturnNumber,
+    //         issueReturnDate: formatDate(issueReturnDate),
+    //         memberId,
+    //         bookDetailsList: bookDetailsPayload,
+    //         // qty: calculateQuantity()
+    //     };
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/return/create`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             },
+    //             body: JSON.stringify(payload)
+    //         });
+
+    //         if (response.ok) {
+    //             const purchaseDetails = await response.json();
+    //             toast.success(purchaseDetails.message);
+    //             setShowAddModal(false);
+    //             resetFormFields();
+    //             fetchIssueReturn();
+    //         } else {
+    //             const errorData = await response.json();
+    //             toast.error(errorData.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error submitting issue return:', error);
+    //         toast.error('Error submitting issue return. Please try again.');
+    //     }
+    // };
+
+
+
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (selectedRows.length === 0) {
-            toast.error('Please select at least one row to submit.');
-            return;
-        }
+        // Filter out only the selected rows
+        const selectedBookDetails = rows.filter(row => selectedRows.includes(row));
 
-        const bookDetailsPayload = selectedRows.map(row => ({
-            bookId: Number(row.bookId),
-            bookDetailIds: Number(row.bookDetailId)
-        }));
-
-        const memberId = generalMember.find(member => member.username === selectedUsername)?.memberId;
-
+        // Prepare the payload
         const payload = {
             issueNo: issueReturnNumber,
             issueReturnDate: formatDate(issueReturnDate),
-            memberId,
-            bookDetailsList: bookDetailsPayload,
-            qty: calculateQuantity()
+            memberId: generalMember.find(member => member.memberId === parseInt(selectedMemberId))?.memberId,
+            bookDetailsList: selectedBookDetails.map(row => ({
+                bookDetailIds: row.bookdetailId,
+                bookId: row.bookId,
+                stockDetailId: row.stockDetailId,
+                issuedate: (row.invoiceDate),
+                fineDays: row.fineDays,
+                finePerDays: row.finePerDays,
+                fineAmount: row.fineManuallyChanged ? row.fineAmount : row.finePerDays * row.fineDays // Use manually entered fine amount if present
+                // fineAmount: fineAmounts[row.bookDetailId]
+            }))
         };
+
+        // Check if there are any selected rows
+        if (selectedBookDetails.length === 0) {
+            toast.error('No books selected.');
+            return;
+        }
+
         try {
             const response = await fetch(`${BaseURL}/api/issue/return/create`, {
                 method: 'POST',
@@ -175,20 +372,21 @@ const IssueReturn = () => {
             });
 
             if (response.ok) {
-                const purchaseDetails = await response.json();
-                toast.success(purchaseDetails.message);
+                const data = await response.json();
+                toast.success(data.message || 'Issue return submitted successfully.');
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssueReturn();
             } else {
                 const errorData = await response.json();
-                toast.error(errorData.message);
+                toast.error(errorData.message || 'Failed to submit issue return.');
             }
         } catch (error) {
             console.error('Error submitting issue return:', error);
             toast.error('Error submitting issue return. Please try again.');
         }
     };
+
 
     const confirmDelete = async () => {
         try {
@@ -255,8 +453,8 @@ const IssueReturn = () => {
                             Add Book Issue Return
                         </Button>
                     </div>
-                    <div className="table-responsive table-height">
-                        <Table striped bordered hover className='mt-4'>
+                    <div className="table-responsive table-height mt-4">
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
@@ -315,7 +513,7 @@ const IssueReturn = () => {
                                     <Form.Control
                                         type="date"
                                         value={issueReturnDate}
-                                        onChange={(e) => setIssueReturnDate(e.target.value)}
+                                        onChange={handleDateSelect}
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
@@ -326,12 +524,12 @@ const IssueReturn = () => {
                                     <Form.Select
                                         as="select"
                                         className="small-input"
-                                        value={selectedUsername}
-                                        onChange={handleMemberNameSelect}
+                                        value={selectedMemberId}
+                                        onChange={handleMemberSelect}
                                     >
                                         <option value="">Select a member</option>
                                         {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.username}>
+                                            <option key={member.memberId} value={member.memberId}>
                                                 {member.username}
                                             </option>
                                         ))}
@@ -349,24 +547,93 @@ const IssueReturn = () => {
                                                 <th className='sr-size'>Sr. No.</th>
                                                 <th>Book Name</th>
                                                 <th>Accession No</th>
+                                                <th>Issue Date</th>
+                                                <th>Fine Per Day</th>
+                                                <th>Total Day</th>
+                                                <th>Extra Day</th>
+                                                <th>Fine Amount</th>
                                                 <th>Select Issue Return</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {rows.map((row, index) => (
+                                            {/* {rows.map((row, index) => (
                                                 <tr key={index} className={selectedRows.includes(row) ? 'selected-row' : ''}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>{row.bookName}</td>
                                                     <td>{row.accessionNo}</td>
+                                                    <td>{row.invoiceDate}</td>
                                                     <td>
                                                         <input
-                                                            type="checkbox"
-                                                            checked={selectedRows.includes(row)}
-                                                            onChange={() => handleRowSelect(row)}
+                                                            type="number"
+                                                            className="form-control form-control-sm"
+                                                            value={row.finePerDays}
+                                                            onChange={(e) => handleFinePerDayChange(row.bookDetailId, e.target.value)}
+                                                            style={{ width: '60px' }}
                                                         />
+                                                    </td>
+                                                    <td>{row.daysKept}</td>
+                                                    <td>{row.fineDays}</td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            style={{ width: '80px' }}
+                                                            className="form-control form-control-sm"
+                                                            value={fineAmounts[row.bookDetailId]}
+                                                            onChange={(e) => handleFineAmountChange(row.bookDetailId, e.target.value)}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <div className="d-flex justify-content-center align-items-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                className=""
+                                                                checked={selectedRows.includes(row)}
+                                                                onChange={() => handleRowSelect(row)}
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))} */}
+                                            {rows.map((row, index) => (
+                                                <tr key={index}>
+                                                    <td>{index + 1}</td>
+                                                    <td>{row.bookName}</td>
+                                                    <td>{row.accessionNo}</td>
+                                                    <td>{row.invoiceDate}</td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            className="form-control form-control-sm"
+                                                            value={row.finePerDays}
+                                                            onChange={(e) => handleFinePerDayChange(index, e.target.value)}
+                                                            style={{ width: '60px' }}
+                                                            onFocus={() => setSelectedRowIndex(index)}
+                                                        />
+                                                    </td>
+                                                    <td>{row.daysKept}</td>
+                                                    <td>{row.fineDays}</td>
+                                                    <td>
+                                                        <input
+                                                            type="number"
+                                                            style={{ width: '80px' }}
+                                                            className="form-control form-control-sm"
+                                                            value={row.fineAmount}
+                                                            onChange={(e) => handleFineAmountChange(index, e.target.value)}
+                                                            onFocus={() => setSelectedRowIndex(index)}
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <div className="d-flex justify-content-center align-items-center">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedRows.includes(row)}
+                                                                onChange={() => handleRowSelect(row)}
+                                                            />
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))}
+
                                         </tbody>
                                     </Table>
                                 )}

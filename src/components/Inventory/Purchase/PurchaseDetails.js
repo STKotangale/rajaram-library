@@ -300,7 +300,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
 
     return (
         <div className='mb-4 purchase-page scrollar'>
-            <div className='mt-1'>
+            <div className='mt-3'>
                 <ArrowReturnLeft className="back-icon" onClick={onBackButtonClick}>Back</ArrowReturnLeft>
             </div>
 
