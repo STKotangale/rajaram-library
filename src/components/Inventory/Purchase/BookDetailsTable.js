@@ -26,9 +26,6 @@ const BookDetailsTable = () => {
     //update book details
     const [showUpdateBookDetails, setShowUpdateBookDetails] = useState(false);
     const [selectedBook, setSelectedBook] = useState(null);
-    // get book type
-    const [bookTypes, setBookTypes] = useState([]);
-    const [selectedBookType, setSelectedBookType] = useState('');
     //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
     const { username, accessToken } = useAuth();
@@ -84,14 +81,9 @@ const BookDetailsTable = () => {
                 volumeNo: selectedBook.volumeNo,
                 fullCallNumber: selectedBook.fullCallNumber,
                 purchaseCopyNo: selectedBook.purchaseCopyNo,
-                typeofbook: selectedBookType,
                 accessionNo: selectedBook.accessionNo,
-                copyNo: selectedBook.copyNo,
-                // bookIssue: selectedBook.bookIssue,
-                // bookWorkingStart: selectedBook.bookWorkingStart,
-                // bookLostScrap: selectedBook.bookLostScrap,
+                copyNo: selectedBook.copyNo
             };
-            // const response = await fetch(`${BaseURL}/api/purchase/update/book-details/${selectedBook.bookDetailId}`, {
             const response = await fetch(`${BaseURL}/api/bookdetails/update/book-details/${selectedBook.bookDetailId}`, {
                 method: 'POST',
                 headers: {
@@ -111,41 +103,6 @@ const BookDetailsTable = () => {
             toast.error('Error updating book details. Please try again later.');
         }
     };
-
-
-    // another api call
-
-    //get book types
-    const fetchBookTypes = async () => {
-        try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching book types: ${response.statusText}`);
-            }
-            const data = await response.json();
-            setBookTypes(data.data);
-        } catch (error) {
-            console.error(error);
-            toast.error('Error fetching book types. Please try again later.');
-        }
-    };
-
-    const handleBookTypeChange = (event) => {
-        if (event && event.target) {
-            const selectedType = event.target.value;
-            setSelectedBookType(selectedType);
-        }
-    };
-
-
-    useEffect(() => {
-        fetchBookTypes();
-    }, []);
-
 
 
     //pagination function
@@ -205,6 +162,7 @@ const BookDetailsTable = () => {
                                     <th>Sr.No.</th>
                                     <th>Book Name</th>
                                     <th>Accession No</th>
+                                    <th>Purchase Copy No</th>
                                     <th>Rate</th>
                                     <th>Status</th>
                                     <th>Update</th>
@@ -216,6 +174,7 @@ const BookDetailsTable = () => {
                                         <td>{indexOfNumber + index + 1}</td>
                                         <td>{book.bookName}</td>
                                         <td>{book.accessionNo}</td>
+                                        <td>{book.purchaseCopyNo || ''}</td>
                                         <td>{book.book_rate}</td>
                                         <td>{book.status === 1 ? 'Updated' : 'Not Updated'}</td>
                                         <td>
@@ -271,7 +230,6 @@ const BookDetailsTable = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
                                         <Form.Label>Editor</Form.Label>
@@ -298,7 +256,6 @@ const BookDetailsTable = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="publicationYear">
                                         <Form.Label>Publication Year</Form.Label>
@@ -325,7 +282,6 @@ const BookDetailsTable = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="seriesTitle">
                                         <Form.Label>Series Title</Form.Label>
@@ -352,8 +308,6 @@ const BookDetailsTable = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
-
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="numberOfPages">
                                         <Form.Label>Number of Pages</Form.Label>
@@ -380,7 +334,6 @@ const BookDetailsTable = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="currentLocation">
                                         <Form.Label>Current Location</Form.Label>
@@ -407,46 +360,6 @@ const BookDetailsTable = () => {
                                         />
                                     </Form.Group>
                                 </Row>
-
-                                {/* <Row className="mb-3">
-                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
-                                        <Form.Label>Book Issue</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={selectedBook?.bookIssue || ''}
-                                            onChange={(e) => {
-                                                if (e.target.value.length <= 1) {
-                                                    setSelectedBook({ ...selectedBook, bookIssue: e.target.value });
-                                                }
-                                            }}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
-                                        <Form.Label>Book Working Start</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={selectedBook?.bookWorkingStart || ''}
-                                            onChange={(e) => {
-                                                if (e.target.value.length <= 1) {
-                                                    setSelectedBook({ ...selectedBook, bookWorkingStart: e.target.value });
-                                                }
-                                            }}
-                                        />
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" lg={4} as={Col} controlId="editor">
-                                        <Form.Label>Book Lost Scrap</Form.Label>
-                                        <Form.Control
-                                            type="text"
-                                            value={selectedBook?.bookLostScrap || ''}
-                                            onChange={(e) => {
-                                                if (e.target.value.length <= 1) {
-                                                    setSelectedBook({ ...selectedBook, bookLostScrap: e.target.value });
-                                                }
-                                            }}
-                                        />
-                                    </Form.Group>
-                                </Row> */}
-
                                 <Row className="mb-3">
                                     <Form.Group className="mb-3" lg={4} as={Col} controlId="fullCallNumber">
                                         <Form.Label>full Call Number </Form.Label>
@@ -483,7 +396,7 @@ const BookDetailsTable = () => {
                                             onChange={(e) => setSelectedBook({ ...selectedBook, copyNo: e.target.value })}
                                         />
                                     </Form.Group>
-                                    
+
                                 </Row>
 
 

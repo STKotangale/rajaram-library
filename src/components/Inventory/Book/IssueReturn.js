@@ -16,7 +16,6 @@ const IssueReturn = () => {
     const [rows, setRows] = useState([]);
     const [issueReturnNumber, setIssueReturnNumber] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
-    const [issueReturnToDelete, setIssueReturnToDelete] = useState(null);
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const { username, accessToken } = useAuth();
@@ -160,7 +159,7 @@ const IssueReturn = () => {
             )
         );
     };
-    
+
     const handleFineAmountChange = (index, value) => {
         setRows(prevRows =>
             prevRows.map((row, idx) =>
@@ -168,7 +167,7 @@ const IssueReturn = () => {
             )
         );
     };
-    
+
 
 
     //memberid and date api get
@@ -245,7 +244,7 @@ const IssueReturn = () => {
             toast.error('Error fetching issue details. Please try again later.');
         }
     };
-    
+
 
 
     const formatDate = (date) => {
@@ -262,19 +261,27 @@ const IssueReturn = () => {
         );
     };
 
-    const handleDelete = (issueReturnId) => {
-        setIssueReturnToDelete(issueReturnId);
-        setShowDeleteModal(true);
-    };
+
+
+    // const resetFormFields = () => {
+    //     setIssueReturnNumber('');
+    //     setIssueReturnDate('');
+    //     setSelectedMemberId('');
+    //     setRows([]);
+    //     setSelectedRows([]);
+    //     // setFineAmounts({});
+    // };
 
     const resetFormFields = () => {
-        setIssueReturnNumber('');
-        setIssueReturnDate('');
-        setSelectedMemberId('');
         setRows([]);
+        setIssueReturnNumber('');
         setSelectedRows([]);
-        // setFineAmounts({});
+        setSelectedDetail(null);
+        setSelectedMemberId("");
+        setIssueReturnDate('');
+        setSelectedRowIndex(null);
     };
+    
 
     // const calculateQuantity = () => {
     //     return selectedRows.length;
@@ -388,21 +395,40 @@ const IssueReturn = () => {
     };
 
 
+    const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
+
+    const handleDelete = (issueReturnId) => {
+        setIssueReturnIdToDelete(issueReturnId);
+        setShowDeleteModal(true);
+    };
     const confirmDelete = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/${issueReturnToDelete}`, {
-                method: 'DELETE',
+            const issueReturnDetails = issueReturn[issueReturnIdToDelete];
+            const bookDetailIds = issueReturnDetails.map(detail => detail.bookDetailsList.map(book => book.bookDetailIds)).flat();
+    
+            const response = await fetch(`${BaseURL}/api/bookdetails/update-status-issue-return`, {
+                method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
-                }
+                },
+                body: JSON.stringify(bookDetailIds)
             });
-
+    
             if (response.ok) {
+                // If the update is successful, delete the issue return
+                await fetch(`${BaseURL}/api/issue/${issueReturnIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`
+                    }
+                });
+    
                 toast.success('Issue return deleted successfully.');
                 fetchIssueReturn();
             } else {
                 const errorData = await response.json();
-                toast.error(errorData.message);
+                toast.error(errorData.message || 'Failed to update book details status.');
             }
         } catch (error) {
             console.error('Error deleting issue return:', error);
@@ -411,7 +437,40 @@ const IssueReturn = () => {
             setShowDeleteModal(false);
         }
     };
+    
 
+
+    // const handleDelete = (issueReturnId) => {
+    //     setIssueReturnToDelete(issueReturnId);
+    //     setShowDeleteModal(true);
+    // };
+
+    // const confirmDelete = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/${issueReturnToDelete}`, {
+    //             method: 'DELETE',
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+
+    //         if (response.ok) {
+    //             toast.success('Issue return deleted successfully.');
+    //             fetchIssueReturn();
+    //         } else {
+    //             const errorData = await response.json();
+    //             toast.error(errorData.message);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error deleting issue return:', error);
+    //         toast.error('Error deleting issue return. Please try again.');
+    //     } finally {
+    //         setShowDeleteModal(false);
+    //     }
+    // };
+
+
+   
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);
         setShowDetailModal(true);
@@ -651,7 +710,7 @@ const IssueReturn = () => {
                 </div>
             </Modal>
 
-            <Modal centered show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+            <Modal centered show={showDeleteModal} onHide={() => {setShowDeleteModal(false); resetFormFields()}}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Delete</Modal.Title>
                 </Modal.Header>
@@ -712,14 +771,22 @@ const IssueReturn = () => {
                                             <th className='sr-size'>Sr. No.</th>
                                             <th>Book Name</th>
                                             <th>Accession No</th>
+                                            <th>Issue Date</th>
+                                            <th>Fine Per Day</th>
+                                            <th>Fine Days</th>
+                                            <th>Fine Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {selectedDetail.map((detail, index) => (
+                                        {selectedDetail[0].bookDetailsList.map((detail, index) => (
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
-                                                <td>{detail.bookName}</td>
-                                                <td>{detail.accessionNo}</td>
+                                                <td>{detail.BookName}</td>
+                                                <td>{detail.AcessionNo}</td>
+                                                <td>{detail.issuedate}</td>
+                                                <td>{detail.finePerDays}</td>
+                                                <td>{detail.fineDays}</td>
+                                                <td>{detail.fineAmount}</td>
                                             </tr>
                                         ))}
                                     </tbody>

@@ -25,6 +25,9 @@ const BookIssue = () => {
     const [membershipChecked, setMembershipChecked] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
+    //view
+    const [viewDetails, setViewDetails] = useState(null);
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -72,7 +75,6 @@ const BookIssue = () => {
         }
     };
 
-
     //get book details is updated with accession number
     const fetchBookDetails = async () => {
         try {
@@ -107,7 +109,6 @@ const BookIssue = () => {
         }
     };
 
-
     const [allBookDetails, setAllBookDetails] = useState([]);
 
     useEffect(() => {
@@ -134,21 +135,6 @@ const BookIssue = () => {
         setRows(updatedRows);
     };
 
-
-    // const handleBookChangeForRow = (index, event) => {
-    //     const updatedRows = [...rows];
-    //     const selectedBookId = event.target.value;
-    //     const selectedBook = memberBookings.find(book => book.book_idF === Number(selectedBookId));
-
-    //     updatedRows[index] = {
-    //         ...updatedRows[index],
-    //         bookId: selectedBookId,
-    //         bookName: selectedBook ? selectedBook.bookName : '',
-    //         accessionNo: ''
-    //     };
-    //     setRows(updatedRows);
-    // };
-
     const handleBookDetailsChangeForRow = (index, event) => {
         const updatedRows = [...rows];
         updatedRows[index] = { ...updatedRows[index], accessionNo: event.target.value };
@@ -169,7 +155,6 @@ const BookIssue = () => {
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
     };
-
 
     const checkMembershipFees = async (memberId, date) => {
         try {
@@ -211,7 +196,6 @@ const BookIssue = () => {
         }
     };
 
-    //member change 
     const handleMemberChange = async (e) => {
         const newMemberId = e.target.value;
         setSelectedMemberId(newMemberId);
@@ -231,13 +215,6 @@ const BookIssue = () => {
         }
     };
 
-
-
-    // // Function to calculate the quantity
-    // const calculateQuantity = () => {
-    //     return rows.filter(row => row.bookId && row.accessionNo).length;
-    // };
-
     const resetFormFields = () => {
         setIssueNumber('');
         setIssueDate('');
@@ -246,13 +223,21 @@ const BookIssue = () => {
         setIsMembershipValid(false);
         setMembershipChecked(false);
         setErrorMessage('');
-        setMemberBookings([]);  
+        setMemberBookings([]);
     };
 
-
-    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
+
+        const invalidEntries = rows.filter(row => row.bookId && !row.accessionNo);
+
+        if (invalidEntries.length > 0) {
+            invalidEntries.forEach(row => {
+                const bookName = allBookDetails.find(book => book.bookId === Number(row.bookId))?.bookName;
+                toast.error(`Please select an accession number for the book "${bookName}".`);
+            });
+            return;
+        }
 
         if (!isMembershipValid) {
             return;
@@ -266,14 +251,12 @@ const BookIssue = () => {
             }));
 
         const formattedDate = formatDateForPayload(issueDate);
-        // const quantity = calculateQuantity();
 
         const payload = {
             invoiceNo: issueNumber,
             invoiceDate: formattedDate,
             generalMemberId: selectedMemberId,
             bookDetails: bookDetailsPayload,
-            // qty: quantity,
         };
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-issue`, {
@@ -303,6 +286,7 @@ const BookIssue = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssue();
+                fetchBookDetails();//copyno
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -329,11 +313,11 @@ const BookIssue = () => {
                 const errorData = await response.json();
                 toast.error(`Error updating block status: ${errorData.message}`);
             } else {
-                toast.success('Block status updated successfully.');
+                // toast.success('Block status updated successfully.');
             }
         } catch (error) {
             console.error('Error updating block status:', error);
-            toast.error('Error updating block status. Please try again.');
+            // toast.error('Error updating block status. Please try again.');
         }
     };
 
@@ -343,25 +327,53 @@ const BookIssue = () => {
         setShowDeleteModal(true);
     };
 
-
     //delete api
     const handleDeleteConfirm = async () => {
         if (!issueToDelete) return;
-
         try {
-            const response = await fetch(`${BaseURL}/api/issue/${issueToDelete.stock_id}`, {
+            // First, fetch the book details for the issue to be deleted
+            const response = await fetch(`${BaseURL}/api/issue/book-issue/${issueToDelete.stock_id}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch issue details');
+            }
+            const issueDetails = await response.json();
+            const bookDetailIds = issueDetails[0].books.map(book => book.bookDetailId);
+
+            // Next, call the API to update the status of the book details
+            const updateResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-issue`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(bookDetailIds)
+            });
+
+            if (!updateResponse.ok) {
+                const errorData = await updateResponse.json();
+                toast.error(`Error updating book details status: ${errorData.message}`);
+                return;
+            }
+
+            // Finally, delete the issue
+            const deleteResponse = await fetch(`${BaseURL}/api/issue/${issueToDelete.stock_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
 
-            if (response.ok) {
+            if (deleteResponse.ok) {
                 toast.success('Issue deleted successfully.');
                 setShowDeleteModal(false);
                 fetchIssue();
+                fetchBookDetails();//copyno
             } else {
-                const errorData = await response.json();
+                const errorData = await deleteResponse.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
@@ -370,7 +382,6 @@ const BookIssue = () => {
         }
     };
 
-    const [viewDetails, setViewDetails] = useState(null);
 
     // View purchase
     const fetchViewDetails = async (stockId) => {
@@ -423,10 +434,11 @@ const BookIssue = () => {
     const currentData = issue.slice(indexOfNumber, indexOfLastBookType);
 
     // Filter accession numbers based on the selected book name
-    const getFilteredAccessionNumbers = (bookName) => {
-        const book = bookDetails.find(book => book.bookName === bookName);
+    const getFilteredAccessionNumbers = (bookId) => {
+        const book = bookDetails.find(book => book.bookId === Number(bookId));
         return book ? book.copyDetails : [];
     };
+
 
     return (
         <div className="main-content">
@@ -543,18 +555,6 @@ const BookIssue = () => {
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
                                                         <Form.Group as={Col}>
-                                                            {/* <Form.Select
-                                                                as="select"
-                                                                value={row.bookId}
-                                                                onChange={(e) => handleBookChangeForRow(index, e)}
-                                                            >
-                                                                <option value="">Select a book</option>
-                                                                {bookDetails.map((book) => (
-                                                                    <option key={book.book_idF} value={book.book_idF}>
-                                                                        {book.bookName}
-                                                                    </option>
-                                                                ))}
-                                                            </Form.Select> */}
                                                             <Form.Select
                                                                 as="select"
                                                                 value={row.bookId}
@@ -576,7 +576,7 @@ const BookIssue = () => {
                                                             onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                         >
                                                             <option value="">Select Book Details</option>
-                                                            {getFilteredAccessionNumbers(rows[index].bookName).map((detail) => (
+                                                            {getFilteredAccessionNumbers(row.bookId).map((detail) => (
                                                                 <option key={detail.bookDetailId} value={detail.bookDetailId}>
                                                                     {detail.accessionNo}
                                                                 </option>
