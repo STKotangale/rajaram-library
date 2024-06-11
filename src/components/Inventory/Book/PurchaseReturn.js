@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryCSS/PurchaseBookDashboardData.css';
 
-
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
     const date = new Date(dateStr);
@@ -45,6 +44,7 @@ const PurchaseReturn = () => {
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    //get api call 
     useEffect(() => {
         fetchPurchaseReturn();
         fetchPurchaserName();
@@ -187,17 +187,17 @@ const PurchaseReturn = () => {
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
-    // Function to calculate the quantity
-    const calculateQuantity = () => {
-        return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
-    };
-
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        // Validation checks
+        if (!invoiceNumber || !invoiceDate || !selectedPurchaserId || rows.filter(row => row.bookName && row.purchaseCopyNo).length === 0) {
+            toast.error('Please fill all required fields and add at least one book.');
+            return; 
+        }
+
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-        const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -218,10 +218,9 @@ const PurchaseReturn = () => {
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
             discountAmount: calculateDiscountAmount(),
-            gstPercent: parseFloat(gstPercent) || 0,
-            gstAmount: calculateGstAmount(),
+            // gstPercent: parseFloat(gstPercent) || 0,
+            // gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
-            qty: quantity,
             bookDetails: bookDetailsPayload
         };
 
@@ -263,11 +262,11 @@ const PurchaseReturn = () => {
         return Math.floor(discountAmount);
     };
 
-    const calculateGstAmount = () => {
-        const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
-        const gstAmount = totalAfterDiscount * (gstPercent / 100);
-        return Math.floor(gstAmount);
-    };
+    // const calculateGstAmount = () => {
+    //     const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
+    //     const gstAmount = totalAfterDiscount * (gstPercent / 100);
+    //     return Math.floor(gstAmount);
+    // };
 
 
     //show table in stock_id
@@ -476,11 +475,14 @@ const PurchaseReturn = () => {
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
                                                         <option value="">Select accession no</option>
-                                                        {row.details && row.details.map(detail => (
-                                                            <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                {detail.accessionNo}
-                                                            </option>
-                                                        ))}
+                                                        {row.details && row.details
+                                                            .filter(detail => detail.accessionNo !== null)
+                                                            .map(detail => (
+                                                                <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
+                                                                    {detail.accessionNo}
+                                                                </option>
+                                                            ))
+                                                        }
                                                     </Form.Select>
                                                 </td>
                                                 <td>
@@ -538,7 +540,7 @@ const PurchaseReturn = () => {
                                             <td className="amount-align">{totalAfterDiscount.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-                                        <tr>
+                                        {/* <tr>
                                             <td></td>
                                             <td className="right-align">GST</td>
                                             <td>
@@ -555,7 +557,7 @@ const PurchaseReturn = () => {
                                             </td>
                                             <td className="amount-align">{calculateGstAmount()}</td>
                                             <td></td>
-                                        </tr>
+                                        </tr> */}
                                         <tr>
                                             <td></td>
                                             <td></td>
@@ -572,7 +574,7 @@ const PurchaseReturn = () => {
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={handleSubmit}>
+                        <Button className='button-color' onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Modal.Footer>
@@ -686,7 +688,7 @@ const PurchaseReturn = () => {
                                                 <td></td>
                                                 <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
                                             </tr>
-                                            <tr>
+                                            {/* <tr>
                                                 <td></td>
                                                 <td className="right-align">GST</td>
                                                 <td>
@@ -701,7 +703,7 @@ const PurchaseReturn = () => {
                                                     </div>
                                                 </td>
                                                 <td className="amount-align">{(selectedRowDetails[0]?.gstAmount).toFixed(2)}</td>
-                                            </tr>
+                                            </tr> */}
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>

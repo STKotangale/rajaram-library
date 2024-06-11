@@ -39,14 +39,15 @@
 }
 
 .centered-form {
-    background-color: white;
+    /* background-color: white; */
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); */
     width: 90%;
     max-width: 500px; 
     margin-top: 80px;
     margin-bottom: 10px;
+    border: 2px solid black;
 }
 
 .form-header {

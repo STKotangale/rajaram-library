@@ -33,18 +33,26 @@ import GeneralMember from '../Auth/GeneralMember';
 import Issue from '../Inventory/Book/Issue';
 import IssueReturn from '../Inventory/Book/IssueReturn';
 import PurchaseReturn from '../Inventory/Book/PurchaseReturn';
-import MembershipFees from '../Fees/MembershipFees';
 import BookLost from '../Inventory/Book/BookLost';
 import BookScrap from '../Inventory/Book/BookScrap';
+
+import MembershipFees from '../Fees/MembershipFees';
 import LibararyFees from '../Fees/LibararyFees';
 import Config from '../Fees/Config';
 import MonthlyMembershipFee from '../Fees/MonthlyMembershipFee';
+
 import MemberReport from '../InventoryReport/MemberReport';
 import BookReport from '../InventoryReport/BookReport';
 import OnlyDate from '../InventoryReport/OnlyDate';
 import OnlyMemberName from '../InventoryReport/OnlyMemberName';
 import OnlyBookName from '../InventoryReport/OnlyBookName';
-import { ArrowBackIosTwoTone } from '@material-ui/icons';
+
+import IssueReport1 from '../InventoryReport/IssueReport1';
+import IssueReport2 from '../InventoryReport/IssueReport2';
+import Accession from '../Inventory/Report/Accession';
+import AccessionStatus from '../Inventory/Report/AccessionStatus';
+import IssueTransaction1 from '../Inventory/Report/IssueTransaction1';
+import IssueTransaction2 from '../Inventory/Report/IssueTransaction2';
 
 
 const AdminDashboard = () => {
@@ -74,15 +82,25 @@ const AdminDashboard = () => {
     const [libraryFees, setLibraryFees] = useState(false);
     const [memberFees, setMemberFees] = useState(false);
     const [monthlyMemberFees, setMonthlyMemberFees] = useState(false);
-
     const [config, setConfig] = useState(false);
 
+
+    //transaction report
+    const [accessionReport, setAccessionReport] = useState(false);
+    const [accessionStatusReport, setAccessionStatusReport] = useState(false);
+
+    const [issueTransactionReport1, setIssueTransactionReport1] = useState(false);
+    const [issueTransactionReport2, setIssueTransactionReport2] = useState(false);
+
+    //master report
     const [memberReport, setMemberReport] = useState(false);
     const [bookNames, setBookNames] = useState(false);
     const [onlyDate, setOnlyDate] = useState(false);
     const [onlyMemberName, setOnlyMemberName] = useState(false);
     const [onlyBookName, setOnlyBookName] = useState(false);
 
+    const [issueMasterReport1, setIssueMasterReport1] = useState(false);
+    const [issueMasterReport2, setIssueMasterReport2] = useState(false);
 
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
@@ -106,16 +124,37 @@ const AdminDashboard = () => {
         setShowInventoryTransactionSubItems(!showInventoryTransactionSubItems);
     };
 
+    //report transaction
+    const [showInventoryTransactionReportSubItems, setShowInventoryTransactionReportSubItems] = useState(false);
+    const toggleInventoryTransactionReportSubItems = () => {
+        setShowInventoryTransactionReportSubItems(!showInventoryTransactionReportSubItems);
+    };
+    //accession  transaction report
+    const [showTransactionAccession, setShowTransactionAccession] = useState(false);
+    const toggleTransactionAccession = () => {
+        setShowTransactionAccession(!showTransactionAccession);
+    };
+    //issue  transaction report
+    const [showTransactionIssue, setShowTransactionIssue] = useState(false);
+    const toggleTransactionIssue = () => {
+        setShowTransactionIssue(!showTransactionIssue);
+    };
+
     //master
     const [showInventoryMasterSubItems, setShowInventoryMasterSubItems] = useState(false);
     const toggleInventoryMasterSubItems = () => {
         setShowInventoryMasterSubItems(!showInventoryMasterSubItems);
     };
 
-    //report
-    const [showInventoryReportSubItems, setShowInventoryReportSubItems] = useState(false);
-    const toggleInventoryReportSubItems = () => {
-        setShowInventoryReportSubItems(!showInventoryReportSubItems);
+    //report master
+    const [showInventoryMasterReportSubItems, setShowInventoryMasterReportSubItems] = useState(false);
+    const toggleInventoryMasterReportSubItems = () => {
+        setShowInventoryMasterReportSubItems(!showInventoryMasterReportSubItems);
+    };
+    //issue  master report
+    const [showIssues, setShowIssues] = useState(false);
+    const toggleIssues = () => {
+        setShowIssues(!showIssues);
     };
 
     //Account
@@ -128,13 +167,6 @@ const AdminDashboard = () => {
     const [showAdminSubItems, setShowAdminSubItems] = useState(false);
     const toggleAdminSubItems = () => {
         setShowAdminSubItems(!showAdminSubItems);
-    };
-
-    //issue report
-    const [showIssues, setShowIssues] = useState(false);
-    const toggleIssues = () => {
-        setShowIssues(!showIssues);
-        setShowSidebar(false);
     };
 
     //show name in navbar
@@ -169,6 +201,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleShowPurchase = () => {
@@ -199,6 +237,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleBookDetailsClick = () => {
@@ -229,6 +273,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleBookLanguages = () => {
@@ -259,6 +309,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
 
@@ -290,6 +346,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleBookType = () => {
@@ -320,6 +382,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handlePermanentMember = () => {
@@ -350,6 +418,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
 
@@ -382,6 +456,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handlePurchaser = () => {
@@ -412,6 +492,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleCreateUser = () => {
@@ -442,6 +528,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleBookAuthor = () => {
@@ -472,6 +564,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleBookPublication = () => {
@@ -502,6 +600,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     };
 
     const handleIssueClick = () => {
@@ -532,6 +636,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     const handleIssueReturnClick = () => {
@@ -562,6 +672,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
 
@@ -593,6 +709,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     const hendleBookLost = () => {
@@ -623,6 +745,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     const hendleBookScrap = () => {
@@ -653,6 +781,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
 
@@ -684,6 +818,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
 
@@ -715,6 +855,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
 
@@ -746,6 +892,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
 
@@ -777,6 +929,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     const handleMemberReport = () => {
@@ -807,6 +965,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
 
@@ -838,6 +1002,12 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     const handleOnlyDateReport = () => {
@@ -868,6 +1038,12 @@ const AdminDashboard = () => {
         setBookNames(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     const handleOnlyMemberReport = () => {
@@ -898,9 +1074,13 @@ const AdminDashboard = () => {
         setBookNames(false);
         setOnlyDate(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
-
-
 
     const handleOnlyBookReport = () => {
         setOnlyBookName(true);
@@ -930,11 +1110,16 @@ const AdminDashboard = () => {
         setBookNames(false);
         setOnlyDate(false);
         setOnlyMemberName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
-
-
-    const handleIssue1 = () => {
+    const handleMasterIssue1 = () => {
+        setIssueMasterReport1(true);
         setSelectedItemName('Issue 1');
         setBookPurchaseReturn(false);
         setBookPublication(false);
@@ -962,10 +1147,15 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
-
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
-    const handleIssue2 = () => {
+    const handleMasterIssue2 = () => {
+        setIssueMasterReport2(true);
         setSelectedItemName('Issue 2');
         setBookPurchaseReturn(false);
         setBookPublication(false);
@@ -993,6 +1183,157 @@ const AdminDashboard = () => {
         setOnlyDate(false);
         setOnlyMemberName(false);
         setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
+    }
+
+
+    const handleAccession = () => {
+        setAccessionReport(true);
+        setSelectedItemName('Accession');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionStatusReport(false);
+    }
+
+    const handleAccessionStatus = () => {
+        setAccessionStatusReport(true);
+        setSelectedItemName('Accession Status');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+    }
+
+
+    const handleTransactionIssue1 = () => {
+        setIssueTransactionReport1(true);
+        setSelectedItemName('Issue 1');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport2(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
+    }
+
+     const handleTransactionIssue2 = () => {
+        setIssueTransactionReport2(true);
+        setSelectedItemName('Issue 2');
+        setBookPurchaseReturn(false);
+        setBookPublication(false);
+        setBooks(false);
+        setViewPurchase(false);
+        setFillBookDetails(false);
+        setViewDashboard(false);
+        setBookLanguages(false);
+        setBookType(false);
+        setPermanentMember(false);
+        setGeneralMember(false);
+        setPurchaser(false);
+        setCreateUser(false);
+        setBookAuthor(false);
+        setBookIssue(false);
+        setBookIssueReturn(false);
+        setBookLost(false);
+        setBookScrap(false);
+        setMemberFees(false);
+        setMonthlyMemberFees(false);
+        setLibraryFees(false);
+        setConfig(false);
+        setMemberReport(false);
+        setBookNames(false);
+        setOnlyDate(false);
+        setOnlyMemberName(false);
+        setOnlyBookName(false);
+        setIssueMasterReport1(false);
+        setIssueMasterReport2(false);
+        setIssueTransactionReport1(false);
+        setAccessionReport(false);
+        setAccessionStatusReport(false);
     }
 
     //change password
@@ -1116,6 +1457,44 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
 
+                                    {/* report transaction*/}
+                                    <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryTransactionReportSubItems}>
+                                        <Archive className="icon me-2" /> Inventory Transaction Report
+                                    </ListGroup.Item>
+                                    {showInventoryTransactionReportSubItems && (
+                                        <div className='ms-2'>
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={toggleTransactionAccession}>
+                                                <PlusCircle className="icon me-2" />Accession
+                                            </ListGroup.Item>
+                                            {showTransactionAccession && (
+                                                <>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleAccession(); setShowSidebar(false); }}>
+                                                        <ExclamationTriangleFill className="icon me-2" /> Accession
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleAccessionStatus(); setShowSidebar(false); }}>
+                                                        <ExclamationTriangleFill className="icon me-2" /> Accession Status
+                                                    </ListGroup.Item>
+                                                </>
+                                            )}
+                                            <ListGroup.Item className="sub-icon mt-1" action onClick={toggleTransactionIssue}>
+                                                <PlusCircle className="icon me-2" />Issue
+                                            </ListGroup.Item>
+                                            {showTransactionIssue && (
+                                                <>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleTransactionIssue1(); setShowSidebar(false); }}>
+                                                        <ExclamationTriangleFill className="icon me-2" /> Issue 1
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleTransactionIssue2(); setShowSidebar(false); }}>
+                                                        <ExclamationTriangleFill className="icon me-2" /> Issue 2
+                                                    </ListGroup.Item>
+                                                </>
+                                            )}
+
+
+
+                                        </div>
+                                    )}
+
                                     {/* Master */}
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryMasterSubItems}>
                                         <Archive className="icon me-2" /> Inventory Master
@@ -1140,11 +1519,11 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
 
-                                    {/* report */}
-                                    <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryReportSubItems}>
-                                        <Archive className="icon me-2" /> Inventory Report
+                                    {/* report master*/}
+                                    <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryMasterReportSubItems}>
+                                        <Archive className="icon me-2" /> Inventory Master Report
                                     </ListGroup.Item>
-                                    {showInventoryReportSubItems && (
+                                    {showInventoryMasterReportSubItems && (
                                         <div className='ms-2'>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={toggleIssues}>
                                                 <PlusCircle className="icon me-2" /> Issue Report
@@ -1152,10 +1531,10 @@ const AdminDashboard = () => {
 
                                             {showIssues && (
                                                 <>
-                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleIssue1(); setShowSidebar(false); }}>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleMasterIssue1(); setShowSidebar(false); }}>
                                                         <ExclamationTriangleFill className="icon me-2" /> Issue 1
                                                     </ListGroup.Item>
-                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleIssue2(); setShowSidebar(false); }}>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { handleMasterIssue2(); setShowSidebar(false); }}>
                                                         <ExclamationTriangleFill className="icon me-2" /> Issue 2
                                                     </ListGroup.Item>
                                                 </>
@@ -1296,6 +1675,15 @@ const AdminDashboard = () => {
                     {onlyDate && <OnlyDate />}
                     {onlyMemberName && <OnlyMemberName />}
                     {onlyBookName && <OnlyBookName />}
+
+                    {issueMasterReport1 && <IssueReport1 />}
+                    {issueMasterReport2 && <IssueReport2 />}
+
+                    {accessionReport && <Accession />}
+                    {accessionStatusReport && <AccessionStatus />}
+                    {issueTransactionReport1 && <IssueTransaction1 />}
+                    {issueTransactionReport2 && <IssueTransaction2 />}
+
 
                 </Container>
                 {/* <Footer /> */}

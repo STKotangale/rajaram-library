@@ -1,19 +1,63 @@
-import React, { useState } from 'react';
-import { Container, Button, Form, Row } from 'react-bootstrap';
-import './CSS/Report.css'; 
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useState, useEffect } from 'react';
+import { Container, Button, Form, Row, Col } from 'react-bootstrap';
+import { toast } from 'react-toastify';
+import { useAuth } from '../../components/Auth/AuthProvider';
+import './CSS/Report.css';
+
+// Utility function to format date to dd-mm-yyyy
+const formatDate = (date) => {
+    const d = new Date(date);
+    let day = String(d.getDate()).padStart(2, '0');
+    let month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+};
 
 const OnlyBookName = () => {
+    //get books
+    const [books, setBooks] = useState([]);
+    //post
+    const [bookId, setBookId] = useState('');
     const [bookName, setBookName] = useState('');
+    //auth
+    const { username, accessToken } = useAuth();
+    const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    useEffect(() => {
+        fetchBooks();
+    }, [username, accessToken]);
+
+    //get book name
+    const fetchBooks = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/auth/book`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            const result = await response.json();
+            if (result.success) {
+                setBooks(result.data);
+            } else {
+                toast.error('Failed to fetch books');
+            }
+        } catch (error) {
+            console.error('Error fetching books:', error);
+            toast.error('Error fetching books');
+        }
+    };
+
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const reportData = {
-            bookName,
+            bookId
         };
-
         try {
-            const response = await fetch('https://your-api-endpoint.com/submit', {
+            const response = await fetch(`${BaseURL}/api/auth/submit-book-report`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -22,12 +66,17 @@ const OnlyBookName = () => {
             });
 
             if (response.ok) {
-                console.log('Report submitted successfully');
+                toast.success('Report submitted successfully');
+                // window.open('https://your-report-results-url.com', '_blank');
+                // Optionally reset form fields
+                setBookId('');
+                setBookName('');
             } else {
-                console.error('Failed to submit report');
+                toast.error('Failed to submit report');
             }
         } catch (error) {
             console.error('Error:', error);
+            toast.error('Error submitting report');
         }
     };
 
@@ -40,29 +89,37 @@ const OnlyBookName = () => {
                             <h2>Report Format</h2>
                         </div>
                         <Form onSubmit={handleSubmit}>
-                        <Row className="mb-3">
+                            <Row className="mb-3">
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Name</Form.Label>
-                                    <Form.Control
-                                        type="text"
-                                        placeholder="Book name"
-                                        value={bookName}
-                                        onChange={(e) => setBookName(e.target.value)}
+                                    <Form.Select
+                                        value={bookId}
+                                        onChange={(e) => {
+                                            const selectedBook = books.find(book => book.bookId === parseInt(e.target.value, 10));
+                                            setBookId(e.target.value);
+                                            setBookName(selectedBook ? selectedBook.bookName : '');
+                                        }}
                                         required
-                                    />
+                                    >
+                                        <option value="">Select a book</option>
+                                        {books.map(book => (
+                                            <option key={book.bookId} value={book.bookId}>
+                                                {book.bookName}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
                                 </Form.Group>
                             </Row>
-                            <div className='d-flex justify-content-end'> 
-                            <Button className='button-color' type="submit">
-                                Submit
-                            </Button>
+                            <div className='d-flex justify-content-end'>
+                                <Button className='button-color' type="submit">
+                                    Submit
+                                </Button>
                             </div>
                         </Form>
                     </Container>
                 </div>
             </div>
         </div>
-
     );
 };
 
