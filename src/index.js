@@ -44,11 +44,8 @@ ReactDOM.render(
 
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
-          {/* <Route path="/admindashboard" element={<AdminDashboard />} /> */}
           <Route path="/admindashboard" element={<ProtectedRoute element={<AdminDashboard />} />} />
-
-          <Route path="/memberdashboard" element={<MemberDashboard />} />
-
+          <Route path="/memberdashboard" element={<ProtectedRoute element={<MemberDashboard />} />} />
 
         </Routes>
 

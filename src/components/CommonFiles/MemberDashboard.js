@@ -8,13 +8,14 @@ import { useAuth } from '../Auth/AuthProvider';
 
 import '../CommonFiles/CommonCSS/MemberDashboard.css';
 import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
+import '../MemberDash/CSS/MemberDash.css';
 
 import logoImage from '../../assets/rajalib.png';
 
 import { useRef } from 'react';
-import Dashboard from '../Member/Dashboard';
-import BookList from '../Member/BookList';
-import OnlineBooking from '../Member/OnlineBooking';
+import Dashboard from '../MemberDash/Dashboard';
+import BookList from '../MemberDash/BookList';
+import OnlineBooking from '../MemberDash/OnlineBooking';
 
 const MemberDashboard = () => {
     const navigate = useNavigate();

@@ -261,7 +261,6 @@ const BookAuthor = () => {
                             </tbody>
                         </Table>
                     </div>
-
                     <div className="pagination-container">
                         <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
                         <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
