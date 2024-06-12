@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../components/Auth/AuthProvider';
+import { useAuth } from '../../Auth/AuthProvider';
 import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 
 // Utility function to format date to dd-mm-yyyy

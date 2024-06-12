@@ -4,8 +4,7 @@ import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
-import '../InventoryCSS/PurchaseBookDashboardData.css';
-
+import '../InventoryTransaction/CSS/Purchase.css';
 
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
@@ -16,9 +15,9 @@ const formatDateToDDMMYYYY = (dateStr) => {
     return `${day}-${month}-${year}`;
 };
 
-const BookLost = () => {
-    //get  book lost
-    const [bookLost, setBookLost] = useState([]);
+const PurchaseReturn = () => {
+    //get purchase return
+    const [purchaseReturn, setPurchaseReturn] = useState([]);
     //get purchaser name
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
@@ -31,7 +30,10 @@ const BookLost = () => {
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
     const [discountPercent, setDiscountPercent] = useState('');
+    // const [discountAmount, setDiscountAmount] = useState('');
     const [gstPercent, setGstPercent] = useState('');
+    // const [gstAmount, setGstAmount] = useState('');
+
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
@@ -42,29 +44,30 @@ const BookLost = () => {
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    //get api call 
     useEffect(() => {
-        fetchBookLost();
+        fetchPurchaseReturn();
         fetchPurchaserName();
         fetchAllBooks();
     }, [username, accessToken]);
 
-    //get book lost
-    const fetchBookLost = async () => {
+    //get purchase return
+    const fetchPurchaseReturn = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/book-lost-all`, {
+            const response = await fetch(`${BaseURL}/api/issue/purchase-return-all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching book lost : ${response.statusText}`);
+                throw new Error(`Error fetching purchase return: ${response.statusText}`);
             }
             const data = await response.json();
             const groupedData = groupBy(data, 'stock_id');
-            setBookLost(groupedData);
+            setPurchaseReturn(groupedData);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching book lost . Please try again later.');
+            toast.error('Error fetching purchase return. Please try again later.');
         }
     };
 
@@ -82,8 +85,8 @@ const BookLost = () => {
             const data = await response.json();
             setPurchaserName(data.data);
         } catch (error) {
-            console.error("Failed to fetch purchaser name:", error);
-            toast.error('Failed to load purchaser name. Please try again later.');
+            console.error("Failed to fetch purchaser:", error);
+            toast.error('Failed to load purchaser. Please try again later.');
         }
     };
 
@@ -184,16 +187,17 @@ const BookLost = () => {
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
-    const calculateQuantity = () => {
-        return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
-    }
-
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        // Validation checks
+        if (!invoiceNumber || !invoiceDate || !selectedPurchaserId || rows.filter(row => row.bookName && row.purchaseCopyNo).length === 0) {
+            toast.error('Please fill all required fields and add at least one book.');
+            return; 
+        }
+
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-        const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -214,15 +218,14 @@ const BookLost = () => {
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
             discountAmount: calculateDiscountAmount(),
-            gstPercent: parseFloat(gstPercent) || 0,
-            gstAmount: calculateGstAmount(),
+            // gstPercent: parseFloat(gstPercent) || 0,
+            // gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
-            qty: quantity,
             bookDetails: bookDetailsPayload
         };
 
         try {
-            const response = await fetch(`${BaseURL}/api/issue/book-lost`, {
+            const response = await fetch(`${BaseURL}/api/issue/purchase-return`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -236,14 +239,14 @@ const BookLost = () => {
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchBookLost();
+                fetchPurchaseReturn();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting book lost:', error);
-            toast.error('Error submitting book lost. Please try again.');
+            console.error('Error submitting purchase return:', error);
+            toast.error('Error submitting purchase return. Please try again.');
         }
     };
 
@@ -259,12 +262,24 @@ const BookLost = () => {
         return Math.floor(discountAmount);
     };
 
-    const calculateGstAmount = () => {
-        const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
-        const gstAmount = totalAfterDiscount * (gstPercent / 100);
-        return Math.floor(gstAmount);
-    };
+    // const calculateGstAmount = () => {
+    //     const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
+    //     const gstAmount = totalAfterDiscount * (gstPercent / 100);
+    //     return Math.floor(gstAmount);
+    // };
 
+
+    //show table in stock_id
+    const groupBy = (array, key) => {
+        return array.reduce((result, currentValue) => {
+            const groupKey = currentValue[key];
+            if (!result[groupKey]) {
+                result[groupKey] = [];
+            }
+            result[groupKey].push(currentValue);
+            return result;
+        }, {});
+    };
 
     //delete
     const handleDelete = (stockId) => {
@@ -282,25 +297,17 @@ const BookLost = () => {
                 }
             });
             if (response.ok) {
-                toast.success('Book lost  deleted successfully.');
+                toast.success('Purchase return deleted successfully.');
                 setShowDeleteModal(false);
-                fetchBookLost();
+                fetchPurchaseReturn();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error deleting book lost:', error);
-            toast.error('Error deleting book lost . Please try again.');
+            console.error('Error deleting purchase return:', error);
+            toast.error('Error deleting purchase return. Please try again.');
         }
-    };
-
-    //show table in stock_id
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-            return result;
-        }, {});
     };
 
     //view
@@ -309,10 +316,12 @@ const BookLost = () => {
         setShowDetailsModal(true);
     };
 
-    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(Object.keys(bookLost).length / perPage);
+
+    // Convert object to array for pagination
+    const purchaseReturnArray = Object.entries(purchaseReturn).map(([key, value]) => ({ key, value }));
+    const totalPages = Math.ceil(purchaseReturnArray.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -332,7 +341,7 @@ const BookLost = () => {
 
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = Object.entries(bookLost).slice(indexOfFirstItem, indexOfLastItem);
+    const currentData = purchaseReturnArray.slice(indexOfFirstItem, indexOfLastItem);
 
 
     return (
@@ -341,28 +350,27 @@ const BookLost = () => {
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
-                            Add Book Lost
+                            Add Purchase Return
                         </Button>
                     </div>
                     <div className="table-responsive table-height mt-4">
-                        <Table striped bordered hover>
+                        <Table striped bordered hover >
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Purchaser Name</th>
-                                    <th>Book Lost No</th>
-                                    <th>Book Lost Date</th>
+                                    <th>Purchase Return No</th>
+                                    <th>Purchase Return Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* {Object.entries(bookLost).map(([stock_id, items], index) => ( */}
-                                {currentData.map(([stock_id, items], index) => (
-                                    <tr key={stock_id}>
+                                {currentData.map(({ value: items, key: stock_id }, index) => (
+                                    <tr key={stock_id || index}>
                                         <td>{index + 1}</td>
-                                        <td>{items[0].ledgerName}</td>
-                                        <td>{items[0].invoiceNo}</td>
-                                        <td>{items[0].invoiceDate}</td>
+                                        <td>{items[0]?.ledgerName || 'N/A'}</td>
+                                        <td>{items[0]?.invoiceNo || 'N/A'}</td>
+                                        <td>{items[0]?.invoiceDate || 'N/A'}</td>
                                         <td>
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(items)} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
@@ -370,6 +378,7 @@ const BookLost = () => {
                                     </tr>
                                 ))}
                             </tbody>
+
                         </Table>
                     </div>
                     <div className="pagination-container">
@@ -387,15 +396,15 @@ const BookLost = () => {
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Book Lost</Modal.Title>
+                        <Modal.Title>Add Purchase Return</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Book Lost No.</Form.Label>
+                                    <Form.Label>Purchase Return No.</Form.Label>
                                     <Form.Control
-                                        placeholder="Book lost number"
+                                        placeholder="Purchase return number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -403,7 +412,7 @@ const BookLost = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Book Lost Date</Form.Label>
+                                    <Form.Label>Purchase Return Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -531,7 +540,7 @@ const BookLost = () => {
                                             <td className="amount-align">{totalAfterDiscount.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-                                        <tr>
+                                        {/* <tr>
                                             <td></td>
                                             <td className="right-align">GST</td>
                                             <td>
@@ -548,7 +557,7 @@ const BookLost = () => {
                                             </td>
                                             <td className="amount-align">{calculateGstAmount()}</td>
                                             <td></td>
-                                        </tr>
+                                        </tr> */}
                                         <tr>
                                             <td></td>
                                             <td></td>
@@ -565,7 +574,7 @@ const BookLost = () => {
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={handleSubmit}>
+                        <Button className='button-color' onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Modal.Footer>
@@ -576,14 +585,14 @@ const BookLost = () => {
             <Modal centered show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Book Lost Details</Modal.Title>
+                        <Modal.Title>Purchase Return Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {selectedRowDetails.length > 0 && (
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Book Lost No.</Form.Label>
+                                        <Form.Label>Purchase Return No.</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
@@ -592,7 +601,7 @@ const BookLost = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Book Lost Date</Form.Label>
+                                        <Form.Label>Purchase Return Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={selectedRowDetails[0]?.invoiceDate}
@@ -679,7 +688,7 @@ const BookLost = () => {
                                                 <td></td>
                                                 <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
                                             </tr>
-                                            <tr>
+                                            {/* <tr>
                                                 <td></td>
                                                 <td className="right-align">GST</td>
                                                 <td>
@@ -694,7 +703,7 @@ const BookLost = () => {
                                                     </div>
                                                 </td>
                                                 <td className="amount-align">{(selectedRowDetails[0]?.gstAmount).toFixed(2)}</td>
-                                            </tr>
+                                            </tr> */}
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
@@ -715,12 +724,12 @@ const BookLost = () => {
                 </div>
             </Modal>
 
-            {/*Delete modal */}
+            {/* Delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this book lost?</Modal.Body>
+                <Modal.Body>Are you sure you want to delete this purchase return?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>No</Button>
                     <Button variant="danger" onClick={confirmDelete}>Yes</Button>
@@ -731,4 +740,4 @@ const BookLost = () => {
     );
 };
 
-export default BookLost;
+export default PurchaseReturn;

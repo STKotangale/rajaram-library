@@ -5,7 +5,7 @@ import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
-import '../InventoryCSS/PurchaseBookDashboardData.css';
+import '../InventoryTransaction/CSS/Purchase.css';
 
 const BookIssue = () => {
     const [issue, setIssue] = useState([]);

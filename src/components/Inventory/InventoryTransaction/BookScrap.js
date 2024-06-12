@@ -4,7 +4,8 @@ import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
-import '../InventoryCSS/PurchaseBookDashboardData.css';
+import '../InventoryTransaction/CSS/Purchase.css';
+
 
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
@@ -15,9 +16,9 @@ const formatDateToDDMMYYYY = (dateStr) => {
     return `${day}-${month}-${year}`;
 };
 
-const PurchaseReturn = () => {
-    //get purchase return
-    const [purchaseReturn, setPurchaseReturn] = useState([]);
+const BookScrap = () => {
+    //get  book srcap
+    const [bookScrap, setBookScrap] = useState([]);
     //get purchaser name
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
@@ -30,9 +31,7 @@ const PurchaseReturn = () => {
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
     const [discountPercent, setDiscountPercent] = useState('');
-    // const [discountAmount, setDiscountAmount] = useState('');
-    const [gstPercent, setGstPercent] = useState('');
-    // const [gstAmount, setGstAmount] = useState('');
+
 
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -44,30 +43,29 @@ const PurchaseReturn = () => {
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    //get api call 
     useEffect(() => {
-        fetchPurchaseReturn();
+        fetchBookScrap();
         fetchPurchaserName();
         fetchAllBooks();
     }, [username, accessToken]);
 
-    //get purchase return
-    const fetchPurchaseReturn = async () => {
+    //get book srcap
+    const fetchBookScrap = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/purchase-return-all`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-scrap-all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching purchase return: ${response.statusText}`);
+                throw new Error(`Error fetching book scrap : ${response.statusText}`);
             }
             const data = await response.json();
             const groupedData = groupBy(data, 'stock_id');
-            setPurchaseReturn(groupedData);
+            setBookScrap(groupedData);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching purchase return. Please try again later.');
+            toast.error('Error fetching book srcap . Please try again later.');
         }
     };
 
@@ -85,8 +83,8 @@ const PurchaseReturn = () => {
             const data = await response.json();
             setPurchaserName(data.data);
         } catch (error) {
-            console.error("Failed to fetch purchaser:", error);
-            toast.error('Failed to load purchaser. Please try again later.');
+            console.error("Failed to fetch purchaser name:", error);
+            toast.error('Failed to load purchaser name. Please try again later.');
         }
     };
 
@@ -166,16 +164,6 @@ const PurchaseReturn = () => {
         return rows.reduce((total, row) => total + (parseFloat(row.amount) || 0), 0).toFixed(2);
     };
 
-    const calculateTotalAfterDiscount = (total) => {
-        const discountValue = parseFloat(discountPercent) || 0;
-        return (total - (total * (discountValue / 100))).toFixed(2);
-    };
-
-    const calculateTotalAfterGst = (total) => {
-        const gstValue = parseFloat(gstPercent) || 0;
-        return (total + (total * (gstValue / 100))).toFixed(2);
-    };
-
 
     // Reset form fields
     const resetFormFields = () => {
@@ -183,21 +171,38 @@ const PurchaseReturn = () => {
         setInvoiceDate('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
-        setGstPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
+
+    // const calculateQuantity = () => {
+    //     return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
+    // };
+
+    const billTotal = parseFloat(calculateBillTotal());
+
+    const calculateTotalAfterDiscount = (total) => {
+        const discountValue = parseFloat(discountPercent) || 0;
+        return (total - (total * (discountValue / 100))).toFixed(2);
+    };
+    //show discount price
+    const calculateDiscountAmount = () => {
+        const billTotal = calculateBillTotal();
+        const discountAmount = billTotal * (discountPercent / 100);
+        return Math.floor(discountAmount);
+    };
+    const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
+
+    // const calculateGrandTotal = (total) => {
+    //     const grandTotal =totalAfterDiscount
+    // };
+    const grandTotal = parseFloat((totalAfterDiscount));
 
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        // Validation checks
-        if (!invoiceNumber || !invoiceDate || !selectedPurchaserId || rows.filter(row => row.bookName && row.purchaseCopyNo).length === 0) {
-            toast.error('Please fill all required fields and add at least one book.');
-            return; 
-        }
-
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
+        // const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -208,24 +213,23 @@ const PurchaseReturn = () => {
 
         const billTotal = parseFloat(calculateBillTotal());
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-        const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
+        const grandTotal = parseFloat((totalAfterDiscount));
 
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
             ledgerId: Number(selectedPurchaserId),
             billTotal: billTotal,
-            grandTotal: grandTotal,
+            // bookQty: quantity,
             discountPercent: parseFloat(discountPercent) || 0,
             discountAmount: calculateDiscountAmount(),
-            // gstPercent: parseFloat(gstPercent) || 0,
-            // gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
+            grandTotal: grandTotal,
             bookDetails: bookDetailsPayload
         };
 
         try {
-            const response = await fetch(`${BaseURL}/api/issue/purchase-return`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-scrap`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -239,47 +243,19 @@ const PurchaseReturn = () => {
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchPurchaseReturn();
+                fetchBookScrap();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting purchase return:', error);
-            toast.error('Error submitting purchase return. Please try again.');
+            console.error('Error submitting book scrap:', error);
+            toast.error('Error submitting book scrap. Please try again.');
         }
     };
 
-    const billTotal = parseFloat(calculateBillTotal());
-    const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-    const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
 
 
-    //show discount price
-    const calculateDiscountAmount = () => {
-        const billTotal = calculateBillTotal();
-        const discountAmount = billTotal * (discountPercent / 100);
-        return Math.floor(discountAmount);
-    };
-
-    // const calculateGstAmount = () => {
-    //     const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
-    //     const gstAmount = totalAfterDiscount * (gstPercent / 100);
-    //     return Math.floor(gstAmount);
-    // };
-
-
-    //show table in stock_id
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            const groupKey = currentValue[key];
-            if (!result[groupKey]) {
-                result[groupKey] = [];
-            }
-            result[groupKey].push(currentValue);
-            return result;
-        }, {});
-    };
 
     //delete
     const handleDelete = (stockId) => {
@@ -297,17 +273,26 @@ const PurchaseReturn = () => {
                 }
             });
             if (response.ok) {
-                toast.success('Purchase return deleted successfully.');
+                toast.success('Book scrap  deleted successfully.');
                 setShowDeleteModal(false);
-                fetchPurchaseReturn();
+                fetchBookScrap();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error deleting purchase return:', error);
-            toast.error('Error deleting purchase return. Please try again.');
+            console.error('Error deleting book scrap:', error);
+            toast.error('Error deleting book scrap . Please try again.');
         }
+    };
+
+
+    //show table in stock_id
+    const groupBy = (array, key) => {
+        return array.reduce((result, currentValue) => {
+            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
+            return result;
+        }, {});
     };
 
     //view
@@ -316,12 +301,10 @@ const PurchaseReturn = () => {
         setShowDetailsModal(true);
     };
 
+    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-
-    // Convert object to array for pagination
-    const purchaseReturnArray = Object.entries(purchaseReturn).map(([key, value]) => ({ key, value }));
-    const totalPages = Math.ceil(purchaseReturnArray.length / perPage);
+    const totalPages = Math.ceil(Object.keys(bookScrap).length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -341,8 +324,7 @@ const PurchaseReturn = () => {
 
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = purchaseReturnArray.slice(indexOfFirstItem, indexOfLastItem);
-
+    const currentData = Object.entries(bookScrap).slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="main-content">
@@ -350,35 +332,36 @@ const PurchaseReturn = () => {
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
-                            Add Purchase Return
+                            Add Book Scrap
                         </Button>
                     </div>
                     <div className="table-responsive table-height mt-4">
-                        <Table striped bordered hover >
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Purchaser Name</th>
-                                    <th>Purchase Return No</th>
-                                    <th>Purchase Return Date</th>
+                                    <th>Book Scrap No</th>
+                                    <th>Book Scrap Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map(({ value: items, key: stock_id }, index) => (
-                                    <tr key={stock_id || index}>
+                                {/* {Object.entries(bookScrap).map(([stock_id, items], index) => ( */}
+                                {currentData.map(([stock_id, items], index) => (
+                                    <tr key={stock_id}>
                                         <td>{index + 1}</td>
-                                        <td>{items[0]?.ledgerName || 'N/A'}</td>
-                                        <td>{items[0]?.invoiceNo || 'N/A'}</td>
-                                        <td>{items[0]?.invoiceDate || 'N/A'}</td>
+                                        <td>{items[0].ledgerName}</td>
+                                        <td>{items[0].invoiceNo}</td>
+                                        <td>{items[0].invoiceDate}</td>
                                         <td>
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(items)} />
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
                                         </td>
                                     </tr>
-                                ))}
+                                ))
+                                }
                             </tbody>
-
                         </Table>
                     </div>
                     <div className="pagination-container">
@@ -396,15 +379,15 @@ const PurchaseReturn = () => {
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Purchase Return</Modal.Title>
+                        <Modal.Title>Add Book Scrap</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Purchase Return No.</Form.Label>
+                                    <Form.Label>Book Scrap No.</Form.Label>
                                     <Form.Control
-                                        placeholder="Purchase return number"
+                                        placeholder="Book scrap number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -412,7 +395,7 @@ const PurchaseReturn = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Purchase Return Date</Form.Label>
+                                    <Form.Label>Book Scrap Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -471,7 +454,7 @@ const PurchaseReturn = () => {
                                                 <td>
                                                     <Form.Select
                                                         as="select"
-                                                        value={row.purchaseCopyNo}
+                                                        value={row.accessionNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
                                                         <option value="">Select accession no</option>
@@ -481,8 +464,7 @@ const PurchaseReturn = () => {
                                                                 <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
                                                                     {detail.accessionNo}
                                                                 </option>
-                                                            ))
-                                                        }
+                                                            ))}
                                                     </Form.Select>
                                                 </td>
                                                 <td>
@@ -540,24 +522,6 @@ const PurchaseReturn = () => {
                                             <td className="amount-align">{totalAfterDiscount.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-                                        {/* <tr>
-                                            <td></td>
-                                            <td className="right-align">GST</td>
-                                            <td>
-                                                <div className="input-with-suffix">
-                                                    <Form.Control
-                                                        className="right-align"
-                                                        type="number"
-                                                        placeholder="GST"
-                                                        value={gstPercent}
-                                                        onChange={(e) => setGstPercent(e.target.value)}
-                                                    />
-                                                    <span>%</span>
-                                                </div>
-                                            </td>
-                                            <td className="amount-align">{calculateGstAmount()}</td>
-                                            <td></td>
-                                        </tr> */}
                                         <tr>
                                             <td></td>
                                             <td></td>
@@ -585,14 +549,14 @@ const PurchaseReturn = () => {
             <Modal centered show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Purchase Return Details</Modal.Title>
+                        <Modal.Title>Book Scrap Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {selectedRowDetails.length > 0 && (
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Purchase Return No.</Form.Label>
+                                        <Form.Label>Book Scrap No.</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
@@ -601,7 +565,7 @@ const PurchaseReturn = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Purchase Return Date</Form.Label>
+                                        <Form.Label>Book Scrap Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={selectedRowDetails[0]?.invoiceDate}
@@ -654,7 +618,7 @@ const PurchaseReturn = () => {
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={row.book_amount}
+                                                            value={row.book_rate}
                                                             readOnly
                                                         />
                                                     </td>
@@ -666,7 +630,7 @@ const PurchaseReturn = () => {
                                                 <td className="right-align">Bill Total</td>
                                                 <td className="amount-align">{selectedRowDetails[0]?.billTotal}</td>
                                             </tr>
-                                            <tr>
+                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Discount</td>
                                                 <td>
@@ -680,35 +644,19 @@ const PurchaseReturn = () => {
                                                         <span>%</span>
                                                     </div>
                                                 </td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Total After Discount</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount}</td>
                                             </tr>
-                                            {/* <tr>
-                                                <td></td>
-                                                <td className="right-align">GST</td>
-                                                <td>
-                                                    <div className="input-with-suffix">
-                                                        <Form.Control
-                                                            className="right-align"
-                                                            type="number"
-                                                            value={selectedRowDetails[0]?.gstPercent}
-                                                            readOnly
-                                                        />
-                                                        <span>%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="amount-align">{(selectedRowDetails[0]?.gstAmount).toFixed(2)}</td>
-                                            </tr> */}
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal}</td>
                                             </tr>
                                         </tbody>
                                     </Table>
@@ -724,12 +672,12 @@ const PurchaseReturn = () => {
                 </div>
             </Modal>
 
-            {/* Delete modal */}
+            {/* delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this purchase return?</Modal.Body>
+                <Modal.Body>Are you sure you want to delete this book scrap?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>No</Button>
                     <Button variant="danger" onClick={confirmDelete}>Yes</Button>
@@ -740,4 +688,4 @@ const PurchaseReturn = () => {
     );
 };
 
-export default PurchaseReturn;
+export default BookScrap;

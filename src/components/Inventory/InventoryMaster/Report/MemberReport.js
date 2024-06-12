@@ -1,65 +1,65 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Button, Form, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../components/Auth/AuthProvider';
-import './CSS/Report.css';
+import { useAuth } from '../../../Auth/AuthProvider';
+import '../CSS/Report.css';
 
-// Utility function to format date to dd-mm-yyyy
-const formatDate = (date) => {
-    const d = new Date(date);
-    let day = String(d.getDate()).padStart(2, '0');
-    let month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
-};
-
-const BookReport = () => {
-    //get books
-    const [books, setBooks] = useState([]);
-    //post
-    const [bookId, setBookId] = useState('');
-    const [bookName, setBookName] = useState('');
+const MemberReport = () => {
+    const [generalMember, setGeneralMember] = useState([]);
+    const [selectedMember, setSelectedMember] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
-    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-
     useEffect(() => {
-        fetchBooks();
+        fetchGeneralMembers();
     }, [username, accessToken]);
 
-    //get api fot book name
-    const fetchBooks = async () => {
+    const fetchGeneralMembers = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/general-members`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            const result = await response.json();
-            if (result.success) {
-                setBooks(result.data);
-            } else {
-                toast.error('Failed to fetch books');
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
             }
+            const data = await response.json();
+            setGeneralMember(data.data);
         } catch (error) {
-            console.error('Error fetching books:', error);
-            toast.error('Error fetching books');
+            console.error("Failed to fetch general members:", error);
+            toast.error('Failed to load general members. Please try again later.');
         }
     };
 
-    //post api
+    const formatDate = (date) => {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+
+    const resetFormFields = () => {
+        setSelectedMember('');
+        setFromDate('');
+        setToDate('');
+    }
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
+        const formattedFromDate = formatDate(fromDate);
+        const formattedToDate = formatDate(toDate);
+
+        const member = generalMember.find(m => m.memberId === parseInt(selectedMember, 10));
         const reportData = {
-            bookId,
-            fromDate: formatDate(fromDate),
-            toDate: formatDate(toDate),
+            memberName: member ? member.username : '',
+            fromDate: formattedFromDate,
+            toDate: formattedToDate,
         };
 
         try {
@@ -67,24 +67,22 @@ const BookReport = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
                 },
                 body: JSON.stringify(reportData),
             });
 
             if (response.ok) {
-                toast.success('Report submitted successfully');
-                // window.open('https://your-report-results-url.com', '_blank');
-                // Optionally reset form fields
-                setBookId('');
-                setBookName('');
-                setFromDate('');
-                setToDate('');
+                console.log('Report submitted successfully');
+                toast.success('Report submitted successfully.');
+                resetFormFields();
             } else {
-                toast.error('Failed to submit report');
+                console.error('Failed to submit report');
+                toast.error('Failed to submit report.');
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error('Error submitting report');
+            toast.error('Error submitting report. Please try again.');
         }
     };
 
@@ -98,21 +96,18 @@ const BookReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" controlId="bookName">
-                                    <Form.Label>Book Name</Form.Label>
+                                <Form.Group as={Col}>
+                                    <Form.Label>Member Name</Form.Label>
                                     <Form.Select
-                                        value={bookId}
-                                        onChange={(e) => {
-                                            const selectedBook = books.find(book => book.bookId === parseInt(e.target.value, 10));
-                                            setBookId(e.target.value);
-                                            setBookName(selectedBook ? selectedBook.bookName : '');
-                                        }}
-                                        required
+                                        as="select"
+                                        value={selectedMember}
+                                        onChange={(e) => setSelectedMember(e.target.value)}
+                                        className="small-input"
                                     >
-                                        <option value="">Select a book</option>
-                                        {books.map(book => (
-                                            <option key={book.bookId} value={book.bookId}>
-                                                {book.bookName}
+                                        <option value="">Select a member</option>
+                                        {generalMember.map(member => (
+                                            <option key={member.memberId} value={member.memberId}>
+                                                {member.username}
                                             </option>
                                         ))}
                                     </Form.Select>
@@ -125,6 +120,7 @@ const BookReport = () => {
                                         type="date"
                                         value={fromDate}
                                         onChange={(e) => setFromDate(e.target.value)}
+                                        className="small-input"
                                     />
                                 </Form.Group>
                             </Row>
@@ -135,6 +131,7 @@ const BookReport = () => {
                                         type="date"
                                         value={toDate}
                                         onChange={(e) => setToDate(e.target.value)}
+                                        className="small-input"
                                     />
                                 </Form.Group>
                             </Row>
@@ -151,4 +148,4 @@ const BookReport = () => {
     );
 };
 
-export default BookReport;
+export default MemberReport;

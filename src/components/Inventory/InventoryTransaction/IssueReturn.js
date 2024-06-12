@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
-import '../InventoryCSS/PurchaseBookDashboardData.css';
+import '../InventoryTransaction/CSS/Purchase.css';
 import { Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 
 const IssueReturn = () => {
@@ -281,7 +281,7 @@ const IssueReturn = () => {
         setIssueReturnDate('');
         setSelectedRowIndex(null);
     };
-    
+
 
     // const calculateQuantity = () => {
     //     return selectedRows.length;
@@ -337,7 +337,9 @@ const IssueReturn = () => {
     // };
 
 
-
+    const calculateTotal = () => {
+        return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -405,7 +407,7 @@ const IssueReturn = () => {
         try {
             const issueReturnDetails = issueReturn[issueReturnIdToDelete];
             const bookDetailIds = issueReturnDetails.map(detail => detail.bookDetailsList.map(book => book.bookDetailIds)).flat();
-    
+
             const response = await fetch(`${BaseURL}/api/bookdetails/update-status-issue-return`, {
                 method: 'POST',
                 headers: {
@@ -414,7 +416,7 @@ const IssueReturn = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-    
+
             if (response.ok) {
                 // If the update is successful, delete the issue return
                 await fetch(`${BaseURL}/api/issue/${issueReturnIdToDelete}`, {
@@ -423,7 +425,7 @@ const IssueReturn = () => {
                         'Authorization': `Bearer ${accessToken}`
                     }
                 });
-    
+
                 toast.success('Issue return deleted successfully.');
                 fetchIssueReturn();
             } else {
@@ -437,7 +439,7 @@ const IssueReturn = () => {
             setShowDeleteModal(false);
         }
     };
-    
+
 
 
     // const handleDelete = (issueReturnId) => {
@@ -470,11 +472,16 @@ const IssueReturn = () => {
     // };
 
 
-   
+
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);
         setShowDetailModal(true);
     };
+    const calculateDetailTotal = () => {
+        if (!selectedDetail) return 0;
+        return selectedDetail[0].bookDetailsList.reduce((acc, current) => acc + current.fineAmount, 0);
+    };
+    
 
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
@@ -502,6 +509,8 @@ const IssueReturn = () => {
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
     const currentData = issueReturnArray.slice(indexOfFirstItem, indexOfLastItem);
+
+
 
     return (
         <div className="main-content">
@@ -692,7 +701,17 @@ const IssueReturn = () => {
                                                     </td>
                                                 </tr>
                                             ))}
-
+                                            <tr>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td></td>
+                                                <td>Total</td>
+                                                <td>{calculateTotal()}</td>
+                                                <td></td>
+                                            </tr>
                                         </tbody>
                                     </Table>
                                 )}
@@ -710,7 +729,7 @@ const IssueReturn = () => {
                 </div>
             </Modal>
 
-            <Modal centered show={showDeleteModal} onHide={() => {setShowDeleteModal(false); resetFormFields()}}>
+            <Modal centered show={showDeleteModal} onHide={() => { setShowDeleteModal(false); resetFormFields() }}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Delete</Modal.Title>
                 </Modal.Header>
@@ -789,6 +808,15 @@ const IssueReturn = () => {
                                                 <td>{detail.fineAmount}</td>
                                             </tr>
                                         ))}
+                                        <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                            <td>Total</td>
+                                            <td>{calculateDetailTotal()}</td>
+                                        </tr>
                                     </tbody>
                                 </Table>
                             </div>

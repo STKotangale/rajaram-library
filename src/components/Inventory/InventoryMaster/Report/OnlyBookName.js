@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Form, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../components/Auth/AuthProvider';
-import './CSS/Report.css';
+import { useAuth } from '../../../Auth/AuthProvider';
+import '../CSS/Report.css';
 
 // Utility function to format date to dd-mm-yyyy
 const formatDate = (date) => {

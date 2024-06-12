@@ -1,11 +1,11 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
-import '../InventoryCSS/PurchaseBookDashboardData.css';
-
+import '../InventoryTransaction/CSS/Purchase.css';
 
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
@@ -16,9 +16,9 @@ const formatDateToDDMMYYYY = (dateStr) => {
     return `${day}-${month}-${year}`;
 };
 
-const BookScrap = () => {
-    //get  book srcap
-    const [bookScrap, setBookScrap] = useState([]);
+const BookLost = () => {
+    //get  book lost
+    const [bookLost, setBookLost] = useState([]);
     //get purchaser name
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
@@ -30,7 +30,8 @@ const BookScrap = () => {
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState('');
-
+    const [discountPercent, setDiscountPercent] = useState('');
+    const [gstPercent, setGstPercent] = useState('');
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
@@ -41,29 +42,30 @@ const BookScrap = () => {
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    //get all
     useEffect(() => {
-        fetchBookScrap();
+        fetchBookLost();
         fetchPurchaserName();
         fetchAllBooks();
     }, [username, accessToken]);
 
-    //get book srcap
-    const fetchBookScrap = async () => {
+    //get book lost
+    const fetchBookLost = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/book-scrap-all`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-lost-all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching book scrap : ${response.statusText}`);
+                throw new Error(`Error fetching book lost : ${response.statusText}`);
             }
             const data = await response.json();
             const groupedData = groupBy(data, 'stock_id');
-            setBookScrap(groupedData);
+            setBookLost(groupedData);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching book srcap . Please try again later.');
+            toast.error('Error fetching book lost . Please try again later.');
         }
     };
 
@@ -162,25 +164,37 @@ const BookScrap = () => {
         return rows.reduce((total, row) => total + (parseFloat(row.amount) || 0), 0).toFixed(2);
     };
 
+    const calculateTotalAfterDiscount = (total) => {
+        const discountValue = parseFloat(discountPercent) || 0;
+        return (total - (total * (discountValue / 100))).toFixed(2);
+    };
+
+    const calculateTotalAfterGst = (total) => {
+        const gstValue = parseFloat(gstPercent) || 0;
+        return (total + (total * (gstValue / 100))).toFixed(2);
+    };
+
 
     // Reset form fields
     const resetFormFields = () => {
         setInvoiceNumber('');
         setInvoiceDate('');
         setSelectedPurchaserId(null);
+        setDiscountPercent('');
+        // setGstPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
-    const calculateQuantity = () => {
-        return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
-    };
+    // const calculateQuantity = () => {
+    //     return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
+    // }
 
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-        const quantity = calculateQuantity();
+        // const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -190,18 +204,26 @@ const BookScrap = () => {
             }));
 
         const billTotal = parseFloat(calculateBillTotal());
+        const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
+        const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
 
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
             ledgerId: Number(selectedPurchaserId),
             billTotal: billTotal,
-            bookQty: quantity,
+            grandTotal: grandTotal,
+            discountPercent: parseFloat(discountPercent) || 0,
+            discountAmount: calculateDiscountAmount(),
+            // gstPercent: parseFloat(gstPercent) || 0,
+            // gstAmount: calculateGstAmount(),
+            totalAfterDiscount: totalAfterDiscount,
+            // qty: quantity,
             bookDetails: bookDetailsPayload
         };
 
         try {
-            const response = await fetch(`${BaseURL}/api/issue/book-scrap`, {
+            const response = await fetch(`${BaseURL}/api/issue/book-lost`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -215,18 +237,34 @@ const BookScrap = () => {
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchBookScrap();
+                fetchBookLost();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error submitting book scrap:', error);
-            toast.error('Error submitting book scrap. Please try again.');
+            console.error('Error submitting book lost:', error);
+            toast.error('Error submitting book lost. Please try again.');
         }
     };
 
     const billTotal = parseFloat(calculateBillTotal());
+    const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
+    const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
+
+
+    //show discount price
+    const calculateDiscountAmount = () => {
+        const billTotal = calculateBillTotal();
+        const discountAmount = billTotal * (discountPercent / 100);
+        return Math.floor(discountAmount);
+    };
+
+    // const calculateGstAmount = () => {
+    //     const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
+    //     const gstAmount = totalAfterDiscount * (gstPercent / 100);
+    //     return Math.floor(gstAmount);
+    // };
 
 
     //delete
@@ -245,19 +283,18 @@ const BookScrap = () => {
                 }
             });
             if (response.ok) {
-                toast.success('Book scrap  deleted successfully.');
+                toast.success('Book lost  deleted successfully.');
                 setShowDeleteModal(false);
-                fetchBookScrap();
+                fetchBookLost();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
             }
         } catch (error) {
-            console.error('Error deleting book scrap:', error);
-            toast.error('Error deleting book scrap . Please try again.');
+            console.error('Error deleting book lost:', error);
+            toast.error('Error deleting book lost . Please try again.');
         }
     };
-
 
     //show table in stock_id
     const groupBy = (array, key) => {
@@ -276,7 +313,7 @@ const BookScrap = () => {
     //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(Object.keys(bookScrap).length / perPage);
+    const totalPages = Math.ceil(Object.keys(bookLost).length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -296,7 +333,8 @@ const BookScrap = () => {
 
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = Object.entries(bookScrap).slice(indexOfFirstItem, indexOfLastItem);
+    const currentData = Object.entries(bookLost).slice(indexOfFirstItem, indexOfLastItem);
+
 
     return (
         <div className="main-content">
@@ -304,7 +342,7 @@ const BookScrap = () => {
                 <div className='mt-2'>
                     <div className='mt-1'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
-                            Add Book Scrap
+                            Add Book Lost
                         </Button>
                     </div>
                     <div className="table-responsive table-height mt-4">
@@ -313,13 +351,13 @@ const BookScrap = () => {
                                 <tr>
                                     <th>Sr. No.</th>
                                     <th>Purchaser Name</th>
-                                    <th>Book Scrap No</th>
-                                    <th>Book Scrap Date</th>
+                                    <th>Book Lost No</th>
+                                    <th>Book Lost Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* {Object.entries(bookScrap).map(([stock_id, items], index) => ( */}
+                                {/* {Object.entries(bookLost).map(([stock_id, items], index) => ( */}
                                 {currentData.map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
@@ -331,8 +369,7 @@ const BookScrap = () => {
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
                                         </td>
                                     </tr>
-                                ))
-                                }
+                                ))}
                             </tbody>
                         </Table>
                     </div>
@@ -351,15 +388,15 @@ const BookScrap = () => {
             <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Add Book Scrap</Modal.Title>
+                        <Modal.Title>Add Book Lost</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Book Scrap No.</Form.Label>
+                                    <Form.Label>Book Lost No.</Form.Label>
                                     <Form.Control
-                                        placeholder="Book scrap number"
+                                        placeholder="Book lost number"
                                         type="text"
                                         className="small-input"
                                         value={invoiceNumber}
@@ -367,7 +404,7 @@ const BookScrap = () => {
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
-                                    <Form.Label>Book Scrap Date</Form.Label>
+                                    <Form.Label>Book Lost Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         value={invoiceDate}
@@ -426,7 +463,7 @@ const BookScrap = () => {
                                                 <td>
                                                     <Form.Select
                                                         as="select"
-                                                        value={row.accessionNo}
+                                                        value={row.purchaseCopyNo}
                                                         onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
                                                     >
                                                         <option value="">Select accession no</option>
@@ -436,7 +473,8 @@ const BookScrap = () => {
                                                                 <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
                                                                     {detail.accessionNo}
                                                                 </option>
-                                                            ))}
+                                                            ))
+                                                        }
                                                     </Form.Select>
                                                 </td>
                                                 <td>
@@ -469,7 +507,56 @@ const BookScrap = () => {
                                             <td className="amount-align">{billTotal.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-
+                                        <tr>
+                                            <td></td>
+                                            <td className="right-align">Discount</td>
+                                            <td>
+                                                <div className="input-with-suffix">
+                                                    <Form.Control
+                                                        className="right-align"
+                                                        type="number"
+                                                        placeholder="Discount"
+                                                        value={discountPercent}
+                                                        onChange={(e) => setDiscountPercent(e.target.value)}
+                                                    />
+                                                    <span>%</span>
+                                                </div>
+                                            </td>
+                                            <td className="amount-align">{calculateDiscountAmount()}</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Total After Discount</td>
+                                            <td className="amount-align">{totalAfterDiscount.toFixed(2)}</td>
+                                            <td></td>
+                                        </tr>
+                                        {/* <tr>
+                                            <td></td>
+                                            <td className="right-align">GST</td>
+                                            <td>
+                                                <div className="input-with-suffix">
+                                                    <Form.Control
+                                                        className="right-align"
+                                                        type="number"
+                                                        placeholder="GST"
+                                                        value={gstPercent}
+                                                        onChange={(e) => setGstPercent(e.target.value)}
+                                                    />
+                                                    <span>%</span>
+                                                </div>
+                                            </td>
+                                            <td className="amount-align">{calculateGstAmount()}</td>
+                                            <td></td>
+                                        </tr> */}
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td className="right-align">Grand Total</td>
+                                            <td className="amount-align">{grandTotal.toFixed(2)}</td>
+                                            <td></td>
+                                        </tr>
                                     </tbody>
                                 </Table>
                             </div>
@@ -479,7 +566,7 @@ const BookScrap = () => {
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={handleSubmit}>
+                        <Button className='button-color' onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Modal.Footer>
@@ -490,14 +577,14 @@ const BookScrap = () => {
             <Modal centered show={showDetailsModal} onHide={() => setShowDetailsModal(false)} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
-                        <Modal.Title>Book Scrap Details</Modal.Title>
+                        <Modal.Title>Book Lost Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
                         {selectedRowDetails.length > 0 && (
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Book Scrap No.</Form.Label>
+                                        <Form.Label>Book Lost No.</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
@@ -506,7 +593,7 @@ const BookScrap = () => {
                                         />
                                     </Form.Group>
                                     <Form.Group as={Col}>
-                                        <Form.Label>Book Scrap Date</Form.Label>
+                                        <Form.Label>Book Lost Date</Form.Label>
                                         <Form.Control
                                             type="text"
                                             value={selectedRowDetails[0]?.invoiceDate}
@@ -559,7 +646,7 @@ const BookScrap = () => {
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={row.book_rate}
+                                                            value={row.book_amount}
                                                             readOnly
                                                         />
                                                     </td>
@@ -571,7 +658,50 @@ const BookScrap = () => {
                                                 <td className="right-align">Bill Total</td>
                                                 <td className="amount-align">{selectedRowDetails[0]?.billTotal}</td>
                                             </tr>
-
+                                            <tr>
+                                                <td></td>
+                                                <td className="right-align">Discount</td>
+                                                <td>
+                                                    <div className="input-with-suffix">
+                                                        <Form.Control
+                                                            className="right-align"
+                                                            type="number"
+                                                            value={selectedRowDetails[0]?.discountPercent}
+                                                            readOnly
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount.toFixed(2)}</td>
+                                            </tr>
+                                            <tr>
+                                                <td></td>
+                                                <td className="right-align">Total After Discount</td>
+                                                <td></td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
+                                            </tr>
+                                            {/* <tr>
+                                                <td></td>
+                                                <td className="right-align">GST</td>
+                                                <td>
+                                                    <div className="input-with-suffix">
+                                                        <Form.Control
+                                                            className="right-align"
+                                                            type="number"
+                                                            value={selectedRowDetails[0]?.gstPercent}
+                                                            readOnly
+                                                        />
+                                                        <span>%</span>
+                                                    </div>
+                                                </td>
+                                                <td className="amount-align">{(selectedRowDetails[0]?.gstAmount).toFixed(2)}</td>
+                                            </tr> */}
+                                            <tr>
+                                                <td></td>
+                                                <td className="right-align">Grand Total</td>
+                                                <td></td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal.toFixed(2)}</td>
+                                            </tr>
                                         </tbody>
                                     </Table>
                                 </div>
@@ -586,12 +716,12 @@ const BookScrap = () => {
                 </div>
             </Modal>
 
-            {/* delete modal */}
+            {/*Delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this book scrap?</Modal.Body>
+                <Modal.Body>Are you sure you want to delete this book lost?</Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>No</Button>
                     <Button variant="danger" onClick={confirmDelete}>Yes</Button>
@@ -602,4 +732,4 @@ const BookScrap = () => {
     );
 };
 
-export default BookScrap;
+export default BookLost;

@@ -8,7 +8,7 @@ import { useAuth } from '../Auth/AuthProvider';
 import { useRef } from 'react';
 
 import '../CommonFiles/CommonCSS/AdminDashboard.css';
-import '../../components/Inventory/InventoryCSS/PurchaseBookDashboardData.css';
+import '../../components/Inventory/InventoryTransaction/CSS/Purchase.css';
 
 // import logoImage from '../../assets/rajalib.png';
 import logo from '../../assets/rajalib-removebg-preview.png';
@@ -16,43 +16,56 @@ import logo from '../../assets/rajalib-removebg-preview.png';
 // import Footer from './Footer';
 
 import DashboardData from './StaticDashboardData';
-import ViewPurchase from '../Inventory/Purchase/ViewPurchase';
-import BookDetailsTable from '../Inventory/Purchase/BookDetailsTable';
-import BookLanguages from '../Inventory/Book/BookLanguages';
-import Books from '../Inventory/Book/Books';
-import BookTypes from '../Inventory/Book/BookTypes';
-import BookAuthor from '../Inventory/Book/BookAuthor';
-import BookPublication from '../Inventory/Book/BookPublication';
 
-import Purchaser from '../Inventory/Purchase/Purchaser';
+
+
+//Inventory Transaction
+import Issue from '../Inventory/InventoryTransaction/Issue';
+import IssueReturn from '../Inventory/InventoryTransaction/IssueReturn';
+import ViewPurchase from '../Inventory/InventoryTransaction/ViewPurchase';//purchase
+import PurchaseReturn from '../Inventory/InventoryTransaction/PurchaseReturn';
+import BookLost from '../Inventory/InventoryTransaction/BookLost';
+import BookScrap from '../Inventory/InventoryTransaction/BookScrap';
+import BookDetailsTable from '../Inventory/InventoryTransaction/BookDetailsTable';
+//Inventory Report
+import Accession from '../Inventory/InventoryTransaction/Report/Accession';
+import AccessionStatus from '../Inventory/InventoryTransaction/Report/AccessionStatus';
+import IssueTransaction1 from '../Inventory/InventoryTransaction/Report/IssueTransaction1';
+import IssueTransaction2 from '../Inventory/InventoryTransaction/Report/IssueTransaction2';
+
+//Inventory Master
+import Books from '../Inventory/InventoryMaster/Books';
+import BookLanguages from '../Inventory/InventoryMaster/BookLanguages';
+import BookTypes from '../Inventory/InventoryMaster/BookTypes';
+import BookAuthor from '../Inventory/InventoryMaster/BookAuthor';
+import BookPublication from '../Inventory/InventoryMaster/BookPublication';
+//Inventory Report
+import MemberReport from '../Inventory/InventoryMaster/Report/MemberReport';
+import BookReport from '../Inventory/InventoryMaster/Report/BookReport';
+import OnlyDate from '../Inventory/InventoryMaster/Report/OnlyDate';
+import OnlyMemberName from '../Inventory/InventoryMaster/Report/OnlyMemberName';
+import OnlyBookName from '../Inventory/InventoryMaster/Report/OnlyBookName';
+import IssueReport1 from '../Inventory/InventoryMaster/Report/IssueReport1';
+import IssueReport2 from '../Inventory/InventoryMaster/Report/IssueReport2';
+
+
+//Inventory Account
+import Purchaser from '../Inventory/InventoryAccount/Purchaser';
+import MembershipFees from '../Inventory/InventoryAccount/MembershipFees';
+import LibararyFees from '../Inventory/InventoryAccount/LibararyFees';
+import Config from '../Inventory/InventoryAccount/Config';
+import MonthlyMembershipFee from '../Inventory/InventoryAccount/MonthlyMembershipFee';
+
 
 import User from '../Auth/User';
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
 
-import Issue from '../Inventory/Book/Issue';
-import IssueReturn from '../Inventory/Book/IssueReturn';
-import PurchaseReturn from '../Inventory/Book/PurchaseReturn';
-import BookLost from '../Inventory/Book/BookLost';
-import BookScrap from '../Inventory/Book/BookScrap';
 
-import MembershipFees from '../Fees/MembershipFees';
-import LibararyFees from '../Fees/LibararyFees';
-import Config from '../Fees/Config';
-import MonthlyMembershipFee from '../Fees/MonthlyMembershipFee';
 
-import MemberReport from '../InventoryReport/MemberReport';
-import BookReport from '../InventoryReport/BookReport';
-import OnlyDate from '../InventoryReport/OnlyDate';
-import OnlyMemberName from '../InventoryReport/OnlyMemberName';
-import OnlyBookName from '../InventoryReport/OnlyBookName';
 
-import IssueReport1 from '../InventoryReport/IssueReport1';
-import IssueReport2 from '../InventoryReport/IssueReport2';
-import Accession from '../Inventory/Report/Accession';
-import AccessionStatus from '../Inventory/Report/AccessionStatus';
-import IssueTransaction1 from '../Inventory/Report/IssueTransaction1';
-import IssueTransaction2 from '../Inventory/Report/IssueTransaction2';
+
+
 
 
 const AdminDashboard = () => {
@@ -1459,7 +1472,7 @@ const AdminDashboard = () => {
 
                                     {/* report transaction*/}
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryTransactionReportSubItems}>
-                                        <Archive className="icon me-2" /> Inventory Transaction Report
+                                        <Archive className="icon me-2" />Transaction Report
                                     </ListGroup.Item>
                                     {showInventoryTransactionReportSubItems && (
                                         <div className='ms-2'>
@@ -1521,7 +1534,7 @@ const AdminDashboard = () => {
 
                                     {/* report master*/}
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={toggleInventoryMasterReportSubItems}>
-                                        <Archive className="icon me-2" /> Inventory Master Report
+                                        <Archive className="icon me-2" />Master Report
                                     </ListGroup.Item>
                                     {showInventoryMasterReportSubItems && (
                                         <div className='ms-2'>

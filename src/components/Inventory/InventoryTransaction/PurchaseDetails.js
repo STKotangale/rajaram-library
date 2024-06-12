@@ -7,7 +7,7 @@ import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
 import { ArrowReturnLeft, Trash } from 'react-bootstrap-icons';
 
 import { useAuth } from '../../Auth/AuthProvider';
-import '../InventoryCSS/PurchaseBookDashboardData.css'
+import '../InventoryTransaction/CSS/Purchase.css';
 
 const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
 

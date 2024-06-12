@@ -2,14 +2,15 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Button, Form, Row, Col } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../components/Auth/AuthProvider';
-import './CSS/Report.css';
+import { useAuth } from '../../../Auth/AuthProvider';
+import '../CSS/Report.css';
 
-const MemberReport = () => {
+const OnlyMemberName = () => {
+    //get member name
     const [generalMember, setGeneralMember] = useState([]);
+    //post
     const [selectedMember, setSelectedMember] = useState('');
-    const [fromDate, setFromDate] = useState('');
-    const [toDate, setToDate] = useState('');
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -35,33 +36,18 @@ const MemberReport = () => {
         }
     };
 
-    const formatDate = (date) => {
-        const d = new Date(date);
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
-        return `${day}-${month}-${year}`;
-    };
-
     const resetFormFields = () => {
         setSelectedMember('');
-        setFromDate('');
-        setToDate('');
     }
 
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        const formattedFromDate = formatDate(fromDate);
-        const formattedToDate = formatDate(toDate);
 
         const member = generalMember.find(m => m.memberId === parseInt(selectedMember, 10));
         const reportData = {
             memberName: member ? member.username : '',
-            fromDate: formattedFromDate,
-            toDate: formattedToDate,
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/auth/submit-book-report`, {
                 method: 'POST',
@@ -113,28 +99,6 @@ const MemberReport = () => {
                                     </Form.Select>
                                 </Form.Group>
                             </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>From Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={fromDate}
-                                        onChange={(e) => setFromDate(e.target.value)}
-                                        className="small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>To Date</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={toDate}
-                                        onChange={(e) => setToDate(e.target.value)}
-                                        className="small-input"
-                                    />
-                                </Form.Group>
-                            </Row>
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Submit
@@ -148,4 +112,4 @@ const MemberReport = () => {
     );
 };
 
-export default MemberReport;
+export default OnlyMemberName;

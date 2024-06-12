@@ -163,3 +163,9 @@ input[type=number] {
   overflow: scroll;
   height: 550px;
 } */
+
+
+/* BOOK DETAILS UPDATE */
+.text-right-placeholder::placeholder {
+  text-align: left;
+}

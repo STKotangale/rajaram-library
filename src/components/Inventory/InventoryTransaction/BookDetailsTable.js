@@ -1,12 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, Form, Table, Row, Col, Container, InputGroup } from 'react-bootstrap';
+import { Button, Modal, Form, Table, Row, Col, Container } from 'react-bootstrap';
 import { useAuth } from '../../Auth/AuthProvider';
 import { toast } from 'react-toastify';
 import { ChevronLeft, ChevronRight, PencilSquare } from 'react-bootstrap-icons';
-import '../InventoryCSS/PurchaseBookDashboardData.css';
-import '../InventoryCSS/BookDetails.css';
+import '../InventoryTransaction/CSS/Purchase.css';
 
 const BookDetailsTable = () => {
     //search
@@ -26,6 +25,7 @@ const BookDetailsTable = () => {
     const [selectedBook, setSelectedBook] = useState(null);
     //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
+    const { username, accessToken } = useAuth();
 
     //get all data api call
     useEffect(() => {

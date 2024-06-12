@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import PurchaseDetails from './PurchaseDetails';
 
-import '../InventoryCSS/PurchaseBookDashboardData.css'
+import '../InventoryTransaction/CSS/Purchase.css';
 
 const ViewPurchase = () => {
 
