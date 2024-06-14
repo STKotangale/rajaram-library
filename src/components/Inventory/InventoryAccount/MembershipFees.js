@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
-import { Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
+import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 
 const MembershipFees = () => {
     const [memberData, setMemberData] = useState([]);
@@ -289,6 +289,34 @@ const MembershipFees = () => {
         setShowViewModal(true);
     };
 
+   //pagination function
+   const [currentPage, setCurrentPage] = useState(1);
+   const perPage = 8;
+   const totalPages = Math.ceil(memberData.length / perPage);
+
+   const handleNextPage = () => {
+       setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+   };
+
+   const handlePrevPage = () => {
+       setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+   };
+
+   // First and last page navigation functions
+   const handleFirstPage = () => {
+       setCurrentPage(1);
+   };
+
+   const handleLastPage = () => {
+       setCurrentPage(totalPages);
+   };
+
+   const indexOfLastBookType = currentPage * perPage;
+   const indexOfNumber = indexOfLastBookType - perPage;
+   const currentData = memberData.slice(indexOfNumber, indexOfLastBookType);
+
+
+
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -309,7 +337,7 @@ const MembershipFees = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {memberData.map((item, index) => (
+                                {currentData.map((item, index) => (
                                     <tr key={item.membershipId}>
                                         <td>{index + 1}</td>
                                         <td>{item.memInvoiceNo}</td>
@@ -323,6 +351,13 @@ const MembershipFees = () => {
                                 ))}
                             </tbody>
                         </Table>
+                    </div>
+                    <div className="pagination-container">
+                        <Button onClick={handleFirstPage} disabled={currentPage === 1}>First Page</Button>
+                        <Button onClick={handlePrevPage} disabled={currentPage === 1}> <ChevronLeft /></Button>
+                        <div className="pagination-text">Page {currentPage} of {totalPages}</div>
+                        <Button onClick={handleNextPage} disabled={currentPage === totalPages}> <ChevronRight /></Button>
+                        <Button onClick={handleLastPage} disabled={currentPage === totalPages}>Last Page</Button>
                     </div>
                 </div>
             </Container>

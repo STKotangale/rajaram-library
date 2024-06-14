@@ -370,7 +370,7 @@ const AdminDashboard = () => {
                                         </div>
                                     )}
 
-                                    <ListGroup.Item className="admin-general-icon mt-3 mb-2" action onClick={() => setShowAdminReportSubItems(!showAdminReportSubItems)}>
+                                    <ListGroup.Item className="admin-general-icon mt-3 mb-3" action onClick={() => setShowAdminReportSubItems(!showAdminReportSubItems)}>
                                         <Archive className="icon me-2" /> Admin Report
                                     </ListGroup.Item>
                                     {showAdminReportSubItems && (

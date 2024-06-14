@@ -25,6 +25,7 @@ const IssueReturn = () => {
     const [issueReturnDate, setIssueReturnDate] = useState('');
     // const [fineAmounts, setFineAmounts] = useState({});
 
+    const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
 
     useEffect(() => {
         fetchIssueReturn();
@@ -396,13 +397,11 @@ const IssueReturn = () => {
         }
     };
 
-
-    const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
-
     const handleDelete = (issueReturnId) => {
         setIssueReturnIdToDelete(issueReturnId);
         setShowDeleteModal(true);
     };
+
     const confirmDelete = async () => {
         try {
             const issueReturnDetails = issueReturn[issueReturnIdToDelete];

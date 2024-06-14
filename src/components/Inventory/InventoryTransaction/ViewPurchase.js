@@ -32,8 +32,7 @@ const ViewPurchase = () => {
     const [selectedPurchase, setSelectedPurchase] = useState(null);
     //view
     const [viewPurchaseModal, setViewPurchaseModal] = useState(false);
-
-
+    
     const [purchaseDetails, setPurchaseDetails] = useState({});
 
     // //discount  and gst
@@ -478,7 +477,7 @@ const ViewPurchase = () => {
                             <Button onClick={() => setShowAddPurchase(true)} className="button-color">
                                 Add purchase
                             </Button>
-                            <div className="d-flex">
+                            <div className="d-flex ms-2">
                                 <Form.Control
                                     type="text"
                                     placeholder="Search Purchaser Name"

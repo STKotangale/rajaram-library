@@ -1,5 +1,6 @@
-/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
+
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
@@ -72,7 +73,7 @@ const BookLost = () => {
     //get purchaser name
     const fetchPurchaserName = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/ledger`, {
+            const response = await fetch(`${BaseURL}/api/general-members`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -83,8 +84,8 @@ const BookLost = () => {
             const data = await response.json();
             setPurchaserName(data.data);
         } catch (error) {
-            console.error("Failed to fetch purchaser name:", error);
-            toast.error('Failed to load purchaser name. Please try again later.');
+            console.error("Failed to fetch member name:", error);
+            toast.error('Failed to load member name. Please try again later.');
         }
     };
 
@@ -181,20 +182,14 @@ const BookLost = () => {
         setInvoiceDate('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
-        // setGstPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
-
-    // const calculateQuantity = () => {
-    //     return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
-    // }
 
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-        // const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
@@ -210,15 +205,13 @@ const BookLost = () => {
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
-            ledgerId: Number(selectedPurchaserId),
+            // ledgerId: Number(selectedPurchaserId),
+            memberId: Number(selectedPurchaserId),
             billTotal: billTotal,
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
             discountAmount: calculateDiscountAmount(),
-            // gstPercent: parseFloat(gstPercent) || 0,
-            // gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
-            // qty: quantity,
             bookDetails: bookDetailsPayload
         };
 
@@ -260,43 +253,61 @@ const BookLost = () => {
         return Math.floor(discountAmount);
     };
 
-    // const calculateGstAmount = () => {
-    //     const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
-    //     const gstAmount = totalAfterDiscount * (gstPercent / 100);
-    //     return Math.floor(gstAmount);
-    // };
-
-
     //delete
     const handleDelete = (stockId) => {
         setDeleteStockId(stockId);
         setShowDeleteModal(true);
     };
 
-    //delete api
     const confirmDelete = async () => {
+        if (!deleteStockId) return;
+
+        const selectedItems = bookLost[deleteStockId];
+
+        if (!selectedItems || selectedItems.length === 0) {
+            toast.error('No book details found for this stock.');
+            return;
+        }
+
+        const bookDetailIds = selectedItems.map(item => item.bookDetailId);
+
         try {
-            const response = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
+            const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-book-lost`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(bookDetailIds)
+            });
+
+            if (!postResponse.ok) {
+                const postData = await postResponse.json();
+                toast.error(`Error during pre-deletion process: ${postData.message}`);
+                return;
+            }
+
+            const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            if (response.ok) {
-                toast.success('Book lost  deleted successfully.');
-                setShowDeleteModal(false);
-                fetchBookLost();
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.message);
+
+            if (!deleteResponse.ok) {
+                const deleteData = await deleteResponse.json();
+                toast.error(`Error deleting book lost: ${deleteData.message}`);
+                return;
             }
+            toast.success('Book lost successfully updated and deleted.');
+            setShowDeleteModal(false);
+            fetchBookLost();
         } catch (error) {
-            console.error('Error deleting book lost:', error);
-            toast.error('Error deleting book lost . Please try again.');
+            console.error('Error during deletion process:', error);
+            toast.error('Error during deletion process. Please try again.');
         }
     };
 
-    //show table in stock_id
     const groupBy = (array, key) => {
         return array.reduce((result, currentValue) => {
             (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
@@ -335,7 +346,6 @@ const BookLost = () => {
     const indexOfFirstItem = indexOfLastItem - perPage;
     const currentData = Object.entries(bookLost).slice(indexOfFirstItem, indexOfLastItem);
 
-
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -350,7 +360,7 @@ const BookLost = () => {
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
-                                    <th>Purchaser Name</th>
+                                    <th>Member Name</th>
                                     <th>Book Lost No</th>
                                     <th>Book Lost Date</th>
                                     <th>Actions</th>
@@ -361,7 +371,7 @@ const BookLost = () => {
                                 {currentData.map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
-                                        <td>{items[0].ledgerName}</td>
+                                        <td>{items[0].username}</td>
                                         <td>{items[0].invoiceNo}</td>
                                         <td>{items[0].invoiceDate}</td>
                                         <td>
@@ -412,25 +422,27 @@ const BookLost = () => {
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
-                            </Row>
+                            </Row>         
+
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
-                                    <Form.Label>Purchaser Name</Form.Label>
+                                    <Form.Label>Member Name</Form.Label>
                                     <Form.Select
                                         as="select"
                                         className="small-input"
-                                        value={selectedPurchaserId || ""}
+                                        value={selectedPurchaserId}
                                         onChange={(e) => setSelectedPurchaserId(e.target.value)}
                                     >
-                                        <option value="">Select a purchaser</option>
-                                        {purchaserName.map(purchaser => (
-                                            <option key={purchaser.ledgerID} value={purchaser.ledgerID}>
-                                                {purchaser.ledgerName}
+                                        <option value="">Select a member</option>
+                                        {purchaserName.map(member => (
+                                            <option key={member.memberId} value={member.memberId}>
+                                                {member.username}
                                             </option>
                                         ))}
                                     </Form.Select>
                                 </Form.Group>
                             </Row>
+
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
@@ -522,7 +534,7 @@ const BookLost = () => {
                                                     <span>%</span>
                                                 </div>
                                             </td>
-                                            <td className="amount-align">{calculateDiscountAmount()}</td>
+                                            <td className="amount-align">{calculateDiscountAmount().toFixed(2)}</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -532,29 +544,11 @@ const BookLost = () => {
                                             <td className="amount-align">{totalAfterDiscount.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-                                        {/* <tr>
-                                            <td></td>
-                                            <td className="right-align">GST</td>
-                                            <td>
-                                                <div className="input-with-suffix">
-                                                    <Form.Control
-                                                        className="right-align"
-                                                        type="number"
-                                                        placeholder="GST"
-                                                        value={gstPercent}
-                                                        onChange={(e) => setGstPercent(e.target.value)}
-                                                    />
-                                                    <span>%</span>
-                                                </div>
-                                            </td>
-                                            <td className="amount-align">{calculateGstAmount()}</td>
-                                            <td></td>
-                                        </tr> */}
                                         <tr>
                                             <td></td>
                                             <td></td>
                                             <td className="right-align">Grand Total</td>
-                                            <td className="amount-align">{grandTotal.toFixed(2)}</td>
+                                            <td className="amount-align">{grandTotal}</td>
                                             <td></td>
                                         </tr>
                                     </tbody>
@@ -604,11 +598,11 @@ const BookLost = () => {
                                 </Row>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
-                                        <Form.Label>Purchaser Name</Form.Label>
+                                        <Form.Label>Member Name</Form.Label>
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.ledgerName}
+                                            value={selectedRowDetails[0]?.username}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -680,27 +674,11 @@ const BookLost = () => {
                                                 <td></td>
                                                 <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
                                             </tr>
-                                            {/* <tr>
-                                                <td></td>
-                                                <td className="right-align">GST</td>
-                                                <td>
-                                                    <div className="input-with-suffix">
-                                                        <Form.Control
-                                                            className="right-align"
-                                                            type="number"
-                                                            value={selectedRowDetails[0]?.gstPercent}
-                                                            readOnly
-                                                        />
-                                                        <span>%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="amount-align">{(selectedRowDetails[0]?.gstAmount).toFixed(2)}</td>
-                                            </tr> */}
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal}</td>
                                             </tr>
                                         </tbody>
                                     </Table>

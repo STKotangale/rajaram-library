@@ -265,26 +265,59 @@ const BookScrap = () => {
 
     //delete api
     const confirmDelete = async () => {
+        if (!deleteStockId) return;
+    
+        // Retrieve the items associated with the deleteStockId
+        const selectedItems = bookScrap[deleteStockId];
+    
+        if (!selectedItems || selectedItems.length === 0) {
+            toast.error('No book scrap details found for this stock.');
+            return;
+        }
+    
+        // Map over the selectedItems to extract their bookDetailIds
+        const bookDetailIds = selectedItems.map(item => item.bookDetailId);
+    
         try {
-            const response = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
+            // POST request to handle the bookDetailIds before deletion
+            const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-book-scrap`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(bookDetailIds)
+            });
+    
+            if (!postResponse.ok) {
+                const postData = await postResponse.json();
+                toast.error(`Error during pre-deletion process: ${postData.message}`);
+                return; // Stop if POST failed
+            }
+    
+            // If the POST request succeeds, proceed with the DELETE request
+            const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            if (response.ok) {
-                toast.success('Book scrap  deleted successfully.');
-                setShowDeleteModal(false);
-                fetchBookScrap();
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.message);
+    
+            if (!deleteResponse.ok) {
+                const deleteData = await deleteResponse.json();
+                toast.error(`Error deleting book scrap: ${deleteData.message}`);
+                return; // Stop if DELETE failed
             }
+    
+            toast.success('Book scrap successfully processed and deleted.');
+            setShowDeleteModal(false);
+            fetchBookScrap(); // Refresh the list to reflect the changes
         } catch (error) {
-            console.error('Error deleting book scrap:', error);
-            toast.error('Error deleting book scrap . Please try again.');
+            console.error('Error during deletion process:', error);
+            toast.error('Error during deletion process. Please try again.');
         }
     };
+    
 
 
     //show table in stock_id
@@ -512,7 +545,7 @@ const BookScrap = () => {
                                                     <span>%</span>
                                                 </div>
                                             </td>
-                                            <td className="amount-align">{calculateDiscountAmount()}</td>
+                                            <td className="amount-align">{calculateDiscountAmount().toFixed(2)}</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -526,7 +559,7 @@ const BookScrap = () => {
                                             <td></td>
                                             <td></td>
                                             <td className="right-align">Grand Total</td>
-                                            <td className="amount-align">{grandTotal.toFixed(2)}</td>
+                                            <td className="amount-align">{grandTotal}</td>
                                             <td></td>
                                         </tr>
                                     </tbody>
@@ -618,7 +651,7 @@ const BookScrap = () => {
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={row.book_rate}
+                                                            value={row.book_rate.toFixed(2)}
                                                             readOnly
                                                         />
                                                     </td>
@@ -628,9 +661,9 @@ const BookScrap = () => {
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">Bill Total</td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.billTotal}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.billTotal.toFixed(2)}</td>
                                             </tr>
-                                             <tr>
+                                            <tr>
                                                 <td></td>
                                                 <td className="right-align">Discount</td>
                                                 <td>
@@ -644,13 +677,13 @@ const BookScrap = () => {
                                                         <span>%</span>
                                                     </div>
                                                 </td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount.toFixed(2)}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Total After Discount</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount}</td>
+                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>

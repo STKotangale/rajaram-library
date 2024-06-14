@@ -194,7 +194,7 @@ const PurchaseReturn = () => {
         // Validation checks
         if (!invoiceNumber || !invoiceDate || !selectedPurchaserId || rows.filter(row => row.bookName && row.purchaseCopyNo).length === 0) {
             toast.error('Please fill all required fields and add at least one book.');
-            return; 
+            return;
         }
 
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
@@ -287,28 +287,56 @@ const PurchaseReturn = () => {
         setShowDeleteModal(true);
     };
 
-    //delete api
     const confirmDelete = async () => {
+        if (!deleteStockId) return;
+    
+        const selectedGroup = purchaseReturn[deleteStockId];
+    
+        if (!selectedGroup || selectedGroup.length === 0) {
+            toast.error('No book details found for this stock.');
+            return;
+        }
+    
+        const bookDetailIds = selectedGroup.map(item => item.bookDetailId);
+    
         try {
-            const response = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
+            const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-purchase-return`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${accessToken}`
+                },
+                body: JSON.stringify(bookDetailIds) 
+            });
+    
+            if (!postResponse.ok) {
+                const postData = await postResponse.json();
+                toast.error(`Error during pre-deletion process: ${postData.message}`);
+                return; 
+            }
+    
+            const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-            if (response.ok) {
-                toast.success('Purchase return deleted successfully.');
-                setShowDeleteModal(false);
-                fetchPurchaseReturn();
-            } else {
-                const errorData = await response.json();
-                toast.error(errorData.message);
+    
+            if (!deleteResponse.ok) {
+                const deleteData = await deleteResponse.json();
+                toast.error(`Error deleting purchase return: ${deleteData.message}`);
+                return;
             }
+    
+            toast.success('Purchase return successfully deleted.');
+            setShowDeleteModal(false);
+            fetchPurchaseReturn(); 
         } catch (error) {
-            console.error('Error deleting purchase return:', error);
-            toast.error('Error deleting purchase return. Please try again.');
+            console.error('Error during the deletion process:', error);
+            toast.error('Error during deletion process. Please try again.');
         }
     };
+    
 
     //view
     const handleViewDetails = (items) => {
@@ -562,7 +590,7 @@ const PurchaseReturn = () => {
                                             <td></td>
                                             <td></td>
                                             <td className="right-align">Grand Total</td>
-                                            <td className="amount-align">{grandTotal.toFixed(2)}</td>
+                                            <td className="amount-align">{grandTotal}</td>
                                             <td></td>
                                         </tr>
                                     </tbody>
@@ -708,7 +736,11 @@ const PurchaseReturn = () => {
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal.toFixed(2)}</td>
+                                                <td className="amount-align">
+                                                    {selectedRowDetails[0]?.grandTotal !== undefined ? Math.round(selectedRowDetails[0].grandTotal) : ''}
+                                                </td>
+
+                                                {/* <td className="amount-align">{selectedRowDetails[0]?.grandTotal}</td> */}
                                             </tr>
                                         </tbody>
                                     </Table>
