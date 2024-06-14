@@ -18,6 +18,7 @@ const BookDetailsTable = () => {
             (accessionNoQuery ? (member.accessionNo && member.accessionNo.toLowerCase().includes(accessionNoQuery.toLowerCase())) : true)
         ));
     }, [bookNameQuery, accessionNoQuery]);
+
     //get book purchase
     const [bookDetails, setBookDetails] = useState([]);
     //update book details
@@ -84,6 +85,7 @@ const BookDetailsTable = () => {
                 accessionNo: selectedBook.accessionNo,
                 copyNo: selectedBook.copyNo
             };
+
             const response = await fetch(`${BaseURL}/api/bookdetails/update/book-details/${selectedBook.bookDetailId}`, {
                 method: 'POST',
                 headers: {
@@ -163,7 +165,7 @@ const BookDetailsTable = () => {
                                         <td>{indexOfNumber + index + 1}</td>
                                         <td>{book.bookName}</td>
                                         <td>{book.accessionNo}</td>
-                                        <td>{book.purchaseCopyNo || ''}</td>
+                                        <td>{book.purchaseCopyNo}</td>
                                         <td>{book.book_rate}</td>
                                         <td>{book.status === 1 ? 'Updated' : 'Not Updated'}</td>
                                         <td>
@@ -420,8 +422,6 @@ const BookDetailsTable = () => {
                         </Modal.Body>
                     </div>
                 </Modal>
-
-
 
             </Container>
         </div>

@@ -487,7 +487,7 @@ const BookIssue = () => {
             </Container>
 
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => {setShowAddModal(false); resetFormFields()}} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Book Issue</Modal.Title>

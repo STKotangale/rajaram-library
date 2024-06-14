@@ -211,6 +211,7 @@ const IssueReturn = () => {
     //         toast.error('Error fetching issue details. Please try again later.');
     //     }
     // };
+
     const fetchIssueReturnDetails = async (memberId, date) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
@@ -262,16 +263,6 @@ const IssueReturn = () => {
         );
     };
 
-
-
-    // const resetFormFields = () => {
-    //     setIssueReturnNumber('');
-    //     setIssueReturnDate('');
-    //     setSelectedMemberId('');
-    //     setRows([]);
-    //     setSelectedRows([]);
-    //     // setFineAmounts({});
-    // };
 
     const resetFormFields = () => {
         setRows([]);
@@ -557,7 +548,7 @@ const IssueReturn = () => {
                 </div>
             </Container>
 
-            <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields()}} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Issue Return</Modal.Title>
