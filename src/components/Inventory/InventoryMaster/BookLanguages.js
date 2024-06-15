@@ -272,7 +272,7 @@ const BookLanguages = () => {
                 </div>
 
                 {/* add book insert type */}
-                <Modal show={showAddLanguage} onHide={() => setShowAddLanguage(false)}>
+                <Modal show={showAddLanguage} onHide={() => {setShowAddLanguage(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Book Language</Modal.Title>
                     </Modal.Header>

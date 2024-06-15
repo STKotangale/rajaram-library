@@ -272,7 +272,7 @@ const BookPublication = () => {
 
 
                 {/* Add Book Publication Modal */}
-                <Modal show={showAddBookPublicationModal} onHide={() => setShowAddBookPublicationModal(false)}>
+                <Modal show={showAddBookPublicationModal} onHide={() =>{setShowAddBookPublicationModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Book Publication</Modal.Title>
                     </Modal.Header>

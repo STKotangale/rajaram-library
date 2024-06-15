@@ -219,7 +219,7 @@ const Purchaser = () => {
 
 
                 {/* Add Purchaser Modal */}
-                <Modal show={showAddLedgerModal} onHide={() => setShowAddLedgerModal(false)}>
+                <Modal show={showAddLedgerModal} onHide={() => {setShowAddLedgerModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Purchaser</Modal.Title>
                     </Modal.Header>

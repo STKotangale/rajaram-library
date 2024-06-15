@@ -272,7 +272,7 @@ const BookAuthor = () => {
 
 
                 {/* Add Book Author Modal */}
-                <Modal show={showAddBookAuthorModal} onHide={() => setShowAddBookAuthorModal(false)}>
+                <Modal show={showAddBookAuthorModal} onHide={() => {setShowAddBookAuthorModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Book Author</Modal.Title>
                     </Modal.Header>

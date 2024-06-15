@@ -248,7 +248,7 @@ const User = () => {
                 </div>
 
                 {/* Add Book Modal */}
-                <Modal show={showAddUserModal} onHide={() => setShowAddUserModal(false)}>
+                <Modal show={showAddUserModal} onHide={() => {setShowAddUserModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New User</Modal.Title>
                     </Modal.Header>
@@ -329,7 +329,6 @@ const User = () => {
                     </Modal.Body>
                 </Modal>
 
-                {/* Edit User Modal */}
                 {/* Edit User Modal */}
                 <Modal show={showEditUserModal} onHide={() => { setShowEditUserModal(false); resetFormFields(); }}>
                     <Modal.Header closeButton>

@@ -230,6 +230,6 @@ html {
 /* sidebar name add also navabar */
 .selected-item {
   font-size: x-large; 
-  text-transform: uppercase; 
-  /* font-weight: bold;  */
+  /* text-transform: uppercase;  */
+  font-weight: 500;
 }

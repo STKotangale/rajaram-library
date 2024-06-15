@@ -381,7 +381,7 @@ const GeneralMember = () => {
 
 
             {/* Add General member Modal */}
-            <Modal show={showAddGeneralMemberModal} onHide={() => setShowAddGeneralMemberModal(false)} size='xl' bg='light'>
+            <Modal show={showAddGeneralMemberModal} onHide={() => {setShowAddGeneralMemberModal(false); resetFormFields()}} size='xl' bg='light'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add New General Member</Modal.Title>

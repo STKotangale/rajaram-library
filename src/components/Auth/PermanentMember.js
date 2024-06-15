@@ -335,7 +335,7 @@ const PermanentMember = () => {
             </Container>
 
             {/* Add permanent member Modal */}
-            <Modal show={showAddPermanentMemberModal} onHide={() => setShowAddPermanentMemberModal(false)} size='xl'>
+            <Modal show={showAddPermanentMemberModal} onHide={() => {setShowAddPermanentMemberModal(false); resetFormFields()}} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Permanent Member</Modal.Title>
@@ -504,6 +504,7 @@ const PermanentMember = () => {
                     </Modal.Body>
                 </div>
             </Modal>
+
             {/* Edit permanent member Modal */}
             {/* <Modal show={showEditPermanentMemberModal} onHide={() => setShowEditPermanentMemberModal(false)} dialogClassName="modal-lg"> */}
             <Modal show={showEditPermanentMemberModal} onHide={() => { setShowEditPermanentMemberModal(false); resetFormFields(); }} size='xl '>

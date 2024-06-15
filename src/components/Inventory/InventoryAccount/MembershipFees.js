@@ -362,7 +362,7 @@ const MembershipFees = () => {
                 </div>
             </Container>
 
-            <Modal centered show={showAddModal} onHide={() => setShowAddModal(false)} size='lg' >
+            <Modal centered show={showAddModal} onHide={() => {setShowAddModal(false); resetField()}} size='lg' >
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Membership Fees</Modal.Title>

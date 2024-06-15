@@ -360,7 +360,7 @@ const Books = () => {
                 </div>
 
                 {/* Add Book Modal */}
-                <Modal show={showAddBookModal} onHide={() => setShowAddBookModal(false)}>
+                <Modal show={showAddBookModal} onHide={() => {setShowAddBookModal(false); resetFormFields()}}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Book</Modal.Title>
                     </Modal.Header>

@@ -269,7 +269,7 @@ const BookTypes = () => {
 
 
                     {/* Add Book Type Modal */}
-                    <Modal show={showAddBookTypeModal} onHide={() =>{ setShowAddBookTypeModal(false)}} size="md">
+                    <Modal show={showAddBookTypeModal} onHide={() =>{ setShowAddBookTypeModal(false); resetFormFields()}} size="md">
                         <Modal.Header closeButton>
                             <Modal.Title>Add New Book Type</Modal.Title>
                         </Modal.Header>
