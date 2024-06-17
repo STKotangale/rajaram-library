@@ -79,6 +79,7 @@ const GeneralMember = () => {
             member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
             member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
         ));
+        setCurrentPage(1); 
     }, [firstNameQuery, middleNameQuery, lastNameQuery, generalMember]);
 
 

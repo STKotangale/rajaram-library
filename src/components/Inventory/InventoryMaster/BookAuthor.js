@@ -14,6 +14,7 @@ const BookAuthor = () => {
         setFiltered(bookAuthors.filter(member =>
             member.authorName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
+        setCurrentPage(1); 
     }, [dataQuery]);
 
     //get

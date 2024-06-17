@@ -15,6 +15,7 @@ const Books = () => {
         setFiltered(books.filter(member =>
             member.bookName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
+        setCurrentPage(1);
     }, [dataQuery]);
 
     //get books
@@ -360,7 +361,7 @@ const Books = () => {
                 </div>
 
                 {/* Add Book Modal */}
-                <Modal show={showAddBookModal} onHide={() => {setShowAddBookModal(false); resetFormFields()}}>
+                <Modal show={showAddBookModal} onHide={() => { setShowAddBookModal(false); resetFormFields() }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Book</Modal.Title>
                     </Modal.Header>

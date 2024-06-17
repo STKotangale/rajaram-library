@@ -17,6 +17,7 @@ const BookDetailsTable = () => {
             member.bookName.toLowerCase().includes(bookNameQuery.toLowerCase()) &&
             (accessionNoQuery ? (member.accessionNo && member.accessionNo.toLowerCase().includes(accessionNoQuery.toLowerCase())) : true)
         ));
+        setCurrentPage(1); 
     }, [bookNameQuery, accessionNoQuery]);
 
     //get book purchase

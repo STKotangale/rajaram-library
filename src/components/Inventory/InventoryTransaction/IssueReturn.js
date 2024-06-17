@@ -169,6 +169,7 @@ const IssueReturn = () => {
         );
     };
 
+    
 
 
     //memberid and date api get
@@ -333,6 +334,7 @@ const IssueReturn = () => {
         return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
+    
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -602,7 +604,7 @@ const IssueReturn = () => {
                                     <Table striped bordered hover className="table-bordered-dark">
                                         <thead>
                                             <tr>
-                                                <th className='sr-size'>Sr. No.</th>
+                                                <th>Sr. No.</th>
                                                 <th>Book Name</th>
                                                 <th>Accession No</th>
                                                 <th>Issue Date</th>
@@ -675,7 +677,7 @@ const IssueReturn = () => {
                                                             type="number"
                                                             style={{ width: '80px' }}
                                                             className="form-control form-control-sm"
-                                                            value={row.fineAmount}
+                                                            value={row.fineAmount.toFixed(2)}
                                                             onChange={(e) => handleFineAmountChange(index, e.target.value)}
                                                             onFocus={() => setSelectedRowIndex(index)}
                                                         />
@@ -699,7 +701,7 @@ const IssueReturn = () => {
                                                 <td></td>
                                                 <td></td>
                                                 <td>Total</td>
-                                                <td>{calculateTotal()}</td>
+                                                <td>{calculateTotal().toFixed(2)}</td>
                                                 <td></td>
                                             </tr>
                                         </tbody>

@@ -15,6 +15,15 @@ const PermanentMember = () => {
     const [middleNameQuery, setMiddleNameQuery] = useState("");
     const [lastNameQuery, setLastNameQuery] = useState("");
 
+    useEffect(() => {
+        setFilteredMember(permanentMember.filter(member =>
+            member.firstName.toLowerCase().includes(firstNameQuery.toLowerCase()) &&
+            member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
+            member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
+        ));
+        setCurrentPage(1); 
+    }, [firstNameQuery, middleNameQuery, lastNameQuery, permanentMember]);
+    
     const [showAddPermanentMemberModal, setShowAddPermanentMemberModal] = useState(false);
     const [newPermanentMember, setNewPermanentMember] = useState({
         firstName: '',
@@ -66,14 +75,6 @@ const PermanentMember = () => {
     useEffect(() => {
         fetchPermanentMembers();
     }, []);
-
-    useEffect(() => {
-        setFilteredMember(permanentMember.filter(member =>
-            member.firstName.toLowerCase().includes(firstNameQuery.toLowerCase()) &&
-            member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
-            member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
-        ));
-    }, [firstNameQuery, middleNameQuery, lastNameQuery, permanentMember]);
 
 
     const resetFormFields = () => {

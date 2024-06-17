@@ -18,6 +18,7 @@ const ViewPurchase = () => {
         setFiltered(purchases.filter(purchases =>
             purchases.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
+        setCurrentPage(1); 
     }, [dataQuery]);
 
     //get 

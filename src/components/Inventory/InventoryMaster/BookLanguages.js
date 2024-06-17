@@ -15,7 +15,9 @@ const BookLanguages = () => {
         setFiltered(bookLanguages.filter(member =>
             member.bookLangName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
+        setCurrentPage(1); 
     }, [dataQuery]);
+    
 
     //get all book lang
     const [bookLanguages, setBookLanguages] = useState([]);

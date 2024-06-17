@@ -9,6 +9,17 @@ import './AuthCSS/User.css';
 
 
 const User = () => {
+
+    const [filtered, setFiltered] = useState([]);
+    const [dataQuery, setDataQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(users.filter(member =>
+            member.username.toLowerCase().includes(dataQuery.toLowerCase())
+        ));
+        setCurrentPage(1);
+    }, [dataQuery]);
+
     //get
     const [users, setUsers] = useState([]);
     //add
@@ -48,6 +59,7 @@ const User = () => {
             }
             const data = await response.json();
             setUsers(data);
+            setFiltered(data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching users. Please try again later.');
@@ -99,7 +111,7 @@ const User = () => {
         e.preventDefault();
         try {
             const mobileNo = parseInt(newMobileNumber, 10);
-    
+
             const response = await fetch(`${BaseURL}/api/auth/${selectedUserId}`, {
                 method: 'PUT',
                 headers: {
@@ -113,11 +125,11 @@ const User = () => {
                     mobileNo: mobileNo
                 }),
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Error editing User: ${response.statusText}`);
             }
-    
+
             const updatedUserData = await response.json();
             const updatedUsers = users.map(user => {
                 if (user.userId === selectedUserId) {
@@ -125,7 +137,7 @@ const User = () => {
                 }
                 return user;
             });
-    
+
             setUsers(updatedUsers);
             setShowEditUserModal(false);
             toast.success('User edited successfully.');
@@ -136,7 +148,7 @@ const User = () => {
             toast.error('Error editing User. Please try again later.');
         }
     };
-    
+
 
     //delete api
     const deleteUser = async () => {
@@ -169,7 +181,7 @@ const User = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(users.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -190,16 +202,25 @@ const User = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = users.slice(indexOfNumber, indexOfLastBookType);
+    const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
 
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
-                <div className='mt-3'>
+                <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddUserModal(true)} className="button-color">
                         Add User
                     </Button>
+                    <div className="d-flex">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search user Name"
+                            value={dataQuery}
+                            onChange={(e) => setDataQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                    </div>
                 </div>
                 <div className='mt-3'>
                     <div className="table-responsive table-height">
@@ -248,7 +269,7 @@ const User = () => {
                 </div>
 
                 {/* Add Book Modal */}
-                <Modal show={showAddUserModal} onHide={() => {setShowAddUserModal(false); resetFormFields()}}>
+                <Modal show={showAddUserModal} onHide={() => { setShowAddUserModal(false); resetFormFields() }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New User</Modal.Title>
                     </Modal.Header>

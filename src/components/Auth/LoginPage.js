@@ -144,7 +144,7 @@ const LoginPage = () => {
               </div>
             </Col>
             <Col lg={5} md={4}>
-              <Image src={illustrationImage} alt="Boy Reading a Book" className="img-fluid" />
+              <Image src={illustrationImage} alt="Boy Reading a Book" className="img-fluid boy-read-book" />
             </Col>
           </Row>
 

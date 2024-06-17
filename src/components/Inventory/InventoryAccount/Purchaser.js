@@ -7,6 +7,18 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Purchaser = () => {
+
+    const [filtered, setFiltered] = useState([]);
+    const [dataQuery, setDataQuery] = useState("");
+
+    useEffect(() => {
+        setFiltered(ledger.filter(member =>
+            member.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
+        ));
+        setCurrentPage(1);
+    }, [dataQuery]);
+
+
     //get
     const [ledger, setLedger] = useState([]);
     //add
@@ -38,6 +50,7 @@ const Purchaser = () => {
             }
             const data = await response.json();
             setLedger(data.data);
+            setFiltered(data.data);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching ledger. Please try again later.');
@@ -142,7 +155,7 @@ const Purchaser = () => {
     //pagination function
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(ledger.length / perPage);
+    const totalPages = Math.ceil(filtered.length / perPage);
 
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
@@ -163,17 +176,26 @@ const Purchaser = () => {
 
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
-    const currentData = ledger.slice(indexOfNumber, indexOfLastBookType);
+    const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
 
 
     return (
         <div className="main-content">
 
             <Container className='small-screen-table'>
-                <div className='mt-3'>
+                <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddLedgerModal(true)} className="button-color">
                         Add Purchaser
                     </Button>
+                    <div className="d-flex">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search Purchaser Name"
+                            value={dataQuery}
+                            onChange={(e) => setDataQuery(e.target.value)}
+                            className="me-2 border border-success"
+                        />
+                    </div>
                 </div>
                 <div className='mt-3'>
                     <div className="table-responsive table-height">
@@ -219,7 +241,7 @@ const Purchaser = () => {
 
 
                 {/* Add Purchaser Modal */}
-                <Modal show={showAddLedgerModal} onHide={() => {setShowAddLedgerModal(false); resetFormFields()}}>
+                <Modal show={showAddLedgerModal} onHide={() => { setShowAddLedgerModal(false); resetFormFields() }}>
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Purchaser</Modal.Title>
                     </Modal.Header>
