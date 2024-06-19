@@ -10,11 +10,19 @@ import './AuthCSS/PermanentGeneralMember.css';
 
 const GeneralMember = () => {
 
+    //search function
     const [filteredMember, setFilteredMember] = useState([]);
     const [firstNameQuery, setFirstNameQuery] = useState("");
     const [middleNameQuery, setMiddleNameQuery] = useState("");
     const [lastNameQuery, setLastNameQuery] = useState("");
-
+    useEffect(() => {
+        setFilteredMember(generalMember.filter(member =>
+            member.firstName.toLowerCase().includes(firstNameQuery.toLowerCase()) &&
+            member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
+            member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
+        ));
+        setCurrentPage(1);
+    }, [firstNameQuery, middleNameQuery, lastNameQuery]);
     //get
     const [generalMember, setGeneralMember] = useState([]);
     //add
@@ -42,12 +50,16 @@ const GeneralMember = () => {
     //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [selectedGeneralMemberId, setSelectedGeneralMemberId] = useState(null);
-    //view modal
+    //view 
     const [showViewGeneralMemberModal, setShowViewGeneralMemberModal] = useState(false);
     const [viewGeneralMemberData, setViewGeneralMemberData] = useState(null);
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
+
+    useEffect(() => {
+        fetchGeneralMembers();
+    }, []);
 
     //get api
     const fetchGeneralMembers = async () => {
@@ -68,21 +80,6 @@ const GeneralMember = () => {
             toast.error('Failed to load general members. Please try again later.');
         }
     };
-    useEffect(() => {
-        fetchGeneralMembers();
-    }, []);
-
-
-    useEffect(() => {
-        setFilteredMember(generalMember.filter(member =>
-            member.firstName.toLowerCase().includes(firstNameQuery.toLowerCase()) &&
-            member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
-            member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
-        ));
-        setCurrentPage(1); 
-    }, [firstNameQuery, middleNameQuery, lastNameQuery, generalMember]);
-
-
 
     // Reset form fields
     const resetFormFields = () => {
@@ -105,25 +102,19 @@ const GeneralMember = () => {
         });
     };
 
+    //post function
 
-    const formatDate = (date) => {
-        if (!date) return '';
-        const [year, month, day] = date.split('-');
-        return `${day}-${month}-${year}`;
-    };
-
+    //date format dd-mm-yyyy
     const parseDate = (date) => {
         const [day, month, year] = date.split('-');
         return `${year}-${month}-${day}`;
     };
 
-
-    //add post api
+    //add or post api
     const addGeneralMember = async (e) => {
         e.preventDefault();
         try {
             const mobileNo = parseInt(newGeneralMember.mobileNo);
-
             const payload = {
                 ...newGeneralMember,
                 mobileNo,
@@ -131,7 +122,6 @@ const GeneralMember = () => {
                 dateOfBirth: parseDate(newGeneralMember.dateOfBirth),
                 confirmDate: parseDate(newGeneralMember.confirmDate)
             };
-
             const response = await fetch(`${BaseURL}/api/general-members`, {
                 method: 'POST',
                 headers: {
@@ -140,7 +130,6 @@ const GeneralMember = () => {
                 },
                 body: JSON.stringify(payload),
             });
-
             if (!response.ok) {
                 throw new Error(`Error adding general member: ${response.statusText}`);
             }
@@ -156,8 +145,16 @@ const GeneralMember = () => {
         }
     };
 
-
     //edit function
+
+    //date format for edit
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
+    };
+
+    //handle edit function
     const handleEditOpenGeneralMember = (memberId) => {
         const memberToEdit = generalMember.find(member => member.memberId === memberId);
         if (memberToEdit) {
@@ -172,9 +169,7 @@ const GeneralMember = () => {
         }
     };
 
-
-
-    //edit api
+    //put / edit api
     const editGeneralMember = async (e) => {
         e.preventDefault();
         try {
@@ -182,7 +177,6 @@ const GeneralMember = () => {
                 throw new Error('No memberId provided for editing.');
             }
             const { memberId, ...requestData } = editGeneralMemberData;
-
             const payload = {
                 firstName: requestData.firstName,
                 middleName: requestData.middleName,
@@ -193,9 +187,6 @@ const GeneralMember = () => {
                 memberOccupation: requestData.memberOccupation,
                 mobileNo: requestData.mobileNo,
                 memberEmailId: requestData.email,
-                // dateOfBirth: requestData.dateOfBirth,
-                // registerDate: requestData.registerDate,
-                // confirmDate: requestData.confirmDate,
                 username: requestData.username,
                 password: requestData.password,
                 registerDate: parseDate(requestData.registerDate),
@@ -232,7 +223,6 @@ const GeneralMember = () => {
         }
     };
 
-
     //delete api
     const deleteGeneralMember = async () => {
         try {
@@ -256,7 +246,6 @@ const GeneralMember = () => {
         }
     };
 
-
     //view
     const handleViewOpenGeneralMember = (member) => {
         setViewGeneralMemberData(member);
@@ -268,34 +257,27 @@ const GeneralMember = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(filteredMember.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
-    // First and last page navigation functions
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = filteredMember.slice(indexOfNumber, indexOfLastBookType);
 
 
-
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
-            <div className='mt-3 d-flex justify-content-between'>
+                <div className='mt-3 d-flex justify-content-between'>
                     <Button onClick={() => setShowAddGeneralMemberModal(true)} className="button-color">
                         Add General Member
                     </Button>
@@ -382,7 +364,7 @@ const GeneralMember = () => {
 
 
             {/* Add General member Modal */}
-            <Modal show={showAddGeneralMemberModal} onHide={() => {setShowAddGeneralMemberModal(false); resetFormFields()}} size='xl' bg='light'>
+            <Modal show={showAddGeneralMemberModal} onHide={() => { setShowAddGeneralMemberModal(false); resetFormFields() }} size='xl' bg='light'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add New General Member</Modal.Title>
@@ -762,7 +744,6 @@ const GeneralMember = () => {
             </Modal>
 
 
-
             {/* Delete Confirmation Modal */}
             <Modal show={showDeleteConfirmation} onHide={() => setShowDeleteConfirmation(false)}>
                 <Modal.Header closeButton>
@@ -778,6 +759,7 @@ const GeneralMember = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
 
             {/* View general Modal */}
             <Modal show={showViewGeneralMemberModal} onHide={() => setShowViewGeneralMemberModal(false)} size="xl">
@@ -868,6 +850,7 @@ const GeneralMember = () => {
                     </Modal.Footer>
                 </div>
             </Modal>
+
         </div>
     );
 };

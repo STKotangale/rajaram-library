@@ -1,12 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
-// import { PencilSquare } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 const Config = () => {
     //get
@@ -14,7 +11,6 @@ const Config = () => {
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-
     // update 
     const [showModal, setShowModal] = useState(false);
     const [selectedFee, setSelectedFee] = useState(null);

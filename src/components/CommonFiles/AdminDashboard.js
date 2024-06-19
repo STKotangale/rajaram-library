@@ -369,15 +369,16 @@ const AdminDashboard = () => {
                                                 </div>
                                             )} */}
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookTypeWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Type Wise Report
+                                                <Arrow90degRight className="icon me-2" /> Book Type Wise
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookLanguageWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Language Wise Report
+                                                <Arrow90degRight className="icon me-2" /> Book Language Wise
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookAuthorWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Author Wise Report
-                                            </ListGroup.Item>  <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookPublicationWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Publication Wise Report
+                                                <Arrow90degRight className="icon me-2" /> Book Author Wise 
+                                            </ListGroup.Item> 
+                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookPublicationWiseReport'); setShowSidebar(false); }}>
+                                                <Arrow90degRight className="icon me-2" /> Book Publication Wise 
                                             </ListGroup.Item>
                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('pattern1'); setShowSidebar(false); }}>
                                                 <Arrow90degRight className="icon me-2" /> Pattern 1

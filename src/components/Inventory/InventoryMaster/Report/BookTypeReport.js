@@ -54,17 +54,21 @@ const BookTypeReport = () => {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
-                setShow(true);
             } else {
+                // Check for a 500 status code
+                if (response.status === 500) {
+                    // throw new Error("Failed to load PDF. Server error or the report could not be generated. Please retry or contact support if the issue persists.");
+                }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error(`Error retrieving PDF: ${error.message}`);
+            // toast.error(`Error retrieving PDF: ${error.message}`);
+            setBlobUrl(null); 
         }
         setIsLoading(false);
-
     };
+
 
     const handleDownloadPDF = () => {
         const link = document.createElement('a');
@@ -125,17 +129,17 @@ const BookTypeReport = () => {
                         <Printer /> Print
                     </Button>
                 </Modal.Header>
+
                 <Modal.Body>
                     {isLoading ? (
                         <p>Loading PDF... Please wait.</p>
+                    ) : blobUrl ? (
+                        <embed src={blobUrl} type="application/pdf" width="100%" height="500px" />
                     ) : (
-                        blobUrl ? (
-                            <embed src={blobUrl} type="application/pdf" width="100%" height="500px" />
-                        ) : (
-                            <p>Error loading PDF. Please try again or contact support.</p>
-                        )
+                        <p>Error loading PDF. Please try again or contact support.</p>
                     )}
                 </Modal.Body>
+
                 <Modal.Footer>
                     <Button onClick={() => setShow(false)}>Close</Button>
                 </Modal.Footer>

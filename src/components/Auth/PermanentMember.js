@@ -8,22 +8,23 @@ import 'react-toastify/dist/ReactToastify.css';
 import './AuthCSS/PermanentGeneralMember.css';
 
 const PermanentMember = () => {
-    const [permanentMember, setPermanentMember] = useState([]);
 
+    //get
+    const [permanentMember, setPermanentMember] = useState([]);
+    //search
     const [filteredMember, setFilteredMember] = useState([]);
     const [firstNameQuery, setFirstNameQuery] = useState("");
     const [middleNameQuery, setMiddleNameQuery] = useState("");
     const [lastNameQuery, setLastNameQuery] = useState("");
-
     useEffect(() => {
         setFilteredMember(permanentMember.filter(member =>
             member.firstName.toLowerCase().includes(firstNameQuery.toLowerCase()) &&
             member.middleName.toLowerCase().includes(middleNameQuery.toLowerCase()) &&
             member.lastName.toLowerCase().includes(lastNameQuery.toLowerCase())
         ));
-        setCurrentPage(1); 
+        setCurrentPage(1);
     }, [firstNameQuery, middleNameQuery, lastNameQuery, permanentMember]);
-    
+    //post
     const [showAddPermanentMemberModal, setShowAddPermanentMemberModal] = useState(false);
     const [newPermanentMember, setNewPermanentMember] = useState({
         firstName: '',
@@ -40,19 +41,24 @@ const PermanentMember = () => {
         confirmDate: '',
         libParMembNo: '',
     });
-
+    //edit
     const [showEditPermanentMemberModal, setShowEditPermanentMemberModal] = useState(false);
     const [editPermanentMemberData, setEditPermanentMemberData] = useState({});
-
+    //delete
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [selectedPermanentMemberId, setSelectedPermanentMemberId] = useState(null);
-
+    //view
     const [showViewPermanentMemberModal, setShowViewPermanentMemberModal] = useState(false);
     const [viewPermanentMemberData, setViewPermanentMemberData] = useState(null);
-
+    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
+    useEffect(() => {
+        fetchPermanentMembers();
+    }, []);
+
+    //get
     const fetchPermanentMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/permanent-members`, {
@@ -72,11 +78,7 @@ const PermanentMember = () => {
         }
     };
 
-    useEffect(() => {
-        fetchPermanentMembers();
-    }, []);
-
-
+    //reset field
     const resetFormFields = () => {
         setNewPermanentMember({
             firstName: '',
@@ -95,18 +97,16 @@ const PermanentMember = () => {
         });
     };
 
-    // const formatDate = (date) => {
-    //     if (!date) return '';
-    //     const [year, month, day] = date.split('-');
-    //     return `${day}-${month}-${year}`;
-    // };
 
+    //post function
+
+    // date format dd - mm - yyyy
     const parseDate = (date) => {
         if (!date) return '';
         const [day, month, year] = date.split('-');
         return `${year}-${month}-${day}`;
     };
-
+    //post api
     const addPermanentMember = async (e) => {
         e.preventDefault();
         try {
@@ -119,7 +119,6 @@ const PermanentMember = () => {
                 dateOfBirth: parseDate(newPermanentMember.dateOfBirth),
                 confirmDate: parseDate(newPermanentMember.confirmDate)
             };
-
             const response = await fetch(`${BaseURL}/api/permanent-members`, {
                 method: 'POST',
                 headers: {
@@ -142,6 +141,7 @@ const PermanentMember = () => {
         }
     };
 
+    //edit function
     const handleEditOpenPermanentMember = (member) => {
         const formattedData = {
             ...member,
@@ -152,7 +152,7 @@ const PermanentMember = () => {
         setEditPermanentMemberData(formattedData);
         setShowEditPermanentMemberModal(true);
     };
-
+    //put /edit api
     const editPermanentMember = async (e) => {
         e.preventDefault();
         try {
@@ -167,7 +167,6 @@ const PermanentMember = () => {
                 dateOfBirth: parseDate(requestData.dateOfBirth),
                 confirmDate: parseDate(requestData.confirmDate)
             };
-
             const response = await fetch(`${BaseURL}/api/permanent-members/${memberId}`, {
                 method: 'PUT',
                 headers: {
@@ -176,7 +175,6 @@ const PermanentMember = () => {
                 },
                 body: JSON.stringify(payload),
             });
-
             if (!response.ok) {
                 throw new Error(`Error editing permanent member: ${response.statusText}`);
             }
@@ -196,6 +194,7 @@ const PermanentMember = () => {
         }
     };
 
+    //delete api
     const deletePermanentMember = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/permanent-members/${selectedPermanentMemberId}`, {
@@ -211,41 +210,38 @@ const PermanentMember = () => {
             setShowDeleteConfirmation(false);
             toast.success('Permanent member deleted successfully.');
             fetchPermanentMembers();
-
         } catch (error) {
             console.error(error);
             toast.error('Error deleting permanent member. Please try again later.');
         }
     };
 
+    // view 
     const handleViewOpenPermanentMember = (member) => {
         setViewPermanentMemberData(member);
         setShowViewPermanentMemberModal(true);
     };
 
+    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(filteredMember.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastMember = currentPage * perPage;
     const indexOfFirstMember = indexOfLastMember - perPage;
     const currentData = filteredMember.slice(indexOfFirstMember, indexOfLastMember);
+
 
     return (
         <div className="main-content">
@@ -277,9 +273,7 @@ const PermanentMember = () => {
                             className="border border-success"
                         />
                     </div>
-
                 </div>
-
                 <div className='mt-3 table-container-general-member-1'>
                     <div className="table-responsive table-height">
                         <Table striped bordered hover>
@@ -336,7 +330,7 @@ const PermanentMember = () => {
             </Container>
 
             {/* Add permanent member Modal */}
-            <Modal show={showAddPermanentMemberModal} onHide={() => {setShowAddPermanentMemberModal(false); resetFormFields()}} size='xl'>
+            <Modal show={showAddPermanentMemberModal} onHide={() => { setShowAddPermanentMemberModal(false); resetFormFields() }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add New Permanent Member</Modal.Title>
@@ -693,6 +687,7 @@ const PermanentMember = () => {
                 </Modal.Footer>
             </Modal>
 
+
             {/* view Modal */}
             <Modal show={showViewPermanentMemberModal} onHide={() => setShowViewPermanentMemberModal(false)} size="xl">
                 <div className="bg-light">
@@ -777,6 +772,7 @@ const PermanentMember = () => {
                     </Modal.Footer>
                 </div>
             </Modal>
+            
         </div>
     );
 };

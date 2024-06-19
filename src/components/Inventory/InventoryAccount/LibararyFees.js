@@ -11,13 +11,16 @@ import 'react-toastify/dist/ReactToastify.css';
 const LibraryFees = () => {
     //get
     const [library, setLibrary] = useState([]);
+    // put / update 
+    const [showModal, setShowModal] = useState(false);
+    const [selectedFee, setSelectedFee] = useState(null);
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    // update 
-    const [showModal, setShowModal] = useState(false);
-    const [selectedFee, setSelectedFee] = useState(null);
+    useEffect(() => {
+        fetchLibraryFees();
+    }, []);
 
     //get api
     const fetchLibraryFees = async () => {
@@ -37,12 +40,6 @@ const LibraryFees = () => {
             toast.error('Error fetching library fees. Please try again later.');
         }
     };
-
-    useEffect(() => {
-        fetchLibraryFees();
-    }, []);
-
-
 
     // Open modal and set selected fee
     const handleUpdateClick = (fee) => {
@@ -66,7 +63,7 @@ const LibraryFees = () => {
                 throw new Error(`Error updating library fee: ${response.statusText}`);
             }
             toast.success('Library fee updated successfully!');
-            fetchLibraryFees(); 
+            fetchLibraryFees();
             setShowModal(false);
         } catch (error) {
             console.error(error);
@@ -142,9 +139,9 @@ const LibraryFees = () => {
                                 />
                             </Form.Group>
                             <div className='d-flex justify-content-end mt-2'>
-                            <Button className='button-color' type="submit">
-                                Update
-                            </Button>
+                                <Button className='button-color' type="submit">
+                                    Update
+                                </Button>
                             </div>
                         </Form>
                     )}

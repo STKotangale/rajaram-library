@@ -5,21 +5,20 @@ import { Button, Modal, Form, Table, Container, Row, Col } from 'react-bootstrap
 import { ChevronLeft, ChevronRight, Eye, PencilSquare, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import './AuthCSS/User.css';
 
+import './AuthCSS/User.css';
 
 const User = () => {
 
+    //search function
     const [filtered, setFiltered] = useState([]);
     const [dataQuery, setDataQuery] = useState("");
-
     useEffect(() => {
         setFiltered(users.filter(member =>
             member.username.toLowerCase().includes(dataQuery.toLowerCase())
         ));
         setCurrentPage(1);
     }, [dataQuery]);
-
     //get
     const [users, setUsers] = useState([]);
     //add
@@ -40,7 +39,6 @@ const User = () => {
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-
 
     useEffect(() => {
         fetchUsers();
@@ -107,6 +105,7 @@ const User = () => {
         }
     };
 
+    //edit api
     const editUser = async (e) => {
         e.preventDefault();
         try {
@@ -125,11 +124,9 @@ const User = () => {
                     mobileNo: mobileNo
                 }),
             });
-
             if (!response.ok) {
                 throw new Error(`Error editing User: ${response.statusText}`);
             }
-
             const updatedUserData = await response.json();
             const updatedUsers = users.map(user => {
                 if (user.userId === selectedUserId) {
@@ -137,7 +134,6 @@ const User = () => {
                 }
                 return user;
             });
-
             setUsers(updatedUsers);
             setShowEditUserModal(false);
             toast.success('User edited successfully.');
@@ -148,7 +144,6 @@ const User = () => {
             toast.error('Error editing User. Please try again later.');
         }
     };
-
 
     //delete api
     const deleteUser = async () => {
@@ -182,28 +177,21 @@ const User = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(filtered.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
-    // First and last page navigation functions
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
-
 
     return (
         <div className="main-content">
@@ -321,26 +309,6 @@ const User = () => {
                                     required
                                 />
                             </Form.Group>
-
-                            {/* <Form.Group className="mb-3" controlId="newUserPassword">
-                                <Form.Label>Password</Form.Label>
-                                <Form.Control
-                                    type="password"
-                                    placeholder="Enter password"
-                                    value={newUserPassword}
-                                    maxLength={8}
-                                    onChange={(e) => setNewUserPassword(e.target.value)}
-                                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$"
-                                    title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
-                                    required
-                                />
-                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{1,6}$"
-                                title="Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
-                                <Form.Text className="text-muted">
-                                    Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.
-                                </Form.Text>
-                            </Form.Group> */}
-
                             <div className='d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
                                     Submit
@@ -468,10 +436,9 @@ const User = () => {
                         </Form>
                     </Modal.Body>
                 </Modal>
-
             </Container>
+            
         </div>
-
     );
 };
 

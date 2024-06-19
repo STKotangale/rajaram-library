@@ -8,17 +8,15 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Purchaser = () => {
 
+    //search unction
     const [filtered, setFiltered] = useState([]);
     const [dataQuery, setDataQuery] = useState("");
-
     useEffect(() => {
         setFiltered(ledger.filter(member =>
             member.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
         setCurrentPage(1);
     }, [dataQuery]);
-
-
     //get
     const [ledger, setLedger] = useState([]);
     //add
@@ -36,6 +34,11 @@ const Purchaser = () => {
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
+
+    useEffect(() => {
+        fetchLedger();
+    }, []);
+
 
     //get purchaser / ledger
     const fetchLedger = async () => {
@@ -57,11 +60,7 @@ const Purchaser = () => {
         }
     };
 
-    useEffect(() => {
-        fetchLedger();
-    }, []);
-
-    // Reset form fields
+    // Reset  fields
     const resetFormFields = () => {
         setNewLedgerName('');
     };
@@ -156,28 +155,21 @@ const Purchaser = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(filtered.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
-    // First and last page navigation functions
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = filtered.slice(indexOfNumber, indexOfLastBookType);
-
 
     return (
         <div className="main-content">
@@ -332,7 +324,6 @@ const Purchaser = () => {
 
             </Container>
         </div>
-
     );
 };
 

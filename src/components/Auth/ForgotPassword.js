@@ -7,13 +7,17 @@ import { toast } from 'react-toastify';
 import './AuthCSS/LoginPage.css';
 
 const ForgotPassword = () => {
+  //post 1
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
+  //user verification
+  const [userVerified, setUserVerified] = useState(false);
+  const [userId, setUserId] = useState(null);
+  //post 2
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [userVerified, setUserVerified] = useState(false);
-  const [userId, setUserId] = useState(null); // New state to store userId
 
+  //auth
   const navigate = useNavigate();
   const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -35,8 +39,8 @@ const ForgotPassword = () => {
       const data = await response.json();
       if (data.message === "User found") {
         toast.success('User found.');
-        setUserVerified(true); // Set user verified to true to show password reset fields
-        setUserId(data.userId); // Store userId for the next API call
+        setUserVerified(true); 
+        setUserId(data.userId); 
       } else {
         toast.warning('User not found.');
       }

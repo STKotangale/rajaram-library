@@ -6,55 +6,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 import { Book, Journal, PcDisplay, CloudArrowDown } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
+import { useAuth } from './AuthProvider';
 import BooksImages from '../CommonFiles/StaticImagesBook';
 import Footer from '../CommonFiles/Footer';
 import './AuthCSS/LoginPage.css';
 
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { useAuth } from './AuthProvider';
-
-
 const LoginPage = () => {
-  const navigate = useNavigate();
+  //post
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  //auth
+  const navigate = useNavigate();
   const BaseURL = process.env.REACT_APP_BASE_URL;
   const { login } = useAuth();
 
-
-
-  // //login api
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   try {
-  //     const response = await fetch(`${BaseURL}/api/auth/signin`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ username, password })
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error('Login failed');
-  //     }
-  //     const data = await response.json();
-  //     const userRole = data.roles[0];
-  //     if (userRole === 'ADMIN') {
-  //       login(data.username, data.accessToken, data.id);
-  //       toast.success("Login successful!");
-  //       navigate('/admindashboard');
-  //     } else if (userRole === 'MEMBER') {
-  //       login(data.username, data.accessToken, data.id);
-  //       toast.success("Login successful!");
-  //       navigate('/memberdashboard');
-  //     } else {
-  //       throw new Error('Invalid role');
-  //     }
-  //   } catch (error) {
-  //     console.error("Login error:", error);
-  //     toast.error(error.message);
-  //   }
-  // };
-
+  //post
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -68,7 +37,7 @@ const LoginPage = () => {
       }
       const data = await response.json();
       const userRole = data.roles[0];
-      login(data.username, data.accessToken, data.id, data.memberId); 
+      login(data.username, data.accessToken, data.id, data.memberId);
       toast.success('Login successful!');
       if (userRole === 'ADMIN') {
         navigate('/admindashboard');
@@ -82,11 +51,9 @@ const LoginPage = () => {
       toast.error(error.message);
     }
   };
-  
 
 
   return (
-    
     <div className='login-page-scroll'>
       <div className='footer-copyright-bottom mb-5'>
         <Navbar bg="white" expand="lg" className="navabar-color me-2">
@@ -109,7 +76,6 @@ const LoginPage = () => {
             <Col lg={7} md={8} className="mx-auto">
               <div className="p-5 login-form">
                 <h2 className="mb-5 heading-login">Login</h2>
-
                 <Form onSubmit={handleLogin}>
                   <Row>
                     <Col sm={6} className="mb-3">
@@ -119,14 +85,12 @@ const LoginPage = () => {
                         />
                         <FontAwesomeIcon icon={faUser} className="icon-position" />
                       </Form.Group>
-
                       <Form.Group className="mb-3 position-relative icon-inside-input" controlId="formBasicPassword">
                         <Form.Control type="password" placeholder="Password" className="input-with-icon"
                           value={password} onChange={(e) => setPassword(e.target.value)}
                         />
                         <FontAwesomeIcon icon={faLock} className="icon-position" />
                       </Form.Group>
-
                     </Col>
                   </Row>
                   <div className='login-button'>
@@ -140,14 +104,12 @@ const LoginPage = () => {
                     </Form.Text>
                   </div>
                 </Form>
-
               </div>
             </Col>
             <Col lg={5} md={4}>
               <Image src={illustrationImage} alt="Boy Reading a Book" className="img-fluid boy-read-book" />
             </Col>
           </Row>
-
         </div>
 
         <Container fluid className="pt-4 pb-3 container-fluid">
@@ -184,6 +146,7 @@ const LoginPage = () => {
           </Row>
         </Container>
 
+        {/* call component  */}
         <BooksImages />
         <Footer />
 
