@@ -1,10 +1,15 @@
+/* eslint-disable no-unused-vars */
 import React, { useEffect, useState, useRef } from 'react';
 import { Container, Navbar, Nav, ListGroup, Image, NavDropdown, Modal, Button, Form, Col } from 'react-bootstrap';
-import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, People, PersonFill, PeopleFill, CartPlus, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX, CurrencyDollar, Calendar, Gear, PlusCircle, Arrow90degRight, FileText, FileTextFill } from 'react-bootstrap-icons';
+import { PersonCircle, LockFill, BoxArrowRight, BookFill, HouseDoorFill, Book, Bookshelf, Globe, Archive, People, PersonFill, PeopleFill, CartPlus, BookHalf, ExclamationTriangleFill, ArrowReturnLeft, CartDashFill, FileEarmarkX, CurrencyDollar, Calendar, Gear, PlusCircle, Arrow90degRight, FileText, FileTextFill, JournalBookmarkFill, BookmarkCheckFill, ChevronDown } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Auth/AuthProvider';
 import logo from '../../assets/rajalib-removebg-preview.png';
+
+//css
+import '../CommonFiles/CommonCSS/AdminDashboard.css';
+import '../../components/Inventory/InventoryTransaction/CSS/Purchase.css';
 
 import DashboardData from './StaticDashboardData';
 
@@ -16,11 +21,17 @@ import PurchaseReturn from '../Inventory/InventoryTransaction/PurchaseReturn';
 import BookLost from '../Inventory/InventoryTransaction/BookLost';
 import BookScrap from '../Inventory/InventoryTransaction/BookScrap';
 import BookDetailsTable from '../Inventory/InventoryTransaction/BookDetailsTable';
-//transaction report
-import Accession from '../Inventory/InventoryTransaction/Report/Accession';
-import AccessionStatus from '../Inventory/InventoryTransaction/Report/AccessionStatus';
-import IssueTransaction1 from '../Inventory/InventoryTransaction/Report/IssueTransaction1';
-import IssueTransaction2 from '../Inventory/InventoryTransaction/Report/IssueTransaction2';
+//accession report
+import Accession from '../Inventory/Report/AccessionReports/Accession';
+import AccessionStatus from '../Inventory/Report/AccessionReports/AccessionStatus';
+import BookTypeWiseReport from '../Inventory/Report/AccessionReports/BookTypeWiseReport';
+import BookLanguageReport from '../Inventory/Report/AccessionReports/BookLanguageReport';
+import BookAuthorWiseReport from '../Inventory/Report/AccessionReports/BookAuthorWiseReport';
+import BookPublicationWiseReport from '../Inventory/Report/AccessionReports/BookPublicationWiseReport';
+//issue report
+import IssueRegister from '../Inventory/Report/IssueReport/IssueRegister';
+import IssueRegisterMemberWise from '../Inventory/Report/IssueReport/IssueRegisterMemberWise';
+import IssueRegisterBookWise from '../Inventory/Report/IssueReport/IssueRegisterBookWise';
 
 //master
 import Books from '../Inventory/InventoryMaster/Books';
@@ -28,20 +39,6 @@ import BookLanguages from '../Inventory/InventoryMaster/BookLanguages';
 import BookTypes from '../Inventory/InventoryMaster/BookTypes';
 import BookAuthor from '../Inventory/InventoryMaster/BookAuthor';
 import BookPublication from '../Inventory/InventoryMaster/BookPublication';
-//master report
-import MemberReport from '../Inventory/InventoryMaster/Report/MemberReport';
-import BookReport from '../Inventory/InventoryMaster/Report/BookReport';
-import OnlyDate from '../Inventory/InventoryMaster/Report/OnlyDate';
-import OnlyMemberName from '../Inventory/InventoryMaster/Report/OnlyMemberName';
-import OnlyBookName from '../Inventory/InventoryMaster/Report/OnlyBookName';
-// import IssueReport1 from '../Inventory/InventoryMaster/Report/IssueReport1';
-// import IssueReport2 from '../Inventory/InventoryMaster/Report/IssueReport2';
-
-import BookTypeReport from '../Inventory/InventoryMaster/Report/BookTypeReport';
-import BookLanguageReport from '../Inventory/InventoryMaster/Report/BookLanguageReport';
-import BookAuthorWiseReport from '../Inventory/InventoryMaster/Report/BookAuthorWiseReport';
-import BookPublicationWiseReport from '../Inventory/InventoryMaster/Report/BookPublicationWiseReport';
-
 
 
 //account
@@ -55,13 +52,11 @@ import MonthlyMembershipFee from '../Inventory/InventoryAccount/MonthlyMembershi
 import User from '../Auth/User';
 import PermanentMember from '../Auth/PermanentMember';
 import GeneralMember from '../Auth/GeneralMember';
-
-//css
-import '../CommonFiles/CommonCSS/AdminDashboard.css';
-import '../../components/Inventory/InventoryTransaction/CSS/Purchase.css';
+import { DateRangeOutlined } from '@material-ui/icons';
 
 const componentMapping = {
     home: DashboardData,
+    //inventory transaction
     issue: Issue,
     issueReturn: IssueReturn,
     purchase: ViewPurchase,
@@ -69,37 +64,33 @@ const componentMapping = {
     bookLost: BookLost,
     bookScrap: BookScrap,
     bookDetails: BookDetailsTable,
-
+    //accession report
     accessionReport: Accession,
     accessionStatusReport: AccessionStatus,
-    issueTransactionReport1: IssueTransaction1,
-    issueTransactionReport2: IssueTransaction2,
+    bookTypeWiseReport: BookTypeWiseReport,
+    bookLanguageWiseReport: BookLanguageReport,
+    bookAuthorWiseReport: BookAuthorWiseReport,
+    bookPublicationWiseReport: BookPublicationWiseReport,
+    //issue register report
+    issueRegisterMemberWise: IssueRegisterMemberWise,
+    issueRegisterBookWise: IssueRegisterBookWise,
+    issueRegisterDateWise: IssueRegister,
 
+    //inventory master
     books: Books,
     bookLanguages: BookLanguages,
     bookTypes: BookTypes,
     bookAuthors: BookAuthor,
     bookPublications: BookPublication,
 
-    pattern1: MemberReport,
-    pattern2: BookReport,
-    pattern3: OnlyDate,
-    pattern4: OnlyMemberName,
-    pattern5: OnlyBookName,
-    // issueMasterReport1: IssueReport1,
-    // issueMasterReport2: IssueReport2,
-
-    bookTypeWiseReport: BookTypeReport,
-    bookLanguageWiseReport: BookLanguageReport,
-    bookAuthorWiseReport: BookAuthorWiseReport,
-    bookPublicationWiseReport: BookPublicationWiseReport,
-
+    // account
     purchaser: Purchaser,
     libraryFees: LibararyFees,
     config: Config,
     memberFees: MembershipFees,
     monthlyMemberFees: MonthlyMembershipFee,
 
+    //admin
     user: User,
     permanentMember: PermanentMember,
     generalMember: GeneralMember,
@@ -224,23 +215,14 @@ const AdminDashboard = () => {
 
     const formatViewState = (viewState) => {
         return viewState
-            .replace(/([A-Z])/g, ' $1') // insert a space before all caps
-            .trim() // remove leading spaces
-            .split(' ') // split into words
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // capitalize first letter of each word
-            .join(' '); // rejoin into one string
+            .replace(/([A-Z])/g, ' $1')
+            .trim()
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
     };
 
 
-
-    // const [showAccessionStatusModal, setShowAccessionStatusModal] = useState(false);
-    // const handleOpenAccessionStatus = () => {
-    //     setShowAccessionStatusModal(true);
-    // };
-
-    // const handleCloseAccessionStatus = () => {
-    //     setShowAccessionStatusModal(false);
-    // };
 
     return (
         <div className='main-dashboard-member'>
@@ -291,9 +273,10 @@ const AdminDashboard = () => {
                                         <Archive className="icon me-2" /> Transaction Report
                                     </ListGroup.Item>
                                     {showInventoryTransactionReportSubItems && (
+
                                         <div className='ms-2'>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setShowInventoryTransactionAccessionReportSubItems(!showInventoryTransactionAccessionReportSubItems) }}>
-                                                <PlusCircle className="icon me-2" />Accession
+                                            <ListGroup.Item className="sub-icon mt-2" action onClick={() => { setShowInventoryTransactionAccessionReportSubItems(!showInventoryTransactionAccessionReportSubItems) }}>
+                                                <PlusCircle className="icon me-2" />Accession Report <ChevronDown />
                                             </ListGroup.Item>
                                             {showInventoryTransactionAccessionReportSubItems && (
                                                 <div>
@@ -303,29 +286,40 @@ const AdminDashboard = () => {
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('accessionStatusReport'); setShowSidebar(false); }}>
                                                         <FileTextFill className="icon me-2" /> Accession Status
                                                     </ListGroup.Item>
-                                                    {/* <ListGroup.Item className="sub-icon mt-1" action onClick={handleOpenAccessionStatus}>
-                                                        <ExclamationTriangleFill className="icon me-2" /> Accession Status
-                                                    </ListGroup.Item> */}
-
-
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookTypeWiseReport'); setShowSidebar(false); }}>
+                                                        <Bookshelf className="icon me-2" /> Book Type Wise
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookLanguageWiseReport'); setShowSidebar(false); }}>
+                                                        <Globe className="icon me-2" /> Book Language Wise
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookAuthorWiseReport'); setShowSidebar(false); }}>
+                                                        <JournalBookmarkFill className="icon me-2" /> Book Author Wise
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookPublicationWiseReport'); setShowSidebar(false); }}>
+                                                        <BookmarkCheckFill className="icon me-2" /> Book Publication Wise
+                                                    </ListGroup.Item>
                                                 </div>
                                             )}
 
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => setShowInventoryTransactionIssueReportSubItems(!showInventoryTransactionIssueReportSubItems)}>
-                                                <PlusCircle className="icon me-2" /> Issue
+                                            <ListGroup.Item className="sub-icon mt-2" action onClick={() => setShowInventoryTransactionIssueReportSubItems(!showInventoryTransactionIssueReportSubItems)}>
+                                                <PlusCircle className="icon me-2" /> Issue Report <ChevronDown />
                                             </ListGroup.Item>
                                             {showInventoryTransactionIssueReportSubItems && (
                                                 <div>
-                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueTransactionReport1'); setShowSidebar(false); }}>
-                                                        <ExclamationTriangleFill className="icon me-2" /> Issue 1
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterDateWise'); setShowSidebar(false); }}>
+                                                        <DateRangeOutlined className="icon me-2" /> Issue Register Date Wise
                                                     </ListGroup.Item>
-                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueTransactionReport2'); setShowSidebar(false); }}>
-                                                        <ExclamationTriangleFill className="icon me-2" /> Issue 2
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterMemberWise'); setShowSidebar(false); }}>
+                                                        <PersonCircle className="icon me-2" /> Issue Register Member Wise
+                                                    </ListGroup.Item>
+                                                    <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterBookWise'); setShowSidebar(false); }}>
+                                                        <Book className="icon me-2" /> Issue Register Book Wise
                                                     </ListGroup.Item>
                                                 </div>
                                             )}
                                         </div>
                                     )}
+
 
                                     <ListGroup.Item className="admin-general-icon mt-3" action onClick={() => setShowInventoryMasterSubItems(!showInventoryMasterSubItems)}>
                                         <Archive className="icon me-2" /> Inventory Master
@@ -368,33 +362,9 @@ const AdminDashboard = () => {
                                                     </ListGroup.Item>
                                                 </div>
                                             )} */}
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookTypeWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Type Wise
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookLanguageWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Language Wise
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookAuthorWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Author Wise 
-                                            </ListGroup.Item> 
-                                             <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookPublicationWiseReport'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Book Publication Wise 
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('pattern1'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Pattern 1
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('pattern2'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Pattern 2
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('pattern3'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Pattern 3
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('pattern4'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Pattern 4
-                                            </ListGroup.Item>
-                                            <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('pattern5'); setShowSidebar(false); }}>
-                                                <Arrow90degRight className="icon me-2" /> Pattern 5
-                                            </ListGroup.Item>
+
+
+
                                         </div>
                                     )}
 
@@ -496,11 +466,6 @@ const AdminDashboard = () => {
 
                 <Container fluid className="d-flex flex-column justify-content-between admin-main-content">
                     {ComponentToRender && <ComponentToRender />}
-
-                    {/* {showAccessionStatusModal && (
-                        <AccessionStatus show={showAccessionStatusModal} handleClose={handleCloseAccessionStatus} />
-                    )} */}
-
                 </Container>
 
             </div>

@@ -6,7 +6,7 @@ import '../CSS/Report.css';
 import { Button, Container, Row, Form, Modal } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
 
-const BookTypeReport = () => {
+const BookTypeWiseReport = () => {
     const [bookTypes, setBookTypes] = useState([]);
     const [selectedBookTypeName, setSelectedBookTypeName] = useState('');
     const [show, setShow] = useState(false);
@@ -149,4 +149,4 @@ const BookTypeReport = () => {
     );
 };
 
-export default BookTypeReport;
+export default BookTypeWiseReport;
