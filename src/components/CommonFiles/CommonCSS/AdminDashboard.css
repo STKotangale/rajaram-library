@@ -233,3 +233,10 @@ html {
   /* text-transform: uppercase;  */
   font-weight: 500;
 }
+
+/* requried field */
+.required-indicator::after {
+  content: '*';
+  color: red;
+  margin-left: 2px;
+}

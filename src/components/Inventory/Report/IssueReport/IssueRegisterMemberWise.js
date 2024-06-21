@@ -115,7 +115,7 @@ const IssueRegisterMemberWise = () => {
                 <div className="centered-form">
                     <Container>
                         <div className="form-header">
-                            <h2>Report Format</h2>
+                            <h2>Issue Register Member Wise Report</h2>
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
@@ -155,7 +155,7 @@ const IssueRegisterMemberWise = () => {
                                 </Form.Group>
                             </Row>
                             <div className='d-flex justify-content-end'>
-                                <Button type="submit" disabled={isLoading}>
+                                <Button className='button-color' disabled={isLoading}>
                                     Submit
                                 </Button>
                             </div>

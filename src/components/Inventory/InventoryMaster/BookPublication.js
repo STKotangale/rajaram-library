@@ -280,7 +280,7 @@ const BookPublication = () => {
                     <Modal.Body>
                         <Form onSubmit={addBookPublication}>
                             <Form.Group className="mb-3" controlId="addBookPublication">
-                                <Form.Label>Publication Name</Form.Label>
+                                <Form.Label className="required-indicator">Publication Name</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Publication name"
@@ -296,7 +296,6 @@ const BookPublication = () => {
                                     placeholder="Contact person"
                                     value={newBookPublication.contactPerson}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, contactPerson: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="addBookPublicationAddress">
@@ -306,7 +305,6 @@ const BookPublication = () => {
                                     placeholder="Address"
                                     value={newBookPublication.address}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, address: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="addBookPublicationContact1">
@@ -321,7 +319,6 @@ const BookPublication = () => {
                                             setNewBookPublication({ ...newBookPublication, contactNo1: value })
                                         }
                                     }}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="addBookPublicationContact2">
@@ -345,7 +342,6 @@ const BookPublication = () => {
                                     placeholder="Email"
                                     value={newBookPublication.emailId}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, emailId: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <div className='d-flex justify-content-end'>
@@ -365,7 +361,7 @@ const BookPublication = () => {
                     <Modal.Body>
                         <Form onSubmit={editBookPublication}>
                             <Form.Group className="mb-3" controlId="editBookPublicationName">
-                                <Form.Label>Publication Name</Form.Label>
+                                <Form.Label className="required-indicator">Publication Name</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Publication name"
@@ -381,7 +377,6 @@ const BookPublication = () => {
                                     placeholder="Contact person"
                                     value={newBookPublication.contactPerson}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, contactPerson: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="editBookPublicationAddress">
@@ -391,7 +386,6 @@ const BookPublication = () => {
                                     placeholder="Address"
                                     value={newBookPublication.address}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, address: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="editBookPublicationContact1">
@@ -406,7 +400,6 @@ const BookPublication = () => {
                                             setNewBookPublication({ ...newBookPublication, contactNo1: value })
                                         }
                                     }}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="editBookPublicationContact2">
@@ -421,7 +414,6 @@ const BookPublication = () => {
                                             setNewBookPublication({ ...newBookPublication, contactNo2: value })
                                         }
                                     }}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="editBookPublicationemailId">
@@ -431,7 +423,6 @@ const BookPublication = () => {
                                     placeholder="Email"
                                     value={newBookPublication.emailId}
                                     onChange={(e) => setNewBookPublication({ ...newBookPublication, emailId: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <div className='d-flex justify-content-end'>

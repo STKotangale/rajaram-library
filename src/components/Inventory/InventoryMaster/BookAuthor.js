@@ -280,7 +280,7 @@ const BookAuthor = () => {
                     <Modal.Body>
                         <Form onSubmit={addBookAuthor}>
                             <Form.Group className="mb-3" controlId="addBookAuthor">
-                                <Form.Label>Author Name</Form.Label>
+                                <Form.Label className="required-indicator">Author Name</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Author name"
@@ -296,7 +296,6 @@ const BookAuthor = () => {
                                     placeholder="Address"
                                     value={newBookAuthor.address}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, address: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="addBookAuthorContact1">
@@ -311,7 +310,6 @@ const BookAuthor = () => {
                                             setNewBookAuthor({ ...newBookAuthor, contactNo1: value })
                                         }
                                     }}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="addBookAuthorContact2">
@@ -335,7 +333,6 @@ const BookAuthor = () => {
                                     placeholder="Email"
                                     value={newBookAuthor.emailId}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, emailId: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <div className='d-flex justify-content-end'>
@@ -355,7 +352,7 @@ const BookAuthor = () => {
                     <Modal.Body>
                         <Form onSubmit={editBookAuthor}>
                             <Form.Group className="mb-3" controlId="editBookAuthorName">
-                                <Form.Label>Author Name</Form.Label>
+                                <Form.Label className="required-indicator">Author Name</Form.Label>
                                 <Form.Control
                                     type="text"
                                     placeholder="Author name"
@@ -371,7 +368,6 @@ const BookAuthor = () => {
                                     placeholder="Address"
                                     value={newBookAuthor.address}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, address: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="editBookAuthorContact1">
@@ -387,7 +383,6 @@ const BookAuthor = () => {
                                             setNewBookAuthor({ ...newBookAuthor, contactNo1: value })
                                         }
                                     }}
-                                    required
                                 />
                             </Form.Group>
                             <Form.Group className="mb-3" controlId="editBookAuthorContact2">
@@ -402,7 +397,6 @@ const BookAuthor = () => {
                                             setNewBookAuthor({ ...newBookAuthor, contactNo2: value })
                                         }
                                     }}
-                                    required
                                 />
                             </Form.Group>
 
@@ -413,7 +407,6 @@ const BookAuthor = () => {
                                     placeholder="Email"
                                     value={newBookAuthor.emailId}
                                     onChange={(e) => setNewBookAuthor({ ...newBookAuthor, emailId: e.target.value })}
-                                    required
                                 />
                             </Form.Group>
                             <div className='d-flex justify-content-end'>

@@ -16,7 +16,8 @@ const BookIssue = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
     const [issueNumber, setIssueNumber] = useState('');
-    const [issueDate, setIssueDate] = useState('');
+    // const [issueDate, setIssueDate] = useState('');
+    const [issueDate, setIssueDate] = useState(new Date().toISOString().substr(0, 10));
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState(null);
     const [issueToDelete, setIssueToDelete] = useState(null);
@@ -56,7 +57,7 @@ const BookIssue = () => {
         }
     };
 
-    //get username
+    //get general member
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -68,7 +69,10 @@ const BookIssue = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            setGeneralMember(data.data);
+            setGeneralMember(data.data.map(member => ({
+                ...member,
+                fullName: `${member.firstName} ${member.middleName} ${member.lastName}`
+            })));
         } catch (error) {
             console.error("Failed to fetch general members:", error);
             toast.error('Failed to load general members. Please try again later.');
@@ -216,8 +220,12 @@ const BookIssue = () => {
     };
 
     const resetFormFields = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+        const defaultIssueDate = today.toISOString().substr(0, 10);
+        setIssueDate(defaultIssueDate);
+        
         setIssueNumber('');
-        setIssueDate('');
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
@@ -487,7 +495,7 @@ const BookIssue = () => {
             </Container>
 
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => {setShowAddModal(false); resetFormFields()}} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields() }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Book Issue</Modal.Title>
@@ -527,7 +535,7 @@ const BookIssue = () => {
                                         <option value="">Select a member</option>
                                         {generalMember.map(member => (
                                             <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
+                                                {member.fullName}
                                             </option>
                                         ))}
                                     </Form.Select>
@@ -602,7 +610,7 @@ const BookIssue = () => {
                         <Button variant="secondary" onClick={() => setShowAddModal(false)}>
                             Close
                         </Button>
-                        <Button variant="primary" onClick={handleSubmit}>
+                        <Button className='button-color' onClick={handleSubmit}>
                             Submit
                         </Button>
                     </Modal.Footer>
