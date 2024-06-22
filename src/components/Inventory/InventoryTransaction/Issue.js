@@ -73,8 +73,7 @@ const BookIssue = () => {
         }
     };
 
-
-    //get issue no.
+    //get Issue  No number
     const fetchLatestIssueNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-issueNo`, {
@@ -83,13 +82,13 @@ const BookIssue = () => {
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching latest issue number: ${response.statusText}`);
+                throw new Error(`Error fetching latest issue  number: ${response.statusText}`);
             }
             const data = await response.json();
             setIssueNumber(data.nextInvoiceNo);
         } catch (error) {
-            console.error('Error fetching latest issue number:', error);
-            toast.error('Error fetching latest issue number. Please try again later.');
+            console.error('Error fetching latest issue  number:', error);
+            toast.error('Error fetching latest issue  number. Please try again later.');
         }
     };
 
@@ -160,35 +159,45 @@ const BookIssue = () => {
         setAllBookDetails(combinedBooks);
     }, [bookDetails, memberBookings]);
 
-    const handleBookChangeForRow = (index, event) => {
-        const updatedRows = [...rows];
-        const selectedBookId = event.target.value;
-        const selectedBook = allBookDetails.find(book => book.bookId === Number(selectedBookId));
 
-        updatedRows[index] = {
-            ...updatedRows[index],
-            bookId: selectedBookId,
-            bookName: selectedBook ? selectedBook.bookName : '',
-            accessionNo: ''
-        };
-        setRows(updatedRows);
+
+    //date change for add modal
+    const handleDateChange = async (e) => {
+        const newDate = e.target.value;
+        setIssueDate(newDate);
+        if (selectedMemberId && newDate) {
+            const membershipCheck = await checkMembershipFees(selectedMemberId, newDate);
+            if (membershipCheck && membershipCheck.success) {
+                setIsMembershipValid(true);
+                setMembershipChecked(true);
+            } else {
+                setIsMembershipValid(false);
+                setMembershipChecked(false);
+                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
+            }
+        }
+    };
+    //member change for add modal
+    const handleMemberChange = async (e) => {
+        const newMemberId = e.target.value;
+        setSelectedMemberId(newMemberId);
+        if (newMemberId) {
+            fetchBookingDetails(newMemberId);
+        }
+        if (issueDate && newMemberId) {
+            const membershipCheck = await checkMembershipFees(newMemberId, issueDate);
+            if (membershipCheck && membershipCheck.success) {
+                setIsMembershipValid(true);
+                setMembershipChecked(true);
+            } else {
+                setIsMembershipValid(false);
+                setMembershipChecked(false);
+                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
+            }
+        }
     };
 
-    const handleBookDetailsChangeForRow = (index, event) => {
-        const updatedRows = [...rows];
-        updatedRows[index] = { ...updatedRows[index], accessionNo: event.target.value };
-        setRows(updatedRows);
-    };
-
-    const addRowAdd = () => {
-        setRows([...rows, { bookId: '', bookName: '', accessionNo: '' }]);
-    };
-
-    const deleteRowAdd = (index) => {
-        const updatedRows = rows.filter((_, i) => i !== index);
-        setRows(updatedRows);
-    };
-
+    //date format
     const formatDateForPayload = (date) => {
         if (!date) return '';
         const [year, month, day] = date.split('-');
@@ -220,42 +229,46 @@ const BookIssue = () => {
         }
     };
 
-    const handleDateChange = async (e) => {
-        const newDate = e.target.value;
-        setIssueDate(newDate);
-        if (selectedMemberId && newDate) {
-            const membershipCheck = await checkMembershipFees(selectedMemberId, newDate);
-            if (membershipCheck && membershipCheck.success) {
-                setIsMembershipValid(true);
-                setMembershipChecked(true);
-            } else {
-                setIsMembershipValid(false);
-                setMembershipChecked(false);
-                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
-            }
+    const handleAccessionInputChange = (index, event) => {
+        const updatedRows = [...rows];
+        const accessionNo = event.target.value;
+        const matchingBook = bookDetails.find(book =>
+            book.copyDetails.some(detail => detail.accessionNo === accessionNo)
+        );
+        if (matchingBook) {
+            const matchingDetail = matchingBook.copyDetails.find(detail => detail.accessionNo === accessionNo);
+            updatedRows[index] = {
+                accessionNo: accessionNo,
+                bookId: matchingBook.bookId,
+                bookName: matchingBook.bookName,
+                bookDetailId: matchingDetail.bookDetailId
+            };
+        } else {
+            updatedRows[index] = {
+                accessionNo: accessionNo,
+                bookId: '',
+                bookName: '',
+                bookDetailId: ''
+            };
         }
+        setRows(updatedRows);
     };
 
-    const handleMemberChange = async (e) => {
-        const newMemberId = e.target.value;
-        setSelectedMemberId(newMemberId);
-        if (newMemberId) {
-            fetchBookingDetails(newMemberId);
-        }
-        if (issueDate && newMemberId) {
-            const membershipCheck = await checkMembershipFees(newMemberId, issueDate);
-            if (membershipCheck && membershipCheck.success) {
-                setIsMembershipValid(true);
-                setMembershipChecked(true);
-            } else {
-                setIsMembershipValid(false);
-                setMembershipChecked(false);
-                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
-            }
-        }
+    const addRowAdd = () => {
+        setRows([...rows, { bookId: '', bookName: '', accessionNo: '' }]);
     };
+
+    const deleteRowAdd = (index) => {
+        const updatedRows = rows.filter((_, i) => i !== index);
+        setRows(updatedRows);
+    };
+
 
     const resetFormFields = () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const defaultIssueDate = today.toISOString().substr(0, 10);
+        setIssueDate(defaultIssueDate);
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
@@ -264,6 +277,7 @@ const BookIssue = () => {
         setMemberBookings([]);
     };
 
+    //post
     const handleSubmit = async (event) => {
         event.preventDefault();
         const invalidEntries = rows.filter(row => row.bookId && !row.accessionNo);
@@ -281,7 +295,7 @@ const BookIssue = () => {
             .filter(row => row.bookId && row.accessionNo)
             .map(row => ({
                 bookId: Number(row.bookId),
-                bookdetailId: Number(row.accessionNo)
+                bookdetailId: Number(row.bookDetailId)
             }));
         const formattedDate = formatDateForPayload(issueDate);
         const payload = {
@@ -313,8 +327,8 @@ const BookIssue = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssue();
-                fetchLatestIssueNo();//issue no.
                 fetchBookDetails();//copyno
+                fetchLatestIssueNo();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -392,8 +406,8 @@ const BookIssue = () => {
                 toast.success('Issue deleted successfully.');
                 setShowDeleteModal(false);
                 fetchIssue();
-                fetchLatestIssueNo();//issue no.
                 fetchBookDetails();//copyno
+                fetchLatestIssueNo();
             } else {
                 const errorData = await deleteResponse.json();
                 toast.error(errorData.message);
@@ -565,8 +579,8 @@ const BookIssue = () => {
                                     <thead>
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
                                             <th>Accession No</th>
+                                            <th>Book Name</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -575,34 +589,44 @@ const BookIssue = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Group as={Col}>
-                                                        <Form.Select
-                                                            as="select"
-                                                            value={row.bookId}
-                                                            onChange={(e) => handleBookChangeForRow(index, e)}
-                                                        >
-                                                            <option value="">Select a book</option>
-                                                            {allBookDetails.map((book) => (
-                                                                <option key={book.bookId} value={book.bookId}>
-                                                                    {book.bookName}
-                                                                </option>
-                                                            ))}
-                                                        </Form.Select>
-                                                    </Form.Group>
-                                                </td>
-                                                <td>
-                                                    <Form.Select
+                                                    {/* <Form.Select
                                                         as="select"
                                                         value={row.accessionNo}
                                                         onChange={(e) => handleBookDetailsChangeForRow(index, e)}
                                                     >
-                                                        <option value="">Select Book Details</option>
-                                                        {getFilteredAccessionNumbers(row.bookId).map((detail) => (
-                                                            <option key={detail.bookDetailId} value={detail.bookDetailId}>
-                                                                {detail.accessionNo}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Select>
+                                                        {bookDetails.flatMap(book =>
+                                                            book.copyDetails.map(detail => (
+                                                                <option key={detail.bookDetailId} value={detail.bookDetailId}>
+                                                                    {detail.accessionNo}
+                                                                </option>
+                                                            ))
+                                                        )}
+                                                    </Form.Select> */}
+
+                                                    <Form.Control
+                                                        list={`accessionNumbers-${index}`}
+                                                        value={row.accessionNo}
+                                                        onChange={(e) => handleAccessionInputChange(index, e)}
+                                                        placeholder="Enter or Select Accession Number"
+                                                    />
+                                                    <datalist id={`accessionNumbers-${index}`}>
+                                                        {bookDetails.flatMap(book =>
+                                                            book.copyDetails.map(detail => (
+                                                                <option key={detail.bookDetailId} value={detail.accessionNo} />
+                                                            ))
+                                                        )}
+                                                    </datalist>
+
+                                                </td>
+
+                                                <td>
+                                                    <Form.Group as={Col}>
+                                                        <Form.Control
+                                                            type="text"
+                                                            value={row.bookName}
+                                                            readOnly
+                                                        />
+                                                    </Form.Group>
                                                 </td>
                                                 <td>
                                                     <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
