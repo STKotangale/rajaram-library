@@ -39,7 +39,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
 
     //get username and access token
     useEffect(() => {
-
+        fetchLatestpurchaseNo();
     }, [username, accessToken]);
 
     // useEffect(() => {
@@ -66,6 +66,26 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             toast.error('Error fetching purchases. Please try again later.');
         }
     };
+
+  //get purchase number
+  const fetchLatestpurchaseNo = async () => {
+    try {
+        const response = await fetch(`${BaseURL}/api/stock/latest-purchaseNo`, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`Error fetching latest purchase number: ${response.statusText}`);
+        }
+        const data = await response.json();
+        setInvoiceNumber(data.nextInvoiceNo); 
+    } catch (error) {
+        console.error('Error fetching latest purchase number:', error);
+        toast.error('Error fetching latest purchase number. Please try again later.');
+    }
+};
+
 
     //get  purchaser/ledger name
     useEffect(() => {
@@ -224,7 +244,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             toast.success("Purchase successfully submitted.");
             handlePurchaseSubmit();
             fetchPurchases();
-    
+            fetchLatestpurchaseNo();
         } catch (error) {
             console.error('Error submitting purchase:', error.message);
             toast.error('Error submitting purchase. Please try again.');

@@ -47,6 +47,7 @@ const BookIssue = () => {
         fetchIssue();
         fetchGeneralMembers();
         fetchBookDetails();
+        fetchLatestIssueNo();
     }, [username, accessToken]);
 
     //get all isuue
@@ -71,6 +72,27 @@ const BookIssue = () => {
             toast.error('Error fetching issue. Please try again later.');
         }
     };
+
+
+    //get issue no.
+    const fetchLatestIssueNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/latest-issueNo`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest issue number: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setIssueNumber(data.nextInvoiceNo); 
+        } catch (error) {
+            console.error('Error fetching latest issue number:', error);
+            toast.error('Error fetching latest issue number. Please try again later.');
+        }
+    };
+
 
     //get general member
     const fetchGeneralMembers = async () => {
@@ -234,7 +256,6 @@ const BookIssue = () => {
     };
 
     const resetFormFields = () => {
-        setIssueNumber('');
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
@@ -292,6 +313,7 @@ const BookIssue = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssue();
+                fetchLatestIssueNo();//issue no.
                 fetchBookDetails();//copyno
             } else {
                 const errorData = await response.json();
@@ -370,6 +392,7 @@ const BookIssue = () => {
                 toast.success('Issue deleted successfully.');
                 setShowDeleteModal(false);
                 fetchIssue();
+                fetchLatestIssueNo();//issue no.
                 fetchBookDetails();//copyno
             } else {
                 const errorData = await deleteResponse.json();
