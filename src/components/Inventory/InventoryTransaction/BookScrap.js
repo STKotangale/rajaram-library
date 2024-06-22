@@ -29,7 +29,7 @@ const BookScrap = () => {
     //selected book get data
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
-    const [invoiceDate, setInvoiceDate] = useState('');
+    const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     const [discountPercent, setDiscountPercent] = useState('');
 
 
@@ -168,7 +168,6 @@ const BookScrap = () => {
     // Reset form fields
     const resetFormFields = () => {
         setInvoiceNumber('');
-        setInvoiceDate('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
@@ -253,8 +252,6 @@ const BookScrap = () => {
             toast.error('Error submitting book scrap. Please try again.');
         }
     };
-
-
 
 
     //delete

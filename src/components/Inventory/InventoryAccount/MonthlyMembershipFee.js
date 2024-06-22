@@ -34,7 +34,7 @@ const MonthlyMembershipFee = () => {
 
     const [formData, setFormData] = useState({
         invoiceNo: "",
-        invoiceDate: "",
+        invoiceDate: new Date().toISOString().substr(0, 10),
         fromDate: "",
         toDate: "",
         selectedMemberId: "",
@@ -140,7 +140,7 @@ const MonthlyMembershipFee = () => {
     const resetField = () => {
         setFormData({
             invoiceNo: "",
-            invoiceDate: "",
+            // invoiceDate: "",
             fromDate: "",
             toDate: "",
             selectedMemberId: "",

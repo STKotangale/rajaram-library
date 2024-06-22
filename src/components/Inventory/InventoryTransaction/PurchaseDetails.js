@@ -10,14 +10,13 @@ import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
 
 const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
-
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
     //discount
     const [discountPercentage, setDiscountPercentage] = useState("");
     //gst
     const [gstPercentage, setGstPercentage] = useState("");
     // date function 
-    const [invoiceDate, setInvoiceDate] = useState();
+    const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     //invoice number
     const [invoiceNumber, setInvoiceNumber] = useState();
     // const [invoiceNumber, setInvoiceNumber] = useState(() => {

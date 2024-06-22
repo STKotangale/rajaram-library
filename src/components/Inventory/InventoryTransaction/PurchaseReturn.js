@@ -28,7 +28,7 @@ const PurchaseReturn = () => {
     //selected book get data
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
-    const [invoiceDate, setInvoiceDate] = useState('');
+    const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     const [discountPercent, setDiscountPercent] = useState('');
     // const [discountAmount, setDiscountAmount] = useState('');
     const [gstPercent, setGstPercent] = useState('');
@@ -180,7 +180,6 @@ const PurchaseReturn = () => {
     // Reset form fields
     const resetFormFields = () => {
         setInvoiceNumber('');
-        setInvoiceDate('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
         setGstPercent('');

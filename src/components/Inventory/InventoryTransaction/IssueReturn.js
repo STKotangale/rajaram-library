@@ -22,7 +22,7 @@ const IssueReturn = () => {
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     const [selectedMemberId, setSelectedMemberId] = useState("");
-    const [issueReturnDate, setIssueReturnDate] = useState('');
+    const [issueReturnDate, setIssueReturnDate] = useState(new Date().toISOString().substr(0, 10));
     // const [fineAmounts, setFineAmounts] = useState({});
 
     const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
@@ -271,7 +271,6 @@ const IssueReturn = () => {
         setSelectedRows([]);
         setSelectedDetail(null);
         setSelectedMemberId("");
-        setIssueReturnDate('');
         setSelectedRowIndex(null);
     };
 

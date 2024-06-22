@@ -16,7 +16,7 @@ const MembershipFees = () => {
     const [viewData, setViewData] = useState({});
     const [formData, setFormData] = useState({
         invoiceNo: "",
-        invoiceDate: "",
+        invoiceDate: new Date().toISOString().substr(0, 10),
         selectedMemberId: "",
         feeType: "",
         bankName: "",
@@ -112,7 +112,6 @@ const MembershipFees = () => {
     const resetField = () => {
         setFormData({
             invoiceNo: "",
-            invoiceDate: "",
             selectedMemberId: "",
             feeType: "",
             bankName: "",
@@ -128,9 +127,6 @@ const MembershipFees = () => {
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
     };
-
-
-
 
     const handleAddSubmit = async () => {
         const totalFees = feesData.reduce((total, fee) => total + parseFloat(fee.feesAmount || 0), 0);

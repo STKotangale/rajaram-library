@@ -8,26 +8,37 @@ import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
 
 const BookIssue = () => {
+    //get all issue
     const [issue, setIssue] = useState([]);
+    //get general member
     const [generalMember, setGeneralMember] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState("");
+    //get book details in copy no only updated (updated book details)
     const [bookDetails, setBookDetails] = useState([]);
+    //get member name for online booking data
     const [memberBookings, setMemberBookings] = useState([]);
+    //post
     const [showAddModal, setShowAddModal] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
     const [issueNumber, setIssueNumber] = useState('');
-    // const [issueDate, setIssueDate] = useState('');
     const [issueDate, setIssueDate] = useState(new Date().toISOString().substr(0, 10));
-    const [showViewModal, setShowViewModal] = useState(false);
-    const [selectedIssue, setSelectedIssue] = useState(null);
-    const [issueToDelete, setIssueToDelete] = useState(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    //check membership 
     const [isMembershipValid, setIsMembershipValid] = useState(false);
     const [membershipChecked, setMembershipChecked] = useState(false);
+    //show error message
     const [errorMessage, setErrorMessage] = useState('');
-
-    //view
+    //all book details combine
+    const [allBookDetails, setAllBookDetails] = useState([]);
+    //delete
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [issueToDelete, setIssueToDelete] = useState(null);
+    //get view data
     const [viewDetails, setViewDetails] = useState(null);
+    //view
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [selectedIssue, setSelectedIssue] = useState(null);
+
     //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -50,7 +61,11 @@ const BookIssue = () => {
                 throw new Error(`Error fetching issue: ${response.statusText}`);
             }
             const data = await response.json();
-            setIssue(data);
+            const updatedData = data.map(issueItem => ({
+                ...issueItem,
+                fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
+            }));
+            setIssue(updatedData);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching issue. Please try again later.');
@@ -113,8 +128,6 @@ const BookIssue = () => {
         }
     };
 
-    const [allBookDetails, setAllBookDetails] = useState([]);
-
     useEffect(() => {
         const combinedBooks = [...new Map(bookDetails.map(book => [book.bookId, book]).concat(
             memberBookings.map(booking => [booking.book_idF, {
@@ -160,6 +173,7 @@ const BookIssue = () => {
         return `${day}-${month}-${year}`;
     };
 
+    //get and valid membership check
     const checkMembershipFees = async (memberId, date) => {
         try {
             const formattedDate = formatDateForPayload(date);
@@ -220,11 +234,6 @@ const BookIssue = () => {
     };
 
     const resetFormFields = () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0); 
-        const defaultIssueDate = today.toISOString().substr(0, 10);
-        setIssueDate(defaultIssueDate);
-        
         setIssueNumber('');
         setSelectedMemberId('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
@@ -236,9 +245,7 @@ const BookIssue = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         const invalidEntries = rows.filter(row => row.bookId && !row.accessionNo);
-
         if (invalidEntries.length > 0) {
             invalidEntries.forEach(row => {
                 const bookName = allBookDetails.find(book => book.bookId === Number(row.bookId))?.bookName;
@@ -246,20 +253,16 @@ const BookIssue = () => {
             });
             return;
         }
-
         if (!isMembershipValid) {
             return;
         }
-
         const bookDetailsPayload = rows
             .filter(row => row.bookId && row.accessionNo)
             .map(row => ({
                 bookId: Number(row.bookId),
                 bookdetailId: Number(row.accessionNo)
             }));
-
         const formattedDate = formatDateForPayload(issueDate);
-
         const payload = {
             invoiceNo: issueNumber,
             invoiceDate: formattedDate,
@@ -275,12 +278,9 @@ const BookIssue = () => {
                 },
                 body: JSON.stringify(payload)
             });
-
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
-
-                // Prepare the PUT request payload
                 const membOnlineIds = rows
                     .filter(row => row.bookId && row.accessionNo)
                     .map(row => {
@@ -288,9 +288,7 @@ const BookIssue = () => {
                         return matchedBooking ? matchedBooking.membOnlineId : null;
                     })
                     .filter(id => id !== null);
-
                 await updateBlockStatus(membOnlineIds);
-
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssue();
@@ -339,7 +337,6 @@ const BookIssue = () => {
     const handleDeleteConfirm = async () => {
         if (!issueToDelete) return;
         try {
-            // First, fetch the book details for the issue to be deleted
             const response = await fetch(`${BaseURL}/api/issue/book-issue/${issueToDelete.stock_id}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
@@ -350,8 +347,6 @@ const BookIssue = () => {
             }
             const issueDetails = await response.json();
             const bookDetailIds = issueDetails[0].books.map(book => book.bookDetailId);
-
-            // Next, call the API to update the status of the book details
             const updateResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-issue`, {
                 method: 'POST',
                 headers: {
@@ -360,21 +355,17 @@ const BookIssue = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-
             if (!updateResponse.ok) {
                 const errorData = await updateResponse.json();
                 toast.error(`Error updating book details status: ${errorData.message}`);
                 return;
             }
-
-            // Finally, delete the issue
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${issueToDelete.stock_id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
             if (deleteResponse.ok) {
                 toast.success('Issue deleted successfully.');
                 setShowDeleteModal(false);
@@ -403,7 +394,12 @@ const BookIssue = () => {
                 throw new Error('Failed to fetch issue details');
             }
             const data = await response.json();
-            setViewDetails(data[0]);
+            // setViewDetails(data[0]);
+            const updatedData = {
+                ...data[0],
+                fullName: `${data[0].firstName} ${data[0].middleName} ${data[0].lastName}`
+            };
+            setViewDetails(updatedData);
         } catch (error) {
             console.error(error);
         }
@@ -419,24 +415,18 @@ const BookIssue = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(issue.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
-    // First and last page navigation functions
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = issue.slice(indexOfNumber, indexOfLastBookType);
@@ -472,7 +462,7 @@ const BookIssue = () => {
                                 {currentData.map((issueItem, index) => (
                                     <tr key={issueItem.stock_id}>
                                         <td>{index + 1}</td>
-                                        <td>{issueItem.username}</td>
+                                        <td>{issueItem.fullName}</td>
                                         <td>{issueItem.invoiceNo}</td>
                                         <td>{issueItem.invoiceDate}</td>
                                         <td>
@@ -546,64 +536,64 @@ const BookIssue = () => {
                                     <div className="error-message text-danger mt-3">{errorMessage}</div>
                                 )}
                             </div>
-                            {membershipChecked && (
-                                <div className="table-responsive">
-                                    <Table striped bordered hover className="table-bordered-dark">
-                                        <thead>
-                                            <tr>
-                                                <th className='sr-size'>Sr. No.</th>
-                                                <th>Book Name</th>
-                                                <th>Accession No</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {rows.map((row, index) => (
-                                                <tr key={index}>
-                                                    <td className='sr-size'>{index + 1}</td>
-                                                    <td>
-                                                        <Form.Group as={Col}>
-                                                            <Form.Select
-                                                                as="select"
-                                                                value={row.bookId}
-                                                                onChange={(e) => handleBookChangeForRow(index, e)}
-                                                            >
-                                                                <option value="">Select a book</option>
-                                                                {allBookDetails.map((book) => (
-                                                                    <option key={book.bookId} value={book.bookId}>
-                                                                        {book.bookName}
-                                                                    </option>
-                                                                ))}
-                                                            </Form.Select>
-                                                        </Form.Group>
-                                                    </td>
-                                                    <td>
+                            {/* {membershipChecked && ( */}
+                            <div className="table-responsive">
+                                <Table striped bordered hover className="table-bordered-dark">
+                                    <thead>
+                                        <tr>
+                                            <th className='sr-size'>Sr. No.</th>
+                                            <th>Book Name</th>
+                                            <th>Accession No</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {rows.map((row, index) => (
+                                            <tr key={index}>
+                                                <td className='sr-size'>{index + 1}</td>
+                                                <td>
+                                                    <Form.Group as={Col}>
                                                         <Form.Select
                                                             as="select"
-                                                            value={row.accessionNo}
-                                                            onChange={(e) => handleBookDetailsChangeForRow(index, e)}
+                                                            value={row.bookId}
+                                                            onChange={(e) => handleBookChangeForRow(index, e)}
                                                         >
-                                                            <option value="">Select Book Details</option>
-                                                            {getFilteredAccessionNumbers(row.bookId).map((detail) => (
-                                                                <option key={detail.bookDetailId} value={detail.bookDetailId}>
-                                                                    {detail.accessionNo}
+                                                            <option value="">Select a book</option>
+                                                            {allBookDetails.map((book) => (
+                                                                <option key={book.bookId} value={book.bookId}>
+                                                                    {book.bookName}
                                                                 </option>
                                                             ))}
                                                         </Form.Select>
-                                                    </td>
-                                                    <td>
-                                                        <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </Table>
+                                                    </Form.Group>
+                                                </td>
+                                                <td>
+                                                    <Form.Select
+                                                        as="select"
+                                                        value={row.accessionNo}
+                                                        onChange={(e) => handleBookDetailsChangeForRow(index, e)}
+                                                    >
+                                                        <option value="">Select Book Details</option>
+                                                        {getFilteredAccessionNumbers(row.bookId).map((detail) => (
+                                                            <option key={detail.bookDetailId} value={detail.bookDetailId}>
+                                                                {detail.accessionNo}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
+                                                </td>
+                                                <td>
+                                                    <Trash className="ms-3 action-icon delete-icon" onClick={() => deleteRowAdd(index)} />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </Table>
 
-                                    <Button onClick={addRowAdd} className="button-color">
-                                        Add Book
-                                    </Button>
-                                </div>
-                            )}
+                                <Button onClick={addRowAdd} className="button-color">
+                                    Add Book
+                                </Button>
+                            </div>
+                            {/* )} */}
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
@@ -653,7 +643,7 @@ const BookIssue = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={viewDetails.user}
+                                            value={viewDetails.fullName}
                                             disabled
                                         />
                                     </Form.Group>
