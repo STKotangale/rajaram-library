@@ -59,6 +59,11 @@ const ViewPurchase = () => {
         setShowAddPurchase(false);
     };
 
+
+    useEffect(() => {
+        fetchPurchases();
+    }, [username, accessToken]);
+
     //get purchase
     const fetchPurchases = async () => {
         try {
@@ -80,9 +85,9 @@ const ViewPurchase = () => {
         }
     };
 
-    useEffect(() => {
-        fetchPurchases();
-    }, [username, accessToken]);
+
+    
+
 
     const handleCloseModal = () => {
         // setShowModal(false);

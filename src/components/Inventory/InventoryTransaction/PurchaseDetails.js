@@ -67,24 +67,24 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
         }
     };
 
-  //get purchase number
-  const fetchLatestpurchaseNo = async () => {
-    try {
-        const response = await fetch(`${BaseURL}/api/stock/latest-purchaseNo`, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`
+    //get purchase number
+    const fetchLatestpurchaseNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/latest-purchaseNo`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest purchase number: ${response.statusText}`);
             }
-        });
-        if (!response.ok) {
-            throw new Error(`Error fetching latest purchase number: ${response.statusText}`);
+            const data = await response.json();
+            setInvoiceNumber(data.nextInvoiceNo);
+        } catch (error) {
+            console.error('Error fetching latest purchase number:', error);
+            toast.error('Error fetching latest purchase number. Please try again later.');
         }
-        const data = await response.json();
-        setInvoiceNumber(data.nextInvoiceNo); 
-    } catch (error) {
-        console.error('Error fetching latest purchase number:', error);
-        toast.error('Error fetching latest purchase number. Please try again later.');
-    }
-};
+    };
 
 
     //get  purchaser/ledger name
@@ -190,20 +190,20 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
     };
-    
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-    
+
         try {
             if (!selectedLedgerName.trim()) {
                 throw new Error('Please select purchaser name.');
             }
-    
+
             const isBookFilled = rows.some(row => row.bookName.trim() !== '');
             if (!isBookFilled) {
                 throw new Error('Please enter at least one book.');
             }
-    
+
             const filteredRows = rows.filter(row => row.bookName.trim() !== '' && row.quantity.trim() !== '' && row.rate.trim() !== '');
             const payload = {
                 invoiceNo: invoiceNumber,
@@ -223,11 +223,11 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                     bookAmount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
                 }))
             };
-    
+
             if (!accessToken) {
                 throw new Error('Access token not found. Please log in again.');
             }
-    
+
             const response = await fetch(`${BaseURL}/api/stock`, {
                 method: 'POST',
                 headers: {
@@ -236,7 +236,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                 },
                 body: JSON.stringify(payload)
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Failed to submit purchase: ${response.status} - ${response.statusText}`);
             }
@@ -250,7 +250,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             toast.error('Error submitting purchase. Please try again.');
         }
     };
-    
+
 
     // handle change
     const handleRowChange = (index, e) => {

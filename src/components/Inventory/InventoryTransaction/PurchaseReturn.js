@@ -49,6 +49,7 @@ const PurchaseReturn = () => {
         fetchPurchaseReturn();
         fetchPurchaserName();
         fetchAllBooks();
+        fetchLatestPurchaseReturnNo();
     }, [username, accessToken]);
 
     //get purchase return
@@ -70,6 +71,26 @@ const PurchaseReturn = () => {
             toast.error('Error fetching purchase return. Please try again later.');
         }
     };
+
+    //get purchase return number
+    const fetchLatestPurchaseReturnNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/latest-purchaseReturnNo`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest purchase return number: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setInvoiceNumber(data.nextInvoiceNo);
+        } catch (error) {
+            console.error('Error fetching latest purchase return number:', error);
+            toast.error('Error fetching latest purchase return number. Please try again later.');
+        }
+    };
+
 
     //get purchaser name
     const fetchPurchaserName = async () => {
@@ -179,7 +200,6 @@ const PurchaseReturn = () => {
 
     // Reset form fields
     const resetFormFields = () => {
-        setInvoiceNumber('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
         setGstPercent('');
@@ -239,6 +259,7 @@ const PurchaseReturn = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchPurchaseReturn();
+                fetchLatestPurchaseReturnNo();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -288,16 +309,16 @@ const PurchaseReturn = () => {
 
     const confirmDelete = async () => {
         if (!deleteStockId) return;
-    
+
         const selectedGroup = purchaseReturn[deleteStockId];
-    
+
         if (!selectedGroup || selectedGroup.length === 0) {
             toast.error('No book details found for this stock.');
             return;
         }
-    
+
         const bookDetailIds = selectedGroup.map(item => item.bookDetailId);
-    
+
         try {
             const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-purchase-return`, {
                 method: 'POST',
@@ -305,37 +326,38 @@ const PurchaseReturn = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
                 },
-                body: JSON.stringify(bookDetailIds) 
+                body: JSON.stringify(bookDetailIds)
             });
-    
+
             if (!postResponse.ok) {
                 const postData = await postResponse.json();
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
-                return; 
+                return;
             }
-    
+
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-    
+
             if (!deleteResponse.ok) {
                 const deleteData = await deleteResponse.json();
                 toast.error(`Error deleting purchase return: ${deleteData.message}`);
                 return;
             }
-    
+
             toast.success('Purchase return successfully deleted.');
             setShowDeleteModal(false);
-            fetchPurchaseReturn(); 
+            fetchPurchaseReturn();
+            fetchLatestPurchaseReturnNo();
         } catch (error) {
             console.error('Error during the deletion process:', error);
             toast.error('Error during deletion process. Please try again.');
         }
     };
-    
+
 
     //view
     const handleViewDetails = (items) => {
@@ -420,7 +442,7 @@ const PurchaseReturn = () => {
 
 
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => {setShowAddModal(false); resetFormFields();}} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields(); }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Purchase Return</Modal.Title>

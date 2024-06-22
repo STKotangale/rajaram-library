@@ -30,6 +30,7 @@ const IssueReturn = () => {
     useEffect(() => {
         fetchIssueReturn();
         fetchGeneralMembers();
+        fetchLatestIssueReturnNo();
     }, [username, accessToken]);
 
     const fetchIssueReturn = async () => {
@@ -48,6 +49,25 @@ const IssueReturn = () => {
         } catch (error) {
             console.error(error);
             toast.error('Error fetching issue return. Please try again later.');
+        }
+    };
+
+    //get Issue Return No number
+    const fetchLatestIssueReturnNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/latest-issueReturnNo`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest issue return number: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setIssueReturnNumber(data.nextInvoiceNo);
+        } catch (error) {
+            console.error('Error fetching latest issue return number:', error);
+            toast.error('Error fetching latest issue return number. Please try again later.');
         }
     };
 
@@ -169,7 +189,7 @@ const IssueReturn = () => {
         );
     };
 
-    
+
 
 
     //memberid and date api get
@@ -267,7 +287,6 @@ const IssueReturn = () => {
 
     const resetFormFields = () => {
         setRows([]);
-        setIssueReturnNumber('');
         setSelectedRows([]);
         setSelectedDetail(null);
         setSelectedMemberId("");
@@ -333,7 +352,7 @@ const IssueReturn = () => {
         return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
-    
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -379,6 +398,7 @@ const IssueReturn = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchIssueReturn();
+                fetchLatestIssueReturnNo();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message || 'Failed to submit issue return.');
@@ -419,6 +439,7 @@ const IssueReturn = () => {
 
                 toast.success('Issue return deleted successfully.');
                 fetchIssueReturn();
+                fetchLatestIssueReturnNo();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message || 'Failed to update book details status.');
@@ -472,7 +493,7 @@ const IssueReturn = () => {
         if (!selectedDetail) return 0;
         return selectedDetail[0].bookDetailsList.reduce((acc, current) => acc + current.fineAmount, 0);
     };
-    
+
 
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
@@ -549,7 +570,7 @@ const IssueReturn = () => {
                 </div>
             </Container>
 
-            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields()}} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields() }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Issue Return</Modal.Title>
@@ -800,11 +821,11 @@ const IssueReturn = () => {
                                             </tr>
                                         ))}
                                         <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
                                             <td>Total</td>
                                             <td>{calculateDetailTotal()}</td>
                                         </tr>

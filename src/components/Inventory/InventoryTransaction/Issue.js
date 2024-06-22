@@ -86,7 +86,7 @@ const BookIssue = () => {
                 throw new Error(`Error fetching latest issue number: ${response.statusText}`);
             }
             const data = await response.json();
-            setIssueNumber(data.nextInvoiceNo); 
+            setIssueNumber(data.nextInvoiceNo);
         } catch (error) {
             console.error('Error fetching latest issue number:', error);
             toast.error('Error fetching latest issue number. Please try again later.');

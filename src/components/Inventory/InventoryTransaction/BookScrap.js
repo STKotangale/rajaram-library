@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
 
-
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
     const date = new Date(dateStr);
@@ -31,8 +30,6 @@ const BookScrap = () => {
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     const [discountPercent, setDiscountPercent] = useState('');
-
-
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
@@ -47,6 +44,7 @@ const BookScrap = () => {
         fetchBookScrap();
         fetchPurchaserName();
         fetchAllBooks();
+        fetchLatestBookScrapNo();
     }, [username, accessToken]);
 
     //get book srcap
@@ -66,6 +64,25 @@ const BookScrap = () => {
         } catch (error) {
             console.error(error);
             toast.error('Error fetching book srcap . Please try again later.');
+        }
+    };
+
+    //get book scrap no.
+    const fetchLatestBookScrapNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/latest-bookScrapNo`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest book scrap number: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setInvoiceNumber(data.nextInvoiceNo);
+        } catch (error) {
+            console.error('Error fetching latest book scrap number:', error);
+            toast.error('Error fetching latest book scrap number. Please try again later.');
         }
     };
 
@@ -167,18 +184,12 @@ const BookScrap = () => {
 
     // Reset form fields
     const resetFormFields = () => {
-        setInvoiceNumber('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     };
 
-    // const calculateQuantity = () => {
-    //     return rows.filter(row => row.bookName && row.purchaseCopyNo).length;
-    // };
-
     const billTotal = parseFloat(calculateBillTotal());
-
     const calculateTotalAfterDiscount = (total) => {
         const discountValue = parseFloat(discountPercent) || 0;
         return (total - (total * (discountValue / 100))).toFixed(2);
@@ -190,10 +201,6 @@ const BookScrap = () => {
         return Math.floor(discountAmount);
     };
     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-
-    // const calculateGrandTotal = (total) => {
-    //     const grandTotal =totalAfterDiscount
-    // };
     const grandTotal = parseFloat((totalAfterDiscount));
 
     //post api
@@ -243,6 +250,7 @@ const BookScrap = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchBookScrap();
+                fetchLatestBookScrapNo();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -263,18 +271,18 @@ const BookScrap = () => {
     //delete api
     const confirmDelete = async () => {
         if (!deleteStockId) return;
-    
+
         // Retrieve the items associated with the deleteStockId
         const selectedItems = bookScrap[deleteStockId];
-    
+
         if (!selectedItems || selectedItems.length === 0) {
             toast.error('No book scrap details found for this stock.');
             return;
         }
-    
+
         // Map over the selectedItems to extract their bookDetailIds
         const bookDetailIds = selectedItems.map(item => item.bookDetailId);
-    
+
         try {
             // POST request to handle the bookDetailIds before deletion
             const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-book-scrap`, {
@@ -285,13 +293,13 @@ const BookScrap = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-    
+
             if (!postResponse.ok) {
                 const postData = await postResponse.json();
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
                 return; // Stop if POST failed
             }
-    
+
             // If the POST request succeeds, proceed with the DELETE request
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
@@ -299,23 +307,21 @@ const BookScrap = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-    
+
             if (!deleteResponse.ok) {
                 const deleteData = await deleteResponse.json();
                 toast.error(`Error deleting book scrap: ${deleteData.message}`);
                 return; // Stop if DELETE failed
             }
-    
             toast.success('Book scrap successfully processed and deleted.');
             setShowDeleteModal(false);
             fetchBookScrap(); // Refresh the list to reflect the changes
+            fetchLatestBookScrapNo();
         } catch (error) {
             console.error('Error during deletion process:', error);
             toast.error('Error during deletion process. Please try again.');
         }
     };
-    
-
 
     //show table in stock_id
     const groupBy = (array, key) => {
@@ -406,7 +412,7 @@ const BookScrap = () => {
 
 
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields()}} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields() }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Book Scrap</Modal.Title>

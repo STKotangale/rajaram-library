@@ -48,6 +48,7 @@ const BookLost = () => {
         fetchBookLost();
         fetchPurchaserName();
         fetchAllBooks();
+        fetchLatestBookLostNo();
     }, [username, accessToken]);
 
     //get book lost
@@ -69,6 +70,26 @@ const BookLost = () => {
             toast.error('Error fetching book lost . Please try again later.');
         }
     };
+
+    //get book lost no.
+    const fetchLatestBookLostNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock/latest-bookLostNo`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest book lost number: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setInvoiceNumber(data.nextInvoiceNo);
+        } catch (error) {
+            console.error('Error fetching latest book lost number:', error);
+            toast.error('Error fetching latest book lost number. Please try again later.');
+        }
+    };
+
 
     //get purchaser name
     const fetchPurchaserName = async () => {
@@ -178,7 +199,6 @@ const BookLost = () => {
 
     // Reset form fields
     const resetFormFields = () => {
-        setInvoiceNumber('');
         setSelectedPurchaserId(null);
         setDiscountPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
@@ -230,6 +250,7 @@ const BookLost = () => {
                 setShowAddModal(false);
                 resetFormFields();
                 fetchBookLost();
+                fetchLatestBookLostNo();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -301,6 +322,7 @@ const BookLost = () => {
             toast.success('Book lost successfully updated and deleted.');
             setShowDeleteModal(false);
             fetchBookLost();
+            fetchLatestBookLostNo();
         } catch (error) {
             console.error('Error during deletion process:', error);
             toast.error('Error during deletion process. Please try again.');
@@ -394,7 +416,7 @@ const BookLost = () => {
 
 
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields()}} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields() }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Book Lost</Modal.Title>
@@ -421,7 +443,7 @@ const BookLost = () => {
                                         className="custom-date-picker small-input"
                                     />
                                 </Form.Group>
-                            </Row>         
+                            </Row>
 
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
