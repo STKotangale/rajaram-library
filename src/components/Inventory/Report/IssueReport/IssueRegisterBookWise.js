@@ -17,6 +17,7 @@ const formatDate = (date) => {
 
 const IssueRegisterBookWise = () => {
     const [books, setBooks] = useState([]);
+    const [bookId, setBookId] = useState('');
     const [bookname, setBookname] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -52,7 +53,7 @@ const IssueRegisterBookWise = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
         const reportData = {
-            bookName: bookname,
+            bookId: bookId,
             startDate: formatDate(startDate),
             endDate: formatDate(endDate),
         };
@@ -106,6 +107,13 @@ const IssueRegisterBookWise = () => {
         printWindow.print();
     };
 
+    const handleBookChange = (e) => {
+        const selectedBookName = e.target.value;
+        setBookname(selectedBookName);
+        const selectedBook = books.find(book => book.bookName === selectedBookName);
+        setBookId(selectedBook ? selectedBook.bookId : '');
+    };
+
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -121,7 +129,7 @@ const IssueRegisterBookWise = () => {
                                     <Form.Control
                                         type="text"
                                         value={bookname}
-                                        onChange={(e) => setBookname(e.target.value)}
+                                        onChange={handleBookChange}
                                         list="bookNameList"
                                         placeholder="Enter or select a book"
                                         required
