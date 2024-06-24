@@ -28,6 +28,7 @@ const BookLost = () => {
     //add 
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedMemberFullName, setSelectedMemberFullName] = useState('');
+    const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
     //selected book get data
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -181,6 +182,7 @@ const BookLost = () => {
     const resetFormFields = () => {
         setSelectedMemberId(null);
         setDiscountPercent('');
+        setSelectedMemberLibNo('');
         setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     };
 
@@ -190,12 +192,14 @@ const BookLost = () => {
         if (member) {
             setSelectedMemberId(member.memberId);
             setSelectedMemberFullName(fullName);
-        } else {
+            setSelectedMemberLibNo(member.libGenMembNo);
+        } 
+        else {
             setSelectedMemberId(null);
             setSelectedMemberFullName('');
+            setSelectedMemberLibNo('');
         }
     };
-
 
     //post api
     const handleSubmit = async (event) => {
@@ -451,6 +455,14 @@ const BookLost = () => {
                                             </option>
                                         ))}
                                     </datalist>
+                                </Form.Group>
+                                <Form.Group as={Col}>
+                                    <Form.Label>LibGenMembNo</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        readOnly
+                                        value={selectedMemberLibNo}
+                                    />
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">

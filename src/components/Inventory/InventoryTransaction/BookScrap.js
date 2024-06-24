@@ -390,7 +390,8 @@ const BookScrap = () => {
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
-                            <Form.Control
+                                <Form.Label>Purchaser Name</Form.Label>
+                                <Form.Control
                                     as="input"
                                     list="purchaserNames"
                                     value={selectedPurchaserName}

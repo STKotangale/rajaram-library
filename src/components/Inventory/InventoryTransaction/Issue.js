@@ -180,7 +180,7 @@ const BookIssue = () => {
         }
     };
 
-  //member change
+    //member change
     const handleMemberChange = async (e) => {
         const fullName = e.target.value;
         setSelectedMemberName(fullName);
@@ -291,6 +291,11 @@ const BookIssue = () => {
     //post
     const handleSubmit = async (event) => {
         event.preventDefault();
+        if (!selectedMemberName) {
+            toast.error("Please select a member name.");
+            return;
+        }
+
         const invalidEntries = rows.filter(row => row.bookId && !row.accessionNo);
         if (invalidEntries.length > 0) {
             invalidEntries.forEach(row => {
@@ -600,21 +605,38 @@ const BookIssue = () => {
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
                                                     <Form.Control
-                                                        list={`accessionNumbers-${index}`}
+                                                        list={bookDetails.length > 0 ? `accessionNumbers-${index}` : undefined}
                                                         value={row.accessionNo}
                                                         onChange={(e) => handleAccessionInputChange(index, e)}
-                                                        placeholder="Enter or Select Accession Number"
+                                                        placeholder={bookDetails.length > 0 ? "Enter or Select Accession Number" : "No Accession Numbers Available"}
                                                     />
-                                                    <datalist id={`accessionNumbers-${index}`}>
-                                                        {bookDetails.flatMap(book =>
-                                                            book.copyDetails.map(detail => (
-                                                                <option key={detail.bookDetailId} value={detail.accessionNo} />
-                                                            ))
-                                                        )}
-                                                    </datalist>
-
+                                                    {bookDetails.length > 0 && (
+                                                        <datalist id={`accessionNumbers-${index}`}>
+                                                            {bookDetails.flatMap(book =>
+                                                                book.copyDetails.map(detail => (
+                                                                    <option key={detail.bookDetailId} value={detail.accessionNo} />
+                                                                ))
+                                                            )}
+                                                        </datalist>
+                                                    )}
                                                 </td>
-
+                                                {/* <td>
+                                                    <Form.Group as={Col}>
+                                                        <Form.Label>Member Name</Form.Label>
+                                                        <Form.Control
+                                                            list="memberName"
+                                                            className="small-input"
+                                                            value={selectedMemberName}
+                                                            onChange={handleMemberChange}
+                                                            placeholder="Select member name"
+                                                        />
+                                                        <datalist id="memberName">
+                                                            {generalMember.map(member => (
+                                                                <option key={member.memberId} value={member.fullName} />
+                                                            ))}
+                                                        </datalist>
+                                                    </Form.Group>
+                                                </td> */}
                                                 <td>
                                                     <Form.Group as={Col}>
                                                         <Form.Control

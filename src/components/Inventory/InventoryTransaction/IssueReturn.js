@@ -13,11 +13,25 @@ const IssueReturn = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [rows, setRows] = useState([]);
+    // const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({
+        bookId: '',
+        bookdetailId: '',
+        stockDetailId: '',
+        bookName: '',
+        accessionNo: '',
+        invoiceDate: '',
+        daysKept: 0,
+        finePerDays: 0,
+        fineDays: 0,
+        fineAmount: 0,
+        fineManuallyChanged: false
+    })));
     const [issueReturnNumber, setIssueReturnNumber] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [selectedMemberName, setSelectedMemberName] = useState(""); 
+    const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -109,38 +123,47 @@ const IssueReturn = () => {
         }
     };
 
+    // const handleMemberSelect = (e) => {
+    //     const fullName = e.target.value;
+    //     setSelectedMemberName(fullName);
+    //     const selectedMember = generalMember.find(member =>
+    //         `${member.firstName} ${member.middleName} ${member.lastName}` === fullName
+    //     );
+
+    //     if (selectedMember) {
+    //         setSelectedMemberId(selectedMember.memberId);
+    //         setRows([]);
+    //         if (issueReturnDate) {
+    //             fetchIssueReturnDetails(selectedMember.memberId, issueReturnDate);
+    //         }
+    //     } else {
+    //         setSelectedMemberId('');
+    //         setRows([]);
+    //     }
+    // };
+
     const handleMemberSelect = (e) => {
         const fullName = e.target.value;
         setSelectedMemberName(fullName);
         const selectedMember = generalMember.find(member =>
             `${member.firstName} ${member.middleName} ${member.lastName}` === fullName
         );
-
         if (selectedMember) {
             setSelectedMemberId(selectedMember.memberId);
             setRows([]);
+            setErrorMessage('');
             if (issueReturnDate) {
                 fetchIssueReturnDetails(selectedMember.memberId, issueReturnDate);
             }
+            setSelectedMemberLibNo(selectedMember.libGenMembNo);
+
         } else {
             setSelectedMemberId('');
             setRows([]);
+            setErrorMessage('');
+            setSelectedMemberLibNo('');
         }
     };
-
-    // const handleMemberSelect = async (e) => {
-    //     const fullName = e.target.value;
-    //     setSelectedMemberId(fullName);
-    //     const selectedMemberObject = generalMember.find(member =>
-    //         `${member.firstName} ${member.middleName} ${member.lastName}` === fullName
-    //     );
-    //     const memberIdToSend = selectedMemberObject ? selectedMemberObject.memberId : '';
-    //     setErrorMessage('');
-
-    //     if (memberIdToSend && issueReturnDate) {
-    //         fetchIssueReturnDetails(memberIdToSend, issueReturnDate);
-    //     }
-    // };
 
 
     const handleFinePerDayChange = (index, value) => {
@@ -160,7 +183,6 @@ const IssueReturn = () => {
     };
 
     const fetchIssueReturnDetails = async (memberId, date) => {
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
                 headers: {
@@ -212,10 +234,24 @@ const IssueReturn = () => {
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
     const resetFormFields = () => {
-        setRows([]);
+        // setRows([]);
+        setRows(Array.from({ length: 5 }, () => ({
+            bookId: '',
+            bookdetailId: '',
+            stockDetailId: '',
+            bookName: '',
+            accessionNo: '',
+            invoiceDate: '',
+            daysKept: 0,
+            finePerDays: 0,
+            fineDays: 0,
+            fineAmount: 0,
+            fineManuallyChanged: false
+        })));
         setSelectedRows([]);
         setSelectedDetail(null);
-        setSelectedMemberId("");
+        setSelectedMemberName('');
+        setSelectedMemberLibNo('');
         setSelectedRowIndex(null);
     };
 
@@ -452,7 +488,14 @@ const IssueReturn = () => {
                                         ))}
                                     </datalist>
                                 </Form.Group>
-
+                                <Form.Group as={Col}>
+                                    <Form.Label>LibGenMembNo</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        readOnly
+                                        value={selectedMemberLibNo}
+                                    />
+                                </Form.Group>
                                 {errorMessage && (
                                     <div className="error-message text-danger mt-3">{errorMessage}</div>
                                 )}

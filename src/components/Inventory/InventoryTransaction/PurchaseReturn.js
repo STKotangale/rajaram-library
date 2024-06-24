@@ -457,6 +457,7 @@ const PurchaseReturn = () => {
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
+                            <Form.Label>Purchaser Name</Form.Label>
                                 <Form.Control
                                     as="input"
                                     list="purchaserNames"
