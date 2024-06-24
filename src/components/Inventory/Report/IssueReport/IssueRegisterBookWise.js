@@ -12,7 +12,7 @@ const formatDate = (date) => {
     let day = String(d.getDate()).padStart(2, '0');
     let month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
 };
 
 const IssueRegisterBookWise = () => {
