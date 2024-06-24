@@ -32,7 +32,7 @@ const IssueRegister = () => {
         setShowModal(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/issue`, {
+            const response = await fetch(`${BaseURL}/api/reports/issueRegisterDateWise`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
