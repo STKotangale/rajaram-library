@@ -20,6 +20,8 @@ const PurchaseReturn = () => {
     const [purchaseReturn, setPurchaseReturn] = useState([]);
     //get purchaser name
     const [purchaserName, setPurchaserName] = useState([]);
+    //selcted ledger name
+    const [selectedPurchaserName, setSelectedPurchaserName] = useState('');
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
     //get all books
     const [accessionDetails, setAccessionDetails] = useState([]);
@@ -33,6 +35,8 @@ const PurchaseReturn = () => {
     // const [discountAmount, setDiscountAmount] = useState('');
     const [gstPercent, setGstPercent] = useState('');
     // const [gstAmount, setGstAmount] = useState('');
+
+
 
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -129,6 +133,19 @@ const PurchaseReturn = () => {
         }
     };
 
+    const handlePurchaserSelect = (event) => {
+        const selectedName = event.target.value;
+        const purchaser = purchaserName.find(p => p.ledgerName === selectedName);
+        if (purchaser) {
+            setSelectedPurchaserName(purchaser.ledgerName);
+            setSelectedPurchaserId(purchaser.ledgerID);
+        } else {
+            setSelectedPurchaserName('');
+            setSelectedPurchaserId(null);
+        }
+    };
+
+
     //add function
     const addRowAdd = () => {
         setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] }]);
@@ -179,7 +196,7 @@ const PurchaseReturn = () => {
 
     // Reset form fields
     const resetFormFields = () => {
-        setSelectedPurchaserId(null);
+        setSelectedPurchaserName('');
         setDiscountPercent('');
         setGstPercent('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
@@ -239,6 +256,7 @@ const PurchaseReturn = () => {
                 resetFormFields();
                 fetchPurchaseReturn();
                 fetchLatestPurchaseReturnNo();
+                fetchAccessionDetails();
             } else {
                 const errorData = await response.json();
                 toast.error(errorData.message);
@@ -320,6 +338,7 @@ const PurchaseReturn = () => {
             setShowDeleteModal(false);
             fetchPurchaseReturn();
             fetchLatestPurchaseReturnNo();
+            fetchAccessionDetails();
         } catch (error) {
             console.error('Error during the deletion process:', error);
             toast.error('Error during deletion process. Please try again.');
@@ -438,22 +457,18 @@ const PurchaseReturn = () => {
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Purchaser Name</Form.Label>
-                                    <Form.Select
-                                        as="select"
-                                        className="small-input"
-                                        value={selectedPurchaserId || ""}
-                                        onChange={(e) => setSelectedPurchaserId(e.target.value)}
-                                    >
-                                        <option value="">Select a purchaser</option>
-                                        {purchaserName.map(purchaser => (
-                                            <option key={purchaser.ledgerID} value={purchaser.ledgerID}>
-                                                {purchaser.ledgerName}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
+                                <Form.Control
+                                    as="input"
+                                    list="purchaserNames"
+                                    value={selectedPurchaserName}
+                                    onChange={handlePurchaserSelect}
+                                    placeholder="Enter or select a purchaser"
+                                />
+                                <datalist id="purchaserNames">
+                                    {purchaserName.map(purchaser => (
+                                        <option key={purchaser.ledgerID} value={purchaser.ledgerName} />
+                                    ))}
+                                </datalist>
                             </Row>
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">

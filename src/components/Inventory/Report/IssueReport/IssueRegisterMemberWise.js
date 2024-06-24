@@ -12,11 +12,11 @@ const formatDate = (date) => {
     const day = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+    return `${year}-${month}-${day}`;
 };
 
 const IssueRegisterMemberWise = () => {
-    const [generalMember, setGeneralMember] = useState([]);
+    const [generalMembers, setGeneralMembers] = useState([]);
     const [selectedMember, setSelectedMember] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -41,10 +41,7 @@ const IssueRegisterMemberWise = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            setGeneralMember(data.data.map(member => ({
-                ...member,
-                fullName: `${member.firstName} ${member.middleName} ${member.lastName}`
-            })));
+            setGeneralMembers(data.data);
         } catch (error) {
             console.error("Failed to fetch general members:", error);
             toast.error('Failed to load general members. Please try again later.');
@@ -53,11 +50,20 @@ const IssueRegisterMemberWise = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const selectedFullName = generalMember.find(m => m.fullName === selectedMember)?.fullName || '';
+        let memberIdToSend = '';
+        if (selectedMember) {
+            const [firstName, middleName, lastName] = selectedMember.split(' ');
+            const selectedMemberObject = generalMembers.find(member => 
+                member.firstName === firstName &&
+                member.middleName === middleName &&
+                member.lastName === lastName
+            );
+            memberIdToSend = selectedMemberObject?.memberId || '';
+        }
         const reportData = {
             startDate: formatDate(startDate),
             endDate: formatDate(endDate),
-            fullName: selectedFullName,
+            memberId: memberIdToSend,
         };
         setShowModal(true);
         setIsLoading(true);
@@ -129,9 +135,9 @@ const IssueRegisterMemberWise = () => {
                                         placeholder="Enter or select a member"
                                     />
                                     <datalist id="memberNameList">
-                                        {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.fullName}>
-                                                {member.fullName}
+                                        {generalMembers.map(member => (
+                                            <option key={member.memberId} value={`${member.firstName} ${member.middleName} ${member.lastName}`}>
+                                                {`${member.firstName} ${member.middleName} ${member.lastName}`}
                                             </option>
                                         ))}
                                     </datalist>

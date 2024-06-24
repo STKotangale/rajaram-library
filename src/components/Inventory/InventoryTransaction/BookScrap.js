@@ -19,6 +19,7 @@ const BookScrap = () => {
     const [bookScrap, setBookScrap] = useState([]);
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
+    const [selectedPurchaserName, setSelectedPurchaserName] = useState('');
     const [accessionDetails, setAccessionDetails] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
@@ -138,8 +139,21 @@ const BookScrap = () => {
         return (total - (total * (discountValue / 100))).toFixed(2);
     };
 
+    const handlePurchaserSelect = (event) => {
+        const selectedName = event.target.value;
+        const purchaser = purchaserName.find(p => p.ledgerName === selectedName);
+        if (purchaser) {
+            setSelectedPurchaserName(purchaser.ledgerName);
+            setSelectedPurchaserId(purchaser.ledgerID);
+        } else {
+            setSelectedPurchaserName('');
+            setSelectedPurchaserId(null);
+        }
+    };
+
+
     const resetFormFields = () => {
-        setSelectedPurchaserId(null);
+        setSelectedPurchaserName('');
         setDiscountPercent('');
         setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     };
@@ -376,22 +390,18 @@ const BookScrap = () => {
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
-                                    <Form.Label>Purchaser Name</Form.Label>
-                                    <Form.Select
-                                        as="select"
-                                        className="small-input"
-                                        value={selectedPurchaserId}
-                                        onChange={(e) => setSelectedPurchaserId(e.target.value)}
-                                    >
-                                        <option value="">Select a purchaser</option>
-                                        {purchaserName.map(purchaser => (
-                                            <option key={purchaser.ledgerID} value={purchaser.ledgerID}>
-                                                {purchaser.ledgerName}
-                                            </option>
-                                        ))}
-                                    </Form.Select>
-                                </Form.Group>
+                            <Form.Control
+                                    as="input"
+                                    list="purchaserNames"
+                                    value={selectedPurchaserName}
+                                    onChange={handlePurchaserSelect}
+                                    placeholder="Enter or select a purchaser"
+                                />
+                                <datalist id="purchaserNames">
+                                    {purchaserName.map(purchaser => (
+                                        <option key={purchaser.ledgerID} value={purchaser.ledgerName} />
+                                    ))}
+                                </datalist>
                             </Row>
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">

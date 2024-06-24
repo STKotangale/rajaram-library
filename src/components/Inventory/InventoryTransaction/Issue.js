@@ -175,7 +175,7 @@ const BookIssue = () => {
             } else {
                 setIsMembershipValid(false);
                 setMembershipChecked(false);
-                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
+                setErrorMessage("Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
             }
         }
     };

@@ -17,6 +17,7 @@ const IssueReturn = () => {
     const [issueReturnNumber, setIssueReturnNumber] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
+    const [selectedMemberName, setSelectedMemberName] = useState(""); 
     const [errorMessage, setErrorMessage] = useState('');
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -98,30 +99,49 @@ const IssueReturn = () => {
         }
     };
 
-
-    const handleDateSelect = async (e) => {
+    const handleDateSelect = (e) => {
         const date = e.target.value;
         setIssueReturnDate(date);
-        setErrorMessage('');
 
         if (selectedMemberId && date) {
             fetchIssueReturnDetails(selectedMemberId, date);
+        } else {
         }
     };
 
-    const handleMemberSelect = async (e) => {
-        const memberId = e.target.value;
-        setSelectedMemberId(memberId);
-        setErrorMessage('');
+    const handleMemberSelect = (e) => {
+        const fullName = e.target.value;
+        setSelectedMemberName(fullName);
+        const selectedMember = generalMember.find(member =>
+            `${member.firstName} ${member.middleName} ${member.lastName}` === fullName
+        );
 
-        if (memberId && issueReturnDate) {
-            fetchIssueReturnDetails(memberId, issueReturnDate);
+        if (selectedMember) {
+            setSelectedMemberId(selectedMember.memberId);
+            setRows([]);
+            if (issueReturnDate) {
+                fetchIssueReturnDetails(selectedMember.memberId, issueReturnDate);
+            }
+        } else {
+            setSelectedMemberId('');
+            setRows([]);
         }
     };
 
-   
+    // const handleMemberSelect = async (e) => {
+    //     const fullName = e.target.value;
+    //     setSelectedMemberId(fullName);
+    //     const selectedMemberObject = generalMember.find(member =>
+    //         `${member.firstName} ${member.middleName} ${member.lastName}` === fullName
+    //     );
+    //     const memberIdToSend = selectedMemberObject ? selectedMemberObject.memberId : '';
+    //     setErrorMessage('');
 
-    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+    //     if (memberIdToSend && issueReturnDate) {
+    //         fetchIssueReturnDetails(memberIdToSend, issueReturnDate);
+    //     }
+    // };
+
 
     const handleFinePerDayChange = (index, value) => {
         setRows(prevRows =>
@@ -140,6 +160,7 @@ const IssueReturn = () => {
     };
 
     const fetchIssueReturnDetails = async (memberId, date) => {
+
         try {
             const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
                 headers: {
@@ -174,8 +195,6 @@ const IssueReturn = () => {
         }
     };
 
-
-
     const formatDate = (date) => {
         if (!date) return '';
         const [year, month, day] = date.split('-');
@@ -190,6 +209,7 @@ const IssueReturn = () => {
         );
     };
 
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
     const resetFormFields = () => {
         setRows([]);
@@ -204,14 +224,11 @@ const IssueReturn = () => {
         return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
-
+    //post api
     const handleSubmit = async (event) => {
+
         event.preventDefault();
-
-        // Filter out only the selected rows
         const selectedBookDetails = rows.filter(row => selectedRows.includes(row));
-
-        // Prepare the payload
         const payload = {
             issueNo: issueReturnNumber,
             issueReturnDate: formatDate(issueReturnDate),
@@ -420,23 +437,25 @@ const IssueReturn = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Select
-                                        as="select"
-                                        className="small-input"
-                                        value={selectedMemberId}
+                                    <Form.Control
+                                        type="text"
+                                        value={selectedMemberName}
                                         onChange={handleMemberSelect}
-                                    >
-                                        <option value="">Select a member</option>
+                                        list="memberNameList"
+                                        placeholder="Enter or select a member"
+                                    />
+                                    <datalist id="memberNameList">
                                         {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
+                                            <option key={member.memberId} value={`${member.firstName} ${member.middleName} ${member.lastName}`}>
+                                                {`${member.firstName} ${member.middleName} ${member.lastName}`}
                                             </option>
                                         ))}
-                                    </Form.Select>
-                                    {errorMessage && (
-                                        <div className="error-message text-danger mt-3">{errorMessage}</div>
-                                    )}
+                                    </datalist>
                                 </Form.Group>
+
+                                {errorMessage && (
+                                    <div className="error-message text-danger mt-3">{errorMessage}</div>
+                                )}
                             </Row>
                             <div className="table-responsive">
                                 {errorMessage ? null : (

@@ -27,6 +27,7 @@ const BookLost = () => {
     const [accessionDetails, setAccessionDetails] = useState([]);
     //add 
     const [showAddModal, setShowAddModal] = useState(false);
+    const [selectedMemberFullName, setSelectedMemberFullName] = useState('');
     //selected book get data
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -182,6 +183,19 @@ const BookLost = () => {
         setDiscountPercent('');
         setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     };
+
+    const handleMemberSelect = (event) => {
+        const fullName = event.target.value;
+        const member = memberName.find(m => `${m.firstName} ${m.middleName} ${m.lastName}` === fullName);
+        if (member) {
+            setSelectedMemberId(member.memberId);
+            setSelectedMemberFullName(fullName);
+        } else {
+            setSelectedMemberId(null);
+            setSelectedMemberFullName('');
+        }
+    };
+
 
     //post api
     const handleSubmit = async (event) => {
@@ -422,19 +436,21 @@ const BookLost = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Select
-                                        as="select"
+                                    <Form.Control
+                                        type="text"
+                                        list="memberNameList"
+                                        value={selectedMemberFullName}
+                                        onChange={handleMemberSelect}
                                         className="small-input"
-                                        value={selectedMemberId}
-                                        onChange={(e) => setSelectedMemberId(e.target.value)}
-                                    >
-                                        <option value="">Select a member</option>
+                                        placeholder="Select a member"
+                                    />
+                                    <datalist id="memberNameList">
                                         {memberName.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
+                                            <option key={member.memberId} value={`${member.firstName} ${member.middleName} ${member.lastName}`}>
+                                                {member.firstName} {member.middleName} {member.lastName}
                                             </option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <div className="table-responsive">
