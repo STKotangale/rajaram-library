@@ -22,7 +22,7 @@ const PurchaseReturn = () => {
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
     //get all books
-    const [books, setBooks] = useState([]);
+    const [accessionDetails, setAccessionDetails] = useState([]);
     //add 
     const [showAddModal, setShowAddModal] = useState(false);
     //selected book get data
@@ -48,7 +48,7 @@ const PurchaseReturn = () => {
     useEffect(() => {
         fetchPurchaseReturn();
         fetchPurchaserName();
-        fetchAllBooks();
+        fetchAccessionDetails();
         fetchLatestPurchaseReturnNo();
     }, [username, accessToken]);
 
@@ -91,7 +91,6 @@ const PurchaseReturn = () => {
         }
     };
 
-
     //get purchaser name
     const fetchPurchaserName = async () => {
         try {
@@ -111,69 +110,26 @@ const PurchaseReturn = () => {
         }
     };
 
-    //get all books
-    const fetchAllBooks = async () => {
+    //get all accession details
+    const fetchAccessionDetails = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/issue/acession-details`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching books: ${response.statusText}`);
+                throw new Error(`Error fetching accession details: ${response.statusText}`);
             }
             const data = await response.json();
-            setBooks(data.data);
+            setAccessionDetails(data);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching books. Please try again later.');
-        }
-    };
-
-    //selected book get data
-    const fetchSelectedBookDetails = async (bookName, index) => {
-        try {
-            const response = await fetch(`${BaseURL}/api/issue/details/${bookName}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching book details: ${response.statusText}`);
-            }
-            const data = await response.json();
-            const updatedRows = [...rows];
-            updatedRows[index].details = data.details;
-            setRows(updatedRows);
-        } catch (error) {
-            console.error('Error fetching book details:', error.message);
-            toast.error('Error fetching book details. Please try again later.');
+            toast.error('Error fetching accession details. Please try again later.');
         }
     };
 
     //add function
-    const handleBookNameChange = (index, bookName) => {
-        const updatedRows = [...rows];
-        updatedRows[index].bookName = bookName;
-        updatedRows[index].purchaseCopyNo = '';
-        updatedRows[index].amount = '';
-        updatedRows[index].details = [];
-        setRows(updatedRows);
-
-        if (bookName) {
-            fetchSelectedBookDetails(bookName, index);
-        }
-    };
-
-    const handlePurchaseCopyChange = (index, purchaseCopyNo) => {
-        const selectedDetail = rows[index].details.find(detail => detail.purchaseCopyNo === Number(purchaseCopyNo));
-        const updatedRows = [...rows];
-        updatedRows[index].purchaseCopyNo = purchaseCopyNo;
-        updatedRows[index].bookDetailId = selectedDetail ? selectedDetail.bookDetailId : null;
-        updatedRows[index].amount = selectedDetail ? selectedDetail.bookRate.toFixed(2) : '0.00';
-        setRows(updatedRows);
-    };
-
     const addRowAdd = () => {
         setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] }]);
     };
@@ -197,6 +153,29 @@ const PurchaseReturn = () => {
         return (total + (total * (gstValue / 100))).toFixed(2);
     };
 
+    const handleAccessionInputChange = (index, event) => {
+        const updatedRows = [...rows];
+        const accessionNo = event.target.value;
+        const matchingBook = accessionDetails.find(detail => detail.accessionNo === accessionNo);
+        if (matchingBook) {
+            updatedRows[index] = {
+                ...updatedRows[index],
+                purchaseCopyNo: accessionNo,
+                bookName: matchingBook.bookName,
+                bookDetailId: matchingBook.bookDetailId,
+                amount: matchingBook.book_rate ? parseFloat(matchingBook.book_rate).toFixed(2) : ''
+            };
+        } else {
+            updatedRows[index] = {
+                ...updatedRows[index],
+                purchaseCopyNo: accessionNo,
+                bookName: '',
+                bookDetailId: '',
+                amount: ''
+            };
+        }
+        setRows(updatedRows);
+    };
 
     // Reset form fields
     const resetFormFields = () => {
@@ -274,20 +253,12 @@ const PurchaseReturn = () => {
     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
     const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
 
-
     //show discount price
     const calculateDiscountAmount = () => {
         const billTotal = calculateBillTotal();
         const discountAmount = billTotal * (discountPercent / 100);
         return Math.floor(discountAmount);
     };
-
-    // const calculateGstAmount = () => {
-    //     const totalAfterDiscount = calculateTotalAfterDiscount(billTotal);
-    //     const gstAmount = totalAfterDiscount * (gstPercent / 100);
-    //     return Math.floor(gstAmount);
-    // };
-
 
     //show table in stock_id
     const groupBy = (array, key) => {
@@ -334,20 +305,17 @@ const PurchaseReturn = () => {
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
                 return;
             }
-
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
             if (!deleteResponse.ok) {
                 const deleteData = await deleteResponse.json();
                 toast.error(`Error deleting purchase return: ${deleteData.message}`);
                 return;
             }
-
             toast.success('Purchase return successfully deleted.');
             setShowDeleteModal(false);
             fetchPurchaseReturn();
@@ -357,7 +325,6 @@ const PurchaseReturn = () => {
             toast.error('Error during deletion process. Please try again.');
         }
     };
-
 
     //view
     const handleViewDetails = (items) => {
@@ -493,8 +460,8 @@ const PurchaseReturn = () => {
                                     <thead>
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
                                             <th className="table-header purchase-copy-size">Accession No.</th>
+                                            <th>Book Name</th>
                                             <th className="table-header amount-size amount-align">Amount</th>
                                             <th>Actions</th>
                                         </tr>
@@ -504,35 +471,24 @@ const PurchaseReturn = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Select
-                                                        as="select"
-                                                        value={row.bookName}
-                                                        onChange={(e) => handleBookNameChange(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select a book name</option>
-                                                        {books.map(book => (
-                                                            <option key={book.bookId} value={book.bookName}>
-                                                                {book.bookName}
-                                                            </option>
+                                                    <Form.Control
+                                                        list={`accessionNumbers-${index}`}
+                                                        value={row.purchaseCopyNo}
+                                                        onChange={(e) => handleAccessionInputChange(index, e)}
+                                                        placeholder="Enter or Select Accession Number"
+                                                    />
+                                                    <datalist id={`accessionNumbers-${index}`}>
+                                                        {Array.isArray(accessionDetails) && accessionDetails.map(detail => (
+                                                            <option key={detail.bookDetailId} value={detail.accessionNo} />
                                                         ))}
-                                                    </Form.Select>
+                                                    </datalist>
                                                 </td>
                                                 <td>
-                                                    <Form.Select
-                                                        as="select"
-                                                        value={row.purchaseCopyNo}
-                                                        onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select accession no</option>
-                                                        {row.details && row.details
-                                                            .filter(detail => detail.accessionNo !== null)
-                                                            .map(detail => (
-                                                                <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                    {detail.accessionNo}
-                                                                </option>
-                                                            ))
-                                                        }
-                                                    </Form.Select>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={row.bookName}
+                                                        readOnly
+                                                    />
                                                 </td>
                                                 <td>
                                                     <Form.Control

@@ -23,6 +23,8 @@ const BookIssue = () => {
     const [issueNumber, setIssueNumber] = useState('');
     const [issueDate, setIssueDate] = useState(new Date().toISOString().substr(0, 10));
 
+    const [selectedMemberName, setSelectedMemberName] = useState('');
+    const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
     //check membership 
     const [isMembershipValid, setIsMembershipValid] = useState(false);
     const [membershipChecked, setMembershipChecked] = useState(false);
@@ -177,23 +179,31 @@ const BookIssue = () => {
             }
         }
     };
-    //member change for add modal
+
+  //member change
     const handleMemberChange = async (e) => {
-        const newMemberId = e.target.value;
-        setSelectedMemberId(newMemberId);
-        if (newMemberId) {
-            fetchBookingDetails(newMemberId);
-        }
-        if (issueDate && newMemberId) {
-            const membershipCheck = await checkMembershipFees(newMemberId, issueDate);
-            if (membershipCheck && membershipCheck.success) {
-                setIsMembershipValid(true);
-                setMembershipChecked(true);
-            } else {
-                setIsMembershipValid(false);
-                setMembershipChecked(false);
-                setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
+        const fullName = e.target.value;
+        setSelectedMemberName(fullName);
+
+        const selectedMember = generalMember.find(member => member.fullName === fullName);
+        if (selectedMember) {
+            setSelectedMemberId(selectedMember.memberId);
+            setSelectedMemberLibNo(selectedMember.libGenMembNo);
+            if (issueDate) {
+                const membershipCheck = await checkMembershipFees(selectedMember.memberId, issueDate);
+                if (membershipCheck && membershipCheck.success) {
+                    setIsMembershipValid(true);
+                    setMembershipChecked(true);
+                } else {
+                    setIsMembershipValid(false);
+                    setMembershipChecked(false);
+                    setErrorMessage("Error: Member not registered or membership fees unpaid. Please register or pay dues to borrow books.");
+                }
             }
+            fetchBookingDetails(selectedMember.memberId);
+        } else {
+            setSelectedMemberId('');
+            setSelectedMemberLibNo('');
         }
     };
 
@@ -269,7 +279,8 @@ const BookIssue = () => {
         today.setHours(0, 0, 0, 0);
         const defaultIssueDate = today.toISOString().substr(0, 10);
         setIssueDate(defaultIssueDate);
-        setSelectedMemberId('');
+        setSelectedMemberName('');
+        setSelectedMemberLibNo('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
         setIsMembershipValid(false);
         setMembershipChecked(false);
@@ -468,13 +479,6 @@ const BookIssue = () => {
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = issue.slice(indexOfNumber, indexOfLastBookType);
 
-    // Filter accession numbers based on the selected book name
-    const getFilteredAccessionNumbers = (bookId) => {
-        const book = bookDetails.find(book => book.bookId === Number(bookId));
-        return book ? book.copyDetails : [];
-    };
-
-
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
@@ -553,19 +557,26 @@ const BookIssue = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Select
-                                        as="select"
+                                    <Form.Control
+                                        list="memberName"
                                         className="small-input"
-                                        value={selectedMemberId}
+                                        value={selectedMemberName}
                                         onChange={handleMemberChange}
-                                    >
-                                        <option value="">Select a member</option>
+                                        placeholder="Select member name"
+                                    />
+                                    <datalist id="memberName">
                                         {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.fullName}
-                                            </option>
+                                            <option key={member.memberId} value={member.fullName} />
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
+                                </Form.Group>
+                                <Form.Group as={Col}>
+                                    <Form.Label>LibGenMembNo</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        readOnly
+                                        value={selectedMemberLibNo}
+                                    />
                                 </Form.Group>
                             </Row>
                             <div className='error-message'>
@@ -573,7 +584,6 @@ const BookIssue = () => {
                                     <div className="error-message text-danger mt-3">{errorMessage}</div>
                                 )}
                             </div>
-                            {/* {membershipChecked && ( */}
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
@@ -589,20 +599,6 @@ const BookIssue = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    {/* <Form.Select
-                                                        as="select"
-                                                        value={row.accessionNo}
-                                                        onChange={(e) => handleBookDetailsChangeForRow(index, e)}
-                                                    >
-                                                        {bookDetails.flatMap(book =>
-                                                            book.copyDetails.map(detail => (
-                                                                <option key={detail.bookDetailId} value={detail.bookDetailId}>
-                                                                    {detail.accessionNo}
-                                                                </option>
-                                                            ))
-                                                        )}
-                                                    </Form.Select> */}
-
                                                     <Form.Control
                                                         list={`accessionNumbers-${index}`}
                                                         value={row.accessionNo}
@@ -640,7 +636,6 @@ const BookIssue = () => {
                                     Add Book
                                 </Button>
                             </div>
-                            {/* )} */}
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>

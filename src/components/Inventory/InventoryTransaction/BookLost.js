@@ -18,17 +18,17 @@ const formatDateToDDMMYYYY = (dateStr) => {
 };
 
 const BookLost = () => {
-    //get  book lost
+    //get book lost
     const [bookLost, setBookLost] = useState([]);
-    //get purchaser name
-    const [purchaserName, setPurchaserName] = useState([]);
-    const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
-    //get all books
-    const [books, setBooks] = useState([]);
+    //get member name
+    const [memberName, setMemberName] = useState([]);
+    const [selectedMemberId, setSelectedMemberId] = useState(null);
+    //get all accession details
+    const [accessionDetails, setAccessionDetails] = useState([]);
     //add 
     const [showAddModal, setShowAddModal] = useState(false);
     //selected book get data
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     const [discountPercent, setDiscountPercent] = useState('');
@@ -46,8 +46,8 @@ const BookLost = () => {
     //get all
     useEffect(() => {
         fetchBookLost();
-        fetchPurchaserName();
-        fetchAllBooks();
+        fetchMemberName();
+        fetchAccessionDetails();
         fetchLatestBookLostNo();
     }, [username, accessToken]);
 
@@ -90,9 +90,8 @@ const BookLost = () => {
         }
     };
 
-
-    //get purchaser name
-    const fetchPurchaserName = async () => {
+    //get member name
+    const fetchMemberName = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
                 headers: {
@@ -103,78 +102,59 @@ const BookLost = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            setPurchaserName(data.data);
+            setMemberName(data.data);
         } catch (error) {
             console.error("Failed to fetch member name:", error);
             toast.error('Failed to load member name. Please try again later.');
         }
     };
 
-    //get all books
-    const fetchAllBooks = async () => {
+    //get all accession details
+    const fetchAccessionDetails = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/issue/acession-details`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching books: ${response.statusText}`);
+                throw new Error(`Error fetching accession details: ${response.statusText}`);
             }
             const data = await response.json();
-            setBooks(data.data);
+            setAccessionDetails(data);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching books. Please try again later.');
-        }
-    };
-
-    //selected book get data
-    const fetchSelectedBookDetails = async (bookName, index) => {
-        try {
-            const response = await fetch(`${BaseURL}/api/issue/details/${bookName}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching book details: ${response.statusText}`);
-            }
-            const data = await response.json();
-            const updatedRows = [...rows];
-            updatedRows[index].details = data.details;
-            setRows(updatedRows);
-        } catch (error) {
-            console.error('Error fetching book details:', error.message);
-            toast.error('Error fetching book details. Please try again later.');
+            toast.error('Error fetching accession details. Please try again later.');
         }
     };
 
     //add function
-    const handleBookNameChange = (index, bookName) => {
+    const handleAccessionInputChange = (index, event) => {
         const updatedRows = [...rows];
-        updatedRows[index].bookName = bookName;
-        updatedRows[index].purchaseCopyNo = '';
-        updatedRows[index].amount = '';
-        updatedRows[index].details = [];
-        setRows(updatedRows);
-
-        if (bookName) {
-            fetchSelectedBookDetails(bookName, index);
+        const accessionNo = event.target.value;
+        const matchingBook = accessionDetails.find(detail => detail.accessionNo === accessionNo);
+        if (matchingBook) {
+            updatedRows[index] = {
+                ...updatedRows[index],
+                accessionNo: accessionNo,
+                bookName: matchingBook.bookName,
+                bookDetailId: matchingBook.bookDetailId,
+                bookRate: matchingBook.book_rate ? parseFloat(matchingBook.book_rate).toFixed(2) : ''
+            };
+        } else {
+            updatedRows[index] = {
+                ...updatedRows[index],
+                accessionNo: accessionNo,
+                bookName: '',
+                bookDetailId: '',
+                bookRate: ''
+            };
         }
-    };
-
-    const handlePurchaseCopyChange = (index, purchaseCopyNo) => {
-        const selectedDetail = rows[index].details.find(detail => detail.purchaseCopyNo === Number(purchaseCopyNo));
-        const updatedRows = [...rows];
-        updatedRows[index].purchaseCopyNo = purchaseCopyNo;
-        updatedRows[index].bookDetailId = selectedDetail ? selectedDetail.bookDetailId : null;
-        updatedRows[index].amount = selectedDetail ? selectedDetail.bookRate.toFixed(2) : '0.00';
         setRows(updatedRows);
     };
 
     const addRowAdd = () => {
-        setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] }]);
+        setRows([...rows, { accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' }]);
     };
 
     const deleteRowAdd = (index) => {
@@ -183,7 +163,7 @@ const BookLost = () => {
     };
 
     const calculateBillTotal = () => {
-        return rows.reduce((total, row) => total + (parseFloat(row.amount) || 0), 0).toFixed(2);
+        return rows.reduce((total, row) => total + (parseFloat(row.bookRate) || 0), 0).toFixed(2);
     };
 
     const calculateTotalAfterDiscount = (total) => {
@@ -196,12 +176,11 @@ const BookLost = () => {
         return (total + (total * (gstValue / 100))).toFixed(2);
     };
 
-
     // Reset form fields
     const resetFormFields = () => {
-        setSelectedPurchaserId(null);
+        setSelectedMemberId(null);
         setDiscountPercent('');
-        setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
+        setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     };
 
     //post api
@@ -211,10 +190,10 @@ const BookLost = () => {
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
 
         const bookDetailsPayload = rows
-            .filter(row => row.bookName && row.purchaseCopyNo)
+            .filter(row => row.bookName && row.accessionNo)
             .map(row => ({
                 bookdetailId: row.bookDetailId,
-                amount: parseFloat(row.amount)
+                amount: parseFloat(row.bookRate)
             }));
 
         const billTotal = parseFloat(calculateBillTotal());
@@ -224,8 +203,7 @@ const BookLost = () => {
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
-            // ledgerId: Number(selectedPurchaserId),
-            memberId: Number(selectedPurchaserId),
+            memberId: Number(selectedMemberId),
             billTotal: billTotal,
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
@@ -264,7 +242,6 @@ const BookLost = () => {
     const billTotal = parseFloat(calculateBillTotal());
     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
     const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
-
 
     //show discount price
     const calculateDiscountAmount = () => {
@@ -388,7 +365,6 @@ const BookLost = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* {Object.entries(bookLost).map(([stock_id, items], index) => ( */}
                                 {currentData.map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
@@ -414,9 +390,8 @@ const BookLost = () => {
                 </div>
             </Container>
 
-
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields() }} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields(); }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Book Lost</Modal.Title>
@@ -444,18 +419,17 @@ const BookLost = () => {
                                     />
                                 </Form.Group>
                             </Row>
-
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Select
                                         as="select"
                                         className="small-input"
-                                        value={selectedPurchaserId}
-                                        onChange={(e) => setSelectedPurchaserId(e.target.value)}
+                                        value={selectedMemberId}
+                                        onChange={(e) => setSelectedMemberId(e.target.value)}
                                     >
                                         <option value="">Select a member</option>
-                                        {purchaserName.map(member => (
+                                        {memberName.map(member => (
                                             <option key={member.memberId} value={member.memberId}>
                                                 {member.username}
                                             </option>
@@ -463,15 +437,14 @@ const BookLost = () => {
                                     </Form.Select>
                                 </Form.Group>
                             </Row>
-
                             <div className="table-responsive">
                                 <Table striped bordered hover className="table-bordered-dark">
                                     <thead>
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
                                             <th className="table-header purchase-copy-size">Accession No.</th>
-                                            <th className="table-header amount-size amount-align">Amount</th>
+                                            <th>Book Name</th>
+                                            <th className="table-header amount-size amount-align">Book Rate</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -480,40 +453,29 @@ const BookLost = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Select
-                                                        as="select"
-                                                        value={row.bookName}
-                                                        onChange={(e) => handleBookNameChange(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select a book name</option>
-                                                        {books.map(book => (
-                                                            <option key={book.bookId} value={book.bookName}>
-                                                                {book.bookName}
-                                                            </option>
+                                                    <Form.Control
+                                                        list={`accessionNumbers-${index}`}
+                                                        value={row.accessionNo}
+                                                        onChange={(e) => handleAccessionInputChange(index, e)}
+                                                        placeholder="Enter or Select Accession Number"
+                                                    />
+                                                    <datalist id={`accessionNumbers-${index}`}>
+                                                        {Array.isArray(accessionDetails) && accessionDetails.map(detail => (
+                                                            <option key={detail.bookDetailId} value={detail.accessionNo} />
                                                         ))}
-                                                    </Form.Select>
-                                                </td>
-                                                <td>
-                                                    <Form.Select
-                                                        as="select"
-                                                        value={row.purchaseCopyNo}
-                                                        onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select accession no</option>
-                                                        {row.details && row.details
-                                                            .filter(detail => detail.accessionNo !== null)
-                                                            .map(detail => (
-                                                                <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                    {detail.accessionNo}
-                                                                </option>
-                                                            ))
-                                                        }
-                                                    </Form.Select>
+                                                    </datalist>
                                                 </td>
                                                 <td>
                                                     <Form.Control
                                                         type="text"
-                                                        value={row.amount ? row.amount : '0.00'}
+                                                        value={row.bookName}
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={row.bookRate ? row.bookRate : '0.00'}
                                                         readOnly
                                                     />
                                                 </td>
@@ -726,7 +688,6 @@ const BookLost = () => {
                     <Button variant="danger" onClick={confirmDelete}>Yes</Button>
                 </Modal.Footer>
             </Modal>
-
         </div>
     );
 };

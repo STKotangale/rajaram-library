@@ -23,7 +23,6 @@ const IssueReturn = () => {
 
     const [selectedMemberId, setSelectedMemberId] = useState("");
     const [issueReturnDate, setIssueReturnDate] = useState(new Date().toISOString().substr(0, 10));
-    // const [fineAmounts, setFineAmounts] = useState({});
 
     const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
 
@@ -120,56 +119,7 @@ const IssueReturn = () => {
         }
     };
 
-    //fine  per day amount change
-    // const handleFinePerDayChange = (bookDetailId, value) => {
-    //     setRows(prevRows =>
-    //         prevRows.map(row =>
-    //             row.bookDetailId === bookDetailId ? { ...row, finePerDays: value } : row
-    //         )
-    //     );
-    // };
-    // const handleFinePerDayChange = (bookDetailId, value) => {
-    //     setRows(prevRows =>
-    //         prevRows.map(row =>
-    //             row.bookDetailId === bookDetailId ? { ...row, finePerDays: value } : row
-    //         )
-    //     );
-    //     const extraDays = calculateExtraDays(bookDetailId);
-    //     const fineAmount = calculateFineAmount(value, extraDays);
-    //     setFineAmounts(prevAmounts => ({
-    //         ...prevAmounts,
-    //         [bookDetailId]: fineAmount
-    //     }));
-    // };
-
-    // const calculateExtraDays = (bookDetailId) => {
-    //     const row = rows.find(r => r.bookDetailId === bookDetailId);
-    //     if (!row) return 0;
-    //     return row.fineDays;
-    // };
-
-    // const calculateFineAmount = (finePerDay, extraDays) => {
-    //     return finePerDay * extraDays;
-    // };
-
-
-    //fine amount change
-    // const handleFineAmountChange = (bookDetailId, value) => {
-    //     setFineAmounts(prevFineAmounts => ({
-    //         ...prevFineAmounts,
-    //         [bookDetailId]: value,
-    //     }));
-    // };
-    // const handleFineAmountChange = (bookDetailId, value) => {
-    //     setFineAmounts(prevFineAmounts => ({
-    //         ...prevFineAmounts,
-    //         [bookDetailId]: value,
-    //     }));
-
-    //     const extraDays = calculateExtraDays(bookDetailId);
-    //     const newFineAmount = calculateFineAmount(value, extraDays);
-    //     console.log(`Updated fine amount for bookDetailId ${bookDetailId}:`, newFineAmount);
-    // };
+   
 
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
@@ -188,50 +138,6 @@ const IssueReturn = () => {
             )
         );
     };
-
-
-
-
-    //memberid and date api get
-    // const fetchIssueReturnDetails = async (memberId, date) => {
-    //     try {
-    //         const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${accessToken}`
-    //             }
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error(`Error fetching issue details: ${response.statusText}`);
-    //         }
-    //         const data = await response.json();
-    //         if (data.length === 0) {
-    //             setErrorMessage('This username has no issue details or does not exist.');
-    //         } else {
-    //             const bookRows = data.map(item => ({
-    //                 bookId: item.bookId,
-    //                 // bookDetailId: item.bookDetailId,
-    //                 bookdetailId: item.bookdetailId,
-    //                 stockDetailId: item.stockDetailId,
-    //                 bookName: item.bookName,
-    //                 accessionNo: item.accessionNo,
-    //                 invoiceDate: item.invoiceDate,
-    //                 daysKept: item.daysKept,//total day
-    //                 finePerDays: item.finePerDays,//how may fine one day
-    //                 fineDays: item.fineDays,//how may days late
-    //                 fineAmount: item.fineAmount,//how may days late
-    //             }));
-    //             setRows(bookRows);
-    //             const initialFineAmounts = {};
-    //             bookRows.forEach(row => {
-    //                 initialFineAmounts[row.bookDetailId] = row.fineAmount;
-    //             });
-    //             setFineAmounts(initialFineAmounts);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error fetching issue details:', error.message);
-    //         toast.error('Error fetching issue details. Please try again later.');
-    //     }
-    // };
 
     const fetchIssueReturnDetails = async (memberId, date) => {
         try {
@@ -292,60 +198,6 @@ const IssueReturn = () => {
         setSelectedMemberId("");
         setSelectedRowIndex(null);
     };
-
-
-    // const calculateQuantity = () => {
-    //     return selectedRows.length;
-    // };
-
-    // post api
-    // const handleSubmit = async (event) => {
-    //     event.preventDefault();
-
-    //     if (selectedRows.length === 0) {
-    //         toast.error('Please select at least one row to submit.');
-    //         return;
-    //     }
-
-    //     const bookDetailsPayload = selectedRows.map(row => ({
-    //         bookId: Number(row.bookId),
-    //         bookDetailIds: Number(row.bookDetailId)
-    //     }));
-
-    //     const memberId = generalMember.find(member => member.username === selectedMemberId)?.memberId;
-
-    //     const payload = {
-    //         issueNo: issueReturnNumber,
-    //         issueReturnDate: formatDate(issueReturnDate),
-    //         memberId,
-    //         bookDetailsList: bookDetailsPayload,
-    //         // qty: calculateQuantity()
-    //     };
-    //     try {
-    //         const response = await fetch(`${BaseURL}/api/issue/return/create`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Authorization': `Bearer ${accessToken}`
-    //             },
-    //             body: JSON.stringify(payload)
-    //         });
-
-    //         if (response.ok) {
-    //             const purchaseDetails = await response.json();
-    //             toast.success(purchaseDetails.message);
-    //             setShowAddModal(false);
-    //             resetFormFields();
-    //             fetchIssueReturn();
-    //         } else {
-    //             const errorData = await response.json();
-    //             toast.error(errorData.message);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error submitting issue return:', error);
-    //         toast.error('Error submitting issue return. Please try again.');
-    //     }
-    // };
 
 
     const calculateTotal = () => {
@@ -451,39 +303,6 @@ const IssueReturn = () => {
             setShowDeleteModal(false);
         }
     };
-
-
-
-    // const handleDelete = (issueReturnId) => {
-    //     setIssueReturnToDelete(issueReturnId);
-    //     setShowDeleteModal(true);
-    // };
-
-    // const confirmDelete = async () => {
-    //     try {
-    //         const response = await fetch(`${BaseURL}/api/issue/${issueReturnToDelete}`, {
-    //             method: 'DELETE',
-    //             headers: {
-    //                 'Authorization': `Bearer ${accessToken}`
-    //             }
-    //         });
-
-    //         if (response.ok) {
-    //             toast.success('Issue return deleted successfully.');
-    //             fetchIssueReturn();
-    //         } else {
-    //             const errorData = await response.json();
-    //             toast.error(errorData.message);
-    //         }
-    //     } catch (error) {
-    //         console.error('Error deleting issue return:', error);
-    //         toast.error('Error deleting issue return. Please try again.');
-    //     } finally {
-    //         setShowDeleteModal(false);
-    //     }
-    // };
-
-
 
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);

@@ -16,68 +16,50 @@ const formatDateToDDMMYYYY = (dateStr) => {
 };
 
 const BookScrap = () => {
-    //get  book srcap
     const [bookScrap, setBookScrap] = useState([]);
-    //get purchaser name
     const [purchaserName, setPurchaserName] = useState([]);
     const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
-    //get all books
-    const [books, setBooks] = useState([]);
-    //add 
+    const [accessionDetails, setAccessionDetails] = useState([]);
     const [showAddModal, setShowAddModal] = useState(false);
-    //selected book get data
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     const [discountPercent, setDiscountPercent] = useState('');
-    //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
-    //view
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedRowDetails, setSelectedRowDetails] = useState([]);
-    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
         fetchBookScrap();
         fetchPurchaserName();
-        fetchAllBooks();
+        fetchAccessionDetails();
         fetchLatestBookScrapNo();
     }, [username, accessToken]);
 
-    //get book srcap
     const fetchBookScrap = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-scrap-all`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
-            if (!response.ok) {
-                throw new Error(`Error fetching book scrap : ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`Error fetching book scrap: ${response.statusText}`);
             const data = await response.json();
             const groupedData = groupBy(data, 'stock_id');
             setBookScrap(groupedData);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching book srcap . Please try again later.');
+            toast.error('Error fetching book scrap. Please try again later.');
         }
     };
 
-    //get book scrap no.
     const fetchLatestBookScrapNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-bookScrapNo`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
-            if (!response.ok) {
-                throw new Error(`Error fetching latest book scrap number: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`Error fetching latest book scrap number: ${response.statusText}`);
             const data = await response.json();
             setInvoiceNumber(data.nextInvoiceNo);
         } catch (error) {
@@ -86,17 +68,12 @@ const BookScrap = () => {
         }
     };
 
-    //get purchaser name
     const fetchPurchaserName = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/ledger`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
             const data = await response.json();
             setPurchaserName(data.data);
         } catch (error) {
@@ -105,71 +82,46 @@ const BookScrap = () => {
         }
     };
 
-    //get all books
-    const fetchAllBooks = async () => {
+    const fetchAccessionDetails = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+            const response = await fetch(`${BaseURL}/api/issue/acession-details`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
             });
-            if (!response.ok) {
-                throw new Error(`Error fetching books: ${response.statusText}`);
-            }
+            if (!response.ok) throw new Error(`Error fetching accession details: ${response.statusText}`);
             const data = await response.json();
-            setBooks(data.data);
+            setAccessionDetails(data);
         } catch (error) {
             console.error(error);
-            toast.error('Error fetching books. Please try again later.');
+            toast.error('Error fetching accession details. Please try again later.');
         }
     };
 
-    //selected book get data
-    const fetchSelectedBookDetails = async (bookName, index) => {
-        try {
-            const response = await fetch(`${BaseURL}/api/issue/details/${bookName}`, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
-            });
-            if (!response.ok) {
-                throw new Error(`Error fetching book details: ${response.statusText}`);
-            }
-            const data = await response.json();
-            const updatedRows = [...rows];
-            updatedRows[index].details = data.details;
-            setRows(updatedRows);
-        } catch (error) {
-            console.error('Error fetching book details:', error.message);
-            toast.error('Error fetching book details. Please try again later.');
-        }
-    };
-
-    //add function
-    const handleBookNameChange = (index, bookName) => {
+    const handleAccessionInputChange = (index, event) => {
         const updatedRows = [...rows];
-        updatedRows[index].bookName = bookName;
-        updatedRows[index].purchaseCopyNo = '';
-        updatedRows[index].amount = '';
-        updatedRows[index].details = [];
-        setRows(updatedRows);
-
-        if (bookName) {
-            fetchSelectedBookDetails(bookName, index);
+        const accessionNo = event.target.value;
+        const matchingBook = accessionDetails.find(detail => detail.accessionNo === accessionNo);
+        if (matchingBook) {
+            updatedRows[index] = {
+                ...updatedRows[index],
+                accessionNo: accessionNo,
+                bookName: matchingBook.bookName,
+                bookDetailId: matchingBook.bookDetailId,
+                bookRate: matchingBook.book_rate ? parseFloat(matchingBook.book_rate).toFixed(2) : ''
+            };
+        } else {
+            updatedRows[index] = {
+                ...updatedRows[index],
+                accessionNo: accessionNo,
+                bookName: '',
+                bookDetailId: '',
+                bookRate: ''
+            };
         }
-    };
-
-    const handlePurchaseCopyChange = (index, purchaseCopyNo) => {
-        const selectedDetail = rows[index].details.find(detail => detail.purchaseCopyNo === Number(purchaseCopyNo));
-        const updatedRows = [...rows];
-        updatedRows[index].purchaseCopyNo = purchaseCopyNo;
-        updatedRows[index].bookDetailId = selectedDetail ? selectedDetail.bookDetailId : null;
-        updatedRows[index].amount = selectedDetail ? selectedDetail.bookRate.toFixed(2) : '0.00';
         setRows(updatedRows);
     };
 
     const addRowAdd = () => {
-        setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] }]);
+        setRows([...rows, { accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' }]);
     };
 
     const deleteRowAdd = (index) => {
@@ -178,57 +130,43 @@ const BookScrap = () => {
     };
 
     const calculateBillTotal = () => {
-        return rows.reduce((total, row) => total + (parseFloat(row.amount) || 0), 0).toFixed(2);
+        return rows.reduce((total, row) => total + (parseFloat(row.bookRate) || 0), 0).toFixed(2);
     };
 
-
-    // Reset form fields
-    const resetFormFields = () => {
-        setSelectedPurchaserId(null);
-        setDiscountPercent('');
-        setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
-    };
-
-    const billTotal = parseFloat(calculateBillTotal());
     const calculateTotalAfterDiscount = (total) => {
         const discountValue = parseFloat(discountPercent) || 0;
         return (total - (total * (discountValue / 100))).toFixed(2);
     };
-    //show discount price
-    const calculateDiscountAmount = () => {
-        const billTotal = calculateBillTotal();
-        const discountAmount = billTotal * (discountPercent / 100);
-        return Math.floor(discountAmount);
-    };
-    const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-    const grandTotal = parseFloat((totalAfterDiscount));
 
-    //post api
+    const resetFormFields = () => {
+        setSelectedPurchaserId(null);
+        setDiscountPercent('');
+        setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
+    };
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-        // const quantity = calculateQuantity();
 
         const bookDetailsPayload = rows
-            .filter(row => row.bookName && row.purchaseCopyNo)
+            .filter(row => row.bookName && row.accessionNo)
             .map(row => ({
                 bookdetailId: row.bookDetailId,
-                amount: parseFloat(row.amount)
+                amount: parseFloat(row.bookRate)
             }));
 
         const billTotal = parseFloat(calculateBillTotal());
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-        const grandTotal = parseFloat((totalAfterDiscount));
+        const grandTotal = parseFloat(totalAfterDiscount);
 
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
             ledgerId: Number(selectedPurchaserId),
             billTotal: billTotal,
-            // bookQty: quantity,
             discountPercent: parseFloat(discountPercent) || 0,
-            discountAmount: calculateDiscountAmount(),
+            discountAmount: (billTotal * (parseFloat(discountPercent) / 100)).toFixed(2),
             totalAfterDiscount: totalAfterDiscount,
             grandTotal: grandTotal,
             bookDetails: bookDetailsPayload
@@ -245,8 +183,8 @@ const BookScrap = () => {
             });
 
             if (response.ok) {
-                const purchaseDetails = await response.json();
-                toast.success(purchaseDetails.message);
+                const scrapDetails = await response.json();
+                toast.success(scrapDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
                 fetchBookScrap();
@@ -261,30 +199,34 @@ const BookScrap = () => {
         }
     };
 
+    const billTotal = parseFloat(calculateBillTotal());
+    const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
+    const grandTotal = parseFloat(totalAfterDiscount);
 
-    //delete
+    const calculateDiscountAmount = () => {
+        const billTotal = calculateBillTotal();
+        const discountAmount = billTotal * (discountPercent / 100);
+        return Math.floor(discountAmount);
+    };
+
     const handleDelete = (stockId) => {
         setDeleteStockId(stockId);
         setShowDeleteModal(true);
     };
 
-    //delete api
     const confirmDelete = async () => {
         if (!deleteStockId) return;
 
-        // Retrieve the items associated with the deleteStockId
         const selectedItems = bookScrap[deleteStockId];
 
         if (!selectedItems || selectedItems.length === 0) {
-            toast.error('No book scrap details found for this stock.');
+            toast.error('No book details found for this stock.');
             return;
         }
 
-        // Map over the selectedItems to extract their bookDetailIds
         const bookDetailIds = selectedItems.map(item => item.bookDetailId);
 
         try {
-            // POST request to handle the bookDetailIds before deletion
             const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-book-scrap`, {
                 method: 'POST',
                 headers: {
@@ -297,10 +239,9 @@ const BookScrap = () => {
             if (!postResponse.ok) {
                 const postData = await postResponse.json();
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
-                return; // Stop if POST failed
+                return;
             }
 
-            // If the POST request succeeds, proceed with the DELETE request
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
@@ -311,11 +252,11 @@ const BookScrap = () => {
             if (!deleteResponse.ok) {
                 const deleteData = await deleteResponse.json();
                 toast.error(`Error deleting book scrap: ${deleteData.message}`);
-                return; // Stop if DELETE failed
+                return;
             }
             toast.success('Book scrap successfully processed and deleted.');
             setShowDeleteModal(false);
-            fetchBookScrap(); // Refresh the list to reflect the changes
+            fetchBookScrap();
             fetchLatestBookScrapNo();
         } catch (error) {
             console.error('Error during deletion process:', error);
@@ -323,7 +264,6 @@ const BookScrap = () => {
         }
     };
 
-    //show table in stock_id
     const groupBy = (array, key) => {
         return array.reduce((result, currentValue) => {
             (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
@@ -331,13 +271,11 @@ const BookScrap = () => {
         }, {});
     };
 
-    //view
     const handleViewDetails = (items) => {
         setSelectedRowDetails(items);
         setShowDetailsModal(true);
     };
 
-    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(Object.keys(bookScrap).length / perPage);
@@ -383,7 +321,6 @@ const BookScrap = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* {Object.entries(bookScrap).map(([stock_id, items], index) => ( */}
                                 {currentData.map(([stock_id, items], index) => (
                                     <tr key={stock_id}>
                                         <td>{index + 1}</td>
@@ -395,8 +332,7 @@ const BookScrap = () => {
                                             <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
                                         </td>
                                     </tr>
-                                ))
-                                }
+                                ))}
                             </tbody>
                         </Table>
                     </div>
@@ -410,9 +346,8 @@ const BookScrap = () => {
                 </div>
             </Container>
 
-
             {/* add modal */}
-            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields() }} size='xl'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields(); }} size='xl'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Book Scrap</Modal.Title>
@@ -446,7 +381,7 @@ const BookScrap = () => {
                                     <Form.Select
                                         as="select"
                                         className="small-input"
-                                        value={selectedPurchaserId || ""}
+                                        value={selectedPurchaserId}
                                         onChange={(e) => setSelectedPurchaserId(e.target.value)}
                                     >
                                         <option value="">Select a purchaser</option>
@@ -463,9 +398,9 @@ const BookScrap = () => {
                                     <thead>
                                         <tr>
                                             <th className='sr-size'>Sr. No.</th>
-                                            <th>Book Name</th>
                                             <th className="table-header purchase-copy-size">Accession No.</th>
-                                            <th className="table-header amount-size amount-align">Amount</th>
+                                            <th>Book Name</th>
+                                            <th className="table-header amount-size amount-align">Book Rate</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
@@ -474,39 +409,29 @@ const BookScrap = () => {
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>
-                                                    <Form.Select
-                                                        as="select"
-                                                        value={row.bookName}
-                                                        onChange={(e) => handleBookNameChange(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select a book name</option>
-                                                        {books.map(book => (
-                                                            <option key={book.bookId} value={book.bookName}>
-                                                                {book.bookName}
-                                                            </option>
-                                                        ))}
-                                                    </Form.Select>
-                                                </td>
-                                                <td>
-                                                    <Form.Select
-                                                        as="select"
+                                                    <Form.Control
+                                                        list={`accessionNumbers-${index}`}
                                                         value={row.accessionNo}
-                                                        onChange={(e) => handlePurchaseCopyChange(index, e.target.value)}
-                                                    >
-                                                        <option value="">Select accession no</option>
-                                                        {row.details && row.details
-                                                            .filter(detail => detail.accessionNo !== null)
-                                                            .map(detail => (
-                                                                <option key={detail.purchaseCopyNo} value={detail.purchaseCopyNo}>
-                                                                    {detail.accessionNo}
-                                                                </option>
-                                                            ))}
-                                                    </Form.Select>
+                                                        onChange={(e) => handleAccessionInputChange(index, e)}
+                                                        placeholder="Enter or Select Accession Number"
+                                                    />
+                                                    <datalist id={`accessionNumbers-${index}`}>
+                                                        {Array.isArray(accessionDetails) && accessionDetails.map(detail => (
+                                                            <option key={detail.bookDetailId} value={detail.accessionNo} />
+                                                        ))}
+                                                    </datalist>
                                                 </td>
                                                 <td>
                                                     <Form.Control
                                                         type="text"
-                                                        value={row.amount ? row.amount : '0.00'}
+                                                        value={row.bookName}
+                                                        readOnly
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={row.bookRate ? row.bookRate : '0.00'}
                                                         readOnly
                                                     />
                                                 </td>
