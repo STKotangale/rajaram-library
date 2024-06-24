@@ -307,13 +307,13 @@ const AdminDashboard = () => {
                                             {showInventoryTransactionIssueReportSubItems && (
                                                 <div>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterDateWise'); setShowSidebar(false); }}>
-                                                        <DateRangeOutlined className="icon me-2" /> Issue Register Date Wise
+                                                        <DateRangeOutlined className="icon me-2" /> Date Wise Register
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterMemberWise'); setShowSidebar(false); }}>
-                                                        <PersonCircle className="icon me-2" /> Issue Register Member Wise
+                                                        <PersonCircle className="icon me-2" /> Member Register 
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterBookWise'); setShowSidebar(false); }}>
-                                                        <Book className="icon me-2" /> Issue Register Book Wise
+                                                        <Book className="icon me-2" /> Book Wise Register 
                                                     </ListGroup.Item>
                                                 </div>
                                             )}
