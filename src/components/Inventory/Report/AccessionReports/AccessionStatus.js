@@ -5,16 +5,25 @@ import { Download, Printer } from 'react-bootstrap-icons';
 const AccessionStatus = () => {
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-
     const handleShow = () => setShow(true);
-    const handleClose = () => setShow(false);
+    const handleClose = () => {
+        setShow(false);
+        setBlobUrl(null);
+    };
 
     const fetchData = async () => {
+        setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status`)
+            const response = await fetch(`${BaseURL}/api/reports/acession-status`);
             if (!response.ok) {
+                if (response.status === 500) {
+                    setBlobUrl('error-500');
+                } else {
+                    setBlobUrl('error');
+                }
                 throw new Error('Network response was not ok');
             }
             const blob = await response.blob();
@@ -23,15 +32,16 @@ const AccessionStatus = () => {
         } catch (error) {
             console.error('Failed to fetch data:', error);
         }
+        setIsLoading(false);
     };
 
     const handleDownloadPDF = () => {
         const link = document.createElement('a');
         link.href = blobUrl;
-        link.download = 'acession-status-report.pdf'; // Set the download filename
-        document.body.appendChild(link); // Append to body to ensure visibility
+        link.download = 'acession-status-report.pdf';
+        document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link); // Clean up
+        document.body.removeChild(link);
     };
 
     const handlePrint = () => {
@@ -42,20 +52,19 @@ const AccessionStatus = () => {
 
     return (
         <div>
-
             <div className="overlay mt-5">
                 <div className="centered-form">
                     <Container>
                         <div className="form-header">
                             <h2 className="text-primary">Accession Status Report</h2>
                         </div>
-
                         <div className="mt-5 text-center">
                             <p className="lead">Click below to generate the accession status report.</p>
                         </div>
-
                         <div className='d-flex justify-content-center mt-4'>
-                            <Button className='button-color' onClick={() => { fetchData(); handleShow(); }}>Generate Report</Button>
+                            <Button className='button-color' onClick={() => { fetchData(); handleShow(); }}>
+                                {isLoading ? 'Generating...' : 'Generate Report'}
+                            </Button>
                         </div>
                     </Container>
                 </div>
@@ -64,18 +73,24 @@ const AccessionStatus = () => {
             <Modal show={show} onHide={handleClose} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title className="flex-grow-1">Accession Status</Modal.Title>
-                    <Button variant="info" onClick={handleDownloadPDF} className="me-2">
-                        <Download /> Download PDF
-                    </Button>
-                    <Button variant="primary" onClick={handlePrint} className="me-2">
-                        <Printer /> Print
-                    </Button>
+                    {blobUrl && !blobUrl.includes('error') && (
+                        <>
+                            <Button variant="info" onClick={handleDownloadPDF} className="me-2">
+                                <Download /> Download PDF
+                            </Button>
+                            <Button variant="primary" onClick={handlePrint} className="me-2">
+                                <Printer /> Print
+                            </Button>
+                        </>
+                    )}
                 </Modal.Header>
                 <Modal.Body>
-                    {blobUrl ? (
-                        <embed src={blobUrl} type="application/pdf" width="100%" height="500px" />
-                    ) : (
+                    {isLoading ? (
                         <p>Loading PDF... Please wait.</p>
+                    ) : blobUrl?.includes('error') ? (
+                        <p>Error loading PDF. Please try again or contact support.</p>
+                    ) : (
+                        <embed src={blobUrl} type="application/pdf" width="100%" height="500px" />
                     )}
                 </Modal.Body>
                 <Modal.Footer>

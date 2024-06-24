@@ -16,7 +16,6 @@ const formatDate = (date) => {
 };
 
 const IssueRegisterMemberWise = () => {
-
     const [generalMember, setGeneralMember] = useState([]);
     const [selectedMember, setSelectedMember] = useState('');
     const [startDate, setStartDate] = useState('');
@@ -31,7 +30,6 @@ const IssueRegisterMemberWise = () => {
         fetchGeneralMembers();
     }, [accessToken]);
 
-    // Fetch general members from the API
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -55,12 +53,13 @@ const IssueRegisterMemberWise = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const selectedFullName = generalMember.find(m => m.memberId === parseInt(selectedMember, 10))?.fullName || '';
+        const selectedFullName = generalMember.find(m => m.fullName === selectedMember)?.fullName || '';
         const reportData = {
             startDate: formatDate(startDate),
             endDate: formatDate(endDate),
             fullName: selectedFullName,
         };
+        setShowModal(true);
         setIsLoading(true);
         try {
             const response = await fetch(`${BaseURL}/api/reports/issue-member-wise`, {
@@ -75,13 +74,14 @@ const IssueRegisterMemberWise = () => {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setPdfUrl(url);
-                setShowModal(true);
             } else {
                 toast.error('Failed to submit report');
+                setPdfUrl(null);
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error('Error submitting report');
+            setPdfUrl(null);
         }
         setIsLoading(false);
     };
@@ -169,11 +169,11 @@ const IssueRegisterMemberWise = () => {
 
             <Modal show={showModal} onHide={handleCloseModal} size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title>Issue Member Wise Report</Modal.Title>
-                    <Button variant="info" onClick={handleDownloadPDF}>
+                    <Modal.Title className="flex-grow-1">Issue Member Wise Report</Modal.Title>
+                    <Button variant="info" onClick={handleDownloadPDF} className="me-2" disabled={!pdfUrl}>
                         <Download /> Download PDF
                     </Button>
-                    <Button variant="primary" onClick={handlePrint}>
+                    <Button variant="primary" onClick={handlePrint} className="me-2" disabled={!pdfUrl}>
                         <Printer /> Print
                     </Button>
                 </Modal.Header>

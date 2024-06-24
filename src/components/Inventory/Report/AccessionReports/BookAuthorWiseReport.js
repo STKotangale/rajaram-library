@@ -51,11 +51,13 @@ const BookAuthorWiseReport = () => {
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
             } else {
+                if (response.status === 500) {
+                }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            toast.error(`Error retrieving PDF: ${error.message}`);
+            setBlobUrl(null); 
         }
         setIsLoading(false);
     };

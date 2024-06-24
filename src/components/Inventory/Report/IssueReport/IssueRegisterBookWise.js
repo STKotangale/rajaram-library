@@ -15,19 +15,14 @@ const formatDate = (date) => {
     return `${day}-${month}-${year}`;
 };
 
-
 const IssueRegisterBookWise = () => {
-    //get
     const [books, setBooks] = useState([]);
-    //post
     const [bookname, setBookname] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    //modal
     const [showModal, setShowModal] = useState(false);
     const [pdfUrl, setPdfUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -61,6 +56,7 @@ const IssueRegisterBookWise = () => {
             startDate: formatDate(startDate),
             endDate: formatDate(endDate),
         };
+        setShowModal(true);
         setIsLoading(true);
         try {
             const response = await fetch(`${BaseURL}/api/reports/issue-book-wise`, {
@@ -75,13 +71,14 @@ const IssueRegisterBookWise = () => {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setPdfUrl(url);
-                setShowModal(true);
             } else {
                 toast.error('Failed to submit report');
+                setPdfUrl(null);
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error('Error submitting report');
+            setPdfUrl(null);
         }
         setIsLoading(false);
     };
@@ -170,11 +167,11 @@ const IssueRegisterBookWise = () => {
 
             <Modal show={showModal} onHide={handleCloseModal} size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title>Issue Book Wise Report</Modal.Title>
-                    <Button variant="info" onClick={handleDownloadPDF} className="me-2">
+                    <Modal.Title className="flex-grow-1">Issue Book Wise Report</Modal.Title>
+                    <Button variant="info" onClick={handleDownloadPDF} className="me-2" disabled={!pdfUrl}>
                         <Download /> Download PDF
                     </Button>
-                    <Button variant="primary" onClick={handlePrint} className="me-2">
+                    <Button variant="primary" onClick={handlePrint} className="me-2" disabled={!pdfUrl}>
                         <Printer /> Print
                     </Button>
                 </Modal.Header>
@@ -191,7 +188,6 @@ const IssueRegisterBookWise = () => {
                     <Button onClick={handleCloseModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-
         </div>
     );
 };

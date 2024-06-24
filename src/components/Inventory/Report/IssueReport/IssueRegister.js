@@ -18,20 +18,18 @@ const IssueRegister = () => {
     const [showModal, setShowModal] = useState(false);
     const [pdfUrl, setPdfUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    //post
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         const reportData = {
             startDate: formatDate(startDate),
             endDate: formatDate(endDate),
         };
+        setShowModal(true);
         setIsLoading(true);
         try {
             const response = await fetch(`${BaseURL}/api/reports/issue`, {
@@ -46,14 +44,15 @@ const IssueRegister = () => {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setPdfUrl(url);
-                setShowModal(true);
             } else {
                 const errorText = await response.text();
                 toast.error(`Failed to submit report: ${errorText}`);
+                setPdfUrl(null);
             }
         } catch (error) {
             console.error('Error:', error);
             toast.error('Error submitting report');
+            setPdfUrl(null);
         }
         setIsLoading(false);
     };
@@ -69,7 +68,7 @@ const IssueRegister = () => {
     const handleDownloadPDF = () => {
         const link = document.createElement('a');
         link.href = pdfUrl;
-        link.download = 'acession-status-report.pdf';
+        link.download = 'issue-register-report.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -97,6 +96,7 @@ const IssueRegister = () => {
                                         type="date"
                                         value={startDate}
                                         onChange={(e) => setStartDate(e.target.value)}
+                                        required
                                     />
                                 </Form.Group>
                             </Row>
@@ -107,6 +107,7 @@ const IssueRegister = () => {
                                         type="date"
                                         value={endDate}
                                         onChange={(e) => setEndDate(e.target.value)}
+                                        required
                                     />
                                 </Form.Group>
                             </Row>
@@ -122,11 +123,11 @@ const IssueRegister = () => {
 
             <Modal show={showModal} onHide={handleCloseModal} size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title>Issue Register Date Wise</Modal.Title>
-                    <Button variant="info" onClick={handleDownloadPDF} className="me-2">
+                    <Modal.Title className="flex-grow-1">Issue Register Date Wise</Modal.Title>
+                    <Button variant="info" onClick={handleDownloadPDF} className="me-2" disabled={!pdfUrl}>
                         <Download /> Download PDF
                     </Button>
-                    <Button variant="primary" onClick={handlePrint} className="me-2">
+                    <Button variant="primary" onClick={handlePrint} className="me-2" disabled={!pdfUrl}>
                         <Printer /> Print
                     </Button>
                 </Modal.Header>
@@ -143,7 +144,6 @@ const IssueRegister = () => {
                     <Button onClick={handleCloseModal}>Close</Button>
                 </Modal.Footer>
             </Modal>
-
         </div>
     );
 };

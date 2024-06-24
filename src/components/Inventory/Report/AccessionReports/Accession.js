@@ -5,15 +5,23 @@ import { Download, Printer } from 'react-bootstrap-icons';
 const Accession = () => {
   const [show, setShow] = useState(false);
   const [blobUrl, setBlobUrl] = useState(null);
+  const [error, setError] = useState(false);
   const BaseURL = process.env.REACT_APP_BASE_URL;
 
+  const handleShow = () => {
+    setShow(true);
+    setError(false); // Reset error state when showing the modal
+    fetchData();
+  };
 
-  const handleShow = () => setShow(true);
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    setShow(false);
+    setBlobUrl(null); // Reset blobUrl when closing the modal
+  };
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${BaseURL}/api/reports/acession`)
+      const response = await fetch(`${BaseURL}/api/reports/acession`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -22,40 +30,42 @@ const Accession = () => {
       setBlobUrl(url);
     } catch (error) {
       console.error('Failed to fetch data:', error);
+      setError(true);
     }
   };
 
   const handleDownloadPDF = () => {
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = 'acession-status-report.pdf'; // Set the download filename
-    document.body.appendChild(link); // Append to body to ensure visibility
-    link.click();
-    document.body.removeChild(link); // Clean up
+    if (blobUrl) {
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = 'acession-status-report.pdf'; // Set the download filename
+      document.body.appendChild(link); // Append to body to ensure visibility
+      link.click();
+      document.body.removeChild(link); // Clean up
+    }
   };
 
   const handlePrint = () => {
-    const printWindow = window.open(blobUrl, '_blank', 'top=0,left=0,height=100%,width=auto');
-    printWindow.focus();
-    printWindow.print();
+    if (blobUrl) {
+      const printWindow = window.open(blobUrl, '_blank', 'top=0,left=0,height=100%,width=auto');
+      printWindow.focus();
+      printWindow.print();
+    }
   };
 
   return (
     <div>
-
       <div className="overlay mt-5">
         <div className="centered-form">
           <Container>
             <div className="form-header">
               <h2 className="text-primary">Accession Report</h2>
             </div>
-
             <div className="mt-5 text-center">
               <p className="lead">Click below to generate the accession report.</p>
             </div>
-
             <div className='d-flex justify-content-center mt-4'>
-              <Button className='button-color' onClick={() => { fetchData(); handleShow(); }}>Generate Report</Button>
+              <Button className='button-color' onClick={handleShow}>Generate Report</Button>
             </div>
           </Container>
         </div>
@@ -72,7 +82,9 @@ const Accession = () => {
           </Button>
         </Modal.Header>
         <Modal.Body>
-          {blobUrl ? (
+          {error ? (
+            <p>Error loading PDF. Please try again or contact support.</p>
+          ) : blobUrl ? (
             <embed src={blobUrl} type="application/pdf" width="100%" height="500px" />
           ) : (
             <p>Loading PDF... Please wait.</p>
