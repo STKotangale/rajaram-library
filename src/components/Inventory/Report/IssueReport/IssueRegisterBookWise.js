@@ -17,8 +17,8 @@ const formatDate = (date) => {
 
 const IssueRegisterBookWise = () => {
     const [books, setBooks] = useState([]);
-    const [bookId, setBookId] = useState('');
     const [bookname, setBookname] = useState('');
+    const [bookId, setBookId] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [showModal, setShowModal] = useState(false);
