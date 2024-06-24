@@ -121,18 +121,21 @@ const IssueRegisterBookWise = () => {
                             <Row className="mb-3">
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Name</Form.Label>
-                                    <Form.Select
+                                    <Form.Control
+                                        type="text"
                                         value={bookname}
                                         onChange={(e) => setBookname(e.target.value)}
+                                        list="bookNameList"
+                                        placeholder="Enter or select a book"
                                         required
-                                    >
-                                        <option value="">Select a book</option>
+                                    />
+                                    <datalist id="bookNameList">
                                         {books.map(book => (
                                             <option key={book.bookId} value={book.bookName}>
                                                 {book.bookName}
                                             </option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">

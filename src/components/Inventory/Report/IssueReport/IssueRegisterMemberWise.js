@@ -121,17 +121,20 @@ const IssueRegisterMemberWise = () => {
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
-                                    <Form.Select
+                                    <Form.Control
+                                        type="text"
                                         value={selectedMember}
                                         onChange={(e) => setSelectedMember(e.target.value)}
-                                    >
-                                        <option value="">Select a member</option>
+                                        list="memberNameList"
+                                        placeholder="Enter or select a member"
+                                    />
+                                    <datalist id="memberNameList">
                                         {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
+                                            <option key={member.memberId} value={member.fullName}>
                                                 {member.fullName}
                                             </option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
@@ -155,8 +158,8 @@ const IssueRegisterMemberWise = () => {
                                 </Form.Group>
                             </Row>
                             <div className='d-flex justify-content-end'>
-                                <Button className='button-color' disabled={isLoading}>
-                                    Submit
+                                <Button type="submit" className='button-color' disabled={isLoading}>
+                                    {isLoading ? 'Submitting...' : 'Submit'}
                                 </Button>
                             </div>
                         </Form>
