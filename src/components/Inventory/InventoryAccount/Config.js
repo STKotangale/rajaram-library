@@ -4,18 +4,17 @@ import { useAuth } from '../../Auth/AuthProvider';
 import { Button, Modal, Form, Table, Container } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { PencilSquare } from 'react-bootstrap-icons';
 
 const Config = () => {
-    //get
+    // State variables
     const [config, setConfig] = useState([]);
-    //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-    // update 
     const [showModal, setShowModal] = useState(false);
-    const [selectedFee, setSelectedFee] = useState(null);
+    const [selectedFee, setSelectedFee] = useState(null); // Changed from selectedConfig to selectedFee
 
-    //get api
+    // Fetch config data from API
     const fetchConfig = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/config`, {
@@ -24,7 +23,7 @@ const Config = () => {
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching Ccnfig: ${response.statusText}`);
+                throw new Error(`Error fetching Config: ${response.statusText}`);
             }
             const data = await response.json();
             setConfig(data);
@@ -38,31 +37,33 @@ const Config = () => {
         fetchConfig();
     }, []);
 
+    // Handle click on update icon
+    const handleUpdateClick = (fee) => {
+        setSelectedFee(fee);
+        setShowModal(true);
+    };
 
-
-    // // Open modal and set selected fee
-    // const handleUpdateClick = (fee) => {
-    //     setSelectedFee(fee);
-    //     setShowModal(true);
-    // };
-
-    // Handle form submission update
+    // Handle form submission for update
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/fees/${selectedFee.feesId}`, {
+            const response = await fetch(`${BaseURL}/api/config/${selectedFee.srno}`, { // Update to use selectedFee.srno
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(selectedFee)
+                body: JSON.stringify({
+                    bookDays: selectedFee.bookDays,
+                    finePerDays: selectedFee.finePerDays,
+                    monthlyFees: selectedFee.monthlyFees
+                })
             });
             if (!response.ok) {
-                throw new Error(`Error updating config: ${response.statusText}`);
+                throw new Error(`Error updating Config: ${response.statusText}`);
             }
             toast.success('Config updated successfully!');
-            fetchConfig(); 
+            fetchConfig();
             setShowModal(false);
         } catch (error) {
             console.error(error);
@@ -70,7 +71,7 @@ const Config = () => {
         }
     };
 
-    // Handle input change
+    // Handle input change in the form
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setSelectedFee({ ...selectedFee, [name]: value });
@@ -86,20 +87,22 @@ const Config = () => {
                                 <thead>
                                     <tr>
                                         <th>Sr.No</th>
-                                        <th>Fees Type</th>
-                                        <th>Amount</th>
-                                        {/* <th>Actions</th> */}
+                                        <th>Book Days</th>
+                                        <th>Fine per Days</th>
+                                        <th>Monthly Fees</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {config.map((fee, index) => (
-                                        <tr key={fee.feesId}>
+                                        <tr key={fee.srno}> {/* Changed from feesId to srno */}
                                             <td>{index + 1}</td>
                                             <td>{fee.bookDays}</td>
                                             <td>{fee.finePerDays}</td>
-                                            {/* <td>
+                                            <td>{fee.monthlyFees}</td>
+                                            <td>
                                                 <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleUpdateClick(fee)} />
-                                            </td> */}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -109,6 +112,7 @@ const Config = () => {
                 </Container>
             </div>
 
+            {/* Modal for updating fee */}
             <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Update Library Fee</Modal.Title>
@@ -116,31 +120,40 @@ const Config = () => {
                 <Modal.Body>
                     {selectedFee && (
                         <Form onSubmit={handleFormSubmit}>
-                            <Form.Group controlId="formFeesName">
-                                <Form.Label>Fees Type</Form.Label>
+                            <Form.Group controlId="formBookDays">
+                                <Form.Label>Book Days</Form.Label>
                                 <Form.Control
-                                    type="text"
-                                    name="feesName"
-                                    value={selectedFee.feesName}
+                                    type="number"
+                                    name="bookDays"
+                                    value={selectedFee.bookDays}
                                     onChange={handleInputChange}
-                                    readOnly
                                     required
                                 />
                             </Form.Group>
-                            <Form.Group controlId="formFeesAmount">
-                                <Form.Label>Amount</Form.Label>
+                            <Form.Group controlId="formFinePerDays">
+                                <Form.Label>Fine per Days</Form.Label>
                                 <Form.Control
                                     type="number"
-                                    name="feesAmount"
-                                    value={selectedFee.feesAmount}
+                                    name="finePerDays"
+                                    value={selectedFee.finePerDays}
+                                    onChange={handleInputChange}
+                                    required
+                                />
+                            </Form.Group>
+                            <Form.Group controlId="formMonthlyFees">
+                                <Form.Label>Monthly Fees</Form.Label>
+                                <Form.Control
+                                    type="number"
+                                    name="monthlyFees"
+                                    value={selectedFee.monthlyFees}
                                     onChange={handleInputChange}
                                     required
                                 />
                             </Form.Group>
                             <div className='d-flex justify-content-end mt-2'>
-                            <Button className='button-color' type="submit">
-                                Update
-                            </Button>
+                                <Button variant="primary" type="submit">
+                                    Update
+                                </Button>
                             </div>
                         </Form>
                     )}
