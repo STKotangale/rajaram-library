@@ -87,8 +87,8 @@ const LibraryFees = () => {
                                 <thead>
                                     <tr>
                                         <th>Sr.No</th>
-                                        <th>Fees Type</th>
-                                        <th>Amount</th>
+                                        <th>Fees Name</th>
+                                        <th>Fees Amount</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
