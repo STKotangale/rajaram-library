@@ -126,7 +126,6 @@ const IssueRegisterBookWise = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
-                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -143,7 +142,6 @@ const IssueRegisterBookWise = () => {
                                             </option>
                                         ))}
                                     </datalist>
-                                </Form.Group>
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
