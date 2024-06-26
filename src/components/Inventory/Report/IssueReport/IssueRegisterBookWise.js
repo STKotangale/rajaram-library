@@ -120,7 +120,7 @@ const IssueRegisterBookWise = () => {
                 <div className="centered-form">
                     <Container>
                         <div className="form-header">
-                            <h2>Issue Register Book Wise Report</h2>
+                            <h2>Book Wise Register</h2>
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">

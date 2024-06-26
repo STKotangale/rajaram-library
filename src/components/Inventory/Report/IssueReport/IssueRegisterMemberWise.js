@@ -121,7 +121,7 @@ const IssueRegisterMemberWise = () => {
                 <div className="centered-form">
                     <Container>
                         <div className="form-header">
-                            <h2>Issue Register Member Wise Report</h2>
+                            <h2>Member Wise Register</h2>
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
