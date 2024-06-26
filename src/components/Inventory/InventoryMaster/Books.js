@@ -52,7 +52,7 @@ const Books = () => {
     //get api
     const fetchBooks = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/book/all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -104,7 +104,7 @@ const Books = () => {
             }),
         };
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, requestOptions);
+            const response = await fetch(`${BaseURL}/api/book/all`, requestOptions);
             const responseData = await response.json();
 
             if (!response.ok) {
@@ -126,7 +126,7 @@ const Books = () => {
     const editBook = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book/${selectedBookId}`, {
+            const response = await fetch(`${BaseURL}/api/book/all/${selectedBookId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -164,7 +164,7 @@ const Books = () => {
     // Delete api
     const deleteBook = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book/${selectedBookId}`, {
+            const response = await fetch(`${BaseURL}/api/book/all/${selectedBookId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -226,7 +226,7 @@ const Books = () => {
     //get api
     const fetchBookTypes = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
+            const response = await fetch(`${BaseURL}/api/booktype`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -247,7 +247,7 @@ const Books = () => {
     // get api
     const fetchBookLanguages = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages`);
+            const response = await fetch(`${BaseURL}/api/language`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

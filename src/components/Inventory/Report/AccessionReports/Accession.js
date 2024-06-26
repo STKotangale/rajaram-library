@@ -10,13 +10,13 @@ const Accession = () => {
 
   const handleShow = () => {
     setShow(true);
-    setError(false); // Reset error state when showing the modal
+    setError(false); 
     fetchData();
   };
 
   const handleClose = () => {
     setShow(false);
-    setBlobUrl(null); // Reset blobUrl when closing the modal
+    setBlobUrl(null);
   };
 
   const fetchData = async () => {
@@ -38,10 +38,10 @@ const Accession = () => {
     if (blobUrl) {
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = 'acession-status-report.pdf'; // Set the download filename
-      document.body.appendChild(link); // Append to body to ensure visibility
+      link.download = 'acession-status-report.pdf'; 
+      document.body.appendChild(link); 
       link.click();
-      document.body.removeChild(link); // Clean up
+      document.body.removeChild(link); 
     }
   };
 

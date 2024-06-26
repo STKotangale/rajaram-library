@@ -22,7 +22,7 @@ const BookTypeWiseReport = () => {
 
     const fetchBookTypes = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
+            const response = await fetch(`${BaseURL}/api/booktype`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
