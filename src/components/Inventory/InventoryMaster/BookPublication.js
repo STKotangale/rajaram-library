@@ -42,8 +42,10 @@ const BookPublication = () => {
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-
+    // const accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5kZXNoIiwiaWF0IjoxNzE5Mzg1OTY2LCJleHAiOjE3MTk0NzIzNjZ9.asSVWYaqYiOb66z-uE0lUFMtxasSOna_lSpT39JMFBc"
     const fetchBookPublication = async () => {
+        console.log('Fetching book publications with token:', accessToken); // Log the token
+
         try {
             const response = await fetch(`${BaseURL}/api/book-publications`, {
                 headers: {
@@ -64,7 +66,7 @@ const BookPublication = () => {
 
     useEffect(() => {
         fetchBookPublication();
-    }, []);
+    }, [accessToken]);
 
     //reset fields
     const resetFormFields = () => {

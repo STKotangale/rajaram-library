@@ -33,7 +33,7 @@ const IssueRegisterBookWise = () => {
 
     const fetchBooks = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/book/all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -107,12 +107,14 @@ const IssueRegisterBookWise = () => {
         printWindow.print();
     };
 
+
     const handleBookChange = (e) => {
         const selectedBookName = e.target.value;
         setBookname(selectedBookName);
         const selectedBook = books.find(book => book.bookName === selectedBookName);
         setBookId(selectedBook ? selectedBook.bookId : '');
     };
+
 
     return (
         <div className='member-report'>
@@ -124,7 +126,6 @@ const IssueRegisterBookWise = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mb-3">
-                                <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Name</Form.Label>
                                     <Form.Control
                                         type="text"
@@ -141,7 +142,6 @@ const IssueRegisterBookWise = () => {
                                             </option>
                                         ))}
                                     </datalist>
-                                </Form.Group>
                             </Row>
                             <Row className="mb-3">
                                 <Form.Group as={Col}>
