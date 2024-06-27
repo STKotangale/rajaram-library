@@ -44,7 +44,7 @@ const BookTypeWiseReport = () => {
         setIsLoading(true);
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${selectedBookType}`, {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Accept': 'application/pdf'
