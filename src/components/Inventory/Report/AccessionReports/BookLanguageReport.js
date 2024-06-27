@@ -7,12 +7,15 @@ import { Button, Container, Row, Form, Modal } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookLanguageReport = () => {
+    //get 
     const [bookLanguage, setBookLanguage] = useState([]);
-    const [selectedBookLanguageName, setSelectedBookLanguageName] = useState('');
+    //post
+    const [bookLangId, setBookLangId] = useState('');
+    //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -20,6 +23,7 @@ const BookLanguageReport = () => {
         fetchBookLanguages();
     }, [username, accessToken]);
 
+    //get api
     const fetchBookLanguages = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/language/book-languages`, {
@@ -38,12 +42,13 @@ const BookLanguageReport = () => {
         }
     };
 
+    //post
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise/${selectedBookLanguageName}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise/${bookLangId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -61,7 +66,7 @@ const BookLanguageReport = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            setBlobUrl(null); 
+            setBlobUrl(null);
         }
         setIsLoading(false);
     };
@@ -102,8 +107,8 @@ const BookLanguageReport = () => {
                                 <Form.Group className="" controlId="bookName">
                                     <Form.Label>Book Language</Form.Label>
                                     <Form.Select
-                                        value={selectedBookLanguageName}
-                                        onChange={(e) => setSelectedBookLanguageName(e.target.value)}
+                                        value={bookLangId}
+                                        onChange={(e) => setBookLangId(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Book Language</option>

@@ -23,7 +23,6 @@ const BookIssue = () => {
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
     const [issueNumber, setIssueNumber] = useState('');
     const [issueDate, setIssueDate] = useState(new Date().toISOString().substr(0, 10));
-
     const [selectedMemberName, setSelectedMemberName] = useState('');
     const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
     //check membership 
@@ -43,7 +42,6 @@ const BookIssue = () => {
     const [selectedIssue, setSelectedIssue] = useState(null);
     //start date and end date
     const [sessionStartDate, setSessionStartDate] = useState(null);
-
     const formatDateToDDMMYYYY = (date) => {
         const day = (`0${date.getDate()}`).slice(-2);
         const month = (`0${date.getMonth() + 1}`).slice(-2);
@@ -63,7 +61,6 @@ const BookIssue = () => {
         fetchBookDetails();
         fetchLatestIssueNo();
         fetchSessionDate();
-        // fetchStartDateEndDate();
     }, [username, accessToken]);
 
 
@@ -90,6 +87,7 @@ const BookIssue = () => {
     //     }
     // };
 
+    //get session dates
     const fetchSessionDate = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
@@ -112,6 +110,7 @@ const BookIssue = () => {
         }
     };
 
+    //hit api for getting date in "session"  also hit api for select start and end dates
     const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/all?startDate=${sessionFromDt}&endDate=${currentDate}`, {
@@ -119,24 +118,17 @@ const BookIssue = () => {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-    
-            // Navigate if the response is not OK (e.g., network error, server error)
             if (!response.ok) {
                 toast.error(`Error fetching issues: ${response.statusText}`);
                 navigate('/');
                 return;
             }
-    
             const responseData = await response.json();
-    
             if (responseData.success === false && responseData.statusCode === 400) {
-                // No sessions found, show toast message
                 toast.info('No sessions found for the provided year range');
                 navigate('/');
                 return;
             }
-    
-            // Sessions found, process the data
             const data = responseData.data;
             const updatedData = data.map(issueItem => ({
                 ...issueItem,
@@ -149,20 +141,17 @@ const BookIssue = () => {
             navigate('/');
         }
     };
-    
-    
-    
 
+    //select start and end dates
     const handleStartDateChange = (e) => {
         const newStartDate = e.target.value;
         setStartDate(newStartDate);
     };
-
     const handleEndDateChange = (e) => {
         const newEndDate = e.target.value;
         setEndDate(newEndDate);
     };
-
+    //search 
     const handleSearchClick = () => {
         const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
         const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
@@ -187,7 +176,6 @@ const BookIssue = () => {
             toast.error('Error fetching latest issue  number. Please try again later.');
         }
     };
-
 
     //get general member
     const fetchGeneralMembers = async () => {
@@ -254,7 +242,6 @@ const BookIssue = () => {
         )).values()];
         setAllBookDetails(combinedBooks);
     }, [bookDetails, memberBookings]);
-
 
 
     //date change for add modal
@@ -333,6 +320,7 @@ const BookIssue = () => {
         }
     };
 
+    //accession no change and update book name auto
     const handleAccessionInputChange = (index, event) => {
         const updatedRows = [...rows];
         const accessionNo = event.target.value;
@@ -384,7 +372,6 @@ const BookIssue = () => {
             toast.error("Please select a member name.");
             return;
         }
-
         const invalidEntries = rows.filter(row => row.bookId && !row.accessionNo);
         if (invalidEntries.length > 0) {
             invalidEntries.forEach(row => {
@@ -431,8 +418,7 @@ const BookIssue = () => {
                 await updateBlockStatus(membOnlineIds);
                 setShowAddModal(false);
                 resetFormFields();
-                // fetchIssue();
-                // fetchStartDateEndDate();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
                 fetchBookDetails();//copyno
                 fetchLatestIssueNo();
             } else {
@@ -511,8 +497,7 @@ const BookIssue = () => {
             if (deleteResponse.ok) {
                 toast.success('Issue deleted successfully.');
                 setShowDeleteModal(false);
-                // fetchIssue();
-                // fetchStartDateEndDate();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
                 fetchBookDetails();//copyno
                 fetchLatestIssueNo();
             } else {
@@ -524,7 +509,6 @@ const BookIssue = () => {
             toast.error('Error deleting issue. Please try again.');
         }
     };
-
 
     // View purchase
     const fetchViewDetails = async (stockId) => {
@@ -549,6 +533,7 @@ const BookIssue = () => {
         }
     };
 
+    //view
     const handleViewClick = (issue) => {
         setSelectedIssue(issue);
         fetchViewDetails(issue.stock_id);
@@ -574,6 +559,7 @@ const BookIssue = () => {
     const indexOfLastBookType = currentPage * perPage;
     const indexOfNumber = indexOfLastBookType - perPage;
     const currentData = issue.slice(indexOfNumber, indexOfLastBookType);
+
 
     return (
         <div className="main-content">
@@ -620,7 +606,7 @@ const BookIssue = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {issue.map((issueItem, index) => (
+                                {currentData.map((issueItem, index) => (
                                     <tr key={issueItem.stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{issueItem.fullName}</td>
