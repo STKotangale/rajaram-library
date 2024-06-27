@@ -9,7 +9,7 @@ import { Download, Printer } from 'react-bootstrap-icons';
 const BookTypeWiseReport = () => {
     //get book types
     const [bookTypes, setBookTypes] = useState([]);
-    //post bookTypeId
+    // bookTypeId
     const [bookTypeId, setBookTypeId] = useState('');
     //pdf
     const [show, setShow] = useState(false);
@@ -44,18 +44,23 @@ const BookTypeWiseReport = () => {
     };
 
 
-    // post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            bookTypeId: bookTypeId,
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${bookTypeId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)  
             });
             if (response.ok) {
                 const blob = await response.blob();
@@ -72,6 +77,7 @@ const BookTypeWiseReport = () => {
         }
         setIsLoading(false);
     };
+    
 
 
     const handleDownloadPDF = () => {

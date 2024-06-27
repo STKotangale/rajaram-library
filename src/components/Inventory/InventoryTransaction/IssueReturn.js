@@ -6,13 +6,21 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
 import { Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
+
 
 const IssueReturn = () => {
+    //get 
     const [issueReturn, setIssueReturn] = useState([]);
     const [generalMember, setGeneralMember] = useState([]);
+    //post
     const [showAddModal, setShowAddModal] = useState(false);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [showDetailModal, setShowDetailModal] = useState(false);
+    const [issueReturnNumber, setIssueReturnNumber] = useState('');
+    const [issueReturnDate, setIssueReturnDate] = useState(new Date().toISOString().substr(0, 10));
+    const [selectedMemberName, setSelectedMemberName] = useState("");
+    const [selectedMemberId, setSelectedMemberId] = useState("");
+    const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     // const [rows, setRows] = useState([]);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({
         bookId: '',
@@ -27,43 +35,125 @@ const IssueReturn = () => {
         fineAmount: 0,
         fineManuallyChanged: false
     })));
-    const [issueReturnNumber, setIssueReturnNumber] = useState('');
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
-    const [selectedMemberName, setSelectedMemberName] = useState(""); 
-    const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    //delete
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
+    //view
+    const [showViewModal, setShowViewModal] = useState(false);
+    //start date and end date
+    const [sessionStartDate, setSessionStartDate] = useState(null);
+    const formatDateToDDMMYYYY = (date) => {
+        const day = (`0${date.getDate()}`).slice(-2);
+        const month = (`0${date.getMonth() + 1}`).slice(-2);
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    //auth
+    const navigate = useNavigate();
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    const [selectedMemberId, setSelectedMemberId] = useState("");
-    const [issueReturnDate, setIssueReturnDate] = useState(new Date().toISOString().substr(0, 10));
-
-    const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
-
     useEffect(() => {
-        fetchIssueReturn();
+        // fetchIssueReturn();
+        fetchSessionDate();
         fetchGeneralMembers();
         fetchLatestIssueReturnNo();
     }, [username, accessToken]);
 
-    const fetchIssueReturn = async () => {
+    // //get issue
+    // const fetchIssueReturn = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/issueReturns`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching issue return: ${response.statusText}`);
+    //         }
+    //         const data = await response.json();
+    //         const groupedData = groupByStockId(data);
+    //         setIssueReturn(groupedData);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Error fetching issue return. Please try again later.');
+    //     }
+    // };
+
+
+    //get session dates
+    const fetchSessionDate = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/issueReturns`, {
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching issue return: ${response.statusText}`);
+                throw new Error(`Error fetching session date: ${response.statusText}`);
             }
             const data = await response.json();
-            const groupedData = groupByStockId(data);
-            setIssueReturn(groupedData);
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching issue return. Please try again later.');
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
         }
+    };
+
+    //hit api for getting date in "session"  also hit api for select start and end dates
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/issueReturns?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                toast.error(`Error fetching issues: ${response.statusText}`);
+                navigate('/');
+                return;
+            }
+            const responseData = await response.json();
+            if (responseData.success === false && responseData.statusCode === 400) {
+                toast.info('No sessions found for the provided year range');
+                navigate('/');
+                return;
+            }
+            const data = responseData.data;
+            const updatedData = data.map(issueItem => ({
+                ...issueItem,
+                fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
+            }));
+            setIssueReturn(updatedData);
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+            toast.error('Error fetching issues. Please try again later.');
+            navigate('/');
+        }
+    };
+
+    //select start and end dates
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+    };
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        setEndDate(newEndDate);
+    };
+    //search 
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
     };
 
     //get Issue Return No number
@@ -95,6 +185,7 @@ const IssueReturn = () => {
         }, {});
     };
 
+    //get general member
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -142,6 +233,7 @@ const IssueReturn = () => {
     //     }
     // };
 
+    //handle member select
     const handleMemberSelect = (e) => {
         const fullName = e.target.value;
         setSelectedMemberName(fullName);
@@ -156,7 +248,6 @@ const IssueReturn = () => {
                 fetchIssueReturnDetails(selectedMember.memberId, issueReturnDate);
             }
             setSelectedMemberLibNo(selectedMember.libGenMembNo);
-
         } else {
             setSelectedMemberId('');
             setRows([]);
@@ -165,7 +256,7 @@ const IssueReturn = () => {
         }
     };
 
-
+    //chnage fine per day and amount
     const handleFinePerDayChange = (index, value) => {
         setRows(prevRows =>
             prevRows.map((row, idx) =>
@@ -173,7 +264,6 @@ const IssueReturn = () => {
             )
         );
     };
-
     const handleFineAmountChange = (index, value) => {
         setRows(prevRows =>
             prevRows.map((row, idx) =>
@@ -182,6 +272,7 @@ const IssueReturn = () => {
         );
     };
 
+    // member id and date  get api
     const fetchIssueReturnDetails = async (memberId, date) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
@@ -280,13 +371,10 @@ const IssueReturn = () => {
                 // fineAmount: fineAmounts[row.bookDetailId]
             }))
         };
-
-        // Check if there are any selected rows
         if (selectedBookDetails.length === 0) {
             toast.error('No books selected.');
             return;
         }
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/return/create`, {
                 method: 'POST',
@@ -296,13 +384,12 @@ const IssueReturn = () => {
                 },
                 body: JSON.stringify(payload)
             });
-
             if (response.ok) {
                 const data = await response.json();
                 toast.success(data.message || 'Issue return submitted successfully.');
                 setShowAddModal(false);
                 resetFormFields();
-                fetchIssueReturn();
+                // fetchIssueReturn();
                 fetchLatestIssueReturnNo();
             } else {
                 const errorData = await response.json();
@@ -314,16 +401,17 @@ const IssueReturn = () => {
         }
     };
 
+    //delete function
     const handleDelete = (issueReturnId) => {
         setIssueReturnIdToDelete(issueReturnId);
         setShowDeleteModal(true);
     };
 
+    //delete api
     const confirmDelete = async () => {
         try {
             const issueReturnDetails = issueReturn[issueReturnIdToDelete];
             const bookDetailIds = issueReturnDetails.map(detail => detail.bookDetailsList.map(book => book.bookDetailIds)).flat();
-
             const response = await fetch(`${BaseURL}/api/bookdetails/update-status-issue-return`, {
                 method: 'POST',
                 headers: {
@@ -332,18 +420,15 @@ const IssueReturn = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-
             if (response.ok) {
-                // If the update is successful, delete the issue return
                 await fetch(`${BaseURL}/api/issue/${issueReturnIdToDelete}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`
                     }
                 });
-
                 toast.success('Issue return deleted successfully.');
-                fetchIssueReturn();
+                // fetchIssueReturn();
                 fetchLatestIssueReturnNo();
             } else {
                 const errorData = await response.json();
@@ -357,43 +442,37 @@ const IssueReturn = () => {
         }
     };
 
+    //view 
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);
-        setShowDetailModal(true);
+        setShowViewModal(true);
     };
     const calculateDetailTotal = () => {
         if (!selectedDetail) return 0;
         return selectedDetail[0].bookDetailsList.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
-
+    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-
     // Convert object to array for pagination
     const issueReturnArray = Object.entries(issueReturn).map(([key, value]) => ({ key, value }));
     const totalPages = Math.ceil(issueReturnArray.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
     const currentData = issueReturnArray.slice(indexOfFirstItem, indexOfLastItem);
-
 
 
     return (
@@ -639,7 +718,7 @@ const IssueReturn = () => {
                 </Modal.Footer>
             </Modal>
 
-            <Modal centered show={showDetailModal} onHide={() => setShowDetailModal(false)} size='lg'>
+            <Modal centered show={showViewModal} onHide={() => setShowViewModal(false)} size='lg'>
                 <Modal.Header closeButton>
                     <Modal.Title>Issue Return Details</Modal.Title>
                 </Modal.Header>
@@ -717,7 +796,7 @@ const IssueReturn = () => {
                     )}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDetailModal(false)}>
+                    <Button variant="secondary" onClick={() => setShowViewModal(false)}>
                         Close
                     </Button>
                 </Modal.Footer>
