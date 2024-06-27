@@ -45,7 +45,7 @@ const BookLanguages = () => {
     // get api
     const fetchBookLanguages = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages`);
+            const response = await fetch(`${BaseURL}/api/language`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -74,7 +74,7 @@ const BookLanguages = () => {
             bookLangName: addBookLangName,
         };
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages`, {
+            const response = await fetch(`${BaseURL}/api/language`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -115,7 +115,7 @@ const BookLanguages = () => {
     const handleEditLanguageSubmit = async (event) => {
         event.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages/${editableLanguage.bookLangId}`, {
+            const response = await fetch(`${BaseURL}/api/language/${editableLanguage.bookLangId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -148,7 +148,7 @@ const BookLanguages = () => {
     //delete api
     const handleDeleteLanguage = async (languageId) => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages/${languageId}`, {
+            const response = await fetch(`${BaseURL}/api/language/${languageId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`

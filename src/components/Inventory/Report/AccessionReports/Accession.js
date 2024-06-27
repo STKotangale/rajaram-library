@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, Button, Container } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
+import { useAuth } from '../../../Auth/AuthProvider';
 
 const Accession = () => {
+  const { accessToken } = useAuth();
   const [show, setShow] = useState(false);
   const [blobUrl, setBlobUrl] = useState(null);
   const [error, setError] = useState(false);
@@ -10,22 +12,30 @@ const Accession = () => {
 
   const handleShow = () => {
     setShow(true);
-    setError(false); // Reset error state when showing the modal
+    setError(false); 
     fetchData();
   };
 
   const handleClose = () => {
     setShow(false);
-    setBlobUrl(null); // Reset blobUrl when closing the modal
+    setBlobUrl(null);
   };
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${BaseURL}/api/reports/acession`);
+      const response = await fetch(`${BaseURL}/api/reports/acession`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`, 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({})
+      });
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      const blob = await response.blob();
+        const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setBlobUrl(url);
     } catch (error) {
@@ -33,15 +43,16 @@ const Accession = () => {
       setError(true);
     }
   };
+  
 
   const handleDownloadPDF = () => {
     if (blobUrl) {
       const link = document.createElement('a');
       link.href = blobUrl;
-      link.download = 'acession-status-report.pdf'; // Set the download filename
-      document.body.appendChild(link); // Append to body to ensure visibility
+      link.download = 'acession-status-report.pdf'; 
+      document.body.appendChild(link); 
       link.click();
-      document.body.removeChild(link); // Clean up
+      document.body.removeChild(link); 
     }
   };
 

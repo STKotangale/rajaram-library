@@ -22,7 +22,7 @@ const BookLanguageReport = () => {
 
     const fetchBookLanguages = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-languages`, {
+            const response = await fetch(`${BaseURL}/api/language`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }

@@ -297,7 +297,7 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
     //get book
     const fetchBooks = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book`, {
+            const response = await fetch(`${BaseURL}/api/book/all`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }

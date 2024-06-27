@@ -42,15 +42,20 @@ const BookPublication = () => {
     //auth
     const { accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-    // const accessToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5kZXNoIiwiaWF0IjoxNzE5Mzg1OTY2LCJleHAiOjE3MTk0NzIzNjZ9.asSVWYaqYiOb66z-uE0lUFMtxasSOna_lSpT39JMFBc"
-    const fetchBookPublication = async () => {
-        console.log('Fetching book publications with token:', accessToken); // Log the token
+    // const accessToken = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW5kZXNoIiwiaWF0IjoxNzE5Mzk1MDIyLCJleHAiOjE3MTk0ODE0MjJ9.BaSSW7OBDEFj0ePzc8mvoG2tJhnGCA5QIrYT_mu7gtM"
 
+
+    const fetchBookPublication = async () => {
+        const accessToken = localStorage.getItem('accessToken');
+        console.log("Token", accessToken);
         try {
             const response = await fetch(`${BaseURL}/api/book-publications`, {
+                method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`
-                }
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include' 
             });
             if (!response.ok) {
                 throw new Error(`Error fetching book publication: ${response.statusText}`);
@@ -58,11 +63,13 @@ const BookPublication = () => {
             const data = await response.json();
             setBookPublication(data.data);
             setFiltered(data.data);
+            toast.success('Book publications fetched successfully.');
         } catch (error) {
-            console.error(error);
+            console.error('Fetch error:', error);
             toast.error('Error fetching book publication. Please try again later.');
         }
     };
+    
 
     useEffect(() => {
         fetchBookPublication();

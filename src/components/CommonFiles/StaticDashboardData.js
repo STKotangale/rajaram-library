@@ -46,7 +46,7 @@ const DashboardData = () => {
 //     //book get
 //     const fetchBookData = async () => {
 //       try {
-//         const response = await fetch(`${BaseURL}/api/auth/book`, {
+//         const response = await fetch(`${BaseURL}/api/book/all`, {
 //           method: 'GET',
 //           headers: {
 //             'Authorization': `Bearer ${accessToken}`,

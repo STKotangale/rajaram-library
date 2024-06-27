@@ -5,19 +5,19 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState(() => {
     const storedAuthState = JSON.parse(sessionStorage.getItem('authState'));
-    return storedAuthState || { username: null, accessToken: null, userId: null, memberId: null };
+    return storedAuthState || { username: null, accessToken: null,tokenType: null, userId: null, memberId: null };
   });
 
   useEffect(() => {
     sessionStorage.setItem('authState', JSON.stringify(authState));
   }, [authState]);
 
-  const login = (username, accessToken, userId, memberId) => {
-    setAuthState({ username, accessToken, userId, memberId });
+  const login = (username, accessToken, tokenType, userId, memberId) => {
+    setAuthState({ username, accessToken, tokenType, userId, memberId });
   };
 
   const logout = () => {
-    setAuthState({ username: null, accessToken: null, userId: null, memberId: null });
+    setAuthState({ username: null, accessToken: null, tokenType: null, userId: null, memberId: null });
   };
 
   return (

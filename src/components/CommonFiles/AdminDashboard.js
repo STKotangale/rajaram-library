@@ -98,7 +98,9 @@ const componentMapping = {
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
+    //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
+    const { username, accessToken, logout, userId } = useAuth();
 
     const [viewState, setViewState] = useState('home');
     //transction
@@ -124,8 +126,6 @@ const AdminDashboard = () => {
     //admin report
     const [showAdminReportSubItems, setShowAdminReportSubItems] = useState(false);
 
-    //auth
-    const { username, accessToken, logout, userId } = useAuth();
     //change password
     const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
     const [credentials, setCredentials] = useState({ password: '', confirmPassword: '' });
@@ -223,7 +223,6 @@ const AdminDashboard = () => {
     };
 
 
-
     return (
         <div className='main-dashboard-member'>
             <div ref={sidebarRef} className={`sidebar-admin ${showSidebar ? 'active' : ''}`}>
@@ -310,10 +309,10 @@ const AdminDashboard = () => {
                                                         <DateRangeOutlined className="icon me-2" /> Date Wise Register
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterMemberWise'); setShowSidebar(false); }}>
-                                                        <PersonCircle className="icon me-2" /> Member Register 
+                                                        <PersonCircle className="icon me-2" /> Member Register
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('issueRegisterBookWise'); setShowSidebar(false); }}>
-                                                        <Book className="icon me-2" /> Book Wise Register 
+                                                        <Book className="icon me-2" /> Book Wise Register
                                                     </ListGroup.Item>
                                                 </div>
                                             )}

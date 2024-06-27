@@ -38,7 +38,7 @@ const BookTypes = () => {
     //get api
     const fetchBookTypes = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
+            const response = await fetch(`${BaseURL}/api/booktype`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -68,7 +68,7 @@ const BookTypes = () => {
     const addBookType = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types`, {
+            const response = await fetch(`${BaseURL}/api/booktype`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -100,7 +100,7 @@ const BookTypes = () => {
                 throw new Error("Selected book type ID is undefined.");
             }
 
-            const response = await fetch(`${BaseURL}/api/auth/book-types/${selectedBookTypeId}`, {
+            const response = await fetch(`${BaseURL}/api/booktype/${selectedBookTypeId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -148,7 +148,7 @@ const BookTypes = () => {
     //delete api
     const deleteBookType = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/auth/book-types/${selectedBookTypeId}`, {
+            const response = await fetch(`${BaseURL}/api/booktype/${selectedBookTypeId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
