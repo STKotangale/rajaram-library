@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, Button, Container } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
+import { useAuth } from '../../../Auth/AuthProvider';
 
 const Accession = () => {
+  const { accessToken } = useAuth();
   const [show, setShow] = useState(false);
   const [blobUrl, setBlobUrl] = useState(null);
   const [error, setError] = useState(false);
@@ -21,11 +23,19 @@ const Accession = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch(`${BaseURL}/api/reports/acession`);
+      const response = await fetch(`${BaseURL}/api/reports/acession`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`, 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({})
+      });
+  
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-      const blob = await response.blob();
+        const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setBlobUrl(url);
     } catch (error) {
@@ -33,6 +43,7 @@ const Accession = () => {
       setError(true);
     }
   };
+  
 
   const handleDownloadPDF = () => {
     if (blobUrl) {
