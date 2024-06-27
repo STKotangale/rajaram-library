@@ -50,8 +50,13 @@ const BookTypeWiseReport = () => {
         setShow(true);
         setIsLoading(true);
         try {
+<<<<<<< HEAD
             const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${bookTypeId}`, {
                 method: 'GET',
+=======
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${selectedBookType}`, {
+                method: 'POST',
+>>>>>>> sandesh-react-new
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Accept': 'application/pdf'
