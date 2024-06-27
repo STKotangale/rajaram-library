@@ -1,11 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
+import { useNavigate } from 'react-router-dom';
 
 const BookIssue = () => {
     //get all issue
@@ -40,39 +41,132 @@ const BookIssue = () => {
     //view
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedIssue, setSelectedIssue] = useState(null);
+    //start date and end date
+    const [sessionStartDate, setSessionStartDate] = useState(null);
 
+    const formatDateToDDMMYYYY = (date) => {
+        const day = (`0${date.getDate()}`).slice(-2);
+        const month = (`0${date.getMonth() + 1}`).slice(-2);
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     //auth
+    const navigate = useNavigate();
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
-        fetchIssue();
+        // fetchIssue();
         fetchGeneralMembers();
         fetchBookDetails();
         fetchLatestIssueNo();
+        fetchSessionDate();
+        // fetchStartDateEndDate();
     }, [username, accessToken]);
 
-    //get all isuue
-    const fetchIssue = async () => {
+
+    // //get all isuue
+    // const fetchIssue = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/all`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching issue: ${response.statusText}`);
+    //         }
+    //         const data = await response.json();
+    //         const updatedData = data.map(issueItem => ({
+    //             ...issueItem,
+    //             fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
+    //         }));
+    //         setIssue(updatedData);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Error fetching issue. Please try again later.');
+    //     }
+    // };
+
+    const fetchSessionDate = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/all`, {
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching issue: ${response.statusText}`);
+                throw new Error(`Error fetching session date: ${response.statusText}`);
             }
             const data = await response.json();
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
+        } catch (error) {
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
+        }
+    };
+
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/all?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+    
+            // Navigate if the response is not OK (e.g., network error, server error)
+            if (!response.ok) {
+                toast.error(`Error fetching issues: ${response.statusText}`);
+                navigate('/');
+                return;
+            }
+    
+            const responseData = await response.json();
+    
+            if (responseData.success === false && responseData.statusCode === 400) {
+                // No sessions found, show toast message
+                toast.info('No sessions found for the provided year range');
+                navigate('/');
+                return;
+            }
+    
+            // Sessions found, process the data
+            const data = responseData.data;
             const updatedData = data.map(issueItem => ({
                 ...issueItem,
                 fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
             }));
             setIssue(updatedData);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching issue. Please try again later.');
+            console.error('Error fetching issues:', error);
+            toast.error('Error fetching issues. Please try again later.');
+            navigate('/');
         }
+    };
+    
+    
+    
+
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+    };
+
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        setEndDate(newEndDate);
+    };
+
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
     };
 
     //get Issue  No number
@@ -273,12 +367,7 @@ const BookIssue = () => {
         setRows(updatedRows);
     };
 
-
     const resetFormFields = () => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const defaultIssueDate = today.toISOString().substr(0, 10);
-        setIssueDate(defaultIssueDate);
         setSelectedMemberName('');
         setSelectedMemberLibNo('');
         setRows(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', accessionNo: '' })));
@@ -342,7 +431,8 @@ const BookIssue = () => {
                 await updateBlockStatus(membOnlineIds);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchIssue();
+                // fetchIssue();
+                // fetchStartDateEndDate();
                 fetchBookDetails();//copyno
                 fetchLatestIssueNo();
             } else {
@@ -421,7 +511,8 @@ const BookIssue = () => {
             if (deleteResponse.ok) {
                 toast.success('Issue deleted successfully.');
                 setShowDeleteModal(false);
-                fetchIssue();
+                // fetchIssue();
+                // fetchStartDateEndDate();
                 fetchBookDetails();//copyno
                 fetchLatestIssueNo();
             } else {
@@ -488,11 +579,35 @@ const BookIssue = () => {
         <div className="main-content">
             <Container className='small-screen-table'>
                 <div className='mt-2'>
-                    <div className='mt-1'>
+                    <div className='mt-1 d-flex justify-content-between'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
                             Add Book Issue
                         </Button>
+                        <div className="d-flex">
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>Start Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={startDate}
+                                    onChange={handleStartDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>End Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={endDate}
+                                    onChange={handleEndDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <Button onClick={handleSearchClick} className="button-color ms-3">
+                                Search
+                            </Button>
+                        </div>
                     </div>
+
                     <div className="table-responsive table-height mt-4">
                         <Table striped bordered hover>
                             <thead>
@@ -505,7 +620,7 @@ const BookIssue = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map((issueItem, index) => (
+                                {issue.map((issueItem, index) => (
                                     <tr key={issueItem.stock_id}>
                                         <td>{index + 1}</td>
                                         <td>{issueItem.fullName}</td>

@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Pagination, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Pagination, Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
 import { PencilSquare, Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
@@ -10,17 +10,15 @@ import PurchaseDetails from './PurchaseDetails';
 import '../InventoryTransaction/CSS/Purchase.css';
 
 const ViewPurchase = () => {
-
+    //search
     const [filtered, setFiltered] = useState([]);
     const [dataQuery, setDataQuery] = useState("");
-
     useEffect(() => {
         setFiltered(purchases.filter(purchases =>
             purchases.ledgerName.toLowerCase().includes(dataQuery.toLowerCase())
         ));
-        setCurrentPage(1); 
+        setCurrentPage(1);
     }, [dataQuery]);
-
     //get 
     const [purchases, setPurchases] = useState([]);
     //add purchase in another page go
@@ -33,7 +31,6 @@ const ViewPurchase = () => {
     const [selectedPurchase, setSelectedPurchase] = useState(null);
     //view
     const [viewPurchaseModal, setViewPurchaseModal] = useState(false);
-    
     const [purchaseDetails, setPurchaseDetails] = useState({});
 
     // //discount  and gst
@@ -44,6 +41,17 @@ const ViewPurchase = () => {
     // const [bookName, setBookName] = useState([]);
     // const [selectedBooks, setSelectedBooks] = useState([]);
     // const [rowBooks, setRowBooks] = useState("");
+    //start date and end date
+    // const [issue, setIssue] = useState([]);
+    const [sessionStartDate, setSessionStartDate] = useState(null);
+    const formatDateToDDMMYYYY = (date) => {
+        const day = (`0${date.getDate()}`).slice(-2);
+        const month = (`0${date.getMonth() + 1}`).slice(-2);
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
 
     //auth
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -52,41 +60,95 @@ const ViewPurchase = () => {
     // back and submit another page 
     const handlePurchaseSubmit = () => {
         setShowAddPurchase(false);
-        fetchPurchases();
+        // fetchPurchases();
     };
-
     const handleBackButtonClick = () => {
         setShowAddPurchase(false);
     };
 
-
     useEffect(() => {
-        fetchPurchases();
+        // fetchPurchases();
+        fetchSessionDate();
     }, [username, accessToken]);
 
-    //get purchase
-    const fetchPurchases = async () => {
+    // //get purchase
+    // const fetchPurchases = async () => {
+    //     try {
+    //         // const response = await fetch(`${BaseURL}/api/stock`, {
+    //         const response = await fetch(`${BaseURL}/api/stock/only`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching purchases: ${response.statusText}`);
+    //         }
+    // const data = await response.json();
+    // setPurchases(data);
+    // setFiltered(data);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Error fetching purchases. Please try again later.');
+    //     }
+    // };
+
+
+    const fetchSessionDate = async () => {
         try {
-            // const response = await fetch(`${BaseURL}/api/stock`, {
-            const response = await fetch(`${BaseURL}/api/stock/only`, {
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching purchases: ${response.statusText}`);
+                throw new Error(`Error fetching session date: ${response.statusText}`);
             }
             const data = await response.json();
-            setPurchases(data);
-            setFiltered(data);
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching purchases. Please try again later.');
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
         }
     };
 
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching issues: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setPurchases(data.data);
+            setFiltered(data.data);
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+            toast.error('Error fetching issues. Please try again later.');
+        }
+    };
 
-    
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+    };
+
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        setEndDate(newEndDate);
+    };
+
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
+    };
 
 
     const handleCloseModal = () => {
@@ -113,7 +175,7 @@ const ViewPurchase = () => {
                 throw new Error(`Error deleting purchase: ${response.statusText}`);
             }
             toast.success('Purchase deleted successfully.');
-            fetchPurchases();
+            // fetchPurchases();
             setShowDeleteConfirmation(false);
         } catch (error) {
             console.error(error);
@@ -492,6 +554,29 @@ const ViewPurchase = () => {
                                     className="me-2 border border-success"
                                 />
                             </div>
+                            <div className="d-flex">
+                                <InputGroup className="ms-3">
+                                    <InputGroup.Text>Start Date</InputGroup.Text>
+                                    <Form.Control
+                                        type="date"
+                                        value={startDate}
+                                        onChange={handleStartDateChange}
+                                        className="custom-date-picker small-input border"
+                                    />
+                                </InputGroup>
+                                <InputGroup className="ms-3">
+                                    <InputGroup.Text>End Date</InputGroup.Text>
+                                    <Form.Control
+                                        type="date"
+                                        value={endDate}
+                                        onChange={handleEndDateChange}
+                                        className="custom-date-picker small-input border"
+                                    />
+                                </InputGroup>
+                                <Button onClick={handleSearchClick} className="button-color ms-3">
+                                    Search
+                                </Button>
+                            </div>
                         </div>
                         <div className="table-responsive table-height mt-4">
                             <Table striped bordered hover>
@@ -509,11 +594,9 @@ const ViewPurchase = () => {
                                     {currentData.map((purchase, index) => (
                                         <tr key={index}>
                                             <td>{indexOfNumber + index + 1}</td>
-                                            {/* <td>{purchase.ledgerIDF?.ledgerName}</td> */}
                                             <td>{purchase.ledgerName ? purchase.ledgerName : 'N/A'}</td>
                                             <td>{purchase.invoiceNo}</td>
                                             <td>{purchase.invoiceDate}</td>
-                                            {/* <td>{new Date(purchase.invoiceDate).toLocaleDateString()}</td> */}
                                             <td>{purchase.grandTotal}</td>
                                             <td>
                                                 {/* <PencilSquare className="ms-3 action-icon edit-icon" onClick={() => handleEditClick(purchase)} /> */}

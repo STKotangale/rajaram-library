@@ -8,7 +8,7 @@ import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookTypeWiseReport = () => {
     const [bookTypes, setBookTypes] = useState([]);
-    const [selectedBookTypeName, setSelectedBookTypeName] = useState('');
+    const [selectedBookType, setSelectedBookType] = useState('');
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -22,7 +22,7 @@ const BookTypeWiseReport = () => {
 
     const fetchBookTypes = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/booktype`, {
+            const response = await fetch(`${BaseURL}/api/booktype/book-types`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -43,7 +43,7 @@ const BookTypeWiseReport = () => {
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${selectedBookTypeName}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${selectedBookType}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -55,15 +55,12 @@ const BookTypeWiseReport = () => {
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
             } else {
-                // Check for a 500 status code
                 if (response.status === 500) {
-                    // throw new Error("Failed to load PDF. Server error or the report could not be generated. Please retry or contact support if the issue persists.");
                 }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
             console.error('Error:', error);
-            // toast.error(`Error retrieving PDF: ${error.message}`);
             setBlobUrl(null); 
         }
         setIsLoading(false);
@@ -98,13 +95,13 @@ const BookTypeWiseReport = () => {
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Type</Form.Label>
                                     <Form.Select
-                                        value={selectedBookTypeName}
-                                        onChange={(e) => setSelectedBookTypeName(e.target.value)}
+                                        value={selectedBookType}
+                                        onChange={(e) => setSelectedBookType(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Book Type</option>
                                         {bookTypes.map(bookType => (
-                                            <option key={bookType.bookTypeId} value={bookType.bookTypeName}>{bookType.bookTypeName}</option>
+                                            <option key={bookType.bookTypeId} value={bookType.bookTypeId}>{bookType.bookTypeName}</option>
                                         ))}
                                     </Form.Select>
                                 </Form.Group>
