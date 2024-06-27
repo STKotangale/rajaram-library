@@ -226,7 +226,7 @@ const Books = () => {
     //get api
     const fetchBookTypes = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/booktype`, {
+            const response = await fetch(`${BaseURL}/api/booktype/book-types`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -247,7 +247,7 @@ const Books = () => {
     // get api
     const fetchBookLanguages = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/language`);
+            const response = await fetch(`${BaseURL}/api/language/book-languages`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }

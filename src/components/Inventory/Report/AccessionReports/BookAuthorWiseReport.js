@@ -8,7 +8,7 @@ import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookAuthorWiseReport = () => {
     const [authors, setAuthors] = useState([]);
-    const [selectedBookAuthorName, setSelectedBookAuthorName] = useState('');
+    const [selectedBookAuthor, setSelectedBookAuthor] = useState('');
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,7 @@ const BookAuthorWiseReport = () => {
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise/${selectedBookAuthorName}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise/${selectedBookAuthor}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -98,13 +98,13 @@ const BookAuthorWiseReport = () => {
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Author</Form.Label>
                                     <Form.Select
-                                        value={selectedBookAuthorName}
-                                        onChange={(e) => setSelectedBookAuthorName(e.target.value)}
+                                        value={selectedBookAuthor}
+                                        onChange={(e) => setSelectedBookAuthor(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Author</option>
                                         {authors.map(author => (
-                                            <option key={author.authorId} value={author.authorName}>{author.authorName}</option>
+                                            <option key={author.authorId} value={author.authorId}>{author.authorName}</option>
                                         ))}
                                     </Form.Select>
                                 </Form.Group>

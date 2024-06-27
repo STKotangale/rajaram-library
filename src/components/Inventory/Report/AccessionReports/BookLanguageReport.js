@@ -22,7 +22,7 @@ const BookLanguageReport = () => {
 
     const fetchBookLanguages = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/language`, {
+            const response = await fetch(`${BaseURL}/api/language/book-languages`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -108,7 +108,7 @@ const BookLanguageReport = () => {
                                     >
                                         <option value="">Select Book Language</option>
                                         {bookLanguage.map(language => (
-                                            <option key={language.bookLangId} value={language.bookLangName}>{language.bookLangName}</option>
+                                            <option key={language.bookLangId} value={language.bookLangId}>{language.bookLangName}</option>
                                         ))}
                                     </Form.Select>
                                 </Form.Group>

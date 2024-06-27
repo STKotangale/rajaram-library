@@ -8,7 +8,7 @@ import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookPublicationWiseReport = () => {
     const [publications, setPublications] = useState([]);
-    const [selectedBookPublicationName, setSelectedBookPublicationName] = useState('');
+    const [selectedBookPublication, setSelectedBookPublication] = useState('');
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +40,7 @@ const BookPublicationWiseReport = () => {
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise/${selectedBookPublicationName}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise/${selectedBookPublication}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -99,13 +99,13 @@ const BookPublicationWiseReport = () => {
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Publication</Form.Label>
                                     <Form.Select
-                                        value={selectedBookPublicationName}
-                                        onChange={(e) => setSelectedBookPublicationName(e.target.value)}
+                                        value={selectedBookPublication}
+                                        onChange={(e) => setSelectedBookPublication(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Publication</option>
                                         {publications.map(publication => (
-                                            <option key={publication.publicationId} value={publication.publicationName}>{publication.publicationName}</option>
+                                            <option key={publication.publicationId} value={publication.publicationId}>{publication.publicationName}</option>
                                         ))}
                                     </Form.Select>
                                 </Form.Group>
