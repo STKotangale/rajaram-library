@@ -1,15 +1,18 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
-
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { Container, Form, Button, Row, Col, Table } from 'react-bootstrap';
 import { ArrowReturnLeft, Trash } from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
 
 const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
+    //get 
+    const [purchases, setPurchases] = useState([]);
+    //post
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookName: '', quantity: '', rate: '', amount: '' })));
     //discount
     const [discountPercentage, setDiscountPercentage] = useState("");
@@ -19,10 +22,6 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     //invoice number
     const [invoiceNumber, setInvoiceNumber] = useState();
-    // const [invoiceNumber, setInvoiceNumber] = useState(() => {
-    //     return sessionStorage.getItem('invoiceNumber') || 'TIN1';
-    // });
-
     // search Function 
     const [searchQuery] = useState('');
     //get ledger name
@@ -32,38 +31,91 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
     //get books name
     const [bookName, setBookName] = useState([]);
     const [selectedBooks, setSelectedBooks] = useState([]);
-
+    //session
+    const [sessionStartDate, setSessionStartDate] = useState(null);
     //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
+    const navigate = useNavigate();
 
     //get username and access token
     useEffect(() => {
         fetchLatestpurchaseNo();
+        fetchSessionDate();
     }, [username, accessToken]);
 
-    // useEffect(() => {
-    // sessionStorage.setItem('invoiceNumber', invoiceNumber);
-    // }, [invoiceNumber]);
-
-    //get 
-    const [purchases, setPurchases] = useState([]);
     //get purchase
-    const fetchPurchases = async () => {
+    // const fetchPurchases = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/stock`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching purchases: ${response.statusText}`);
+    //         }
+    //         const data = await response.json();
+    //         setPurchases(data.data);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Error fetching purchases. Please try again later.');
+    //     }
+    // };
+
+    //get session dates
+    const fetchSessionDate = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/stock`, {
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching purchases: ${response.statusText}`);
+                throw new Error(`Error fetching session date: ${response.statusText}`);
             }
             const data = await response.json();
-            setPurchases(data.data);
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching purchases. Please try again later.');
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
+        }
+    };
+
+    //hit api for getting date in "session"  also hit api for select start and end dates
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/stock?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (response.status === 400) {
+                const responseData = await response.json();
+                if (responseData.success === false && responseData.statusCode === 400) {
+                    toast.info('No sessions found for the provided year range');
+                    navigate('/');
+                    return;
+                }
+            } else if (!response.ok) {
+                toast.error(`Error fetching issues: ${response.statusText}`);
+                navigate('/');
+                return;
+            }
+            const responseData = await response.json();
+            if (responseData.success) {
+                setPurchases(responseData.data);
+            } else {
+                toast.error('Error fetching issues. Please try again later.');
+            }
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+            toast.error('Error fetching issues. Please try again later.');
+            navigate('/');
         }
     };
 
@@ -157,7 +209,6 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
         return Math.floor(totalAfterDiscount);
     };
 
-
     //gst  
     const handleGstChange = (e) => {
         const value = e.target.value.trim();
@@ -191,23 +242,21 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
         return `${day}-${month}-${year}`;
     };
 
+    //post
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         try {
             if (!selectedLedgerName.trim()) {
                 throw new Error('Please select purchaser name.');
             }
-
             const isBookFilled = rows.some(row => row.bookName.trim() !== '');
             if (!isBookFilled) {
                 throw new Error('Please enter at least one book.');
             }
-
             const filteredRows = rows.filter(row => row.bookName.trim() !== '' && row.quantity.trim() !== '' && row.rate.trim() !== '');
             const payload = {
                 invoiceNo: invoiceNumber,
-                invoiceDate: formatDate(invoiceDate), // Format the date here
+                invoiceDate: formatDate(invoiceDate),
                 ledgerIDF: selectedLedgerID,
                 billTotal: calculateBillTotal(),
                 discountPercent: discountPercentage,
@@ -223,11 +272,9 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                     bookAmount: row.quantity && row.rate ? parseFloat(row.quantity) * parseFloat(row.rate) : 0
                 }))
             };
-
             if (!accessToken) {
                 throw new Error('Access token not found. Please log in again.');
             }
-
             const response = await fetch(`${BaseURL}/api/stock`, {
                 method: 'POST',
                 headers: {
@@ -236,15 +283,14 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
                 },
                 body: JSON.stringify(payload)
             });
-
             if (!response.ok) {
                 throw new Error(`Failed to submit purchase: ${response.status} - ${response.statusText}`);
             }
             const stockDetails = await response.json();
             toast.success("Purchase successfully submitted.");
             handlePurchaseSubmit();
-            fetchPurchases();
-            fetchLatestpurchaseNo();
+            fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
+            // fetchLatestpurchaseNo();
         } catch (error) {
             console.error('Error submitting purchase:', error.message);
             toast.error('Error submitting purchase. Please try again.');

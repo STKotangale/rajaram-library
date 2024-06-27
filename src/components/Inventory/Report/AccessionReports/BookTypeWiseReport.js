@@ -7,12 +7,15 @@ import { Button, Container, Row, Form, Modal } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookTypeWiseReport = () => {
+    //get book types
     const [bookTypes, setBookTypes] = useState([]);
-    const [selectedBookType, setSelectedBookType] = useState('');
+    //post bookTypeId
+    const [bookTypeId, setBookTypeId] = useState('');
+    //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -20,6 +23,8 @@ const BookTypeWiseReport = () => {
         fetchBookTypes();
     }, [username, accessToken]);
 
+
+    //get book type
     const fetchBookTypes = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/booktype/book-types`, {
@@ -38,12 +43,14 @@ const BookTypeWiseReport = () => {
         }
     };
 
+
+    // post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${selectedBookType}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise/${bookTypeId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -61,7 +68,7 @@ const BookTypeWiseReport = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            setBlobUrl(null); 
+            setBlobUrl(null);
         }
         setIsLoading(false);
     };
@@ -95,8 +102,8 @@ const BookTypeWiseReport = () => {
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Type</Form.Label>
                                     <Form.Select
-                                        value={selectedBookType}
-                                        onChange={(e) => setSelectedBookType(e.target.value)}
+                                        value={bookTypeId}
+                                        onChange={(e) => setBookTypeId(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Book Type</option>

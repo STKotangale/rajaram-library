@@ -7,12 +7,15 @@ import { Button, Container, Row, Form, Modal } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookAuthorWiseReport = () => {
+    //get
     const [authors, setAuthors] = useState([]);
-    const [selectedBookAuthor, setSelectedBookAuthor] = useState('');
+    //post
+    const [authorId, setAuthorId] = useState('');
+    //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -20,6 +23,7 @@ const BookAuthorWiseReport = () => {
         fetchAuthors();
     }, [username, accessToken]);
 
+    //get api
     const fetchAuthors = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-authors`);
@@ -34,12 +38,13 @@ const BookAuthorWiseReport = () => {
         }
     };
 
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise/${selectedBookAuthor}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise/${authorId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -57,7 +62,7 @@ const BookAuthorWiseReport = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            setBlobUrl(null); 
+            setBlobUrl(null);
         }
         setIsLoading(false);
     };
@@ -98,8 +103,8 @@ const BookAuthorWiseReport = () => {
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Author</Form.Label>
                                     <Form.Select
-                                        value={selectedBookAuthor}
-                                        onChange={(e) => setSelectedBookAuthor(e.target.value)}
+                                        value={authorId}
+                                        onChange={(e) => setAuthorId(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Author</option>

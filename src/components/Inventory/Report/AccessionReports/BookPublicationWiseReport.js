@@ -7,12 +7,15 @@ import { Button, Container, Row, Form, Modal } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookPublicationWiseReport = () => {
+    //get pulication name
     const [publications, setPublications] = useState([]);
-    const [selectedBookPublication, setSelectedBookPublication] = useState('');
+    //post publicationId
+    const [publicationId, setPublicationId] = useState('');
+    //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-
+    //auth
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
@@ -20,6 +23,7 @@ const BookPublicationWiseReport = () => {
         fetchPublications();
     }, [username, accessToken]);
 
+    //get api
     const fetchPublications = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/book-publications`);
@@ -34,13 +38,13 @@ const BookPublicationWiseReport = () => {
         }
     };
 
-
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise/${selectedBookPublication}`, {
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise/${publicationId}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -58,7 +62,7 @@ const BookPublicationWiseReport = () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            setBlobUrl(null); 
+            setBlobUrl(null);
         }
         setIsLoading(false);
     };
@@ -99,8 +103,8 @@ const BookPublicationWiseReport = () => {
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Publication</Form.Label>
                                     <Form.Select
-                                        value={selectedBookPublication}
-                                        onChange={(e) => setSelectedBookPublication(e.target.value)}
+                                        value={publicationId}
+                                        onChange={(e) => setPublicationId(e.target.value)}
                                         required
                                     >
                                         <option value="">Select Publication</option>
