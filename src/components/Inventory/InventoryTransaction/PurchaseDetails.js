@@ -289,8 +289,9 @@ const PurchaseDetails = ({ handlePurchaseSubmit, onBackButtonClick }) => {
             const stockDetails = await response.json();
             toast.success("Purchase successfully submitted.");
             handlePurchaseSubmit();
-            fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
-            // fetchLatestpurchaseNo();
+            // fetchSessionDate();
+            // fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
+            fetchLatestpurchaseNo();
         } catch (error) {
             console.error('Error submitting purchase:', error.message);
             toast.error('Error submitting purchase. Please try again.');
