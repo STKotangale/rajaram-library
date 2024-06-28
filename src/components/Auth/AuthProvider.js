@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     setAuthState({ username: null, accessToken: null, tokenType: null, userId: null, memberId: null });
+    sessionStorage.removeItem('authState'); 
+    window.location.href = '/'; 
   };
 
   return (
@@ -108,3 +110,35 @@ export const useAuth = () => useContext(AuthContext);
 
 
 
+// import React, { createContext, useContext, useState, useEffect } from 'react';
+
+// const AuthContext = createContext();
+
+// export const AuthProvider = ({ children }) => {
+//   const [authState, setAuthState] = useState(() => {
+//     const storedAuthState = JSON.parse(sessionStorage.getItem('authState'));
+//     return storedAuthState || { username: null, accessToken: null, tokenType: null, userId: null, memberId: null };
+//   });
+
+//   useEffect(() => {
+//     sessionStorage.setItem('authState', JSON.stringify(authState));
+//   }, [authState]);
+
+//   const login = (username, accessToken, tokenType, userId, memberId) => {
+//     setAuthState({ username, accessToken, tokenType, userId, memberId });
+//   };
+
+//   const logout = () => {
+//     setAuthState({ username: null, accessToken: null, tokenType: null, userId: null, memberId: null });
+//     sessionStorage.removeItem('authState'); 
+//     window.location.href = '/'; 
+//   };
+
+//   return (
+//     <AuthContext.Provider value={{ ...authState, login, logout }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => useContext(AuthContext);

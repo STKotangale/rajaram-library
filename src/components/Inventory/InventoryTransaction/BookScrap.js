@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
+import { useNavigate } from 'react-router-dom';
 
-// Utility function to convert date to dd-mm-yyyy format
+// date format
 const formatDateToDDMMYYYY = (dateStr) => {
     const date = new Date(dateStr);
     const day = String(date.getDate()).padStart(2, '0');
@@ -16,45 +17,114 @@ const formatDateToDDMMYYYY = (dateStr) => {
 };
 
 const BookScrap = () => {
+    //get 
     const [bookScrap, setBookScrap] = useState([]);
-    const [purchaserName, setPurchaserName] = useState([]);
-    const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
-    const [selectedPurchaserName, setSelectedPurchaserName] = useState('');
-    const [accessionDetails, setAccessionDetails] = useState([]);
+    //post
     const [showAddModal, setShowAddModal] = useState(false);
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
+    const [purchaserName, setPurchaserName] = useState([]);
+    const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
+    const [selectedPurchaserName, setSelectedPurchaserName] = useState('');
+    const [accessionDetails, setAccessionDetails] = useState([]);
     const [discountPercent, setDiscountPercent] = useState('');
+    //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
+    //view
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [selectedRowDetails, setSelectedRowDetails] = useState([]);
-    const { username, accessToken } = useAuth();
+    const [selectedRowDetails, setSelectedRowDetails] = useState(null);
+    // start date and end date
+    const [sessionStartDate, setSessionStartDate] = useState(null);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    //auth
+    const navigate = useNavigate();
+    const { username, accessToken, logout } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
-        fetchBookScrap();
+        fetchSessionDate();
         fetchPurchaserName();
         fetchAccessionDetails();
         fetchLatestBookScrapNo();
     }, [username, accessToken]);
 
-    const fetchBookScrap = async () => {
+    // get session dates
+    const fetchSessionDate = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/book-scrap-all`, {
-                headers: { 'Authorization': `Bearer ${accessToken}` }
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
             });
-            if (!response.ok) throw new Error(`Error fetching book scrap: ${response.statusText}`);
+            if (!response.ok) {
+                throw new Error(`Error fetching session date: ${response.statusText}`);
+            }
             const data = await response.json();
-            const groupedData = groupBy(data, 'stock_id');
-            setBookScrap(groupedData);
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching book scrap. Please try again later.');
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
         }
     };
 
+    // hit api for getting date in "session"  also hit api for select start and end dates
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/book-scrap-all?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
+                navigate('/');
+                return;
+            }
+            const responseData = await response.json();
+            if (responseData.success === false && responseData.statusCode === 400) {
+                toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
+                navigate('/');
+                return;
+            }
+            const data = responseData.data;
+            setBookScrap(data || []);
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+            toast.error('Error fetching issues. Please try again later.');
+            logout();
+            sessionStorage.clear();
+            navigate('/');
+        }
+    };
+
+    // select start and end dates
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+    };
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        setEndDate(newEndDate);
+    };
+    // search 
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
+    };
+
+    //latest book scrap number
     const fetchLatestBookScrapNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-bookScrapNo`, {
@@ -69,6 +139,7 @@ const BookScrap = () => {
         }
     };
 
+    //get purchaser name
     const fetchPurchaserName = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/ledger`, {
@@ -83,6 +154,7 @@ const BookScrap = () => {
         }
     };
 
+    //get accession numbers
     const fetchAccessionDetails = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/acession-details`, {
@@ -97,6 +169,7 @@ const BookScrap = () => {
         }
     };
 
+    //change accession number
     const handleAccessionInputChange = (index, event) => {
         const updatedRows = [...rows];
         const accessionNo = event.target.value;
@@ -121,24 +194,25 @@ const BookScrap = () => {
         setRows(updatedRows);
     };
 
+    //add and delete for add modal
     const addRowAdd = () => {
         setRows([...rows, { accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' }]);
     };
-
     const deleteRowAdd = (index) => {
         const updatedRows = rows.filter((_, i) => i !== index);
         setRows(updatedRows);
     };
 
+    //calculations
     const calculateBillTotal = () => {
         return rows.reduce((total, row) => total + (parseFloat(row.bookRate) || 0), 0).toFixed(2);
     };
-
     const calculateTotalAfterDiscount = (total) => {
         const discountValue = parseFloat(discountPercent) || 0;
         return (total - (total * (discountValue / 100))).toFixed(2);
     };
 
+    //purchaser select
     const handlePurchaserSelect = (event) => {
         const selectedName = event.target.value;
         const purchaser = purchaserName.find(p => p.ledgerName === selectedName);
@@ -151,29 +225,26 @@ const BookScrap = () => {
         }
     };
 
-
     const resetFormFields = () => {
         setSelectedPurchaserName('');
         setDiscountPercent('');
         setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     };
 
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.accessionNo)
             .map(row => ({
                 bookdetailId: row.bookDetailId,
                 amount: parseFloat(row.bookRate)
             }));
-
         const billTotal = parseFloat(calculateBillTotal());
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-        const grandTotal = parseFloat(totalAfterDiscount);
-
+        // const grandTotal = parseFloat(totalAfterDiscount);
+        const grandTotal = Math.round(parseFloat(totalAfterDiscount));
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
@@ -185,7 +256,6 @@ const BookScrap = () => {
             grandTotal: grandTotal,
             bookDetails: bookDetailsPayload
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-scrap`, {
                 method: 'POST',
@@ -195,13 +265,14 @@ const BookScrap = () => {
                 },
                 body: JSON.stringify(payload)
             });
-
             if (response.ok) {
                 const scrapDetails = await response.json();
                 toast.success(scrapDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchBookScrap();
+                fetchSessionDate();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
+                fetchAccessionDetails();
                 fetchLatestBookScrapNo();
             } else {
                 const errorData = await response.json();
@@ -213,33 +284,33 @@ const BookScrap = () => {
         }
     };
 
+    //calculation
     const billTotal = parseFloat(calculateBillTotal());
     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-    const grandTotal = parseFloat(totalAfterDiscount);
-
+    // const grandTotal = parseFloat(totalAfterDiscount);
+    const grandTotal = Math.floor(parseFloat(totalAfterDiscount));
     const calculateDiscountAmount = () => {
         const billTotal = calculateBillTotal();
         const discountAmount = billTotal * (discountPercent / 100);
-        return Math.floor(discountAmount);
+        // return Math.floor(discountAmount);
+        return parseFloat(discountAmount.toFixed(2));
     };
 
+    //delete
     const handleDelete = (stockId) => {
         setDeleteStockId(stockId);
         setShowDeleteModal(true);
     };
 
+    //delete api
     const confirmDelete = async () => {
         if (!deleteStockId) return;
-
-        const selectedItems = bookScrap[deleteStockId];
-
-        if (!selectedItems || selectedItems.length === 0) {
+        const selectedItem = bookScrap.find(item => item.stockId === deleteStockId);
+        if (!selectedItem) {
             toast.error('No book details found for this stock.');
             return;
         }
-
-        const bookDetailIds = selectedItems.map(item => item.bookDetailId);
-
+        const bookDetailIds = selectedItem.bookDetails.map(item => item.bookDetailId);
         try {
             const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-book-scrap`, {
                 method: 'POST',
@@ -249,20 +320,17 @@ const BookScrap = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-
             if (!postResponse.ok) {
                 const postData = await postResponse.json();
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
                 return;
             }
-
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
             if (!deleteResponse.ok) {
                 const deleteData = await deleteResponse.json();
                 toast.error(`Error deleting book scrap: ${deleteData.message}`);
@@ -270,7 +338,9 @@ const BookScrap = () => {
             }
             toast.success('Book scrap successfully processed and deleted.');
             setShowDeleteModal(false);
-            fetchBookScrap();
+            fetchSessionDate();
+            fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
+            fetchAccessionDetails();
             fetchLatestBookScrapNo();
         } catch (error) {
             console.error('Error during deletion process:', error);
@@ -278,50 +348,63 @@ const BookScrap = () => {
         }
     };
 
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-            return result;
-        }, {});
-    };
-
-    const handleViewDetails = (items) => {
-        setSelectedRowDetails(items);
+    //view
+    const handleViewDetails = (item) => {
+        setSelectedRowDetails(item);
         setShowDetailsModal(true);
     };
 
+    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(Object.keys(bookScrap).length / perPage);
-
+    const totalPages = Math.ceil(bookScrap.length / perPage);
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = Object.entries(bookScrap).slice(indexOfFirstItem, indexOfLastItem);
+    const currentData = bookScrap.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
                 <div className='mt-2'>
-                    <div className='mt-1'>
+                    <div className='mt-1 d-flex justify-content-between'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
                             Add Book Scrap
                         </Button>
+                        <div className="d-flex">
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>Start Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={startDate}
+                                    onChange={handleStartDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>End Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={endDate}
+                                    onChange={handleEndDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <Button onClick={handleSearchClick} className="button-color ms-3">
+                                Search
+                            </Button>
+                        </div>
                     </div>
                     <div className="table-responsive table-height mt-4">
                         <Table striped bordered hover>
@@ -335,15 +418,15 @@ const BookScrap = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map(([stock_id, items], index) => (
-                                    <tr key={stock_id}>
-                                        <td>{index + 1}</td>
-                                        <td>{items[0].ledgerName}</td>
-                                        <td>{items[0].invoiceNo}</td>
-                                        <td>{items[0].invoiceDate}</td>
+                                {currentData.map((item, index) => (
+                                    <tr key={item.stockId || index}>
+                                        <td>{indexOfFirstItem + index + 1}</td>
+                                        <td>{item.ledgerName}</td>
+                                        <td>{item.invoiceNo}</td>
+                                        <td>{item.invoiceDate}</td>
                                         <td>
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(items)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(item)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(item.stockId)} />
                                         </td>
                                     </tr>
                                 ))}
@@ -524,7 +607,7 @@ const BookScrap = () => {
                         <Modal.Title>Book Scrap Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {selectedRowDetails.length > 0 && (
+                        {selectedRowDetails && (
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
@@ -532,7 +615,7 @@ const BookScrap = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.invoiceNo}
+                                            value={selectedRowDetails.invoiceNo || ''}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -540,7 +623,7 @@ const BookScrap = () => {
                                         <Form.Label>Book Scrap Date</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={selectedRowDetails[0]?.invoiceDate}
+                                            value={selectedRowDetails.invoiceDate || ''}
                                             className="small-input"
                                             readOnly
                                         />
@@ -552,7 +635,7 @@ const BookScrap = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.ledgerName}
+                                            value={selectedRowDetails.ledgerName || ''}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -568,14 +651,14 @@ const BookScrap = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedRowDetails.map((row, index) => (
+                                            {selectedRowDetails.bookDetails.map((row, index) => (
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
                                                         <Form.Control
                                                             type="text"
                                                             className="small-input"
-                                                            value={row.bookName}
+                                                            value={row.bookName || ''}
                                                             readOnly
                                                         />
                                                     </td>
@@ -583,14 +666,14 @@ const BookScrap = () => {
                                                         <Form.Control
                                                             type="text"
                                                             className="small-input"
-                                                            value={row.accessionNo}
+                                                            value={row.accessionNo || ''}
                                                             readOnly
                                                         />
                                                     </td>
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={row.book_rate.toFixed(2)}
+                                                            value={row.amount !== undefined ? row.amount.toFixed(2) : '0.00'}
                                                             readOnly
                                                         />
                                                     </td>
@@ -600,7 +683,7 @@ const BookScrap = () => {
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">Bill Total</td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.billTotal.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.billTotal !== undefined ? selectedRowDetails.billTotal.toFixed(2) : '0.00'}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -610,25 +693,25 @@ const BookScrap = () => {
                                                         <Form.Control
                                                             className="right-align"
                                                             type="number"
-                                                            value={selectedRowDetails[0]?.discountPercent}
+                                                            value={selectedRowDetails.discountPercent !== undefined ? selectedRowDetails.discountPercent : '0.00'}
                                                             readOnly
                                                         />
                                                         <span>%</span>
                                                     </div>
                                                 </td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.discountAmount !== undefined ? selectedRowDetails.discountAmount.toFixed(2) : '0.00'}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Total After Discount</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.totalAfterDiscount !== undefined ? selectedRowDetails.totalAfterDiscount.toFixed(2) : '0.00'}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal}</td>
+                                                <td className="amount-align">{selectedRowDetails.grandTotal !== undefined ? selectedRowDetails.grandTotal : '0'}</td>
                                             </tr>
                                         </tbody>
                                     </Table>
@@ -661,3 +744,4 @@ const BookScrap = () => {
 };
 
 export default BookScrap;
+

@@ -52,7 +52,7 @@ const BookIssue = () => {
     const [endDate, setEndDate] = useState('');
     //auth
     const navigate = useNavigate();
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, logout } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
@@ -119,13 +119,17 @@ const BookIssue = () => {
                 }
             });
             if (!response.ok) {
-                toast.error(`Error fetching issues: ${response.statusText}`);
+                toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
             const responseData = await response.json();
             if (responseData.success === false && responseData.statusCode === 400) {
                 toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
@@ -134,10 +138,12 @@ const BookIssue = () => {
                 ...issueItem,
                 fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
             }));
-            setIssue(updatedData);
+            setIssue(updatedData || []);
         } catch (error) {
             console.error('Error fetching issues:', error);
             toast.error('Error fetching issues. Please try again later.');
+            logout();
+            sessionStorage.clear();
             navigate('/');
         }
     };
