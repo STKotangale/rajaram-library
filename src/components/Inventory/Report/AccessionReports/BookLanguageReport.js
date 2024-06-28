@@ -11,6 +11,8 @@ const BookLanguageReport = () => {
     const [bookLanguage, setBookLanguage] = useState([]);
     //post
     const [bookLangId, setBookLangId] = useState('');
+    const [bookLangName, setBookLangName] = useState('');
+
     //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
@@ -50,6 +52,7 @@ const BookLanguageReport = () => {
 
         const payloadData = {
             bookLangId: bookLangId,
+            bookLangName: bookLangName,
         };
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise`, {
@@ -59,7 +62,7 @@ const BookLanguageReport = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
                 },
-                body: JSON.stringify(payloadData)  
+                body: JSON.stringify(payloadData)
             });
             if (response.ok) {
                 const blob = await response.blob();
@@ -100,6 +103,17 @@ const BookLanguageReport = () => {
         printWindow.print();
     };
 
+    const handleLanguageChange = (e) => {
+        const selectedLanguageName = e.target.value;
+        setBookLangName(selectedLanguageName);
+        const selectedLanguage = bookLanguage.find(bookLanguage => bookLanguage.bookLangName === selectedLanguageName);
+        if (selectedLanguage) {
+            setBookLangId(selectedLanguage.bookLangId);
+        } else {
+            setBookLangId('');
+        }
+    };
+
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -110,19 +124,23 @@ const BookLanguageReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
-                                <Form.Group className="" controlId="bookName">
-                                    <Form.Label>Book Language Wise Report</Form.Label>
-                                    <Form.Select
-                                        value={bookLangId}
-                                        onChange={(e) => setBookLangId(e.target.value)}
+                                <Form.Group className="mb-3" controlId="publicationName">
+                                    <Form.Label>Book Language</Form.Label>
+                                    <input
+                                        list="language"
+                                        className="form-control"
+                                        placeholder="Select or search language"
+                                        value={bookLangName}
+                                        onChange={handleLanguageChange}
                                         required
-                                    >
-                                        <option value="">Select Book Language</option>
-                                        {bookLanguage.map(language => (
-                                            <option key={language.bookLangId} value={language.bookLangId}>{language.bookLangName}</option>
+                                    />
+                                    <datalist id="language">
+                                    {bookLanguage.map(bookLanguage => (
+                                            <option key={bookLanguage.bookLangId} value={bookLanguage.bookLangName}></option>
                                         ))}
-                                    </Form.Select>
-                                </Form.Group>
+                                    </datalist>
+                                </Form.Group>
+
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">

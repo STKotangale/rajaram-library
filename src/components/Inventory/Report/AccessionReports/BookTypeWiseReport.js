@@ -52,6 +52,7 @@ const BookTypeWiseReport = () => {
 
         const payloadData = {
             bookTypeId: bookTypeId,
+            bookTypeName: bookTypeName,
         };
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise`, {
@@ -121,7 +122,7 @@ const BookTypeWiseReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
-                                <Form.Group className="mb-3" controlId="bookTypeName">
+                            <Form.Group className="mb-3" controlId="bookTypeName">
                                     <Form.Label>Book Type</Form.Label>
                                     <input
                                         list="bookTypes"
@@ -131,12 +132,12 @@ const BookTypeWiseReport = () => {
                                         onChange={handleBookTypeChange}
                                         required
                                     />
-                                    <datalist id="bookTypes">
+                                     <datalist id="bookTypes">
                                         {bookTypes.map(bookType => (
                                             <option key={bookType.bookTypeId} value={bookType.bookTypeName}></option>
                                         ))}
                                     </datalist>
-                                </Form.Group>
+                               </Form.Group>
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
@@ -150,7 +151,7 @@ const BookTypeWiseReport = () => {
 
             <Modal show={show} onHide={handleClose} size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title className="flex-grow-1">Accession Status Report Book Type Wise</Modal.Title>
+                    <Modal.Title className="flex-grow-1">Book Type Wise Report</Modal.Title>
                     <Button variant="info" onClick={handleDownloadPDF} className="me-2">
                         <Download /> Download PDF
                     </Button>
