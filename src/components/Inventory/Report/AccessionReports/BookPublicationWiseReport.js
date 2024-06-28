@@ -48,6 +48,7 @@ const BookPublicationWiseReport = () => {
 
         const payloadData = {
             publicationId: publicationId,
+            publicationName: publicationName
         };
 
         try {

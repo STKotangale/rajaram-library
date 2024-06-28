@@ -1,10 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
+import { useNavigate } from 'react-router-dom';
 
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
@@ -16,67 +17,110 @@ const formatDateToDDMMYYYY = (dateStr) => {
 };
 
 const PurchaseReturn = () => {
-    //get purchase return
+    //get all
     const [purchaseReturn, setPurchaseReturn] = useState([]);
-    //get purchaser name
-    const [purchaserName, setPurchaserName] = useState([]);
-    //selcted ledger name
-    const [selectedPurchaserName, setSelectedPurchaserName] = useState('');
-    const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
-    //get all books
-    const [accessionDetails, setAccessionDetails] = useState([]);
-    //add 
+    // post
     const [showAddModal, setShowAddModal] = useState(false);
-    //selected book get data
-    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
+    const [purchaserName, setPurchaserName] = useState([]);
+    const [selectedPurchaserName, setSelectedPurchaserName] = useState('');
+    const [selectedPurchaserId, setSelectedPurchaserId] = useState(null);
+    const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] })));
+    const [accessionDetails, setAccessionDetails] = useState([]);
     const [discountPercent, setDiscountPercent] = useState('');
-    // const [discountAmount, setDiscountAmount] = useState('');
     const [gstPercent, setGstPercent] = useState('');
-    // const [gstAmount, setGstAmount] = useState('');
-
-
-
     //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
     //view
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [selectedRowDetails, setSelectedRowDetails] = useState([]);
+    const [selectedRowDetails, setSelectedRowDetails] = useState(null);
+    //session
+    //start date and end date
+    const [sessionStartDate, setSessionStartDate] = useState(null);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     //auth
+    const navigate = useNavigate();
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    //get api call 
+
     useEffect(() => {
-        fetchPurchaseReturn();
+        fetchSessionDate();
         fetchPurchaserName();
         fetchAccessionDetails();
         fetchLatestPurchaseReturnNo();
     }, [username, accessToken]);
 
-    //get purchase return
-    const fetchPurchaseReturn = async () => {
+    //session
+    const fetchSessionDate = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/purchase-return-all`, {
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching purchase return: ${response.statusText}`);
+                throw new Error(`Error fetching session date: ${response.statusText}`);
             }
             const data = await response.json();
-            const groupedData = groupBy(data, 'stock_id');
-            setPurchaseReturn(groupedData);
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching purchase return. Please try again later.');
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
         }
     };
 
-    //get purchase return number
+    //get data purchase return 
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/purchase-return-all?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                toast.error(`Error fetching purchase returns: ${response.statusText}`);
+                navigate('/');
+                return;
+            }
+            const responseData = await response.json();
+            if (responseData.success === false && responseData.statusCode === 400) {
+                toast.info('No sessions found for the provided year range');
+                navigate('/');
+                return;
+            }
+            setPurchaseReturn(responseData.data);
+        } catch (error) {
+            console.error('Error fetching purchase returns:', error);
+            toast.error('Error fetching purchase returns. Please try again later.');
+            navigate('/');
+        }
+    };
+
+    //change start and end date 
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+    };
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        setEndDate(newEndDate);
+    };
+    //search
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
+    };
+
+    //get \purchase return number
     const fetchLatestPurchaseReturnNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-purchaseReturnNo`, {
@@ -95,7 +139,7 @@ const PurchaseReturn = () => {
         }
     };
 
-    //get purchaser name
+    //purchase name
     const fetchPurchaserName = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/ledger`, {
@@ -114,7 +158,8 @@ const PurchaseReturn = () => {
         }
     };
 
-    //get all accession details
+
+    //get accession details
     const fetchAccessionDetails = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/acession-details`, {
@@ -133,6 +178,7 @@ const PurchaseReturn = () => {
         }
     };
 
+    //purchase select
     const handlePurchaserSelect = (event) => {
         const selectedName = event.target.value;
         const purchaser = purchaserName.find(p => p.ledgerName === selectedName);
@@ -145,31 +191,29 @@ const PurchaseReturn = () => {
         }
     };
 
-
-    //add function
+    //add and delete row in add modal
     const addRowAdd = () => {
         setRows([...rows, { bookId: '', bookName: '', purchaseCopyNo: '', amount: '', details: [] }]);
     };
-
     const deleteRowAdd = (index) => {
         const updatedRows = rows.filter((_, i) => i !== index);
         setRows(updatedRows);
     };
 
+    //calcutations
     const calculateBillTotal = () => {
         return rows.reduce((total, row) => total + (parseFloat(row.amount) || 0), 0).toFixed(2);
     };
-
     const calculateTotalAfterDiscount = (total) => {
         const discountValue = parseFloat(discountPercent) || 0;
         return (total - (total * (discountValue / 100))).toFixed(2);
     };
-
     const calculateTotalAfterGst = (total) => {
         const gstValue = parseFloat(gstPercent) || 0;
         return (total + (total * (gstValue / 100))).toFixed(2);
     };
 
+    //accession change
     const handleAccessionInputChange = (index, event) => {
         const updatedRows = [...rows];
         const accessionNo = event.target.value;
@@ -194,7 +238,6 @@ const PurchaseReturn = () => {
         setRows(updatedRows);
     };
 
-    // Reset form fields
     const resetFormFields = () => {
         setSelectedPurchaserName('');
         setDiscountPercent('');
@@ -205,26 +248,20 @@ const PurchaseReturn = () => {
     //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-
-        // Validation checks
         if (!invoiceNumber || !invoiceDate || !selectedPurchaserId || rows.filter(row => row.bookName && row.purchaseCopyNo).length === 0) {
             toast.error('Please fill all required fields and add at least one book.');
             return;
         }
-
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.purchaseCopyNo)
             .map(row => ({
                 bookdetailId: row.bookDetailId,
                 amount: parseFloat(row.amount)
             }));
-
         const billTotal = parseFloat(calculateBillTotal());
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
         const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
-
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
@@ -233,12 +270,9 @@ const PurchaseReturn = () => {
             grandTotal: grandTotal,
             discountPercent: parseFloat(discountPercent) || 0,
             discountAmount: calculateDiscountAmount(),
-            // gstPercent: parseFloat(gstPercent) || 0,
-            // gstAmount: calculateGstAmount(),
             totalAfterDiscount: totalAfterDiscount,
             bookDetails: bookDetailsPayload
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/purchase-return`, {
                 method: 'POST',
@@ -248,13 +282,13 @@ const PurchaseReturn = () => {
                 },
                 body: JSON.stringify(payload)
             });
-
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchPurchaseReturn();
+                fetchSessionDate();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
                 fetchLatestPurchaseReturnNo();
                 fetchAccessionDetails();
             } else {
@@ -267,47 +301,33 @@ const PurchaseReturn = () => {
         }
     };
 
+    //calculations
     const billTotal = parseFloat(calculateBillTotal());
     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-    const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
-
-    //show discount price
+    const grandTotal = Math.floor(parseFloat(calculateTotalAfterGst(totalAfterDiscount)));
     const calculateDiscountAmount = () => {
         const billTotal = calculateBillTotal();
         const discountAmount = billTotal * (discountPercent / 100);
-        return Math.floor(discountAmount);
+        // return Math.floor(discountAmount);
+        return parseFloat(discountAmount.toFixed(2));
     };
 
-    //show table in stock_id
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            const groupKey = currentValue[key];
-            if (!result[groupKey]) {
-                result[groupKey] = [];
-            }
-            result[groupKey].push(currentValue);
-            return result;
-        }, {});
-    };
 
-    //delete
+    //delete function
     const handleDelete = (stockId) => {
         setDeleteStockId(stockId);
         setShowDeleteModal(true);
     };
 
+    //delete api
     const confirmDelete = async () => {
         if (!deleteStockId) return;
-
-        const selectedGroup = purchaseReturn[deleteStockId];
-
-        if (!selectedGroup || selectedGroup.length === 0) {
+        const selectedGroup = purchaseReturn.find(item => item.stockId === deleteStockId);
+        if (!selectedGroup) {
             toast.error('No book details found for this stock.');
             return;
         }
-
-        const bookDetailIds = selectedGroup.map(item => item.bookDetailId);
-
+        const bookDetailIds = selectedGroup.books.map(item => item.stockDetailId);
         try {
             const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-purchase-return`, {
                 method: 'POST',
@@ -317,7 +337,6 @@ const PurchaseReturn = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-
             if (!postResponse.ok) {
                 const postData = await postResponse.json();
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
@@ -336,7 +355,8 @@ const PurchaseReturn = () => {
             }
             toast.success('Purchase return successfully deleted.');
             setShowDeleteModal(false);
-            fetchPurchaseReturn();
+            fetchSessionDate();
+            fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
             fetchLatestPurchaseReturnNo();
             fetchAccessionDetails();
         } catch (error) {
@@ -346,50 +366,66 @@ const PurchaseReturn = () => {
     };
 
     //view
-    const handleViewDetails = (items) => {
-        setSelectedRowDetails(items);
+    const handleViewDetails = (item) => {
+        setSelectedRowDetails(item);
         setShowDetailsModal(true);
     };
 
+    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-
-    // Convert object to array for pagination
-    const purchaseReturnArray = Object.entries(purchaseReturn).map(([key, value]) => ({ key, value }));
-    const totalPages = Math.ceil(purchaseReturnArray.length / perPage);
-
+    const totalPages = Math.ceil(purchaseReturn.length / perPage);
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = purchaseReturnArray.slice(indexOfFirstItem, indexOfLastItem);
+    const currentData = purchaseReturn.slice(indexOfFirstItem, indexOfLastItem);
 
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
                 <div className='mt-2'>
-                    <div className='mt-1'>
+                    <div className='mt-1 d-flex justify-content-between'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
                             Add Purchase Return
                         </Button>
+                        <div className="d-flex">
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>Start Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={startDate}
+                                    onChange={handleStartDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>End Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={endDate}
+                                    onChange={handleEndDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <Button onClick={handleSearchClick} className="button-color ms-3">
+                                Search
+                            </Button>
+                        </div>
                     </div>
                     <div className="table-responsive table-height mt-4">
-                        <Table striped bordered hover >
+                        <Table striped bordered hover>
                             <thead>
                                 <tr>
                                     <th>Sr. No.</th>
@@ -400,20 +436,19 @@ const PurchaseReturn = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map(({ value: items, key: stock_id }, index) => (
-                                    <tr key={stock_id || index}>
-                                        <td>{index + 1}</td>
-                                        <td>{items[0]?.ledgerName || 'N/A'}</td>
-                                        <td>{items[0]?.invoiceNo || 'N/A'}</td>
-                                        <td>{items[0]?.invoiceDate || 'N/A'}</td>
+                                {currentData.map((item, index) => (
+                                    <tr key={item.stockId || index}>
+                                        <td>{indexOfFirstItem + index + 1}</td>
+                                        <td>{item.ledgerName}</td>
+                                        <td>{item.invoiceNo}</td>
+                                        <td>{item.invoiceDate}</td>
                                         <td>
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(items)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(item)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(item.stockId)} />
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
-
                         </Table>
                     </div>
                     <div className="pagination-container">
@@ -425,7 +460,6 @@ const PurchaseReturn = () => {
                     </div>
                 </div>
             </Container>
-
 
             {/* add modal */}
             <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetFormFields(); }} size='xl'>
@@ -457,7 +491,7 @@ const PurchaseReturn = () => {
                                 </Form.Group>
                             </Row>
                             <Row className="mb-3">
-                            <Form.Label>Purchaser Name</Form.Label>
+                                <Form.Label>Purchaser Name</Form.Label>
                                 <Form.Control
                                     as="input"
                                     list="purchaserNames"
@@ -561,24 +595,6 @@ const PurchaseReturn = () => {
                                             <td className="amount-align">{totalAfterDiscount.toFixed(2)}</td>
                                             <td></td>
                                         </tr>
-                                        {/* <tr>
-                                            <td></td>
-                                            <td className="right-align">GST</td>
-                                            <td>
-                                                <div className="input-with-suffix">
-                                                    <Form.Control
-                                                        className="right-align"
-                                                        type="number"
-                                                        placeholder="GST"
-                                                        value={gstPercent}
-                                                        onChange={(e) => setGstPercent(e.target.value)}
-                                                    />
-                                                    <span>%</span>
-                                                </div>
-                                            </td>
-                                            <td className="amount-align">{calculateGstAmount()}</td>
-                                            <td></td>
-                                        </tr> */}
                                         <tr>
                                             <td></td>
                                             <td></td>
@@ -609,7 +625,7 @@ const PurchaseReturn = () => {
                         <Modal.Title>Purchase Return Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {selectedRowDetails.length > 0 && (
+                        {selectedRowDetails && (
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
@@ -617,7 +633,7 @@ const PurchaseReturn = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.invoiceNo}
+                                            value={selectedRowDetails.invoiceNo}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -625,7 +641,7 @@ const PurchaseReturn = () => {
                                         <Form.Label>Purchase Return Date</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={selectedRowDetails[0]?.invoiceDate}
+                                            value={selectedRowDetails.invoiceDate}
                                             className="small-input"
                                             readOnly
                                         />
@@ -637,7 +653,7 @@ const PurchaseReturn = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.ledgerName}
+                                            value={selectedRowDetails.ledgerName}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -653,7 +669,7 @@ const PurchaseReturn = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedRowDetails.map((row, index) => (
+                                            {selectedRowDetails.books.map((row, index) => (
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
@@ -685,7 +701,7 @@ const PurchaseReturn = () => {
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">Bill Total</td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.billTotal}</td>
+                                                <td className="amount-align">{selectedRowDetails.billTotal}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -695,45 +711,25 @@ const PurchaseReturn = () => {
                                                         <Form.Control
                                                             className="right-align"
                                                             type="number"
-                                                            value={selectedRowDetails[0]?.discountPercent}
+                                                            value={selectedRowDetails.discountPercent}
                                                             readOnly
                                                         />
                                                         <span>%</span>
                                                     </div>
                                                 </td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.discountAmount}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Total After Discount</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.totalAfterDiscount}</td>
                                             </tr>
-                                            {/* <tr>
-                                                <td></td>
-                                                <td className="right-align">GST</td>
-                                                <td>
-                                                    <div className="input-with-suffix">
-                                                        <Form.Control
-                                                            className="right-align"
-                                                            type="number"
-                                                            value={selectedRowDetails[0]?.gstPercent}
-                                                            readOnly
-                                                        />
-                                                        <span>%</span>
-                                                    </div>
-                                                </td>
-                                                <td className="amount-align">{(selectedRowDetails[0]?.gstAmount).toFixed(2)}</td>
-                                            </tr> */}
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td></td>
-                                                <td className="amount-align">
-                                                    {selectedRowDetails[0]?.grandTotal !== undefined ? Math.round(selectedRowDetails[0].grandTotal) : ''}
-                                                </td>
-
-                                                {/* <td className="amount-align">{selectedRowDetails[0]?.grandTotal}</td> */}
+                                                <td className="amount-align">{Math.round(selectedRowDetails.grandTotal)}</td>
                                             </tr>
                                         </tbody>
                                     </Table>
@@ -749,7 +745,7 @@ const PurchaseReturn = () => {
                 </div>
             </Modal>
 
-            {/* Delete modal */}
+            {/* delete modal */}
             <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Deletion</Modal.Title>

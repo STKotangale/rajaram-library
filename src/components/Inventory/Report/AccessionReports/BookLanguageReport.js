@@ -11,6 +11,7 @@ const BookLanguageReport = () => {
     const [bookLanguage, setBookLanguage] = useState([]);
     //post
     const [bookLangId, setBookLangId] = useState('');
+    const [bookLangName, setBookLangName] = useState('');
     //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
@@ -23,7 +24,7 @@ const BookLanguageReport = () => {
         fetchBookLanguages();
     }, [username, accessToken]);
 
-    //get api
+    //get
     const fetchBookLanguages = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/language/book-languages`, {
@@ -47,21 +48,26 @@ const BookLanguageReport = () => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            bookLangId: bookLangId,
+            bookLangName: bookLangName,
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise/${bookLangId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)
             });
             if (response.ok) {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
             } else {
-                if (response.status === 500) {
-                }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
@@ -94,6 +100,18 @@ const BookLanguageReport = () => {
         printWindow.print();
     };
 
+    const handleLanguageChange = (e) => {
+        const selectedLanguageName = e.target.value;
+        setBookLangName(selectedLanguageName);
+        const selectedLanguage = bookLanguage.find(bookLanguage => bookLanguage.bookLangName === selectedLanguageName);
+        if (selectedLanguage) {
+            setBookLangId(selectedLanguage.bookLangId);
+        } else {
+            setBookLangId('');
+        }
+    };
+
+
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -104,18 +122,21 @@ const BookLanguageReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
-                                <Form.Group className="" controlId="bookName">
+                                <Form.Group className="mb-3" controlId="publicationName">
                                     <Form.Label>Book Language</Form.Label>
-                                    <Form.Select
-                                        value={bookLangId}
-                                        onChange={(e) => setBookLangId(e.target.value)}
+                                    <input
+                                        list="language"
+                                        className="form-control"
+                                        placeholder="Select or search language"
+                                        value={bookLangName}
+                                        onChange={handleLanguageChange}
                                         required
-                                    >
-                                        <option value="">Select Book Language</option>
-                                        {bookLanguage.map(language => (
-                                            <option key={language.bookLangId} value={language.bookLangId}>{language.bookLangName}</option>
+                                    />
+                                    <datalist id="language">
+                                    {bookLanguage.map(bookLanguage => (
+                                            <option key={bookLanguage.bookLangId} value={bookLanguage.bookLangName}></option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>

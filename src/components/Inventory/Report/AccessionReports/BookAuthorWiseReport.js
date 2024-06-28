@@ -48,6 +48,7 @@ const BookAuthorWiseReport = () => {
 
         const payloadData = {
             authorId: authorId,
+            authorName:authorName
         };
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-authorwise`, {
