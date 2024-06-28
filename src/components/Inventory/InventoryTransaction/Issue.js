@@ -721,23 +721,6 @@ const BookIssue = () => {
                                                         </datalist>
                                                     )}
                                                 </td>
-                                                {/* <td>
-                                                    <Form.Group as={Col}>
-                                                        <Form.Label>Member Name</Form.Label>
-                                                        <Form.Control
-                                                            list="memberName"
-                                                            className="small-input"
-                                                            value={selectedMemberName}
-                                                            onChange={handleMemberChange}
-                                                            placeholder="Select member name"
-                                                        />
-                                                        <datalist id="memberName">
-                                                            {generalMember.map(member => (
-                                                                <option key={member.memberId} value={member.fullName} />
-                                                            ))}
-                                                        </datalist>
-                                                    </Form.Group>
-                                                </td> */}
                                                 <td>
                                                     <Form.Group as={Col}>
                                                         <Form.Control

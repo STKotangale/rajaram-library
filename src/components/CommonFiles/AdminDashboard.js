@@ -289,13 +289,13 @@ const AdminDashboard = () => {
                                                         <Bookshelf className="icon me-2" /> Book Type Wise
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookLanguageWiseReport'); setShowSidebar(false); }}>
-                                                        <Globe className="icon me-2" /> Book Language Wise
+                                                        <Globe className="icon me-2" /> Language Wise
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookAuthorWiseReport'); setShowSidebar(false); }}>
-                                                        <JournalBookmarkFill className="icon me-2" /> Book Author Wise
+                                                        <JournalBookmarkFill className="icon me-2" /> Author Wise
                                                     </ListGroup.Item>
                                                     <ListGroup.Item className="sub-icon mt-1" action onClick={() => { setViewState('bookPublicationWiseReport'); setShowSidebar(false); }}>
-                                                        <BookmarkCheckFill className="icon me-2" /> Book Publication Wise
+                                                        <BookmarkCheckFill className="icon me-2" /> Publication Wise
                                                     </ListGroup.Item>
                                                 </div>
                                             )}

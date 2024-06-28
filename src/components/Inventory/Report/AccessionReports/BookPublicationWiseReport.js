@@ -38,18 +38,24 @@ const BookPublicationWiseReport = () => {
         }
     };
 
-    //post api
+    //post
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            publicationId: publicationId,
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise/${publicationId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)  
             });
             if (response.ok) {
                 const blob = await response.blob();

@@ -47,13 +47,19 @@ const BookLanguageReport = () => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            bookLangId: bookLangId,
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise/${bookLangId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)  
             });
             if (response.ok) {
                 const blob = await response.blob();
@@ -105,7 +111,7 @@ const BookLanguageReport = () => {
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
                                 <Form.Group className="" controlId="bookName">
-                                    <Form.Label>Book Language</Form.Label>
+                                    <Form.Label>Book Language Wise Report</Form.Label>
                                     <Form.Select
                                         value={bookLangId}
                                         onChange={(e) => setBookLangId(e.target.value)}

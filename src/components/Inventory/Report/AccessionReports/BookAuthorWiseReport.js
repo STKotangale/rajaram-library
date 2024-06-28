@@ -38,18 +38,24 @@ const BookAuthorWiseReport = () => {
         }
     };
 
-    //post api
+    //post
     const handleSubmit = async (event) => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            authorId: authorId,
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise/${authorId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)  
             });
             if (response.ok) {
                 const blob = await response.blob();
@@ -126,7 +132,7 @@ const BookAuthorWiseReport = () => {
 
             <Modal show={show} onHide={handleClose} size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title className="flex-grow-1">Accession Status Report Book Author Wise</Modal.Title>
+                    <Modal.Title className="flex-grow-1">Book Author Wise Report</Modal.Title>
                     <Button variant="info" onClick={handleDownloadPDF} className="me-2">
                         <Download /> Download PDF
                     </Button>
