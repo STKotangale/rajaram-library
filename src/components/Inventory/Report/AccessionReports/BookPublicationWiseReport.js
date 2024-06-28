@@ -49,10 +49,6 @@ const BookPublicationWiseReport = () => {
         const payloadData = {
             publicationId: publicationId,
         };
-<<<<<<< HEAD
-=======
-
->>>>>>> kiran-react-develop
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise`, {
                 method: 'POST',
@@ -61,11 +57,7 @@ const BookPublicationWiseReport = () => {
                     'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
                 },
-<<<<<<< HEAD
                 body: JSON.stringify(payloadData)  
-=======
-                body: JSON.stringify(payloadData)
->>>>>>> kiran-react-develop
             });
             if (response.ok) {
                 const blob = await response.blob();

@@ -50,11 +50,9 @@ const BookAuthorWiseReport = () => {
             authorId: authorId,
         };
         try {
-<<<<<<< HEAD
+
             const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise`, {
-=======
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-authorwise`, {
->>>>>>> kiran-react-develop
+ 
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
