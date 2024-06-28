@@ -48,6 +48,7 @@ const BookPublicationWiseReport = () => {
 
         const payloadData = {
             publicationId: publicationId,
+            publicationName: publicationName
         };
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise`, {

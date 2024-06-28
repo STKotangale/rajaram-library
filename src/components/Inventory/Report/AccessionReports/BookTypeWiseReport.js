@@ -52,6 +52,7 @@ const BookTypeWiseReport = () => {
 
         const payloadData = {
             bookTypeId: bookTypeId,
+            bookTypeName:bookTypeName,
         };
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise`, {
@@ -110,6 +111,8 @@ const BookTypeWiseReport = () => {
             setBookTypeId('');
         }
     };
+
+    
 
     return (
         <div className='member-report'>

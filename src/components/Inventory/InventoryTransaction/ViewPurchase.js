@@ -48,6 +48,8 @@ const ViewPurchase = () => {
 
     // back and submit another page 
     const handlePurchaseSubmit = () => {
+        fetchSessionDate();
+        fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
         setShowAddPurchase(false);
     };
     const handleBackButtonClick = () => {
