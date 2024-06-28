@@ -10,6 +10,7 @@ const BookAuthorWiseReport = () => {
     //get
     const [authors, setAuthors] = useState([]);
     //post
+    const [authorName, setAuthorName] = useState('');
     const [authorId, setAuthorId] = useState('');
     //pdf
     const [show, setShow] = useState(false);
@@ -31,7 +32,8 @@ const BookAuthorWiseReport = () => {
                 throw new Error(`Error fetching authors: ${response.statusText}`);
             }
             const data = await response.json();
-            setAuthors(data.data);
+            const sortedAuthors = data.data.sort((a, b) => a.authorName.localeCompare(b.authorName));
+            setAuthors(sortedAuthors);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching authors. Please try again later.');
@@ -43,13 +45,19 @@ const BookAuthorWiseReport = () => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            authorId: authorId,
+        };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-autherwise/${authorId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-authorwise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)  
             });
             if (response.ok) {
                 const blob = await response.blob();
@@ -90,6 +98,17 @@ const BookAuthorWiseReport = () => {
         printWindow.print();
     };
 
+    const handleAuthorChange = (e) => {
+        const selectedAuthorName = e.target.value;
+        setAuthorName(selectedAuthorName);
+        const selectedAuthor = authors.find(author => author.authorName === selectedAuthorName);
+        if (selectedAuthor) {
+            setAuthorId(selectedAuthor.authorId);
+        } else {
+            setAuthorId('');
+        }
+    };
+
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -102,16 +121,19 @@ const BookAuthorWiseReport = () => {
                             <Row className="mt-5">
                                 <Form.Group className="mb-3" controlId="bookName">
                                     <Form.Label>Book Author</Form.Label>
-                                    <Form.Select
-                                        value={authorId}
-                                        onChange={(e) => setAuthorId(e.target.value)}
+                                    <input
+                                        list="authors"
+                                        className="form-control"
+                                        placeholder="Select or search author"
+                                        value={authorName}
+                                        onChange={handleAuthorChange}
                                         required
-                                    >
-                                        <option value="">Select Author</option>
+                                    />
+                                    <datalist id="authors">
                                         {authors.map(author => (
-                                            <option key={author.authorId} value={author.authorId}>{author.authorName}</option>
+                                            <option key={author.authorId} value={author.authorName}></option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>

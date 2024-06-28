@@ -7,9 +7,10 @@ import { Button, Container, Row, Form, Modal } from 'react-bootstrap';
 import { Download, Printer } from 'react-bootstrap-icons';
 
 const BookPublicationWiseReport = () => {
-    //get pulication name
+    //get publication name
     const [publications, setPublications] = useState([]);
     //post publicationId
+    const [publicationName, setPublicationName] = useState('');
     const [publicationId, setPublicationId] = useState('');
     //pdf
     const [show, setShow] = useState(false);
@@ -31,7 +32,8 @@ const BookPublicationWiseReport = () => {
                 throw new Error(`Error fetching publications: ${response.statusText}`);
             }
             const data = await response.json();
-            setPublications(data.data);
+            const sortedPublications = data.data.sort((a, b) => a.publicationName.localeCompare(b.publicationName));
+            setPublications(sortedPublications);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching publications. Please try again later.');
@@ -43,21 +45,26 @@ const BookPublicationWiseReport = () => {
         event.preventDefault();
         setShow(true);
         setIsLoading(true);
+
+        const payloadData = {
+            publicationId: publicationId,
+        };
+
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise/${publicationId}`, {
-                method: 'GET',
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
-                }
+                },
+                body: JSON.stringify(payloadData)
             });
             if (response.ok) {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
             } else {
-                if (response.status === 500) {
-                }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
@@ -90,6 +97,17 @@ const BookPublicationWiseReport = () => {
         printWindow.print();
     };
 
+    const handlePublicationChange = (e) => {
+        const selectedPublicationName = e.target.value;
+        setPublicationName(selectedPublicationName);
+        const selectedPublication = publications.find(publication => publication.publicationName === selectedPublicationName);
+        if (selectedPublication) {
+            setPublicationId(selectedPublication.publicationId);
+        } else {
+            setPublicationId('');
+        }
+    };
+
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -100,18 +118,21 @@ const BookPublicationWiseReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
-                                <Form.Group className="mb-3" controlId="bookName">
+                                <Form.Group className="mb-3" controlId="publicationName">
                                     <Form.Label>Book Publication</Form.Label>
-                                    <Form.Select
-                                        value={publicationId}
-                                        onChange={(e) => setPublicationId(e.target.value)}
+                                    <input
+                                        list="publications"
+                                        className="form-control"
+                                        placeholder="Select or search publication"
+                                        value={publicationName}
+                                        onChange={handlePublicationChange}
                                         required
-                                    >
-                                        <option value="">Select Publication</option>
+                                    />
+                                    <datalist id="publications">
                                         {publications.map(publication => (
-                                            <option key={publication.publicationId} value={publication.publicationId}>{publication.publicationName}</option>
+                                            <option key={publication.publicationId} value={publication.publicationName}></option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>
@@ -149,7 +170,6 @@ const BookPublicationWiseReport = () => {
                     <Button onClick={handleClose}>Close</Button>
                 </Modal.Footer>
             </Modal>
-
         </div>
     );
 };

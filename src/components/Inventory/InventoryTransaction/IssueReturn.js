@@ -10,10 +10,8 @@ import { useNavigate } from 'react-router-dom';
 
 
 const IssueReturn = () => {
-    //get 
     const [issueReturn, setIssueReturn] = useState([]);
     const [generalMember, setGeneralMember] = useState([]);
-    //post
     const [showAddModal, setShowAddModal] = useState(false);
     const [issueReturnNumber, setIssueReturnNumber] = useState('');
     const [issueReturnDate, setIssueReturnDate] = useState(new Date().toISOString().substr(0, 10));
@@ -21,7 +19,6 @@ const IssueReturn = () => {
     const [selectedMemberId, setSelectedMemberId] = useState("");
     const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-    // const [rows, setRows] = useState([]);
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({
         bookId: '',
         bookdetailId: '',
@@ -37,55 +34,22 @@ const IssueReturn = () => {
     })));
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
-    //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
-    //view
     const [showViewModal, setShowViewModal] = useState(false);
-    //start date and end date
     const [sessionStartDate, setSessionStartDate] = useState(null);
-    const formatDateToDDMMYYYY = (date) => {
-        const day = (`0${date.getDate()}`).slice(-2);
-        const month = (`0${date.getMonth() + 1}`).slice(-2);
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-    };
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    //auth
     const navigate = useNavigate();
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
-        // fetchIssueReturn();
         fetchSessionDate();
         fetchGeneralMembers();
         fetchLatestIssueReturnNo();
     }, [username, accessToken]);
 
-    // //get issue
-    // const fetchIssueReturn = async () => {
-    //     try {
-    //         const response = await fetch(`${BaseURL}/api/issue/issueReturns`, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${accessToken}`
-    //             }
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error(`Error fetching issue return: ${response.statusText}`);
-    //         }
-    //         const data = await response.json();
-    //         const groupedData = groupByStockId(data);
-    //         setIssueReturn(groupedData);
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast.error('Error fetching issue return. Please try again later.');
-    //     }
-    // };
-
-
-    //get session dates
     const fetchSessionDate = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
@@ -108,7 +72,6 @@ const IssueReturn = () => {
         }
     };
 
-    //hit api for getting date in "session"  also hit api for select start and end dates
     const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/issueReturns?startDate=${sessionFromDt}&endDate=${currentDate}`, {
@@ -128,11 +91,7 @@ const IssueReturn = () => {
                 return;
             }
             const data = responseData.data;
-            const updatedData = data.map(issueItem => ({
-                ...issueItem,
-                fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
-            }));
-            setIssueReturn(updatedData);
+            setIssueReturn(data);
         } catch (error) {
             console.error('Error fetching issues:', error);
             toast.error('Error fetching issues. Please try again later.');
@@ -140,23 +99,22 @@ const IssueReturn = () => {
         }
     };
 
-    //select start and end dates
     const handleStartDateChange = (e) => {
         const newStartDate = e.target.value;
         setStartDate(newStartDate);
     };
+
     const handleEndDateChange = (e) => {
         const newEndDate = e.target.value;
         setEndDate(newEndDate);
     };
-    //search 
-    const handleSearchClick = () => {
-        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
-        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
-        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
-    };
 
-    //get Issue Return No number
+    // const handleSearchClick = () => {
+    //     const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+    //     const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+    //     fetchStartDateEndDate(formattedStartDate, formattedEndDate);
+    // };
+
     const fetchLatestIssueReturnNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-issueReturnNo`, {
@@ -175,17 +133,6 @@ const IssueReturn = () => {
         }
     };
 
-    const groupByStockId = (data) => {
-        return data.reduce((acc, item) => {
-            if (!acc[item.stock_id]) {
-                acc[item.stock_id] = [];
-            }
-            acc[item.stock_id].push(item);
-            return acc;
-        }, {});
-    };
-
-    //get general member
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -207,33 +154,11 @@ const IssueReturn = () => {
     const handleDateSelect = (e) => {
         const date = e.target.value;
         setIssueReturnDate(date);
-
         if (selectedMemberId && date) {
             fetchIssueReturnDetails(selectedMemberId, date);
-        } else {
         }
     };
 
-    // const handleMemberSelect = (e) => {
-    //     const fullName = e.target.value;
-    //     setSelectedMemberName(fullName);
-    //     const selectedMember = generalMember.find(member =>
-    //         `${member.firstName} ${member.middleName} ${member.lastName}` === fullName
-    //     );
-
-    //     if (selectedMember) {
-    //         setSelectedMemberId(selectedMember.memberId);
-    //         setRows([]);
-    //         if (issueReturnDate) {
-    //             fetchIssueReturnDetails(selectedMember.memberId, issueReturnDate);
-    //         }
-    //     } else {
-    //         setSelectedMemberId('');
-    //         setRows([]);
-    //     }
-    // };
-
-    //handle member select
     const handleMemberSelect = (e) => {
         const fullName = e.target.value;
         setSelectedMemberName(fullName);
@@ -256,7 +181,6 @@ const IssueReturn = () => {
         }
     };
 
-    //chnage fine per day and amount
     const handleFinePerDayChange = (index, value) => {
         setRows(prevRows =>
             prevRows.map((row, idx) =>
@@ -264,6 +188,7 @@ const IssueReturn = () => {
             )
         );
     };
+
     const handleFineAmountChange = (index, value) => {
         setRows(prevRows =>
             prevRows.map((row, idx) =>
@@ -272,7 +197,6 @@ const IssueReturn = () => {
         );
     };
 
-    // member id and date  get api
     const fetchIssueReturnDetails = async (memberId, date) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
@@ -298,7 +222,7 @@ const IssueReturn = () => {
                     finePerDays: item.finePerDays,
                     fineDays: item.fineDays,
                     fineAmount: item.fineAmount,
-                    fineManuallyChanged: false, // Add this flag
+                    fineManuallyChanged: false,
                 }));
                 setRows(bookRows);
             }
@@ -325,7 +249,6 @@ const IssueReturn = () => {
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
     const resetFormFields = () => {
-        // setRows([]);
         setRows(Array.from({ length: 5 }, () => ({
             bookId: '',
             bookdetailId: '',
@@ -346,14 +269,11 @@ const IssueReturn = () => {
         setSelectedRowIndex(null);
     };
 
-
     const calculateTotal = () => {
         return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
-    //post api
     const handleSubmit = async (event) => {
-
         event.preventDefault();
         const selectedBookDetails = rows.filter(row => selectedRows.includes(row));
         const payload = {
@@ -367,8 +287,7 @@ const IssueReturn = () => {
                 issuedate: (row.invoiceDate),
                 fineDays: row.fineDays,
                 finePerDays: row.finePerDays,
-                fineAmount: row.fineManuallyChanged ? row.fineAmount : row.finePerDays * row.fineDays // Use manually entered fine amount if present
-                // fineAmount: fineAmounts[row.bookDetailId]
+                fineAmount: row.fineManuallyChanged ? row.fineAmount : row.finePerDays * row.fineDays
             }))
         };
         if (selectedBookDetails.length === 0) {
@@ -389,7 +308,7 @@ const IssueReturn = () => {
                 toast.success(data.message || 'Issue return submitted successfully.');
                 setShowAddModal(false);
                 resetFormFields();
-                // fetchIssueReturn();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
                 fetchLatestIssueReturnNo();
             } else {
                 const errorData = await response.json();
@@ -401,38 +320,25 @@ const IssueReturn = () => {
         }
     };
 
-    //delete function
     const handleDelete = (issueReturnId) => {
         setIssueReturnIdToDelete(issueReturnId);
         setShowDeleteModal(true);
     };
 
-    //delete api
     const confirmDelete = async () => {
         try {
-            const issueReturnDetails = issueReturn[issueReturnIdToDelete];
-            const bookDetailIds = issueReturnDetails.map(detail => detail.bookDetailsList.map(book => book.bookDetailIds)).flat();
-            const response = await fetch(`${BaseURL}/api/bookdetails/update-status-issue-return`, {
-                method: 'POST',
+            const response = await fetch(`${BaseURL}/api/issue/${issueReturnIdToDelete}`, {
+                method: 'DELETE',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${accessToken}`
-                },
-                body: JSON.stringify(bookDetailIds)
+                }
             });
             if (response.ok) {
-                await fetch(`${BaseURL}/api/issue/${issueReturnIdToDelete}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`
-                    }
-                });
                 toast.success('Issue return deleted successfully.');
-                // fetchIssueReturn();
-                fetchLatestIssueReturnNo();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
             } else {
                 const errorData = await response.json();
-                toast.error(errorData.message || 'Failed to update book details status.');
+                toast.error(errorData.message || 'Failed to delete issue return.');
             }
         } catch (error) {
             console.error('Error deleting issue return:', error);
@@ -442,22 +348,20 @@ const IssueReturn = () => {
         }
     };
 
-    //view 
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);
         setShowViewModal(true);
     };
+
     const calculateDetailTotal = () => {
         if (!selectedDetail) return 0;
-        return selectedDetail[0].bookDetailsList.reduce((acc, current) => acc + current.fineAmount, 0);
+        return selectedDetail.bookDetailsList.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
-    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    // Convert object to array for pagination
-    const issueReturnArray = Object.entries(issueReturn).map(([key, value]) => ({ key, value }));
-    const totalPages = Math.ceil(issueReturnArray.length / perPage);
+    const totalPages = Math.ceil(issueReturn.length / perPage);
+
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
@@ -470,10 +374,10 @@ const IssueReturn = () => {
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
+
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = issueReturnArray.slice(indexOfFirstItem, indexOfLastItem);
-
+    const currentData = issueReturn.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="main-content">
@@ -496,15 +400,15 @@ const IssueReturn = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map(({ key, value }, index) => (
-                                    <tr key={key}>
+                                {currentData.map((value, index) => (
+                                    <tr key={value.stock_id}>
                                         <td>{indexOfFirstItem + index + 1}</td>
-                                        <td>{value[0].username}</td>
-                                        <td>{value[0].invoiceNo}</td>
-                                        <td>{value[0].invoiceDate}</td>
+                                        <td>{value.username}</td>
+                                        <td>{value.invoiceNo}</td>
+                                        <td>{value.invoiceDate}</td>
                                         <td>
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetail(value)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(key)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(value.stock_id)} />
                                         </td>
                                     </tr>
                                 ))}
@@ -596,44 +500,6 @@ const IssueReturn = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {/* {rows.map((row, index) => (
-                                                <tr key={index} className={selectedRows.includes(row) ? 'selected-row' : ''}>
-                                                    <td className='sr-size'>{index + 1}</td>
-                                                    <td>{row.bookName}</td>
-                                                    <td>{row.accessionNo}</td>
-                                                    <td>{row.invoiceDate}</td>
-                                                    <td>
-                                                        <input
-                                                            type="number"
-                                                            className="form-control form-control-sm"
-                                                            value={row.finePerDays}
-                                                            onChange={(e) => handleFinePerDayChange(row.bookDetailId, e.target.value)}
-                                                            style={{ width: '60px' }}
-                                                        />
-                                                    </td>
-                                                    <td>{row.daysKept}</td>
-                                                    <td>{row.fineDays}</td>
-                                                    <td>
-                                                        <input
-                                                            type="number"
-                                                            style={{ width: '80px' }}
-                                                            className="form-control form-control-sm"
-                                                            value={fineAmounts[row.bookDetailId]}
-                                                            onChange={(e) => handleFineAmountChange(row.bookDetailId, e.target.value)}
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <div className="d-flex justify-content-center align-items-center">
-                                                            <input
-                                                                type="checkbox"
-                                                                className=""
-                                                                checked={selectedRows.includes(row)}
-                                                                onChange={() => handleRowSelect(row)}
-                                                            />
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))} */}
                                             {rows.map((row, index) => (
                                                 <tr key={index}>
                                                     <td>{index + 1}</td>
@@ -731,7 +597,7 @@ const IssueReturn = () => {
                                     <Form.Control
                                         type="text"
                                         className="small-input"
-                                        value={selectedDetail[0].invoiceNo}
+                                        value={selectedDetail.invoiceNo}
                                         readOnly
                                     />
                                 </Form.Group>
@@ -739,7 +605,7 @@ const IssueReturn = () => {
                                     <Form.Label>Issue Return Date</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={selectedDetail[0].invoiceDate}
+                                        value={selectedDetail.invoiceDate}
                                         readOnly
                                     />
                                 </Form.Group>
@@ -749,7 +615,7 @@ const IssueReturn = () => {
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={selectedDetail[0].username}
+                                        value={selectedDetail.username}
                                         readOnly
                                         className="custom-date-picker small-input"
                                     />
@@ -769,7 +635,7 @@ const IssueReturn = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {selectedDetail[0].bookDetailsList.map((detail, index) => (
+                                        {selectedDetail.bookDetailsList.map((detail, index) => (
                                             <tr key={index}>
                                                 <td className='sr-size'>{index + 1}</td>
                                                 <td>{detail.BookName}</td>

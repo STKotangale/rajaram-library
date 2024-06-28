@@ -159,6 +159,7 @@ const ViewPurchase = () => {
             }
             toast.success('Purchase deleted successfully.');
             setShowDeleteConfirmation(false);
+            fetchSessionDate();
             fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
         } catch (error) {
             console.error(error);

@@ -9,7 +9,8 @@ import { Download, Printer } from 'react-bootstrap-icons';
 const BookTypeWiseReport = () => {
     //get book types
     const [bookTypes, setBookTypes] = useState([]);
-    // bookTypeId
+    // bookTypeId and bookTypeName
+    const [bookTypeName, setBookTypeName] = useState('');
     const [bookTypeId, setBookTypeId] = useState('');
     //pdf
     const [show, setShow] = useState(false);
@@ -36,13 +37,13 @@ const BookTypeWiseReport = () => {
                 throw new Error(`Error fetching book types: ${response.statusText}`);
             }
             const data = await response.json();
-            setBookTypes(data.data);
+            const sortedBookTypes = data.data.sort((a, b) => a.bookTypeName.localeCompare(b.bookTypeName));
+            setBookTypes(sortedBookTypes);
         } catch (error) {
             console.error(error);
             toast.error('Error fetching book types. Please try again later.');
         }
     };
-
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -67,8 +68,6 @@ const BookTypeWiseReport = () => {
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
             } else {
-                if (response.status === 500) {
-                }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
@@ -77,12 +76,18 @@ const BookTypeWiseReport = () => {
         }
         setIsLoading(false);
     };
-    
 
+    const handleClose = () => {
+        setShow(false);
+        if (blobUrl) {
+            URL.revokeObjectURL(blobUrl);
+            setBlobUrl(null);
+        }
+    };
 
     const handleDownloadPDF = () => {
         const link = document.createElement('a');
-        link.href = blobUrl;
+        link.href={blobUrl};
         link.download = 'acession-status-report.pdf';
         document.body.appendChild(link);
         link.click();
@@ -95,6 +100,17 @@ const BookTypeWiseReport = () => {
         printWindow.print();
     };
 
+    const handleBookTypeChange = (e) => {
+        const selectedBookTypeName = e.target.value;
+        setBookTypeName(selectedBookTypeName);
+        const selectedBookType = bookTypes.find(bookType => bookType.bookTypeName === selectedBookTypeName);
+        if (selectedBookType) {
+            setBookTypeId(selectedBookType.bookTypeId);
+        } else {
+            setBookTypeId('');
+        }
+    };
+
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -105,18 +121,21 @@ const BookTypeWiseReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
-                                <Form.Group className="mb-3" controlId="bookName">
+                                <Form.Group className="mb-3" controlId="bookTypeName">
                                     <Form.Label>Book Type</Form.Label>
-                                    <Form.Select
-                                        value={bookTypeId}
-                                        onChange={(e) => setBookTypeId(e.target.value)}
+                                    <input
+                                        list="bookTypes"
+                                        className="form-control"
+                                        placeholder="Select or search book type"
+                                        value={bookTypeName}
+                                        onChange={handleBookTypeChange}
                                         required
-                                    >
-                                        <option value="">Select Book Type</option>
+                                    />
+                                    <datalist id="bookTypes">
                                         {bookTypes.map(bookType => (
-                                            <option key={bookType.bookTypeId} value={bookType.bookTypeId}>{bookType.bookTypeName}</option>
+                                            <option key={bookType.bookTypeId} value={bookType.bookTypeName}></option>
                                         ))}
-                                    </Form.Select>
+                                    </datalist>
                                 </Form.Group>
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>
@@ -129,7 +148,7 @@ const BookTypeWiseReport = () => {
                 </div>
             </div>
 
-            <Modal show={show} onHide={() => setShow(false)} size="xl">
+            <Modal show={show} onHide={handleClose} size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title className="flex-grow-1">Accession Status Report Book Type Wise</Modal.Title>
                     <Button variant="info" onClick={handleDownloadPDF} className="me-2">
@@ -151,7 +170,7 @@ const BookTypeWiseReport = () => {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button onClick={() => setShow(false)}>Close</Button>
+                    <Button onClick={handleClose}>Close</Button>
                 </Modal.Footer>
             </Modal>
 
