@@ -18,6 +18,16 @@ const formatDateToDDMMYYYY = (dateStr) => {
     return `${day}-${month}-${year}`;
 };
 
+const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+};
+
+
+
 const BookLost = () => {
     // get book lost
     const [bookLost, setBookLost] = useState([]);
@@ -45,7 +55,7 @@ const BookLost = () => {
     // start date and end date
     const [sessionStartDate, setSessionStartDate] = useState(null);
     const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [endDate, setEndDate] = useState(formatDateToDDMMYYYY());
     // auth
     const navigate = useNavigate();
     const { username, accessToken, logout } = useAuth();
@@ -75,6 +85,8 @@ const BookLost = () => {
                 sessionFromDt: data.sessionFromDt,
                 currentDate: data.currentDate
             });
+            setStartDate(formatDate(data.sessionFromDt));
+            setEndDate(formatDate(new Date()));
             fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
             console.error('Error fetching session date:', error);

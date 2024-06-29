@@ -8,6 +8,24 @@ import '../InventoryTransaction/CSS/Purchase.css';
 import { Trash, Eye, ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
 import { useNavigate } from 'react-router-dom';
 
+// date format
+const formatDateToDDMMYYYY = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+};
+
+const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${year}-${month}-${day}`;
+};
+
+
 
 const IssueReturn = () => {
     //get 
@@ -45,14 +63,8 @@ const IssueReturn = () => {
     //session
     //start date and end date
     const [sessionStartDate, setSessionStartDate] = useState(null);
-    const formatDateToDDMMYYYY = (date) => {
-        const day = (`0${date.getDate()}`).slice(-2);
-        const month = (`0${date.getMonth() + 1}`).slice(-2);
-        const year = date.getFullYear();
-        return `${day}-${month}-${year}`;
-    };
     const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
+    const [endDate, setEndDate] = useState(formatDateToDDMMYYYY());
     //auth
     const navigate = useNavigate();
     const { username, accessToken, logout } = useAuth();
@@ -80,41 +92,14 @@ const IssueReturn = () => {
                 sessionFromDt: data.sessionFromDt,
                 currentDate: data.currentDate
             });
+            setStartDate(formatDate(data.sessionFromDt));
+            setEndDate(formatDate(new Date()));
             fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
             console.error('Error fetching session date:', error);
             toast.error('Error fetching session date. Please try again later.');
         }
     };
-
-    // //hit api for getting date in "session"  also hit api for select start and end dates
-    // const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
-    //     try {
-    //         const response = await fetch(`${BaseURL}/api/issue/issueReturns?startDate=${sessionFromDt}&endDate=${currentDate}`, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${accessToken}`
-    //             }
-    //         });
-    //         if (!response.ok) {
-    //             toast.error(`Error fetching issues: ${response.statusText}`);
-    //             navigate('/');
-    //             return;
-    //         }
-    //         const responseData = await response.json();
-    //         if (responseData.success === false && responseData.statusCode === 400) {
-    //             toast.info('No sessions found for the provided year range');
-    //             navigate('/');
-    //             return;
-    //         }
-    //         const data = responseData.data;
-    //         setIssueReturn(data);
-    //     } catch (error) {
-    //         console.error('Error fetching issues:', error);
-    //         toast.error('Error fetching issues. Please try again later.');
-    //         navigate('/');
-    //     }
-    // };
-
 
     //hit api for getting date in "session"  also hit api for select start and end dates
     const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
@@ -240,17 +225,17 @@ const IssueReturn = () => {
         }
     };
 
-    //date format for api
-    const formatDate = (date) => {
-        if (!date) return '';
-        const [year, month, day] = date.split('-');
-        return `${day}-${month}-${year}`;
-    };
+    // //date format for api
+    // const formatDate = (date) => {
+    //     if (!date) return '';
+    //     const [year, month, day] = date.split('-');
+    //     return `${day}-${month}-${year}`;
+    // };
 
     //get all issue return details amount,book name,accession no,fine per amount etc
     const fetchIssueReturnDetails = async (memberId, date) => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
+            const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDateToDDMMYYYY(date)}`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -342,7 +327,7 @@ const IssueReturn = () => {
         const selectedBookDetails = rows.filter(row => selectedRows.includes(row));
         const payload = {
             issueNo: issueReturnNumber,
-            issueReturnDate: formatDate(issueReturnDate),
+            issueReturnDate: formatDateToDDMMYYYY(issueReturnDate),
             memberId: generalMember.find(member => member.memberId === parseInt(selectedMemberId))?.memberId,
             bookDetailsList: selectedBookDetails.map(row => ({
                 bookDetailIds: row.bookdetailId,
