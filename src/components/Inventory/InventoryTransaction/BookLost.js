@@ -9,7 +9,6 @@ import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
 import { useNavigate } from 'react-router-dom';
 
-
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
     const date = new Date(dateStr);
@@ -20,68 +19,47 @@ const formatDateToDDMMYYYY = (dateStr) => {
 };
 
 const BookLost = () => {
-    //get book lost
+    // get book lost
     const [bookLost, setBookLost] = useState([]);
-    //get member name
+    // get member name
     const [memberName, setMemberName] = useState([]);
     const [selectedMemberId, setSelectedMemberId] = useState(null);
-    //get all accession details
+    // get all accession details
     const [accessionDetails, setAccessionDetails] = useState([]);
-    //add 
+    // add
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedMemberFullName, setSelectedMemberFullName] = useState('');
     const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
-    //selected book get data
+    // selected book get data
     const [rows, setRows] = useState(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     const [invoiceNumber, setInvoiceNumber] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(new Date().toISOString().substr(0, 10));
     const [discountPercent, setDiscountPercent] = useState('');
     const [gstPercent, setGstPercent] = useState('');
-    //delete
+    // delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteStockId, setDeleteStockId] = useState(null);
-    //view
+    // view
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [selectedRowDetails, setSelectedRowDetails] = useState([]);
-    //start date and end date
+    const [selectedRowDetails, setSelectedRowDetails] = useState(null);
+    // start date and end date
     const [sessionStartDate, setSessionStartDate] = useState(null);
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    //auth
+    // auth
     const navigate = useNavigate();
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, logout } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
-    //get all
+    // get all
     useEffect(() => {
-        // fetchBookLost();
         fetchSessionDate();
         fetchMemberName();
         fetchAccessionDetails();
         fetchLatestBookLostNo();
     }, [username, accessToken]);
 
-    // //get book lost
-    // const fetchBookLost = async () => {
-    //     try {
-    //         const response = await fetch(`${BaseURL}/api/issue/book-lost-all`, {
-    //             headers: {
-    //                 'Authorization': `Bearer ${accessToken}`
-    //             }
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error(`Error fetching book lost : ${response.statusText}`);
-    //         }
-    //         const data = await response.json();
-    //         const groupedData = groupBy(data, 'stock_id');
-    //         setBookLost(groupedData);
-    //     } catch (error) {
-    //         console.error(error);
-    //         toast.error('Error fetching book lost . Please try again later.');
-    //     }
-    // };
-
-    //get session dates
+    // get session dates
     const fetchSessionDate = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
@@ -104,7 +82,7 @@ const BookLost = () => {
         }
     };
 
-    //hit api for getting date in "session"  also hit api for select start and end dates
+    // hit api for getting date in "session"  also hit api for select start and end dates
     const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-lost-all?startDate=${sessionFromDt}&endDate=${currentDate}`, {
@@ -113,13 +91,17 @@ const BookLost = () => {
                 }
             });
             if (!response.ok) {
-                toast.error(`Error fetching issues: ${response.statusText}`);
+                toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
             const responseData = await response.json();
             if (responseData.success === false && responseData.statusCode === 400) {
                 toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
@@ -128,15 +110,17 @@ const BookLost = () => {
                 ...issueItem,
                 fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
             }));
-            setBookLost(updatedData);
+            setBookLost(updatedData || []);
         } catch (error) {
             console.error('Error fetching issues:', error);
             toast.error('Error fetching issues. Please try again later.');
+            logout();
+            sessionStorage.clear();
             navigate('/');
         }
     };
 
-    //select start and end dates
+    // select start and end dates
     const handleStartDateChange = (e) => {
         const newStartDate = e.target.value;
         setStartDate(newStartDate);
@@ -145,14 +129,14 @@ const BookLost = () => {
         const newEndDate = e.target.value;
         setEndDate(newEndDate);
     };
-    //search 
+    // search 
     const handleSearchClick = () => {
         const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
         const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
         fetchStartDateEndDate(formattedStartDate, formattedEndDate);
     };
 
-    //get book lost no.
+    // get book lost no.
     const fetchLatestBookLostNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-bookLostNo`, {
@@ -171,7 +155,7 @@ const BookLost = () => {
         }
     };
 
-    //get member name
+    // get member name
     const fetchMemberName = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -190,7 +174,7 @@ const BookLost = () => {
         }
     };
 
-    //get all accession details
+    // get all accession details
     const fetchAccessionDetails = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/acession-details`, {
@@ -209,7 +193,7 @@ const BookLost = () => {
         }
     };
 
-    //add function
+    // add function
     const handleAccessionInputChange = (index, event) => {
         const updatedRows = [...rows];
         const accessionNo = event.target.value;
@@ -234,24 +218,23 @@ const BookLost = () => {
         setRows(updatedRows);
     };
 
+    //add and delete row for add modal
     const addRowAdd = () => {
         setRows([...rows, { accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' }]);
     };
-
     const deleteRowAdd = (index) => {
         const updatedRows = rows.filter((_, i) => i !== index);
         setRows(updatedRows);
     };
 
+    //caluclation
     const calculateBillTotal = () => {
         return rows.reduce((total, row) => total + (parseFloat(row.bookRate) || 0), 0).toFixed(2);
     };
-
     const calculateTotalAfterDiscount = (total) => {
         const discountValue = parseFloat(discountPercent) || 0;
         return (total - (total * (discountValue / 100))).toFixed(2);
     };
-
     const calculateTotalAfterGst = (total) => {
         const gstValue = parseFloat(gstPercent) || 0;
         return (total + (total * (gstValue / 100))).toFixed(2);
@@ -259,12 +242,13 @@ const BookLost = () => {
 
     // Reset form fields
     const resetFormFields = () => {
-        setSelectedMemberId(null);
+        setSelectedMemberFullName('');
         setDiscountPercent('');
         setSelectedMemberLibNo('');
         setRows(Array.from({ length: 5 }, () => ({ accessionNo: '', bookName: '', bookRate: '', bookDetailId: '' })));
     };
 
+    //member change
     const handleMemberSelect = (event) => {
         const fullName = event.target.value;
         const member = memberName.find(m => `${m.firstName} ${m.middleName} ${m.lastName}` === fullName);
@@ -280,23 +264,20 @@ const BookLost = () => {
         }
     };
 
-    //post api
+    // post api
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         const formattedFromDate = formatDateToDDMMYYYY(invoiceDate);
-
         const bookDetailsPayload = rows
             .filter(row => row.bookName && row.accessionNo)
             .map(row => ({
                 bookdetailId: row.bookDetailId,
                 amount: parseFloat(row.bookRate)
             }));
-
         const billTotal = parseFloat(calculateBillTotal());
         const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-        const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
-
+        // const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
+        const grandTotal = Math.round(parseFloat(calculateTotalAfterGst(totalAfterDiscount)));
         const payload = {
             invoiceNO: invoiceNumber,
             invoiceDate: formattedFromDate,
@@ -308,7 +289,6 @@ const BookLost = () => {
             totalAfterDiscount: totalAfterDiscount,
             bookDetails: bookDetailsPayload
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/issue/book-lost`, {
                 method: 'POST',
@@ -318,12 +298,14 @@ const BookLost = () => {
                 },
                 body: JSON.stringify(payload)
             });
-
             if (response.ok) {
                 const purchaseDetails = await response.json();
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
+                fetchSessionDate();
+                fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
+                fetchAccessionDetails();
                 fetchLatestBookLostNo();
             } else {
                 const errorData = await response.json();
@@ -335,18 +317,20 @@ const BookLost = () => {
         }
     };
 
+    //calculations
     const billTotal = parseFloat(calculateBillTotal());
     const totalAfterDiscount = parseFloat(calculateTotalAfterDiscount(billTotal));
-    const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
-
-    //show discount price
+    // const grandTotal = parseFloat(calculateTotalAfterGst(totalAfterDiscount));
+    const grandTotal = Math.floor(parseFloat(calculateTotalAfterGst(totalAfterDiscount)));
+    // show discount price
     const calculateDiscountAmount = () => {
         const billTotal = calculateBillTotal();
         const discountAmount = billTotal * (discountPercent / 100);
-        return Math.floor(discountAmount);
+        // return Math.floor(discountAmount);
+        return parseFloat(discountAmount.toFixed(2));
     };
 
-    //delete
+    // delete
     const handleDelete = (stockId) => {
         setDeleteStockId(stockId);
         setShowDeleteModal(true);
@@ -354,16 +338,12 @@ const BookLost = () => {
 
     const confirmDelete = async () => {
         if (!deleteStockId) return;
-
-        const selectedItems = bookLost[deleteStockId];
-
-        if (!selectedItems || selectedItems.length === 0) {
+        const selectedGroup = bookLost.find(item => item.stockId === deleteStockId);
+        if (!selectedGroup) {
             toast.error('No book details found for this stock.');
             return;
         }
-
-        const bookDetailIds = selectedItems.map(item => item.bookDetailId);
-
+        const bookDetailIds = selectedGroup.bookDetails.map(item => item.bookDetailId);
         try {
             const postResponse = await fetch(`${BaseURL}/api/bookdetails/update-status-book-lost`, {
                 method: 'POST',
@@ -373,20 +353,17 @@ const BookLost = () => {
                 },
                 body: JSON.stringify(bookDetailIds)
             });
-
             if (!postResponse.ok) {
                 const postData = await postResponse.json();
                 toast.error(`Error during pre-deletion process: ${postData.message}`);
                 return;
             }
-
             const deleteResponse = await fetch(`${BaseURL}/api/issue/${deleteStockId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
-
             if (!deleteResponse.ok) {
                 const deleteData = await deleteResponse.json();
                 toast.error(`Error deleting book lost: ${deleteData.message}`);
@@ -394,6 +371,9 @@ const BookLost = () => {
             }
             toast.success('Book lost successfully updated and deleted.');
             setShowDeleteModal(false);
+            fetchSessionDate();
+            fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
+            fetchAccessionDetails();
             fetchLatestBookLostNo();
         } catch (error) {
             console.error('Error during deletion process:', error);
@@ -401,43 +381,31 @@ const BookLost = () => {
         }
     };
 
-    const groupBy = (array, key) => {
-        return array.reduce((result, currentValue) => {
-            (result[currentValue[key]] = result[currentValue[key]] || []).push(currentValue);
-            return result;
-        }, {});
-    };
-
-    //view
-    const handleViewDetails = (items) => {
-        setSelectedRowDetails(items);
+    // view
+    const handleViewDetails = (item) => {
+        setSelectedRowDetails(item);
         setShowDetailsModal(true);
     };
 
-    //pagination
+    // pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
-    const totalPages = Math.ceil(Object.keys(bookLost).length / perPage);
-
+    const totalPages = Math.ceil(bookLost.length / perPage);
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
-
     const handlePrevPage = () => {
         setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
     };
-
     const handleFirstPage = () => {
         setCurrentPage(1);
     };
-
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
-    const currentData = Object.entries(bookLost).slice(indexOfFirstItem, indexOfLastItem);
+    const currentData = bookLost.slice(indexOfFirstItem, indexOfLastItem);
 
     return (
         <div className="main-content">
@@ -483,15 +451,15 @@ const BookLost = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {currentData.map(([stock_id, items], index) => (
-                                    <tr key={stock_id}>
-                                        <td>{index + 1}</td>
-                                        <td>{items[0].username}</td>
-                                        <td>{items[0].invoiceNo}</td>
-                                        <td>{items[0].invoiceDate}</td>
+                                {currentData.map((item, index) => (
+                                    <tr key={item.stockId || index}>
+                                        <td>{indexOfFirstItem + index + 1}</td>
+                                        <td>{item.fullName}</td>
+                                        <td>{item.invoiceNo}</td>
+                                        <td>{item.invoiceDate}</td>
                                         <td>
-                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(items)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(stock_id)} />
+                                            <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetails(item)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(item.stockId)} />
                                         </td>
                                     </tr>
                                 ))}
@@ -645,7 +613,8 @@ const BookLost = () => {
                                                     <span>%</span>
                                                 </div>
                                             </td>
-                                            <td className="amount-align">{calculateDiscountAmount().toFixed(2)}</td>
+                                            {/* <td className="amount-align">{calculateDiscountAmount()}</td> */}
+                                            <td className="amount-align">{calculateDiscountAmount() ? calculateDiscountAmount() : '0.00'}</td>
                                             <td></td>
                                         </tr>
                                         <tr>
@@ -685,7 +654,7 @@ const BookLost = () => {
                         <Modal.Title>Book Lost Details</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {selectedRowDetails.length > 0 && (
+                        {selectedRowDetails && (
                             <>
                                 <Row className="mb-3">
                                     <Form.Group as={Col}>
@@ -693,7 +662,7 @@ const BookLost = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.invoiceNo}
+                                            value={selectedRowDetails.invoiceNo || ''}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -701,7 +670,7 @@ const BookLost = () => {
                                         <Form.Label>Book Lost Date</Form.Label>
                                         <Form.Control
                                             type="text"
-                                            value={selectedRowDetails[0]?.invoiceDate}
+                                            value={selectedRowDetails.invoiceDate || ''}
                                             className="small-input"
                                             readOnly
                                         />
@@ -713,7 +682,7 @@ const BookLost = () => {
                                         <Form.Control
                                             type="text"
                                             className="small-input"
-                                            value={selectedRowDetails[0]?.username}
+                                            value={selectedRowDetails.fullName || ''}
                                             readOnly
                                         />
                                     </Form.Group>
@@ -729,14 +698,14 @@ const BookLost = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {selectedRowDetails.map((row, index) => (
+                                            {selectedRowDetails.bookDetails.map((row, index) => (
                                                 <tr key={index}>
                                                     <td className='sr-size'>{index + 1}</td>
                                                     <td>
                                                         <Form.Control
                                                             type="text"
                                                             className="small-input"
-                                                            value={row.bookName}
+                                                            value={row.bookName || ''}
                                                             readOnly
                                                         />
                                                     </td>
@@ -744,14 +713,14 @@ const BookLost = () => {
                                                         <Form.Control
                                                             type="text"
                                                             className="small-input"
-                                                            value={row.accessionNo}
+                                                            value={row.accessionNo || ''}
                                                             readOnly
                                                         />
                                                     </td>
                                                     <td>
                                                         <Form.Control
                                                             type="text"
-                                                            value={row.book_amount}
+                                                            value={row.book_amount !== undefined ? row.book_amount.toFixed(2) : '0.00'}
                                                             readOnly
                                                         />
                                                     </td>
@@ -761,7 +730,7 @@ const BookLost = () => {
                                                 <td></td>
                                                 <td></td>
                                                 <td className="right-align">Bill Total</td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.billTotal}</td>
+                                                <td className="amount-align">{selectedRowDetails.billTotal !== undefined ? selectedRowDetails.billTotal.toFixed(2) : '0.00'}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
@@ -771,25 +740,25 @@ const BookLost = () => {
                                                         <Form.Control
                                                             className="right-align"
                                                             type="number"
-                                                            value={selectedRowDetails[0]?.discountPercent}
+                                                            value={selectedRowDetails.discountPercent !== undefined ? selectedRowDetails.discountPercent : '0'}
                                                             readOnly
                                                         />
                                                         <span>%</span>
                                                     </div>
                                                 </td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.discountAmount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.discountAmount !== undefined ? selectedRowDetails.discountAmount.toFixed(2) : '0.00'}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Total After Discount</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.totalAfterDiscount.toFixed(2)}</td>
+                                                <td className="amount-align">{selectedRowDetails.totalAfterDiscount !== undefined ? selectedRowDetails.totalAfterDiscount.toFixed(2) : '0.00'}</td>
                                             </tr>
                                             <tr>
                                                 <td></td>
                                                 <td className="right-align">Grand Total</td>
                                                 <td></td>
-                                                <td className="amount-align">{selectedRowDetails[0]?.grandTotal}</td>
+                                                <td className="amount-align">{selectedRowDetails.grandTotal !== undefined ? selectedRowDetails.grandTotal : '0'}</td>
                                             </tr>
                                         </tbody>
                                     </Table>

@@ -44,7 +44,7 @@ const ViewPurchase = () => {
     //auth
     const navigate = useNavigate();
     const BaseURL = process.env.REACT_APP_BASE_URL;
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, logout } = useAuth();
 
     // back and submit another page 
     const handlePurchaseSubmit = () => {
@@ -95,24 +95,30 @@ const ViewPurchase = () => {
                 const responseData = await response.json();
                 if (responseData.success === false && responseData.statusCode === 400) {
                     toast.info('No sessions found for the provided year range');
+                    logout();
+                    sessionStorage.clear();
                     navigate('/');
                     return;
                 }
             } else if (!response.ok) {
                 toast.error(`Error fetching issues: ${response.statusText}`);
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
             const responseData = await response.json();
             if (responseData.success) {
-                setPurchases(responseData.data);
-                setFiltered(responseData.data);
+                setPurchases(responseData.data || []);
+                setFiltered(responseData.data || []);
             } else {
                 toast.error('Error fetching issues. Please try again later.');
             }
         } catch (error) {
             console.error('Error fetching issues:', error);
             toast.error('Error fetching issues. Please try again later.');
+            logout();
+            sessionStorage.clear();
             navigate('/');
         }
     };

@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate  } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -47,7 +47,6 @@ ReactDOM.render(
           <Route path="/admindashboard" element={<ProtectedRoute element={<AdminDashboard />} />} />
           <Route path="/memberdashboard" element={<ProtectedRoute element={<MemberDashboard />} />} />
 
-
         </Routes>
 
       </AuthProvider>
@@ -58,4 +57,6 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
+
 serviceWorker.unregister();
+

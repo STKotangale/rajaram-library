@@ -55,7 +55,7 @@ const IssueReturn = () => {
     const [endDate, setEndDate] = useState('');
     //auth
     const navigate = useNavigate();
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, logout } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     useEffect(() => {
@@ -87,6 +87,35 @@ const IssueReturn = () => {
         }
     };
 
+    // //hit api for getting date in "session"  also hit api for select start and end dates
+    // const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/issueReturns?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             toast.error(`Error fetching issues: ${response.statusText}`);
+    //             navigate('/');
+    //             return;
+    //         }
+    //         const responseData = await response.json();
+    //         if (responseData.success === false && responseData.statusCode === 400) {
+    //             toast.info('No sessions found for the provided year range');
+    //             navigate('/');
+    //             return;
+    //         }
+    //         const data = responseData.data;
+    //         setIssueReturn(data);
+    //     } catch (error) {
+    //         console.error('Error fetching issues:', error);
+    //         toast.error('Error fetching issues. Please try again later.');
+    //         navigate('/');
+    //     }
+    // };
+
+
     //hit api for getting date in "session"  also hit api for select start and end dates
     const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
         try {
@@ -96,21 +125,31 @@ const IssueReturn = () => {
                 }
             });
             if (!response.ok) {
-                toast.error(`Error fetching issues: ${response.statusText}`);
+                toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
             const responseData = await response.json();
             if (responseData.success === false && responseData.statusCode === 400) {
                 toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
             const data = responseData.data;
-            setIssueReturn(data);
+            const updatedData = data.map(issueItem => ({
+                ...issueItem,
+                fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
+            }));
+            setIssueReturn(updatedData || []);
         } catch (error) {
             console.error('Error fetching issues:', error);
             toast.error('Error fetching issues. Please try again later.');
+            logout();
+            sessionStorage.clear();
             navigate('/');
         }
     };

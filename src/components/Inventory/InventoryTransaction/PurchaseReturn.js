@@ -43,7 +43,7 @@ const PurchaseReturn = () => {
     const [endDate, setEndDate] = useState('');
     //auth
     const navigate = useNavigate();
-    const { username, accessToken } = useAuth();
+    const { username, accessToken, logout } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
 
@@ -86,20 +86,26 @@ const PurchaseReturn = () => {
                 }
             });
             if (!response.ok) {
-                toast.error(`Error fetching purchase returns: ${response.statusText}`);
+                toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
             const responseData = await response.json();
             if (responseData.success === false && responseData.statusCode === 400) {
                 toast.info('No sessions found for the provided year range');
+                logout();
+                sessionStorage.clear();
                 navigate('/');
                 return;
             }
-            setPurchaseReturn(responseData.data);
+            setPurchaseReturn(responseData.data || []);
         } catch (error) {
             console.error('Error fetching purchase returns:', error);
-            toast.error('Error fetching purchase returns. Please try again later.');
+            toast.info('No sessions found for the provided year range');
+            logout();
+            sessionStorage.clear();
             navigate('/');
         }
     };
