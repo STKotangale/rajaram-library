@@ -48,7 +48,7 @@ const BookPublicationWiseReport = () => {
 
         const payloadData = {
             publicationId: publicationId,
-            publicationName: publicationName
+            publicationName: publicationName,
         };
         try {
             const response = await fetch(`${BaseURL}/api/reports/acession-status-publicationwise`, {
@@ -114,7 +114,7 @@ const BookPublicationWiseReport = () => {
                 <div className="centered-form">
                     <Container>
                         <div className="form-header">
-                            <h2 className="text-primary">Book Publication Wise Report</h2>
+                            <h2 className="text-primary">Accession Publication Wise Report</h2>
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
@@ -147,7 +147,7 @@ const BookPublicationWiseReport = () => {
 
             <Modal show={show} onHide={handleClose} size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title className="flex-grow-1">Accession Status Report Book Publication Wise</Modal.Title>
+                    <Modal.Title className="flex-grow-1">Accession Publication Wise Report</Modal.Title>
                     <Button variant="info" onClick={handleDownloadPDF} className="me-2">
                         <Download /> Download PDF
                     </Button>

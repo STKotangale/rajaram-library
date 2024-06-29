@@ -48,7 +48,7 @@ const BookAuthorWiseReport = () => {
 
         const payloadData = {
             authorId: authorId,
-            authorName:authorName
+            authorName: authorName,
         };
         try {
 

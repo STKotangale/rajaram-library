@@ -12,6 +12,7 @@ const BookLanguageReport = () => {
     //post
     const [bookLangId, setBookLangId] = useState('');
     const [bookLangName, setBookLangName] = useState('');
+
     //pdf
     const [show, setShow] = useState(false);
     const [blobUrl, setBlobUrl] = useState(null);
@@ -24,7 +25,7 @@ const BookLanguageReport = () => {
         fetchBookLanguages();
     }, [username, accessToken]);
 
-    //get
+    //get api
     const fetchBookLanguages = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/language/book-languages`, {
@@ -51,33 +52,25 @@ const BookLanguageReport = () => {
 
         const payloadData = {
             bookLangId: bookLangId,
-<<<<<<< HEAD
-        };
-        try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise`, {
-=======
             bookLangName: bookLangName,
         };
         try {
-            const response = await fetch(`${BaseURL}/api/reports/acession-status-booktype-wise`, {
->>>>>>> c1f38e9f1d43f3124bc750441056b8bddd8716e1
+            const response = await fetch(`${BaseURL}/api/reports/acession-status-languagewise`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json',
                     'Accept': 'application/pdf'
                 },
-<<<<<<< HEAD
-                body: JSON.stringify(payloadData)  
-=======
                 body: JSON.stringify(payloadData)
->>>>>>> c1f38e9f1d43f3124bc750441056b8bddd8716e1
             });
             if (response.ok) {
                 const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 setBlobUrl(url);
             } else {
+                if (response.status === 500) {
+                }
                 throw new Error(`Failed to fetch PDF: ${await response.text()}`);
             }
         } catch (error) {
@@ -121,7 +114,6 @@ const BookLanguageReport = () => {
         }
     };
 
-
     return (
         <div className='member-report'>
             <div className="overlay">
@@ -132,13 +124,6 @@ const BookLanguageReport = () => {
                         </div>
                         <Form onSubmit={handleSubmit}>
                             <Row className="mt-5">
-<<<<<<< HEAD
-                                <Form.Group className="" controlId="bookName">
-                                    <Form.Label>Book Language Wise Report</Form.Label>
-                                    <Form.Select
-                                        value={bookLangId}
-                                        onChange={(e) => setBookLangId(e.target.value)}
-=======
                                 <Form.Group className="mb-3" controlId="publicationName">
                                     <Form.Label>Book Language</Form.Label>
                                     <input
@@ -147,7 +132,6 @@ const BookLanguageReport = () => {
                                         placeholder="Select or search language"
                                         value={bookLangName}
                                         onChange={handleLanguageChange}
->>>>>>> c1f38e9f1d43f3124bc750441056b8bddd8716e1
                                         required
                                     />
                                     <datalist id="language">
@@ -155,7 +139,8 @@ const BookLanguageReport = () => {
                                             <option key={bookLanguage.bookLangId} value={bookLanguage.bookLangName}></option>
                                         ))}
                                     </datalist>
-                                </Form.Group>
+                                </Form.Group>
+
                             </Row>
                             <div className='mt-4 d-flex justify-content-end'>
                                 <Button className='button-color' type="submit">
