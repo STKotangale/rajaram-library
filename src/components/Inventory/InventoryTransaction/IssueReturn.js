@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
@@ -10,8 +10,11 @@ import { useNavigate } from 'react-router-dom';
 
 
 const IssueReturn = () => {
+    //get 
     const [issueReturn, setIssueReturn] = useState([]);
+    //get general member
     const [generalMember, setGeneralMember] = useState([]);
+    //post
     const [showAddModal, setShowAddModal] = useState(false);
     const [issueReturnNumber, setIssueReturnNumber] = useState('');
     const [issueReturnDate, setIssueReturnDate] = useState(new Date().toISOString().substr(0, 10));
@@ -34,12 +37,23 @@ const IssueReturn = () => {
     })));
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
+    //delete
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [issueReturnIdToDelete, setIssueReturnIdToDelete] = useState(null);
+    //view
     const [showViewModal, setShowViewModal] = useState(false);
+    //session
+    //start date and end date
     const [sessionStartDate, setSessionStartDate] = useState(null);
+    const formatDateToDDMMYYYY = (date) => {
+        const day = (`0${date.getDate()}`).slice(-2);
+        const month = (`0${date.getMonth() + 1}`).slice(-2);
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+    };
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    //auth
     const navigate = useNavigate();
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
@@ -50,6 +64,7 @@ const IssueReturn = () => {
         fetchLatestIssueReturnNo();
     }, [username, accessToken]);
 
+    //session
     const fetchSessionDate = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
@@ -72,6 +87,7 @@ const IssueReturn = () => {
         }
     };
 
+    //hit api for getting date in "session"  also hit api for select start and end dates
     const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/issueReturns?startDate=${sessionFromDt}&endDate=${currentDate}`, {
@@ -99,22 +115,23 @@ const IssueReturn = () => {
         }
     };
 
+    //select start and end date
     const handleStartDateChange = (e) => {
         const newStartDate = e.target.value;
         setStartDate(newStartDate);
     };
-
     const handleEndDateChange = (e) => {
         const newEndDate = e.target.value;
         setEndDate(newEndDate);
     };
+    //search 
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
+    };
 
-    // const handleSearchClick = () => {
-    //     const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
-    //     const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
-    //     fetchStartDateEndDate(formattedStartDate, formattedEndDate);
-    // };
-
+    //get issue return number
     const fetchLatestIssueReturnNo = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/stock/latest-issueReturnNo`, {
@@ -133,6 +150,7 @@ const IssueReturn = () => {
         }
     };
 
+    //get general member
     const fetchGeneralMembers = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/general-members`, {
@@ -151,6 +169,7 @@ const IssueReturn = () => {
         }
     };
 
+    //issue return date select api hit and calculate amount
     const handleDateSelect = (e) => {
         const date = e.target.value;
         setIssueReturnDate(date);
@@ -159,6 +178,7 @@ const IssueReturn = () => {
         }
     };
 
+    //member select
     const handleMemberSelect = (e) => {
         const fullName = e.target.value;
         setSelectedMemberName(fullName);
@@ -181,22 +201,14 @@ const IssueReturn = () => {
         }
     };
 
-    const handleFinePerDayChange = (index, value) => {
-        setRows(prevRows =>
-            prevRows.map((row, idx) =>
-                idx === index ? { ...row, finePerDays: Number(value), fineManuallyChanged: false, fineAmount: Number(value) * row.fineDays } : row
-            )
-        );
+    //date format for api
+    const formatDate = (date) => {
+        if (!date) return '';
+        const [year, month, day] = date.split('-');
+        return `${day}-${month}-${year}`;
     };
 
-    const handleFineAmountChange = (index, value) => {
-        setRows(prevRows =>
-            prevRows.map((row, idx) =>
-                idx === index ? { ...row, fineAmount: Number(value), fineManuallyChanged: true } : row
-            )
-        );
-    };
-
+    //get all issue return details amount,book name,accession no,fine per amount etc
     const fetchIssueReturnDetails = async (memberId, date) => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/detail/${memberId}/${formatDate(date)}`, {
@@ -232,12 +244,25 @@ const IssueReturn = () => {
         }
     };
 
-    const formatDate = (date) => {
-        if (!date) return '';
-        const [year, month, day] = date.split('-');
-        return `${day}-${month}-${year}`;
+    //fine date change
+    const handleFinePerDayChange = (index, value) => {
+        setRows(prevRows =>
+            prevRows.map((row, idx) =>
+                idx === index ? { ...row, finePerDays: Number(value), fineManuallyChanged: false, fineAmount: Number(value) * row.fineDays } : row
+            )
+        );
     };
+    //fine amount change
+    const handleFineAmountChange = (index, value) => {
+        setRows(prevRows =>
+            prevRows.map((row, idx) =>
+                idx === index ? { ...row, fineAmount: Number(value), fineManuallyChanged: true } : row
+            )
+        );
+    };
+    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
 
+    //row select this send paylod
     const handleRowSelect = (row) => {
         setSelectedRows(prevSelectedRows =>
             prevSelectedRows.includes(row)
@@ -246,7 +271,10 @@ const IssueReturn = () => {
         );
     };
 
-    const [selectedRowIndex, setSelectedRowIndex] = useState(null);
+
+    const calculateTotal = () => {
+        return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
+    };
 
     const resetFormFields = () => {
         setRows(Array.from({ length: 5 }, () => ({
@@ -269,10 +297,7 @@ const IssueReturn = () => {
         setSelectedRowIndex(null);
     };
 
-    const calculateTotal = () => {
-        return selectedRows.reduce((acc, current) => acc + current.fineAmount, 0);
-    };
-
+    //post api
     const handleSubmit = async (event) => {
         event.preventDefault();
         const selectedBookDetails = rows.filter(row => selectedRows.includes(row));
@@ -320,11 +345,13 @@ const IssueReturn = () => {
         }
     };
 
+    //delete function
     const handleDelete = (issueReturnId) => {
         setIssueReturnIdToDelete(issueReturnId);
         setShowDeleteModal(true);
     };
 
+    //delete api
     const confirmDelete = async () => {
         try {
             const response = await fetch(`${BaseURL}/api/issue/${issueReturnIdToDelete}`, {
@@ -335,6 +362,7 @@ const IssueReturn = () => {
             });
             if (response.ok) {
                 toast.success('Issue return deleted successfully.');
+                fetchSessionDate();
                 fetchStartDateEndDate(sessionStartDate.sessionFromDt, sessionStartDate.currentDate);
             } else {
                 const errorData = await response.json();
@@ -348,20 +376,21 @@ const IssueReturn = () => {
         }
     };
 
+    //view function
     const handleViewDetail = (detail) => {
         setSelectedDetail(detail);
         setShowViewModal(true);
     };
-
+    //calculate total in view
     const calculateDetailTotal = () => {
         if (!selectedDetail) return 0;
         return selectedDetail.bookDetailsList.reduce((acc, current) => acc + current.fineAmount, 0);
     };
 
+    //pagination
     const [currentPage, setCurrentPage] = useState(1);
     const perPage = 8;
     const totalPages = Math.ceil(issueReturn.length / perPage);
-
     const handleNextPage = () => {
         setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
     };
@@ -374,19 +403,42 @@ const IssueReturn = () => {
     const handleLastPage = () => {
         setCurrentPage(totalPages);
     };
-
     const indexOfLastItem = currentPage * perPage;
     const indexOfFirstItem = indexOfLastItem - perPage;
     const currentData = issueReturn.slice(indexOfFirstItem, indexOfLastItem);
+
 
     return (
         <div className="main-content">
             <Container className='small-screen-table'>
                 <div className='mt-2'>
-                    <div className='mt-1'>
+                    <div className='mt-1 d-flex justify-content-between'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
                             Add Book Issue Return
                         </Button>
+                        <div className="d-flex">
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>Start Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={startDate}
+                                    onChange={handleStartDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>End Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={endDate}
+                                    onChange={handleEndDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <Button onClick={handleSearchClick} className="button-color ms-3">
+                                Search
+                            </Button>
+                        </div>
                     </div>
                     <div className="table-responsive table-height mt-4">
                         <Table striped bordered hover>
@@ -401,14 +453,14 @@ const IssueReturn = () => {
                             </thead>
                             <tbody>
                                 {currentData.map((value, index) => (
-                                    <tr key={value.stock_id}>
+                                    <tr key={value.stockId}>
                                         <td>{indexOfFirstItem + index + 1}</td>
                                         <td>{value.username}</td>
                                         <td>{value.invoiceNo}</td>
                                         <td>{value.invoiceDate}</td>
                                         <td>
                                             <Eye className="ms-3 action-icon view-icon" onClick={() => handleViewDetail(value)} />
-                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(value.stock_id)} />
+                                            <Trash className="ms-3 action-icon delete-icon" onClick={() => handleDelete(value.stockId)} />
                                         </td>
                                     </tr>
                                 ))}

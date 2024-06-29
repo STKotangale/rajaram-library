@@ -2,11 +2,13 @@
 /* eslint-disable no-unused-vars */
 
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Modal, Button, Form, Col, Row } from 'react-bootstrap';
+import { Container, Table, Modal, Button, Form, Col, Row, InputGroup } from 'react-bootstrap';
 import { ChevronLeft, ChevronRight, Eye, Trash } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../Auth/AuthProvider';
 import '../InventoryTransaction/CSS/Purchase.css';
+import { useNavigate } from 'react-router-dom';
+
 
 // Utility function to convert date to dd-mm-yyyy format
 const formatDateToDDMMYYYY = (dateStr) => {
@@ -41,36 +43,113 @@ const BookLost = () => {
     //view
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [selectedRowDetails, setSelectedRowDetails] = useState([]);
+    //start date and end date
+    const [sessionStartDate, setSessionStartDate] = useState(null);
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     //auth
+    const navigate = useNavigate();
     const { username, accessToken } = useAuth();
     const BaseURL = process.env.REACT_APP_BASE_URL;
 
     //get all
     useEffect(() => {
-        fetchBookLost();
+        // fetchBookLost();
+        fetchSessionDate();
         fetchMemberName();
         fetchAccessionDetails();
         fetchLatestBookLostNo();
     }, [username, accessToken]);
 
-    //get book lost
-    const fetchBookLost = async () => {
+    // //get book lost
+    // const fetchBookLost = async () => {
+    //     try {
+    //         const response = await fetch(`${BaseURL}/api/issue/book-lost-all`, {
+    //             headers: {
+    //                 'Authorization': `Bearer ${accessToken}`
+    //             }
+    //         });
+    //         if (!response.ok) {
+    //             throw new Error(`Error fetching book lost : ${response.statusText}`);
+    //         }
+    //         const data = await response.json();
+    //         const groupedData = groupBy(data, 'stock_id');
+    //         setBookLost(groupedData);
+    //     } catch (error) {
+    //         console.error(error);
+    //         toast.error('Error fetching book lost . Please try again later.');
+    //     }
+    // };
+
+    //get session dates
+    const fetchSessionDate = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/issue/book-lost-all`, {
+            const response = await fetch(`${BaseURL}/api/session/current-year-info`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
             });
             if (!response.ok) {
-                throw new Error(`Error fetching book lost : ${response.statusText}`);
+                throw new Error(`Error fetching session date: ${response.statusText}`);
             }
             const data = await response.json();
-            const groupedData = groupBy(data, 'stock_id');
-            setBookLost(groupedData);
+            setSessionStartDate({
+                sessionFromDt: data.sessionFromDt,
+                currentDate: data.currentDate
+            });
+            fetchStartDateEndDate(data.sessionFromDt, data.currentDate);
         } catch (error) {
-            console.error(error);
-            toast.error('Error fetching book lost . Please try again later.');
+            console.error('Error fetching session date:', error);
+            toast.error('Error fetching session date. Please try again later.');
         }
+    };
+
+    //hit api for getting date in "session"  also hit api for select start and end dates
+    const fetchStartDateEndDate = async (sessionFromDt, currentDate) => {
+        try {
+            const response = await fetch(`${BaseURL}/api/issue/book-lost-all?startDate=${sessionFromDt}&endDate=${currentDate}`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                toast.error(`Error fetching issues: ${response.statusText}`);
+                navigate('/');
+                return;
+            }
+            const responseData = await response.json();
+            if (responseData.success === false && responseData.statusCode === 400) {
+                toast.info('No sessions found for the provided year range');
+                navigate('/');
+                return;
+            }
+            const data = responseData.data;
+            const updatedData = data.map(issueItem => ({
+                ...issueItem,
+                fullName: `${issueItem.firstName} ${issueItem.middleName} ${issueItem.lastName}`
+            }));
+            setBookLost(updatedData);
+        } catch (error) {
+            console.error('Error fetching issues:', error);
+            toast.error('Error fetching issues. Please try again later.');
+            navigate('/');
+        }
+    };
+
+    //select start and end dates
+    const handleStartDateChange = (e) => {
+        const newStartDate = e.target.value;
+        setStartDate(newStartDate);
+    };
+    const handleEndDateChange = (e) => {
+        const newEndDate = e.target.value;
+        setEndDate(newEndDate);
+    };
+    //search 
+    const handleSearchClick = () => {
+        const formattedStartDate = formatDateToDDMMYYYY(new Date(startDate));
+        const formattedEndDate = formatDateToDDMMYYYY(new Date(endDate));
+        fetchStartDateEndDate(formattedStartDate, formattedEndDate);
     };
 
     //get book lost no.
@@ -193,7 +272,7 @@ const BookLost = () => {
             setSelectedMemberId(member.memberId);
             setSelectedMemberFullName(fullName);
             setSelectedMemberLibNo(member.libGenMembNo);
-        } 
+        }
         else {
             setSelectedMemberId(null);
             setSelectedMemberFullName('');
@@ -245,7 +324,6 @@ const BookLost = () => {
                 toast.success(purchaseDetails.message);
                 setShowAddModal(false);
                 resetFormFields();
-                fetchBookLost();
                 fetchLatestBookLostNo();
             } else {
                 const errorData = await response.json();
@@ -316,7 +394,6 @@ const BookLost = () => {
             }
             toast.success('Book lost successfully updated and deleted.');
             setShowDeleteModal(false);
-            fetchBookLost();
             fetchLatestBookLostNo();
         } catch (error) {
             console.error('Error during deletion process:', error);
@@ -366,10 +443,33 @@ const BookLost = () => {
         <div className="main-content">
             <Container className='small-screen-table'>
                 <div className='mt-2'>
-                    <div className='mt-1'>
+                    <div className='mt-1 d-flex justify-content-between'>
                         <Button onClick={() => setShowAddModal(true)} className="button-color">
                             Add Book Lost
                         </Button>
+                        <div className="d-flex">
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>Start Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={startDate}
+                                    onChange={handleStartDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <InputGroup className="ms-3">
+                                <InputGroup.Text>End Date</InputGroup.Text>
+                                <Form.Control
+                                    type="date"
+                                    value={endDate}
+                                    onChange={handleEndDateChange}
+                                    className="custom-date-picker small-input border"
+                                />
+                            </InputGroup>
+                            <Button onClick={handleSearchClick} className="button-color ms-3">
+                                Search
+                            </Button>
+                        </div>
                     </div>
                     <div className="table-responsive table-height mt-4">
                         <Table striped bordered hover>
