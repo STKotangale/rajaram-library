@@ -23,6 +23,9 @@ const parseDateFromDDMMYYYY = (dateStr) => {
 const MonthlyMembershipFee = () => {
     const [monthlyMembershipData, setMonthlyMembershipData] = useState([]);
     const [generalMember, setGeneralMember] = useState([]);
+    const [selectedMemberName, setSelectedMemberName] = useState('');
+    const [selectedMemberId, setSelectedMemberId] = useState('');
+
     const [monthlyFee, setMonthlyFee] = useState(0);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
@@ -32,12 +35,14 @@ const MonthlyMembershipFee = () => {
     const [showViewModal, setShowViewModal] = useState(false);
     const [selectedIssueId, setSelectedIssueId] = useState(null);
 
+    const [invoiceNumber, setInvoiceNumber] = useState('');
+    const [selectedMemberLibNo, setSelectedMemberLibNo] = useState('');
+
     const [formData, setFormData] = useState({
-        invoiceNo: "",
         invoiceDate: new Date().toISOString().substr(0, 10),
         fromDate: "",
         toDate: "",
-        selectedMemberId: "",
+        selectedMemberName: "",
         feeType: "",
         bankName: "",
         chequeNo: "",
@@ -52,6 +57,7 @@ const MonthlyMembershipFee = () => {
         fetchMonthlyData();
         fetchGeneralMembers();
         fetchMonthlyFee();
+        fetchLatestNo();
     }, [username, accessToken]);
 
     const fetchMonthlyData = async () => {
@@ -83,16 +89,40 @@ const MonthlyMembershipFee = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            setGeneralMember(data.data);
+            setGeneralMember(data.data.map(member => ({
+                ...member,
+                fullName: `${member.firstName} ${member.middleName} ${member.lastName}`
+            })));
         } catch (error) {
             console.error("Failed to fetch general members:", error);
             toast.error('Failed to load general members. Please try again later.');
         }
     };
 
+
+
+    // get  no.
+    const fetchLatestNo = async () => {
+        try {
+            const response = await fetch(`${BaseURL}/api/membership-fees/nextInvoiceNumber`, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error fetching latest book lost number: ${response.statusText}`);
+            }
+            const data = await response.json();
+            setInvoiceNumber(data.nextMonthlyMemberInvoiceNo);
+        } catch (error) {
+            console.error('Error fetching latest book lost number:', error);
+            toast.error('Error fetching latest book lost number. Please try again later.');
+        }
+    };
+
     const fetchMonthlyFee = async () => {
         try {
-            const response = await fetch(`${BaseURL}/api/fees`, {
+            const response = await fetch(`${BaseURL}/api/config`, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`
                 }
@@ -101,13 +131,18 @@ const MonthlyMembershipFee = () => {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             const data = await response.json();
-            const monthlyFeeData = data.find(fee => fee.feesName === "Monthly Fees");
-            setMonthlyFee(monthlyFeeData.feesAmount);
+            if (data && data.length > 0) {
+                const monthlyFeeData = data[0].monthlyFees;
+                setMonthlyFee(monthlyFeeData);
+            } else {
+                throw new Error('No data found');
+            }
         } catch (error) {
             console.error("Failed to fetch monthly fee:", error);
             toast.error('Failed to load monthly fee. Please try again later.');
         }
     };
+
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -120,9 +155,19 @@ const MonthlyMembershipFee = () => {
         if (name === "totalFee") {
             setTotalFee(parseFloat(value));
         }
+
+        if (name === "selectedMemberName") {
+            setSelectedMemberName(value);
+            const selectedMember = generalMember.find(member => member.fullName === value);
+            if (selectedMember) {
+                setSelectedMemberId(selectedMember.memberId);
+            } else {
+                setSelectedMemberId('');
+            }
+        }
     };
 
-    
+
     const calculateTotalDaysAndFee = (fromDate, toDate) => {
         const from = new Date(fromDate);
         const to = new Date(toDate);
@@ -137,13 +182,32 @@ const MonthlyMembershipFee = () => {
         }
     };
 
+
+
+    const handleMemberChange = (e) => {
+        const selectedName = e.target.value;
+        setSelectedMemberName(selectedName);
+        const selectedMember = generalMember.find(member => member.fullName === selectedName);
+        if (selectedMember) {
+            setSelectedMemberId(selectedMember.memberId);
+            setSelectedMemberLibNo(selectedMember.libGenMembNo);
+
+        } else {
+            setSelectedMemberId('');
+            setSelectedMemberLibNo('');
+        }
+    };
+
+
+
+
     const resetField = () => {
+        setSelectedMemberName("");
+        setSelectedMemberLibNo('');
         setFormData({
-            invoiceNo: "",
-            // invoiceDate: "",
+            invoiceDate: formData.invoiceDate,
             fromDate: "",
             toDate: "",
-            selectedMemberId: "",
             feeType: "",
             bankName: "",
             chequeNo: "",
@@ -156,11 +220,16 @@ const MonthlyMembershipFee = () => {
 
     const handleAddSubmit = async (e) => {
         e.preventDefault();
+        if (!selectedMemberName.trim()) {
+            toast.error('Please select a member name.');
+            return;
+        }
+
         const feeTypePayload = formData.feeType === "Cash" ? "a" : "b";
         const payload = {
-            memMonInvoiceNo: formData.invoiceNo,
+            memMonInvoiceNo: invoiceNumber,
             memMonInvoiceDate: formatDateToDDMMYYYY(formData.invoiceDate),
-            memberIdF: parseInt(formData.selectedMemberId),
+            memberIdF: selectedMemberId,
             fromDate: formatDateToDDMMYYYY(formData.fromDate),
             toDate: formatDateToDDMMYYYY(formData.toDate),
             totalDays: totalDays,
@@ -172,7 +241,6 @@ const MonthlyMembershipFee = () => {
             chequeDate: formatDateToDDMMYYYY(formData.chequeDate) || "",
             monthlyDescription: formData.monthlyDescription
         };
-
         try {
             const response = await fetch(`${BaseURL}/api/monthly-member-fees`, {
                 method: 'POST',
@@ -189,6 +257,7 @@ const MonthlyMembershipFee = () => {
             setShowAddModal(false);
             resetField();
             fetchMonthlyData();
+            fetchLatestNo();
         } catch (error) {
             console.error('Failed to add monthly membership fee:', error);
             toast.error('Failed to add monthly membership fee. Please try again later.');
@@ -201,7 +270,8 @@ const MonthlyMembershipFee = () => {
         const payload = {
             memMonInvoiceNo: formData.invoiceNo,
             memMonInvoiceDate: formatDateToDDMMYYYY(formData.invoiceDate),
-            memberIdF: parseInt(formData.selectedMemberId),
+            // memberIdF: parseInt(formData.selectedMemberId),
+            memberIdF: parseInt(selectedMemberId),
             fromDate: formatDateToDDMMYYYY(formData.fromDate),
             toDate: formatDateToDDMMYYYY(formData.toDate),
             totalDays: totalDays,
@@ -230,6 +300,7 @@ const MonthlyMembershipFee = () => {
             setShowEditModal(false);
             resetField();
             fetchMonthlyData();
+            fetchLatestNo();
         } catch (error) {
             console.error('Failed to update monthly membership fee:', error);
             toast.error('Failed to update monthly membership fee. Please try again later.');
@@ -248,7 +319,9 @@ const MonthlyMembershipFee = () => {
             invoiceDate: parseDateFromDDMMYYYY(issueItem.memMonInvoiceDate),
             fromDate: parseDateFromDDMMYYYY(issueItem.fromDate),
             toDate: parseDateFromDDMMYYYY(issueItem.toDate),
-            selectedMemberId: issueItem.memberIdF.toString(),
+            // selectedMemberName: issueItem.memberIdF.toString(),
+            selectedMemberName: issueItem.memberName, // Member's name for display/edit
+
             feeType: issueItem.feesType === "a" ? "Cash" : "Cheque",
             bankName: issueItem.bankName,
             chequeNo: issueItem.chequeNo,
@@ -260,7 +333,7 @@ const MonthlyMembershipFee = () => {
         calculateTotalDaysAndFee(parseDateFromDDMMYYYY(issueItem.fromDate), parseDateFromDDMMYYYY(issueItem.toDate));
     };
 
-    
+
     const handleDeleteClick = (memberMonthlyId) => {
         setSelectedIssueId(memberMonthlyId);
         setShowDeleteModal(true);
@@ -280,6 +353,7 @@ const MonthlyMembershipFee = () => {
             toast.success('Monthly membership fee deleted successfully!');
             setShowDeleteModal(false);
             fetchMonthlyData();
+            fetchLatestNo();
         } catch (error) {
             console.error('Failed to delete monthly membership fee:', error);
             toast.error('Failed to delete monthly membership fee. Please try again later.');
@@ -287,48 +361,51 @@ const MonthlyMembershipFee = () => {
     };
 
     const handleViewClick = (issueItem) => {
+        const selectedMember = generalMember.find(member => member.memberId === parseInt(issueItem.memberIdF));
+        const fullName = selectedMember ? `${selectedMember.firstName} ${selectedMember.middleName} ${selectedMember.lastName}` : '';
+
         setFormData({
             invoiceNo: issueItem.memMonInvoiceNo,
             invoiceDate: parseDateFromDDMMYYYY(issueItem.memMonInvoiceDate),
             fromDate: parseDateFromDDMMYYYY(issueItem.fromDate),
             toDate: parseDateFromDDMMYYYY(issueItem.toDate),
-            selectedMemberId: issueItem.memberIdF.toString(),
+            selectedMemberName: fullName, // Set full name here
             feeType: issueItem.feesType === "a" ? "Cash" : "Cheque",
             bankName: issueItem.bankName,
             chequeNo: issueItem.chequeNo,
             chequeDate: parseDateFromDDMMYYYY(issueItem.chequeDate),
             monthlyDescription: issueItem.monthlyDescription
         });
+
         calculateTotalDaysAndFee(parseDateFromDDMMYYYY(issueItem.fromDate), parseDateFromDDMMYYYY(issueItem.toDate));
         setShowViewModal(true);
     };
 
+    //pagination function
+    const [currentPage, setCurrentPage] = useState(1);
+    const perPage = 8;
+    const totalPages = Math.ceil(monthlyMembershipData.length / perPage);
 
-   //pagination function
-   const [currentPage, setCurrentPage] = useState(1);
-   const perPage = 8;
-   const totalPages = Math.ceil(monthlyMembershipData.length / perPage);
+    const handleNextPage = () => {
+        setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
+    };
 
-   const handleNextPage = () => {
-       setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages));
-   };
+    const handlePrevPage = () => {
+        setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
+    };
 
-   const handlePrevPage = () => {
-       setCurrentPage(prevPage => Math.max(prevPage - 1, 1));
-   };
+    // First and last page navigation functions
+    const handleFirstPage = () => {
+        setCurrentPage(1);
+    };
 
-   // First and last page navigation functions
-   const handleFirstPage = () => {
-       setCurrentPage(1);
-   };
+    const handleLastPage = () => {
+        setCurrentPage(totalPages);
+    };
 
-   const handleLastPage = () => {
-       setCurrentPage(totalPages);
-   };
-
-   const indexOfLastBookType = currentPage * perPage;
-   const indexOfNumber = indexOfLastBookType - perPage;
-   const currentData = monthlyMembershipData.slice(indexOfNumber, indexOfLastBookType);
+    const indexOfLastBookType = currentPage * perPage;
+    const indexOfNumber = indexOfLastBookType - perPage;
+    const currentData = monthlyMembershipData.slice(indexOfNumber, indexOfLastBookType);
 
 
 
@@ -387,7 +464,7 @@ const MonthlyMembershipFee = () => {
             </Container>
 
             {/* Add modal */}
-            <Modal centered show={showAddModal} onHide={() =>{ setShowAddModal(false); resetField()}} size='lg'>
+            <Modal centered show={showAddModal} onHide={() => { setShowAddModal(false); resetField() }} size='lg'>
                 <div className="bg-light">
                     <Modal.Header closeButton>
                         <Modal.Title>Add Monthly Membership Fees</Modal.Title>
@@ -398,13 +475,11 @@ const MonthlyMembershipFee = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Invoice No</Form.Label>
                                     <Form.Control
-                                        name="invoiceNo"
                                         placeholder="Invoice number"
                                         type="text"
-                                        value={formData.invoiceNo}
-                                        onChange={handleInputChange}
-                                        required
                                         className="small-input"
+                                        value={invoiceNumber}
+                                        onChange={(e) => setInvoiceNumber(e.target.value)}
                                     />
                                 </Form.Group>
                                 <Form.Group as={Col}>
@@ -448,20 +523,25 @@ const MonthlyMembershipFee = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
-                                        as="select"
-                                        name="selectedMemberId"
+                                        list="memberName"
                                         className="small-input"
-                                        value={formData.selectedMemberId}
-                                        onChange={handleInputChange}
-                                        required
-                                    >
-                                        <option value="">Select a member</option>
+                                        value={selectedMemberName}
+                                        onChange={handleMemberChange}
+                                        placeholder="Select member name"
+                                    />
+                                    <datalist id="memberName">
                                         {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
-                                            </option>
+                                            <option key={member.memberId} value={member.fullName} />
                                         ))}
-                                    </Form.Control>
+                                    </datalist>
+                                </Form.Group>
+                                <Form.Group as={Col}>
+                                    <Form.Label>LibGenMembNo</Form.Label>
+                                    <Form.Control
+                                        type="text"
+                                        readOnly
+                                        value={selectedMemberLibNo}
+                                    />
                                 </Form.Group>
                             </Row>
 
@@ -489,13 +569,13 @@ const MonthlyMembershipFee = () => {
                                             <td>Total Fee</td>
                                             <td>{totalFee.toFixed(2)}</td>
                                         </tr> */}
-                                         <tr>
+                                        <tr>
                                             <td>Total Fee</td>
                                             <td>
                                                 <Form.Control
                                                     name="totalFee"
                                                     type="number"
-                                                    value={totalFee}
+                                                    value={totalFee.toFixed(2)}
                                                     onChange={handleInputChange}
                                                     className="small-input"
                                                 />
@@ -532,6 +612,7 @@ const MonthlyMembershipFee = () => {
                                                 type="text"
                                                 value={formData.bankName}
                                                 onChange={handleInputChange}
+                                                placeholder="Bank Name"
                                                 required
                                                 className="small-input"
                                             />
@@ -544,6 +625,7 @@ const MonthlyMembershipFee = () => {
                                                 type="text"
                                                 value={formData.chequeNo}
                                                 onChange={handleInputChange}
+                                                placeholder="Cheque Number"
                                                 required
                                                 className="small-input"
                                             />
@@ -572,19 +654,19 @@ const MonthlyMembershipFee = () => {
                                         name="monthlyDescription"
                                         type="text"
                                         value={formData.monthlyDescription}
+                                        placeholder="Description"
                                         onChange={handleInputChange}
                                         required
                                         className="small-input"
                                     />
                                 </Form.Group>
                             </Row>
-
                             <Modal.Footer>
                                 <Button variant="secondary" onClick={() => setShowAddModal(false)}>
                                     Close
                                 </Button>
-                                <Button variant="primary" type="submit">
-                                    Add
+                                <Button className='button-color' type="submit">
+                                    Submit
                                 </Button>
                             </Modal.Footer>
                         </Form>
@@ -651,7 +733,7 @@ const MonthlyMembershipFee = () => {
                             </Row>
 
                             <Row className="mb-3">
-                                <Form.Group as={Col}>
+                                {/* <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
                                         as="select"
@@ -668,7 +750,26 @@ const MonthlyMembershipFee = () => {
                                             </option>
                                         ))}
                                     </Form.Control>
+                                </Form.Group> */}
+
+                                <Form.Group as={Col}>
+                                    <Form.Label>Member Name</Form.Label>
+                                    <Form.Control
+                                        list="memberName"
+                                        className="small-input"
+                                        value={formData.selectedMemberName}
+                                        onChange={handleInputChange}
+                                        name="selectedMemberName"
+                                        placeholder="Select member name"
+                                    />
+                                    <datalist id="memberName">
+                                        {generalMember.map(member => (
+                                            <option key={member.memberId} value={member.fullName} />
+                                        ))}
+                                    </datalist>
                                 </Form.Group>
+
+
                             </Row>
 
                             <div className="table-responsive">
@@ -696,13 +797,13 @@ const MonthlyMembershipFee = () => {
                                             <td>{totalFee.toFixed(2)}</td>
                                         </tr> */
                                         }
-                                         <tr>
+                                        <tr>
                                             <td>Total Fee</td>
                                             <td>
                                                 <Form.Control
                                                     name="totalFee"
                                                     type="number"
-                                                    value={totalFee}
+                                                    value={totalFee.toFixed(2)}
                                                     onChange={handleInputChange}
                                                     className="small-input"
                                                 />
@@ -738,6 +839,7 @@ const MonthlyMembershipFee = () => {
                                                 name="bankName"
                                                 type="text"
                                                 value={formData.bankName}
+                                                placeholder="Bank Name"
                                                 onChange={handleInputChange}
                                                 required
                                                 className="small-input"
@@ -750,6 +852,7 @@ const MonthlyMembershipFee = () => {
                                                 name="chequeNo"
                                                 type="text"
                                                 value={formData.chequeNo}
+                                                placeholder="Cheque Number"
                                                 onChange={handleInputChange}
                                                 required
                                                 className="small-input"
@@ -780,6 +883,7 @@ const MonthlyMembershipFee = () => {
                                         type="text"
                                         value={formData.monthlyDescription}
                                         onChange={handleInputChange}
+                                        placeholder="Description"
                                         required
                                         className="small-input"
                                     />
@@ -875,22 +979,14 @@ const MonthlyMembershipFee = () => {
                                 <Form.Group as={Col}>
                                     <Form.Label>Member Name</Form.Label>
                                     <Form.Control
-                                        as="select"
-                                        name="selectedMemberId"
-                                        className="small-input"
-                                        value={formData.selectedMemberId}
+                                        name="selectedMemberName"
+                                        type="text"
+                                        value={formData.selectedMemberName}
                                         readOnly
-                                    >
-                                        <option value="">Select a member</option>
-                                        {generalMember.map(member => (
-                                            <option key={member.memberId} value={member.memberId}>
-                                                {member.username}
-                                            </option>
-                                        ))}
-                                    </Form.Control>
+                                        className="small-input"
+                                    />
                                 </Form.Group>
                             </Row>
-
                             <div className="table-responsive">
                                 <div>
                                     <h4>Fee Details</h4>
